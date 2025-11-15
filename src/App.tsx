@@ -17,7 +17,6 @@ function App() {
       <div className="absolute inset-0 technical-grid pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_var(--secondary)_0%,_transparent_50%)] opacity-10 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_var(--primary)_0%,_transparent_50%)] opacity-10 pointer-events-none" />
-      
       <div className="relative z-10">
         <header className="border-b border-primary/30 backdrop-blur-md bg-card/95 sticky top-0 z-50 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
@@ -98,7 +97,7 @@ function App() {
             <TabsContent value="trade" className="mt-0">
               <Trade />
             </TabsContent>
-            <TabsContent value="vault" className="mt-0">
+            <TabsContent value="vault" className="t">
               <VaultView />
             </TabsContent>
             <TabsContent value="community" className="mt-0">
@@ -164,10 +163,9 @@ function App() {
           </div>
         </nav>
       </div>
-      
       <Toaster />
     </div>
-  )
+  );
 }
 
 export default App
