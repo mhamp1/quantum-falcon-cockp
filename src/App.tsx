@@ -27,9 +27,15 @@ function App() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="hidden md:flex items-center gap-2">
-                  <div className="w-8 h-8 border-2 border-primary clip-path-[polygon(30%_0%,_70%_0%,_100%_50%,_70%_100%,_30%_100%,_0%_50%)] relative">
-                    <div className="absolute inset-0 bg-primary/20" />
-                  </div>
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative">
+                    <path d="M16 2 L28 10 L28 22 L16 30 L4 22 L4 10 Z" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-primary" />
+                    <path d="M16 6 L24 12 L24 20 L16 26 L8 20 L8 12 Z" stroke="currentColor" strokeWidth="1" fill="oklch(0.72 0.20 195 / 0.1)" className="text-primary" />
+                    <path d="M16 8 L12 14 L16 18 L20 14 Z" fill="currentColor" className="text-primary animate-pulse-glow" />
+                    <path d="M16 18 L16 24" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
+                    <path d="M12 14 L6 16" stroke="currentColor" strokeWidth="1" className="text-secondary" />
+                    <path d="M20 14 L26 16" stroke="currentColor" strokeWidth="1" className="text-secondary" />
+                    <circle cx="16" cy="14" r="1.5" fill="currentColor" className="text-accent neon-glow-accent" />
+                  </svg>
                 </div>
                 <h1 className="text-xl md:text-2xl font-bold tracking-[0.25em] uppercase">
                   <span className="text-primary neon-glow-primary">QUANTUM</span>
