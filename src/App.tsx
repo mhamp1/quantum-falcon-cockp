@@ -53,7 +53,7 @@ export default function App() {
             <div className="p-6 border-b-2 border-primary/30">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 jagged-corner-small bg-primary/20 border-2 border-primary">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-primary">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-primary" style={{ transform: 'scaleX(-1)' }}>
                     <path d="M12 2L10 4L8 3L7 5.5C6.5 6.3 6 7.8 6 9.5C6 11 6.5 12.5 7.5 13.5C8 14 8.5 14.3 9 14.5C9 15 9.3 16 10 16.8C10.5 17.3 11.2 17.8 12 18C12.8 17.8 13.5 17.3 14 16.8C14.7 16 15 15 15 14.5C15.5 14.3 16 14 16.5 13.5C17.5 12.5 18 11 18 9.5C18 7.8 17.5 6.3 17 5.5L16 3L14 4L12 2Z" fill="currentColor" fillOpacity="0.25"/>
                     
                     <path d="M12 2L10 4L8 3L7 5.5M12 2L14 4L16 3L17 5.5M12 2V7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="square" strokeLinejoin="miter"/>
