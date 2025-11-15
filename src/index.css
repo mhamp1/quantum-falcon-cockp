@@ -662,3 +662,58 @@
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: var(--secondary);
 }
+
+.glass-morph-card {
+  background: linear-gradient(135deg, 
+    oklch(0.10 0.02 280 / 0.75) 0%,
+    oklch(0.12 0.03 280 / 0.65) 100%
+  );
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid oklch(0.35 0.12 195 / 0.3);
+  box-shadow: 
+    0 8px 32px 0 oklch(0 0 0 / 0.37),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.1),
+    0 0 0 1px oklch(0.72 0.20 195 / 0.05);
+  position: relative;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+  transition: all 0.3s ease;
+}
+
+.glass-morph-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    var(--primary) 30%,
+    var(--accent) 70%,
+    transparent 100%
+  );
+  opacity: 0.4;
+}
+
+.glass-morph-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 60px;
+  background: linear-gradient(180deg, 
+    var(--primary) 0%,
+    var(--accent) 50%,
+    transparent 100%
+  );
+  opacity: 0.3;
+}
