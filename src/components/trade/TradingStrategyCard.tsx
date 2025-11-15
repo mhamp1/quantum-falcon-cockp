@@ -48,7 +48,7 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle }: Tr
   return (
     <TooltipProvider delayDuration={200}>
       <div
-        className={`cyber-card group relative overflow-hidden transition-all duration-300 ${
+        className={`cyber-card angled-corners-dual-tl-br group relative overflow-hidden transition-all duration-300 ${
           isLocked ? 'opacity-60' : 'hover:scale-[1.01]'
         } ${showDetails ? 'ring-2 ring-accent' : ''}`}
         onMouseEnter={() => !isLocked && setShowDetails(true)}
@@ -57,7 +57,7 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle }: Tr
         {isLocked && (
           <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-10 flex items-center justify-center">
             <div className="text-center space-y-3 p-6">
-              <div className="inline-flex p-4 bg-muted/30 border-2 border-muted jagged-corner-small">
+              <div className="inline-flex p-4 bg-muted/30 border-2 border-muted angled-corner-br">
                 <Lock size={32} weight="duotone" className="text-muted-foreground" />
               </div>
               <div>
@@ -69,7 +69,7 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle }: Tr
                   onClick={() => toast.info('Upgrade Required', {
                     description: `Upgrade to ${strategy.requiredTier.toUpperCase()} tier to unlock this strategy`
                   })}
-                  className="bg-accent/20 hover:bg-accent/30 border border-accent text-accent text-xs uppercase tracking-wider font-bold jagged-corner-small"
+                  className="bg-accent/20 hover:bg-accent/30 border border-accent text-accent text-xs uppercase tracking-wider font-bold angled-corner-tr"
                 >
                   <Crown size={14} className="mr-1" weight="fill" />
                   Upgrade
@@ -92,7 +92,7 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle }: Tr
                       <Info size={14} className="text-primary" weight="duotone" />
                     </h3>
                   </TooltipTrigger>
-                  <TooltipContent className="cyber-card-accent border-2 border-accent max-w-sm p-4 z-50">
+                  <TooltipContent className="cyber-card-accent border-2 border-accent max-w-sm p-4 z-50 angled-corner-tr">
                     <div className="space-y-2">
                       <div className="font-bold uppercase tracking-wider text-accent text-sm">{strategy.name}</div>
                       <p className="text-xs text-foreground leading-relaxed">{strategy.longDescription}</p>
@@ -110,13 +110,13 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle }: Tr
                 </Tooltip>
               </div>
               <div className="flex items-center gap-2 mb-2">
-                <Badge className={`${riskColors[strategy.risk]} bg-transparent text-[9px] uppercase tracking-wider px-2 py-0.5`}>
+                <Badge className={`${riskColors[strategy.risk]} bg-transparent text-[9px] uppercase tracking-wider px-2 py-0.5 cut-corner-tr`}>
                   {strategy.risk} Risk
                 </Badge>
-                <Badge className={`${tierColors[strategy.requiredTier as keyof typeof tierColors]} bg-transparent text-[9px] uppercase tracking-wider px-2 py-0.5`}>
+                <Badge className={`${tierColors[strategy.requiredTier as keyof typeof tierColors]} bg-transparent text-[9px] uppercase tracking-wider px-2 py-0.5 cut-corner-tr`}>
                   {strategy.requiredTier}
                 </Badge>
-                <Badge className="bg-muted/30 text-muted-foreground text-[9px] uppercase tracking-wider px-2 py-0.5">
+                <Badge className="bg-muted/30 text-muted-foreground text-[9px] uppercase tracking-wider px-2 py-0.5 cut-corner-tr">
                   {strategy.type}
                 </Badge>
               </div>

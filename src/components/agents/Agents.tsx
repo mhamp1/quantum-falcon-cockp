@@ -199,14 +199,14 @@ export default function Agents() {
               <div
                 key={agent.id}
                 onClick={() => setSelectedAgent(isSelected ? null : agent.id)}
-                className={`cyber-card transition-all cursor-pointer ${
+                className={`cyber-card angled-corners-dual-tr-bl transition-all cursor-pointer ${
                   agent.enabled ? 'scale-100 hover:scale-[1.02]' : 'opacity-50 scale-95'
                 } ${isSelected ? 'ring-2 ring-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)]' : ''}`}
               >
                 <div className="p-6 relative z-10">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4 flex-1">
-                      <div className={`p-3 jagged-corner-small border-2 transition-all relative ${
+                      <div className={`p-3 angled-corner-br border-2 transition-all relative ${
                         agent.enabled 
                           ? 'bg-secondary/20 border-secondary neon-glow-accent' 
                           : 'bg-muted/20 border-muted-foreground'
@@ -227,7 +227,7 @@ export default function Agents() {
                             <div className={`w-3 h-3 rounded-full ${getStatusColor(agent.status)} ${
                               agent.enabled ? 'animate-pulse-glow' : ''
                             }`} />
-                            <div className="px-2 py-0.5 jagged-corner-small bg-primary/20 border border-primary">
+                            <div className="px-2 py-0.5 cut-corner-tr bg-primary/20 border border-primary">
                               <span className="text-xs font-bold text-primary uppercase tracking-wider">
                                 {agent.status}
                               </span>
@@ -238,7 +238,7 @@ export default function Agents() {
                         
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2">
-                            <div className="px-3 py-1 jagged-corner-small bg-secondary/20 border border-secondary/50">
+                            <div className="px-3 py-1 angled-corner-tr bg-secondary/20 border border-secondary/50">
                               <span className="text-xs font-bold text-secondary uppercase tracking-wider">
                                 LVL {agent.level}
                               </span>
@@ -261,21 +261,21 @@ export default function Agents() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3 jagged-corner bg-muted/30 border border-primary/30 relative overflow-hidden group hover:border-primary/50 transition-all">
+                    <div className="p-3 angled-corner-tl bg-muted/30 border border-primary/30 relative overflow-hidden group hover:border-primary/50 transition-all">
                       <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="relative z-10">
                         <p className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] font-semibold">Confidence</p>
                         <p className="text-2xl font-bold text-primary neon-glow hud-value">{agent.metrics.confidence}%</p>
                       </div>
                     </div>
-                    <div className="p-3 jagged-corner bg-muted/30 border border-primary/30 relative overflow-hidden group hover:border-primary/50 transition-all">
+                    <div className="p-3 angled-corner-tr bg-muted/30 border border-primary/30 relative overflow-hidden group hover:border-primary/50 transition-all">
                       <div className="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="relative z-10">
                         <p className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] font-semibold">Actions</p>
                         <p className="text-2xl font-bold text-secondary neon-glow-secondary hud-value">{agent.metrics.actionsToday}</p>
                       </div>
                     </div>
-                    <div className="p-3 jagged-corner bg-muted/30 border border-primary/30 relative overflow-hidden group hover:border-primary/50 transition-all">
+                    <div className="p-3 angled-corner-br bg-muted/30 border border-primary/30 relative overflow-hidden group hover:border-primary/50 transition-all">
                       <div className="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="relative z-10">
                         <p className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] font-semibold">Profit</p>

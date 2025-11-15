@@ -248,18 +248,19 @@ export default function EnhancedDashboard() {
       <LicenseExpiry />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {quickStats.map((stat) => {
+        {quickStats.map((stat, idx) => {
           const isPositive = stat.change >= 0
+          const cornerClasses = ['angled-corner-tr', 'angled-corner-br', 'cut-corner-tr', 'angled-corners-dual-tr-bl']
           return (
             <div
               key={stat.id}
-              className="cyber-card group hover:scale-[1.02] transition-all duration-300 cursor-pointer relative overflow-hidden"
+              className={`cyber-card group hover:scale-[1.02] transition-all duration-300 cursor-pointer relative overflow-hidden ${cornerClasses[idx % 4]}`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="p-4 relative z-10">
                 <div className="flex items-start justify-between mb-3">
                   <div className="data-label">{stat.label}</div>
-                  <div className={`p-2 bg-${stat.color}/10 border border-${stat.color}/30`}>
+                  <div className={`p-2 bg-${stat.color}/10 border border-${stat.color}/30 cut-corner-tr`}>
                     {stat.icon}
                   </div>
                 </div>
@@ -282,18 +283,18 @@ export default function EnhancedDashboard() {
         })}
       </div>
 
-      <div className="cyber-card p-6">
+      <div className="cyber-card p-6 angled-corners-dual-tl-br">
         <div className="flex items-center gap-3 mb-4">
           <Lightning size={24} weight="fill" className="text-accent" />
           <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action) => (
+          {quickActions.map((action, idx) => (
             <Button
               key={action.id}
               onClick={action.action}
               className={`w-full bg-${action.color}/10 hover:bg-${action.color}/20 border-2 border-${action.color}/50 
-                       hover:border-${action.color} transition-all jagged-corner-small text-${action.color} 
+                       hover:border-${action.color} transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} text-${action.color} 
                        hover:shadow-[0_0_20px_var(--${action.color})] flex-col h-auto py-4 gap-2`}
             >
               {action.icon}
@@ -304,14 +305,14 @@ export default function EnhancedDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="cyber-card p-6">
+        <div className="cyber-card p-6 angled-corner-tl">
           <div className="flex items-center gap-3 mb-4">
             <Robot size={24} weight="fill" className="text-primary" />
             <h2 className="text-xl font-bold uppercase tracking-wider text-primary">AI Agent Status</h2>
           </div>
           <div className="space-y-3">
             {['Market Analysis', 'Strategy Execution', 'RL Optimizer'].map((agent, idx) => (
-              <div key={idx} className="p-3 bg-muted/20 border-l-2 border-primary">
+              <div key={idx} className="p-3 bg-muted/20 border-l-2 border-primary cut-corner-br">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <div className="status-indicator animate-pulse-glow" style={{ width: '6px', height: '6px' }} />
@@ -325,7 +326,7 @@ export default function EnhancedDashboard() {
           </div>
         </div>
 
-        <div className="cyber-card p-6">
+        <div className="cyber-card p-6 angled-corner-tr">
           <div className="flex items-center gap-3 mb-4">
             <ChartLine size={24} weight="fill" className="text-accent" />
             <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Recent Activity</h2>
@@ -337,7 +338,7 @@ export default function EnhancedDashboard() {
               { type: 'success', msg: 'DCA order filled successfully', time: '12m ago' },
               { type: 'info', msg: 'Portfolio rebalanced', time: '23m ago' }
             ].map((activity, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-xs p-2 hover:bg-muted/10 transition-colors">
+              <div key={idx} className="flex items-start gap-2 text-xs p-2 hover:bg-muted/10 transition-colors angled-corner-br">
                 <CheckCircle size={14} className={activity.type === 'success' ? 'text-primary' : 'text-accent'} weight="fill" />
                 <div className="flex-1">
                   <div className="text-foreground">{activity.msg}</div>

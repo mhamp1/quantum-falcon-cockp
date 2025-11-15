@@ -89,7 +89,7 @@ export default function EnhancedAnalytics() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass-morph-card p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
+        <div className="glass-morph-card angled-corner-tl p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-50" />
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
           
@@ -123,7 +123,7 @@ export default function EnhancedAnalytics() {
           </div>
         </div>
 
-        <div className="glass-morph-card p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
+        <div className="glass-morph-card angled-corner-tr p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
           <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent opacity-50" />
           <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
           
@@ -155,7 +155,7 @@ export default function EnhancedAnalytics() {
           </div>
         </div>
 
-        <div className="glass-morph-card p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
+        <div className="glass-morph-card angled-corner-bl p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent opacity-50" />
           <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-3xl" />
           
@@ -187,7 +187,7 @@ export default function EnhancedAnalytics() {
           </div>
         </div>
 
-        <div className="glass-morph-card p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
+        <div className="glass-morph-card angled-corner-br p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-50" />
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
           
@@ -218,7 +218,7 @@ export default function EnhancedAnalytics() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="cyber-card p-6 space-y-4">
+        <div className="cyber-card angled-corners-dual-tr-bl p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold uppercase tracking-wider text-foreground hud-text">
               Trade Distribution
@@ -276,7 +276,7 @@ export default function EnhancedAnalytics() {
           </div>
         </div>
 
-        <div className="cyber-card p-6 space-y-4">
+        <div className="cyber-card angled-corners-dual-tl-br p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold uppercase tracking-wider text-foreground hud-text">
               Asset Performance
@@ -285,14 +285,14 @@ export default function EnhancedAnalytics() {
           </div>
 
           <div className="space-y-3">
-            {assetPerformance.map((asset) => (
-              <div key={asset.symbol} className="bg-muted/30 p-4 jagged-corner-small space-y-2">
+            {assetPerformance.map((asset, idx) => (
+              <div key={asset.symbol} className={`bg-muted/30 p-4 space-y-2 ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="text-lg font-bold uppercase tracking-wider text-foreground">
                       {asset.symbol}
                     </div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs cut-corner-tr">
                       {asset.trades} trades
                     </Badge>
                   </div>
@@ -326,13 +326,13 @@ export default function EnhancedAnalytics() {
         </div>
       </div>
 
-      <div className="cyber-card p-6 space-y-4">
+      <div className="cyber-card angled-corners-dual-tl-br p-6 space-y-4">
         <h3 className="text-lg font-bold uppercase tracking-wider text-foreground hud-text">
           Performance Extremes
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-primary/10 border-2 border-primary/30 p-6 jagged-corner relative overflow-hidden">
+          <div className="bg-primary/10 border-2 border-primary/30 p-6 angled-corner-tl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl" />
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-3">
@@ -348,7 +348,7 @@ export default function EnhancedAnalytics() {
             </div>
           </div>
 
-          <div className="bg-destructive/10 border-2 border-destructive/30 p-6 jagged-corner relative overflow-hidden">
+          <div className="bg-destructive/10 border-2 border-destructive/30 p-6 angled-corner-br relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-destructive/10 rounded-full blur-2xl" />
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-3">

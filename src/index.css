@@ -374,6 +374,101 @@
   );
 }
 
+.angled-corner-tl {
+  clip-path: polygon(
+    20px 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 20px
+  );
+}
+
+.angled-corner-tr {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 20px) 0,
+    100% 20px,
+    100% 100%,
+    0 100%
+  );
+}
+
+.angled-corner-br {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 20px),
+    calc(100% - 20px) 100%,
+    0 100%
+  );
+}
+
+.angled-corner-bl {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    20px 100%,
+    0 calc(100% - 20px)
+  );
+}
+
+.angled-corners-dual-tr-bl {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 20px) 0,
+    100% 20px,
+    100% 100%,
+    20px 100%,
+    0 calc(100% - 20px)
+  );
+}
+
+.angled-corners-dual-tl-br {
+  clip-path: polygon(
+    20px 0,
+    100% 0,
+    100% calc(100% - 20px),
+    calc(100% - 20px) 100%,
+    0 100%,
+    0 20px
+  );
+}
+
+.angled-corners-all {
+  clip-path: polygon(
+    20px 0,
+    calc(100% - 20px) 0,
+    100% 20px,
+    100% calc(100% - 20px),
+    calc(100% - 20px) 100%,
+    20px 100%,
+    0 calc(100% - 20px),
+    0 20px
+  );
+}
+
+.cut-corner-tr {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+    100% 100%,
+    0 100%
+  );
+}
+
+.cut-corner-br {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 16px),
+    calc(100% - 16px) 100%,
+    0 100%
+  );
+}
+
 @keyframes pulse-glow {
   0%, 100% {
     opacity: 1;
