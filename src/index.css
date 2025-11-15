@@ -30,7 +30,7 @@
   --primary: oklch(0.70 0.20 195);
   --primary-foreground: oklch(0.08 0.05 280);
   
-  --secondary: oklch(0.65 0.25 45);
+  --secondary: oklch(0.65 0.20 290);
   --secondary-foreground: oklch(0.08 0.05 280);
   
   --muted: oklch(0.22 0.08 280);
@@ -92,6 +92,7 @@
     0 0 5px var(--primary),
     0 0 10px var(--primary),
     0 0 20px var(--primary);
+  -webkit-text-stroke: 1px oklch(0.70 0.20 195 / 0.8);
 }
 
 .neon-glow-accent {
@@ -122,6 +123,7 @@
     0 0 5px var(--secondary),
     0 0 10px var(--secondary),
     0 0 20px var(--secondary);
+  -webkit-text-stroke: 1px oklch(0.65 0.20 290 / 0.8);
 }
 
 .holographic-border {
@@ -284,6 +286,18 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 700;
+  -webkit-text-stroke: 0.5px currentColor;
+  text-stroke: 0.5px currentColor;
+  paint-order: stroke fill;
+}
+
+.hud-value {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  -webkit-text-stroke: 0.5px currentColor;
+  text-stroke: 0.5px currentColor;
+  paint-order: stroke fill;
 }
 
 .grid-background {

@@ -141,15 +141,15 @@ export default function Agents() {
                 <div className="grid grid-cols-3 gap-4">
                   <div className="p-4 jagged-corner bg-muted/30 border-2 border-primary/50">
                     <p className="text-xs text-muted-foreground mb-2 uppercase tracking-[0.15em] hud-text">Confidence</p>
-                    <p className="text-3xl font-bold text-primary neon-glow">{agent.metrics.confidence}%</p>
+                    <p className="text-3xl font-bold text-primary neon-glow hud-value">{agent.metrics.confidence}%</p>
                   </div>
                   <div className="p-4 jagged-corner bg-muted/30 border-2 border-primary/50">
                     <p className="text-xs text-muted-foreground mb-2 uppercase tracking-[0.15em] hud-text">Actions</p>
-                    <p className="text-3xl font-bold text-secondary neon-glow-secondary">{agent.metrics.actionsToday}</p>
+                    <p className="text-3xl font-bold text-secondary neon-glow-secondary hud-value">{agent.metrics.actionsToday}</p>
                   </div>
                   <div className="p-4 jagged-corner bg-muted/30 border-2 border-primary/50">
                     <p className="text-xs text-muted-foreground mb-2 uppercase tracking-[0.15em] hud-text">Profit</p>
-                    <p className="text-3xl font-bold text-secondary neon-glow-secondary">+${agent.metrics.profitContribution.toFixed(2)}</p>
+                    <p className="text-3xl font-bold text-secondary neon-glow-secondary hud-value">+${agent.metrics.profitContribution.toFixed(2)}</p>
                   </div>
                 </div>
               </div>
@@ -166,19 +166,19 @@ export default function Agents() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-6 jagged-corner bg-muted/30 border-2 border-primary/50">
               <p className="text-xs text-muted-foreground mb-3 uppercase tracking-[0.15em] hud-text">Total Trades Today</p>
-              <p className="text-4xl font-bold text-primary neon-glow">
+              <p className="text-4xl font-bold text-primary neon-glow hud-value">
                 {agents.reduce((sum, agent) => sum + agent.metrics.actionsToday, 0)}
               </p>
             </div>
             <div className="text-center p-6 jagged-corner bg-muted/30 border-2 border-secondary/50">
               <p className="text-xs text-muted-foreground mb-3 uppercase tracking-[0.15em] hud-text">Combined Profit</p>
-              <p className="text-4xl font-bold text-secondary neon-glow-secondary">
+              <p className="text-4xl font-bold text-secondary neon-glow-secondary hud-value">
                 +${agents.reduce((sum, agent) => sum + agent.metrics.profitContribution, 0).toFixed(2)}
               </p>
             </div>
             <div className="text-center p-6 jagged-corner bg-muted/30 border-2 border-primary/50">
               <p className="text-xs text-muted-foreground mb-3 uppercase tracking-[0.15em] hud-text">Avg Confidence</p>
-              <p className="text-4xl font-bold text-primary neon-glow">
+              <p className="text-4xl font-bold text-primary neon-glow hud-value">
                 {Math.round(agents.reduce((sum, agent) => sum + agent.metrics.confidence, 0) / agents.length)}%
               </p>
             </div>

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { ArrowsLeftRight, TrendUp, Coins } from '@phosphor-icons/react'
@@ -68,7 +67,7 @@ export default function ProfitConverter() {
   }
 
   return (
-    <Card className="backdrop-blur-md bg-card/50 border-accent/30 relative overflow-hidden">
+    <div className="holographic-card relative overflow-hidden">
       <AnimatePresence>
         {showBeam && (
           <ConversionBeam isActive={showBeam} />
@@ -86,108 +85,113 @@ export default function ProfitConverter() {
         )}
       </AnimatePresence>
 
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Coins size={24} weight="duotone" className="text-accent" />
-          Profit Converter
-        </CardTitle>
-        <CardDescription>
-          Auto-convert SOL profits &gt;{profitThreshold}% to BTC for hedging
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Current Profit</span>
-            <span className={`text-lg font-bold ${currentProfit >= profitThreshold ? 'text-accent' : 'text-muted-foreground'}`}>
-              {currentProfit.toFixed(2)}%
-            </span>
+      <div className="p-6 relative z-10">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 jagged-corner-small bg-secondary/30 border border-secondary">
+            <Coins size={24} weight="duotone" className="text-secondary" />
           </div>
-          
-          <div className="space-y-1.5">
-            <Progress 
-              value={(currentProfit / profitThreshold) * 100} 
-              className="h-3"
-            />
-            <p className="text-xs text-muted-foreground text-right">
-              {currentProfit >= profitThreshold ? 'Ready to convert!' : `${(profitThreshold - currentProfit).toFixed(2)}% until conversion`}
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-[0.15em] text-secondary hud-text">PROFIT CONVERTER</h3>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+              AUTO-CONVERT SOL PROFITS &gt;{profitThreshold}% TO BTC FOR HEDGING
             </p>
           </div>
         </div>
+        
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground uppercase tracking-[0.15em] hud-text">Current Profit</span>
+              <span className={`text-lg font-bold hud-value ${currentProfit >= profitThreshold ? 'text-secondary neon-glow-secondary' : 'text-muted-foreground'}`}>
+                {currentProfit.toFixed(2)}%
+              </span>
+            </div>
+            
+            <div className="space-y-1.5">
+              <Progress 
+                value={(currentProfit / profitThreshold) * 100} 
+                className="h-3"
+              />
+              <p className="text-xs text-muted-foreground uppercase tracking-wide text-right">
+                {currentProfit >= profitThreshold ? 'READY TO CONVERT!' : `${(profitThreshold - currentProfit).toFixed(2)}% UNTIL CONVERSION`}
+              </p>
+            </div>
+          </div>
 
-        <motion.div
-          animate={canConvert ? {
-            boxShadow: [
-              '0 0 0px rgba(20, 241, 149, 0)',
-              '0 0 20px rgba(20, 241, 149, 0.5)',
-              '0 0 0px rgba(20, 241, 149, 0)'
-            ]
-          } : {}}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: 'easeInOut'
-          }}
-          className="rounded-lg"
-        >
-          <Button
-            onClick={handleConvert}
-            disabled={!canConvert || isConverting}
-            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed h-12 text-base font-semibold"
-          >
-            {isConverting ? (
-              <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                >
-                  <ArrowsLeftRight size={20} weight="bold" className="mr-2" />
-                </motion.div>
-                Converting...
-              </>
-            ) : (
-              <>
-                <ArrowsLeftRight size={20} weight="bold" className="mr-2" />
-                Convert to BTC
-              </>
-            )}
-          </Button>
-        </motion.div>
-
-        {stats && stats.conversionCount > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-3 gap-3 pt-3 border-t border-border/50"
+            animate={canConvert ? {
+              boxShadow: [
+                '0 0 0px rgba(20, 241, 149, 0)',
+                '0 0 20px rgba(20, 241, 149, 0.5)',
+                '0 0 0px rgba(20, 241, 149, 0)'
+              ]
+            } : {}}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeInOut'
+            }}
+            className="jagged-corner"
           >
-            <div className="text-center">
-              <div className="text-xs text-muted-foreground mb-1">Total BTC</div>
-              <div className="text-sm font-semibold text-[#F7931A]">
-                {stats.totalConverted.toFixed(8)}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs text-muted-foreground mb-1">Last</div>
-              <div className="text-sm font-semibold text-[#F7931A]">
-                {stats.lastConversion.toFixed(8)}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs text-muted-foreground mb-1">Count</div>
-              <div className="text-sm font-semibold text-accent">
-                {stats.conversionCount}
-              </div>
-            </div>
+            <Button
+              onClick={handleConvert}
+              disabled={!canConvert || isConverting}
+              className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground disabled:opacity-50 disabled:cursor-not-allowed h-12 font-bold uppercase tracking-[0.15em] jagged-corner border-2 border-secondary neon-glow-secondary"
+            >
+              {isConverting ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  >
+                    <ArrowsLeftRight size={20} weight="bold" className="mr-2" />
+                  </motion.div>
+                  CONVERTING...
+                </>
+              ) : (
+                <>
+                  <ArrowsLeftRight size={20} weight="bold" className="mr-2" />
+                  CONVERT TO BTC
+                </>
+              )}
+            </Button>
           </motion.div>
-        )}
 
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30 border border-border/50">
-          <TrendUp size={20} weight="duotone" className="text-accent mt-0.5 flex-shrink-0" />
-          <div className="text-xs text-muted-foreground">
-            <strong className="text-foreground">Auto-Hedging:</strong> Profits above {profitThreshold}% trigger automatic BTC conversion, preserving gains and reducing volatility exposure.
+          {stats && stats.conversionCount > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="grid grid-cols-3 gap-3 pt-4 border-t-2 border-primary/30"
+            >
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] hud-text">Total BTC</div>
+                <div className="text-sm font-bold text-secondary hud-value">
+                  {stats.totalConverted.toFixed(8)}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] hud-text">Last</div>
+                <div className="text-sm font-bold text-secondary hud-value">
+                  {stats.lastConversion.toFixed(8)}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] hud-text">Count</div>
+                <div className="text-sm font-bold text-secondary hud-value">
+                  {stats.conversionCount}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          <div className="flex items-start gap-2 p-3 jagged-corner-small bg-muted/30 border-2 border-primary/50">
+            <TrendUp size={20} weight="duotone" className="text-secondary mt-0.5 flex-shrink-0" />
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">
+              <strong className="text-foreground">AUTO-HEDGING:</strong> PROFITS ABOVE {profitThreshold}% TRIGGER AUTOMATIC BTC CONVERSION, PRESERVING GAINS AND REDUCING VOLATILITY EXPOSURE.
+            </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

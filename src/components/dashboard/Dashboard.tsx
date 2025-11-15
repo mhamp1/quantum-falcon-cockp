@@ -68,7 +68,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="space-y-3">
-              <div className="text-4xl font-bold text-primary neon-glow">
+              <div className="text-4xl font-bold text-primary neon-glow hud-value">
                 ${portfolio.totalValue.toFixed(2)}
               </div>
               <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ export default function Dashboard() {
                 ) : (
                   <TrendDown size={18} weight="bold" className="text-destructive" />
                 )}
-                <span className={`text-lg font-bold ${isPositive ? 'text-secondary neon-glow-secondary' : 'text-destructive neon-glow-destructive'}`}>
+                <span className={`text-lg font-bold hud-value ${isPositive ? 'text-secondary neon-glow-secondary' : 'text-destructive neon-glow-destructive'}`}>
                   {isPositive ? '+' : ''}{portfolio.change24h.toFixed(2)}%
                 </span>
                 <span className="text-xs text-muted-foreground uppercase tracking-wide">24H</span>
@@ -97,7 +97,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="space-y-3">
-              <div className="text-4xl font-bold text-secondary neon-glow-secondary">
+              <div className="text-4xl font-bold text-secondary neon-glow-secondary hud-value">
                 {portfolio.solanaBalance.toFixed(2)}
               </div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide">SOL</div>
@@ -116,7 +116,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="space-y-3">
-              <div className="text-4xl font-bold text-secondary neon-glow-secondary">
+              <div className="text-4xl font-bold text-secondary neon-glow-secondary hud-value">
                 {portfolio.btcBalance.toFixed(6)}
               </div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide">BTC</div>
@@ -180,7 +180,7 @@ export default function Dashboard() {
                 </div>
                 <div className="text-right">
                   {activity.profit && (
-                    <p className="text-sm font-bold text-secondary neon-glow-secondary">{activity.profit}</p>
+                    <p className="text-sm font-bold text-secondary neon-glow-secondary hud-value">{activity.profit}</p>
                   )}
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">{activity.time}</p>
                 </div>
