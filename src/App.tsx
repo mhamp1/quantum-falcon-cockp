@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { House, Robot, ChartLine, Vault, Users, Gear, GraduationCap, Flask, Shield, FileText, Tray } from '@phosphor-icons/react'
+import { House, Robot, ChartLine, Vault, Users, Gear, GraduationCap, Flask, Shield, FileText, Tray, Terminal } from '@phosphor-icons/react'
 import Dashboard from '@/components/dashboard/Dashboard'
+import BotOverview from '@/components/dashboard/BotOverview'
 import Agents from '@/components/agents/Agents'
 import VaultView from '@/components/vault/VaultView'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -13,6 +14,7 @@ export default function App() {
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: Dashboard },
+    { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
     { id: 'agents', label: 'AI Agents', icon: Robot, component: Agents },
     { id: 'analytics', label: 'AI Analytics', icon: ChartLine, component: () => <ComingSoon title="AI Analytics" /> },
     { id: 'strategy', label: 'AI Strategy', icon: Tray, component: () => <ComingSoon title="AI Strategy & Actions" /> },
