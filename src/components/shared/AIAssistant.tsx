@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
+import Draggable from 'react-draggable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -24,6 +25,7 @@ const defaultMessages: Message[] = [
 ]
 
 export default function AIAssistant() {
+  const dragRef = useRef(null)
   const [isOpen, setIsOpen] = useKV<boolean>('ai-assistant-open', false)
   const [isMinimized, setIsMinimized] = useKV<boolean>('ai-assistant-minimized', false)
   const [messages, setMessages] = useKV<Message[]>('ai-assistant-messages', defaultMessages)
@@ -133,41 +135,43 @@ Provide a helpful, concise response about trading strategies, market insights, o
   }
 
   return (
-    <motion.div
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 20, opacity: 0 }}
-      className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-3rem)]"
-    >
-      <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '500px', maxHeight: '80vh' }}>
-        <div className="p-4 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur">
-          <div className="flex items-center gap-3">
-            <Robot size={24} weight="duotone" className="text-primary neon-glow-primary" />
-            <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider">AI Assistant</h3>
-              <p className="text-xs text-muted-foreground">Always here to help</p>
+    <Draggable nodeRef={dragRef} handle=".drag-handle" bounds="body">
+      <motion.div
+        ref={dragRef}
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 20, opacity: 0 }}
+        className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-3rem)]"
+      >
+        <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '500px', maxHeight: '80vh' }}>
+          <div className="drag-handle cursor-move p-4 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors">
+            <div className="flex items-center gap-3">
+              <Robot size={24} weight="duotone" className="text-primary neon-glow-primary" />
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider">AI Assistant</h3>
+                <p className="text-xs text-muted-foreground">Drag to reposition</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsMinimized(true)}
+              >
+                <Minus size={16} />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setIsOpen(false)
+                  setIsMinimized(false)
+                }}
+              >
+                <X size={16} />
+              </Button>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setIsMinimized(true)}
-            >
-              <Minus size={16} />
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setIsOpen(false)
-                setIsMinimized(false)
-              }}
-            >
-              <X size={16} />
-            </Button>
-          </div>
-        </div>
 
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="space-y-4">
@@ -222,5 +226,6 @@ Provide a helpful, concise response about trading strategies, market insights, o
         </div>
       </div>
     </motion.div>
+    </Draggable>
   )
 }

@@ -54,12 +54,12 @@ This is a sophisticated trading platform with multi-agent AI trading logic, real
 - **Progression**: Profitable trade closes → Agent triggers conversion → Solana amount swaps to BTC → BTC deposited to vault → Vault balance increments with animation → User receives notification → Can view history or withdraw to external wallet → Floating coin animations provide visual feedback
 - **Success criteria**: Conversion executes <30s after trade close, vault shows accurate BTC balance, withdrawal to external address works, transaction history persists, animations smooth at 60fps
 
-### 7. Community & XP System
-- **Functionality**: User profile with XP progression (15+ levels), level badges, achievement unlocks (12+ achievements), trading chat room, leaderboards, strategy marketplace, and forum for strategy discussion
-- **Purpose**: Gamification increases engagement, community knowledge-sharing improves trading outcomes
-- **Trigger**: Navigate to "Community" tab, earn XP from trades/referrals/achievements
-- **Progression**: Complete action (trade, referral, forum post) → XP awarded with toast → Progress bar fills → Level up triggers neon animation → Unlock badges/perks → View leaderboard → Chat with other traders → Post strategies in forum → React/comment on posts → Download strategies from marketplace
-- **Success criteria**: XP awards immediately, leaderboard updates real-time, chat messages send <500ms, forum posts persist, badge system unlocks 5+ tiers, strategy marketplace functional
+### 7. Community & XP System with Rotating Offers
+- **Functionality**: User profile with XP progression (15+ levels), level badges, achievement unlocks (12+ achievements), strategy marketplace with community-shared strategies, forum for trading discussions, and 50 rotating special offers that cycle every 3 days providing temporary boosts, upgrades, and perks across 6 categories (Trading, Analytics, Cosmetics, Community, Security, Gamification)
+- **Purpose**: Gamification increases engagement, community knowledge-sharing improves trading outcomes, rotating offers keep the interface fresh and provide monetization opportunities
+- **Trigger**: Navigate to "Community" tab, earn XP from trades/referrals/achievements, browse rotating offers
+- **Progression**: View rotating offers with live countdown timer → Hover card for detailed tooltip → Purchase offer → Activation confirmation → Browse community strategies with performance metrics (win rate, ROI, total trades) → Like, comment, share strategies → Post to forum → Engage in discussions → React to posts → Filter by tags → Use shared strategies → Offers rotate every 3 days with no repeats until full deck cycles
+- **Success criteria**: XP awards immediately, tooltip shows on all offer cards within 150ms, offers rotate deterministically every 3 days, purchased offers persist across sessions, strategies display accurate metrics, forum posts thread properly, real-time ready for WebSocket integration, draggable dialogs (login & AI assistant) reposition smoothly
 
 ### 8. Comprehensive Settings & Profile
 - **Functionality**: User profile with stats, achievements display (with progress bars), education center with courses, subscription tier management (Free/Pro/ProPlus), notification preferences, trading settings, audio controls, and security options

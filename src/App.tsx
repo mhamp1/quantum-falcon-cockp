@@ -7,7 +7,7 @@ import EnhancedAnalytics from '@/components/dashboard/EnhancedAnalytics'
 import Agents from '@/components/agents/Agents'
 import VaultView from '@/components/vault/VaultView'
 import Community from '@/components/community/Community'
-import EnhancedCommunity from '@/components/community/EnhancedCommunity'
+import SocialCommunity from '@/components/community/SocialCommunity'
 import AdvancedTradingHub from '@/components/trade/AdvancedTradingHub'
 import EnhancedSettings from '@/components/settings/EnhancedSettings'
 import AIAssistant from '@/components/shared/AIAssistant'
@@ -43,7 +43,7 @@ export default function App() {
     { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'community', label: 'Community', icon: Users, component: EnhancedCommunity },
+    { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
   ]
 

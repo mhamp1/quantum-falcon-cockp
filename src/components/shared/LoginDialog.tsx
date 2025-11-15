@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import Draggable from 'react-draggable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UserAuth, UserLicense } from '@/lib/auth'
-import { User, Key, Lock, ArrowRight, Crown } from '@phosphor-icons/react'
+import { User, Key, Lock, ArrowRight, Crown, X } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 interface LoginDialogProps {
@@ -14,6 +14,7 @@ interface LoginDialogProps {
 }
 
 export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
+  const nodeRef = useRef(null)
   const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
@@ -60,99 +61,123 @@ export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     })
   }
 
+  if (!open) return null
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="cyber-card border-2 border-primary max-w-md">
-        <div className="absolute inset-0 diagonal-stripes opacity-5 pointer-events-none" />
-        
-        <DialogHeader className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-primary/20 border-2 border-primary jagged-corner-small">
-              <Lock size={32} weight="duotone" className="text-primary" />
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+      <Draggable nodeRef={nodeRef} handle=".drag-handle">
+        <div ref={nodeRef} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+          <div className="cyber-card border-2 border-primary shadow-[0_0_50px_oklch(0.72_0.20_195_/_0.5)]">
+            <div className="absolute inset-0 diagonal-stripes opacity-5 pointer-events-none" />
+            
+            <div className="drag-handle cursor-move bg-primary/10 border-b-2 border-primary/30 p-4 relative z-10 hover:bg-primary/20 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-primary/20 border-2 border-primary jagged-corner-small">
+                    <Lock size={32} weight="duotone" className="text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text">
+                      System Access
+                    </h2>
+                    <p className="text-muted-foreground uppercase text-xs tracking-wider">
+                      Drag to reposition
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onOpenChange(false)}
+                  className="text-muted-foreground hover:text-foreground hover:bg-destructive/20"
+                >
+                  <X size={20} weight="bold" />
+                </Button>
+              </div>
             </div>
-            <DialogTitle className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text">
-              System Access
-            </DialogTitle>
-          </div>
-          <DialogDescription className="text-muted-foreground uppercase text-xs tracking-wider">
-            Authenticate with your license key to access quantum falcon systems
-          </DialogDescription>
-        </DialogHeader>
+            
+            <div className="p-6 relative z-10">
+              <p className="text-muted-foreground uppercase text-xs tracking-wider mb-4">
+                Authenticate with your license key to access quantum falcon systems
+              </p>
 
-        <div className="space-y-4 mt-4 relative z-10">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="data-label text-primary">Email Address</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary" size={18} />
-              <Input
-                id="email"
-                type="email"
-                placeholder="trader@quantumfalcon.ai"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-background/50 border-primary/50 focus:border-primary"
-              />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="data-label text-primary">Email Address</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary" size={18} />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="trader@quantumfalcon.ai"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10 bg-background/50 border-primary/50 focus:border-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="license-key" className="data-label text-primary">License Key</Label>
+                  <div className="relative">
+                    <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" size={18} />
+                    <Input
+                      id="license-key"
+                      type="text"
+                      placeholder="XXXX-XXXX-XXXX-XXXX"
+                      value={licenseKey}
+                      onChange={(e) => setLicenseKey(e.target.value.toUpperCase())}
+                      className="pl-10 font-mono bg-background/50 border-secondary/50 focus:border-secondary"
+                    />
+                  </div>
+                </div>
+
+                <div className="cyber-card-accent p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Crown size={16} className="text-accent" weight="fill" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-accent">Demo Keys</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-1 font-mono">
+                    <div>PRO-DEMO-2024 (Pro Tier)</div>
+                    <div>ELITE-DEMO-2024 (Elite Tier)</div>
+                    <div>LIFE-DEMO-2024 (Lifetime)</div>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleLogin}
+                  disabled={!email || !licenseKey || isLoading}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary 
+                           shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]
+                           transition-all jagged-corner-small uppercase tracking-wider font-bold"
+                >
+                  {isLoading ? (
+                    <>Processing...</>
+                  ) : (
+                    <>
+                      Authenticate
+                      <ArrowRight size={18} className="ml-2" weight="bold" />
+                    </>
+                  )}
+                </Button>
+
+                <div className="text-center">
+                  <button
+                    onClick={() => {
+                      toast.info('Purchase License', {
+                        description: 'Visit quantumfalcon.ai to purchase a license'
+                      })
+                    }}
+                    className="text-xs text-primary hover:text-secondary transition-colors uppercase tracking-wider font-semibold"
+                  >
+                    Need a License? Purchase Here
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="license-key" className="data-label text-primary">License Key</Label>
-            <div className="relative">
-              <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" size={18} />
-              <Input
-                id="license-key"
-                type="text"
-                placeholder="XXXX-XXXX-XXXX-XXXX"
-                value={licenseKey}
-                onChange={(e) => setLicenseKey(e.target.value.toUpperCase())}
-                className="pl-10 font-mono bg-background/50 border-secondary/50 focus:border-secondary"
-              />
-            </div>
-          </div>
-
-          <div className="cyber-card-accent p-4 space-y-2">
-            <div className="flex items-center gap-2">
-              <Crown size={16} className="text-accent" weight="fill" />
-              <span className="text-xs font-bold uppercase tracking-wider text-accent">Demo Keys</span>
-            </div>
-            <div className="text-xs text-muted-foreground space-y-1 font-mono">
-              <div>PRO-DEMO-2024 (Pro Tier)</div>
-              <div>ELITE-DEMO-2024 (Elite Tier)</div>
-              <div>LIFE-DEMO-2024 (Lifetime)</div>
-            </div>
-          </div>
-
-          <Button
-            onClick={handleLogin}
-            disabled={!email || !licenseKey || isLoading}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary 
-                     shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]
-                     transition-all jagged-corner-small uppercase tracking-wider font-bold"
-          >
-            {isLoading ? (
-              <>Processing...</>
-            ) : (
-              <>
-                Authenticate
-                <ArrowRight size={18} className="ml-2" weight="bold" />
-              </>
-            )}
-          </Button>
-
-          <div className="text-center">
-            <button
-              onClick={() => {
-                toast.info('Purchase License', {
-                  description: 'Visit quantumfalcon.ai to purchase a license'
-                })
-              }}
-              className="text-xs text-primary hover:text-secondary transition-colors uppercase tracking-wider font-semibold"
-            >
-              Need a License? Purchase Here
-            </button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </Draggable>
+    </div>
   )
 }

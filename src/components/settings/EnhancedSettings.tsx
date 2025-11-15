@@ -466,14 +466,6 @@ export default function EnhancedSettings() {
           </div>
         </TabsContent>
 
-        <TabsContent value="subscription">
-          <EnhancedSubscriptionTiers />
-        </TabsContent>
-
-        <TabsContent value="api">
-          <APIIntegration />
-        </TabsContent>
-
         <TabsContent value="app" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="glass-morph-card p-6 space-y-6 relative overflow-hidden group hover:shadow-[0_0_40px_oklch(0.72_0.20_195_/_0.3)] transition-all duration-500">
