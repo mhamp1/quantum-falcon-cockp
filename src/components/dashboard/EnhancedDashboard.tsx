@@ -4,12 +4,15 @@ import { UserAuth } from '@/lib/auth'
 import {
   TrendUp, TrendDown, Coins, Lightning, Robot, Vault, ChartLine,
   Target, Brain, CheckCircle, ArrowsClockwise, Play, Users, Crown,
-  Cube, Hexagon, Pentagon, Polygon
+  Cube, Hexagon, Pentagon, Polygon, Stop, Pause, Database
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import LoginDialog from '@/components/shared/LoginDialog'
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
+import NewsTicker from '@/components/shared/NewsTicker'
 import { toast } from 'sonner'
 import Wireframe3D from '@/components/shared/Wireframe3D'
 
@@ -33,6 +36,8 @@ export default function EnhancedDashboard() {
   })
 
   const [showLogin, setShowLogin] = useState(false)
+  const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false)
+  const [paperTradingMode, setPaperTradingMode] = useKV<boolean>('paper-trading-mode', true)
   const [portfolio] = useKV<{
     solanaBalance: number
     btcBalance: number
@@ -84,11 +89,16 @@ export default function EnhancedDashboard() {
 
   const quickActions = [
     {
-      id: 'start-bot',
-      label: 'Start Trading',
-      icon: <Play size={20} weight="fill" />,
-      color: 'primary',
-      action: () => toast.success('Trading bot activated')
+      id: 'toggle-bot',
+      label: botRunning ? 'Stop Bot' : 'Start Bot',
+      icon: botRunning ? <Stop size={20} weight="fill" /> : <Play size={20} weight="fill" />,
+      color: botRunning ? 'destructive' : 'primary',
+      action: () => {
+        setBotRunning(!botRunning)
+        toast.success(botRunning ? 'Bot stopped - will persist until manually restarted' : 'Bot started - will continue running even after sign off', {
+          description: botRunning ? 'All trading activities paused' : `Running in ${paperTradingMode ? 'PAPER' : 'LIVE'} mode`
+        })
+      }
     },
     {
       id: 'view-analytics',
@@ -205,29 +215,44 @@ export default function EnhancedDashboard() {
 
   return (
     <div className="space-y-6">
+      <NewsTicker />
+      
       <div className="cyber-card relative overflow-hidden">
         <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
         <div className="p-6 relative z-10">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-[0.15em] uppercase">
                 <span className="text-primary neon-glow-primary">Welcome Back,</span>
                 <span className="text-foreground ml-2">{auth.username}</span>
               </h1>
-              <div className="flex items-center gap-3 mt-2">
+              <div className="flex flex-wrap items-center gap-3 mt-2">
                 <div className="px-3 py-1 bg-accent/20 border border-accent jagged-corner-small">
                   <span className="text-xs font-bold text-accent uppercase tracking-wider">
                     {auth.license?.tier.toUpperCase()} Tier
                   </span>
                 </div>
-                <div className="text-xs text-muted-foreground uppercase tracking-wide">
-                  System Status: <span className="text-primary font-bold">OPERATIONAL</span>
+                <div className="px-3 py-1 bg-primary/20 border border-primary jagged-corner-small">
+                  <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                    Bot: {botRunning ? 'RUNNING' : 'STOPPED'}
+                  </span>
+                </div>
+                <div className="px-3 py-1 border jagged-corner-small" style={{ 
+                  backgroundColor: paperTradingMode ? 'oklch(0.68 0.18 330 / 0.2)' : 'oklch(0.65 0.25 25 / 0.2)',
+                  borderColor: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
+                }}>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{
+                    color: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
+                  }}>
+                    {paperTradingMode ? 'PAPER MODE' : 'LIVE TRADING'}
+                  </span>
                 </div>
               </div>
             </div>
             <Button
               variant="outline"
               onClick={() => {
+                setBotRunning(false)
                 setAuth({
                   isAuthenticated: false,
                   userId: null,
@@ -236,7 +261,7 @@ export default function EnhancedDashboard() {
                   avatar: null,
                   license: null
                 })
-                toast.info('Logged out successfully')
+                toast.info('Logged out successfully - Bot stopped')
               }}
               className="border-primary/50 hover:border-primary hover:bg-primary/10 jagged-corner-small"
             >
@@ -247,6 +272,52 @@ export default function EnhancedDashboard() {
       </div>
 
       <LicenseExpiry />
+
+      <div className="glass-morph-card p-6 relative overflow-hidden hover:shadow-[0_0_40px_oklch(0.68_0.18_330_/_0.3)] transition-all">
+        <div className="absolute inset-0 grid-background opacity-5" />
+        <svg className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
+          <circle cx="90%" cy="20%" r="40" stroke="var(--accent)" strokeWidth="2" fill="none" strokeDasharray="5,5" className="circuit-line" />
+        </svg>
+        
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="p-3 jagged-corner-small bg-accent/20 border-2 border-accent/50 relative">
+              <Database size={28} weight="duotone" className="text-accent" />
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold uppercase tracking-[0.15em] hud-text text-accent">
+                TRADING MODE
+              </h3>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+                {paperTradingMode ? 'Paper trading simulates all features without real funds' : 'Live trading with real funds - USE WITH CAUTION'}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 p-4 bg-background/40 backdrop-blur-sm border-2 jagged-corner" style={{
+            borderColor: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
+          }}>
+            <Label htmlFor="paper-mode" className="text-sm font-bold uppercase tracking-wide cursor-pointer" style={{
+              color: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
+            }}>
+              {paperTradingMode ? 'PAPER MODE' : 'LIVE MODE'}
+            </Label>
+            <Switch
+              id="paper-mode"
+              checked={paperTradingMode}
+              onCheckedChange={(checked) => {
+                setPaperTradingMode(checked)
+                toast.success(checked ? 'Switched to Paper Trading Mode' : 'Switched to Live Trading Mode', {
+                  description: checked 
+                    ? 'All trades are simulated - no real funds at risk' 
+                    : 'WARNING: Trading with real funds now!'
+                })
+              }}
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {quickStats.map((stat, idx) => {
@@ -301,18 +372,28 @@ export default function EnhancedDashboard() {
           <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action, idx) => (
-            <Button
-              key={action.id}
-              onClick={action.action}
-              className={`w-full bg-${action.color}/10 hover:bg-${action.color}/20 border-2 border-${action.color}/50 
-                       hover:border-${action.color} transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} text-${action.color} 
-                       hover:shadow-[0_0_20px_var(--${action.color})] flex-col h-auto py-4 gap-2`}
-            >
-              {action.icon}
-              <span className="text-xs uppercase tracking-wider font-bold">{action.label}</span>
-            </Button>
-          ))}
+          {quickActions.map((action, idx) => {
+            const colorClasses = {
+              primary: 'bg-primary/10 hover:bg-primary/20 border-primary/50 hover:border-primary text-primary hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)]',
+              accent: 'bg-accent/10 hover:bg-accent/20 border-accent/50 hover:border-accent text-accent hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
+              secondary: 'bg-secondary/10 hover:bg-secondary/20 border-secondary/50 hover:border-secondary text-secondary hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
+              destructive: 'bg-destructive/10 hover:bg-destructive/20 border-destructive/50 hover:border-destructive text-destructive hover:shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.3)]'
+            }
+            
+            return (
+              <Button
+                key={action.id}
+                onClick={action.action}
+                className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  {action.icon}
+                </div>
+                <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
+              </Button>
+            )
+          })}
         </div>
       </div>
 

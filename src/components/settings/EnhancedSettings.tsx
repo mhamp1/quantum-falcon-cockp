@@ -12,12 +12,14 @@ import {
   CurrencyDollar, SpeakerHigh, Shield, ChartLine, Medal, Star,
   Fire, Target, CheckCircle, Crown, ArrowsClockwise, Lightning, 
   Wallet, CloudArrowUp, Database, Key, LinkSimple, WifiHigh, Cpu,
-  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users
+  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
+import EditProfileDialog from '@/components/shared/EditProfileDialog'
 import EnhancedSubscriptionTiers from './EnhancedSubscriptionTiers'
 import APIIntegration from './APIIntegration'
+import LegalSection from './LegalSection'
 
 interface UserProfile {
   username: string
@@ -105,6 +107,8 @@ export default function EnhancedSettings() {
     winRate: 68.5,
     memberSince: 'Jan 2024'
   })
+
+  const [showEditProfile, setShowEditProfile] = useState(false)
 
   const [settings, setSettings] = useKV<AppSettings>('app-settings', {
     notifications: {
@@ -313,6 +317,10 @@ export default function EnhancedSettings() {
             <Gear size={16} weight="duotone" />
             APP_SETTINGS
           </TabsTrigger>
+          <TabsTrigger value="legal" className="data-label gap-2">
+            <Scales size={16} weight="duotone" />
+            LEGAL
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6">
@@ -362,7 +370,7 @@ export default function EnhancedSettings() {
                     </p>
                   </div>
 
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => setShowEditProfile(true)}>
                     EDIT_PROFILE
                   </Button>
                 </div>
@@ -1303,7 +1311,13 @@ export default function EnhancedSettings() {
         <TabsContent value="api">
           <APIIntegration />
         </TabsContent>
+
+        <TabsContent value="legal">
+          <LegalSection />
+        </TabsContent>
       </Tabs>
+
+      <EditProfileDialog open={showEditProfile} onOpenChange={setShowEditProfile} />
     </div>
   )
 }
