@@ -11,7 +11,11 @@ import {
   Coins,
   Lightning,
   ArrowsClockwise,
-  CheckCircle
+  CheckCircle,
+  Cube,
+  Hexagon,
+  Pentagon,
+  Polygon
 } from '@phosphor-icons/react'
 
 interface AnalyticsData {
@@ -98,7 +102,10 @@ export default function EnhancedAnalytics() {
               <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">
                 Total P&L
               </span>
-              <TrendUp size={20} className="text-primary" weight="duotone" />
+              <div className="p-2 border-2 angled-corner-tr bg-primary/5 border-primary relative overflow-hidden">
+                <div className="absolute inset-0 bg-primary opacity-5" />
+                <Cube size={20} className="text-primary relative z-10" weight="duotone" />
+              </div>
             </div>
             
             <div className="space-y-1">
@@ -132,7 +139,10 @@ export default function EnhancedAnalytics() {
               <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">
                 Win Rate
               </span>
-              <Target size={20} className="text-accent" weight="duotone" />
+              <div className="p-2 border-2 cut-corner-tr bg-accent/5 border-accent relative overflow-hidden">
+                <div className="absolute inset-0 bg-accent opacity-5" />
+                <Hexagon size={20} className="text-accent relative z-10" weight="duotone" />
+              </div>
             </div>
             
             <div className="space-y-2">
@@ -164,7 +174,10 @@ export default function EnhancedAnalytics() {
               <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">
                 Total Trades
               </span>
-              <ArrowsClockwise size={20} className="text-secondary" weight="duotone" />
+              <div className="p-2 border-2 angled-corner-br bg-secondary/5 border-secondary relative overflow-hidden">
+                <div className="absolute inset-0 bg-secondary opacity-5" />
+                <Pentagon size={20} className="text-secondary relative z-10" weight="duotone" />
+              </div>
             </div>
             
             <div className="space-y-1">
@@ -196,7 +209,10 @@ export default function EnhancedAnalytics() {
               <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">
                 Sharpe Ratio
               </span>
-              <ChartLine size={20} className="text-primary" weight="duotone" />
+              <div className="p-2 border-2 cut-corner-br bg-primary/5 border-primary relative overflow-hidden">
+                <div className="absolute inset-0 bg-primary opacity-5" />
+                <Polygon size={20} className="text-primary relative z-10" weight="duotone" />
+              </div>
             </div>
             
             <div className="space-y-1">

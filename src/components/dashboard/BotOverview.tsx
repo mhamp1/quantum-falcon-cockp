@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword } from '@phosphor-icons/react'
+import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword, Cube, Hexagon, Pentagon, Polygon } from '@phosphor-icons/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -250,7 +250,10 @@ export default function BotOverview() {
           <div className="p-4 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold">System Uptime</p>
-              {getStatusIcon(systemStatus.agents)}
+              <div className="p-2 border-2 angled-corner-tr bg-secondary/5 border-secondary relative overflow-hidden">
+                <div className="absolute inset-0 bg-secondary opacity-5" />
+                <Cube size={16} weight="duotone" className="text-secondary relative z-10" />
+              </div>
             </div>
             <p className="text-4xl font-bold text-secondary neon-glow-secondary hud-value">{metrics.uptime}%</p>
           </div>
@@ -260,7 +263,10 @@ export default function BotOverview() {
           <div className="p-4 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold">Total Trades</p>
-              <Terminal size={16} weight="duotone" className="text-primary" />
+              <div className="p-2 border-2 cut-corner-tr bg-primary/5 border-primary relative overflow-hidden">
+                <div className="absolute inset-0 bg-primary opacity-5" />
+                <Hexagon size={16} weight="duotone" className="text-primary relative z-10" />
+              </div>
             </div>
             <p className="text-4xl font-bold text-primary neon-glow-primary hud-value">{metrics.totalTrades.toLocaleString()}</p>
           </div>
@@ -270,7 +276,10 @@ export default function BotOverview() {
           <div className="p-4 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold">Success Rate</p>
-              <CheckCircle size={16} weight="fill" className="text-secondary" />
+              <div className="p-2 border-2 angled-corner-br bg-secondary/5 border-secondary relative overflow-hidden">
+                <div className="absolute inset-0 bg-secondary opacity-5" />
+                <Pentagon size={16} weight="duotone" className="text-secondary relative z-10" />
+              </div>
             </div>
             <p className="text-4xl font-bold text-secondary neon-glow-secondary hud-value">{metrics.successRate}%</p>
           </div>
@@ -280,7 +289,10 @@ export default function BotOverview() {
           <div className="p-4 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold">Total Profit</p>
-              <Lightning size={16} weight="fill" className="text-accent" />
+              <div className="p-2 border-2 cut-corner-br bg-accent/10 border-accent relative overflow-hidden">
+                <div className="absolute inset-0 bg-accent opacity-5" />
+                <Polygon size={16} weight="fill" className="text-accent relative z-10" />
+              </div>
             </div>
             <p className="text-4xl font-bold text-accent neon-glow-accent hud-value">${metrics.totalProfit.toFixed(0)}</p>
           </div>

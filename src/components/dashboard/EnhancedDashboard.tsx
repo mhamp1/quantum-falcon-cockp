@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import { UserAuth } from '@/lib/auth'
 import {
   TrendUp, TrendDown, Coins, Lightning, Robot, Vault, ChartLine,
-  Target, Brain, CheckCircle, ArrowsClockwise, Play, Users, Crown
+  Target, Brain, CheckCircle, ArrowsClockwise, Play, Users, Crown,
+  Cube, Hexagon, Pentagon, Polygon
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -52,7 +53,7 @@ export default function EnhancedDashboard() {
       label: 'Total Portfolio',
       value: '$8,943.21',
       change: 5.72,
-      icon: <Coins size={24} weight="duotone" />,
+      icon: <Cube size={24} weight="duotone" />,
       color: 'primary'
     },
     {
@@ -60,7 +61,7 @@ export default function EnhancedDashboard() {
       label: "Today's Profit",
       value: '+$342.50',
       change: 12.4,
-      icon: <TrendUp size={24} weight="duotone" />,
+      icon: <Hexagon size={24} weight="duotone" />,
       color: 'primary'
     },
     {
@@ -68,7 +69,7 @@ export default function EnhancedDashboard() {
       label: 'Active Agents',
       value: '3/3',
       change: 0,
-      icon: <Robot size={24} weight="duotone" />,
+      icon: <Pentagon size={24} weight="duotone" />,
       color: 'accent'
     },
     {
@@ -76,7 +77,7 @@ export default function EnhancedDashboard() {
       label: 'Win Rate',
       value: '68.5%',
       change: 2.3,
-      icon: <Target size={24} weight="duotone" />,
+      icon: <Polygon size={24} weight="duotone" />,
       color: 'secondary'
     }
   ])
@@ -260,8 +261,19 @@ export default function EnhancedDashboard() {
               <div className="p-4 relative z-10">
                 <div className="flex items-start justify-between mb-3">
                   <div className="data-label">{stat.label}</div>
-                  <div className={`p-2 bg-${stat.color}/10 border border-${stat.color}/30 cut-corner-tr`}>
-                    {stat.icon}
+                  <div className={`p-2.5 border-2 angled-corner-tr relative overflow-hidden ${
+                    stat.color === 'primary' ? 'bg-primary/5 border-primary' : 
+                    stat.color === 'secondary' ? 'bg-secondary/5 border-secondary' : 
+                    'bg-accent/5 border-accent'
+                  }`}>
+                    <div className={`absolute inset-0 ${
+                      stat.color === 'primary' ? 'bg-primary' : 
+                      stat.color === 'secondary' ? 'bg-secondary' : 
+                      'bg-accent'
+                    } opacity-5`} />
+                    <div className="relative z-10">
+                      {stat.icon}
+                    </div>
                   </div>
                 </div>
                 <div className="technical-readout text-2xl mb-2">{stat.value}</div>

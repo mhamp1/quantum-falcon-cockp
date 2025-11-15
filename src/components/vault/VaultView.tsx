@@ -3,7 +3,7 @@ import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket } from '@phosphor-icons/react'
+import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import SolanaLogo from '@/components/shared/SolanaLogo'
@@ -707,8 +707,9 @@ export default function VaultView() {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 jagged-corner-small bg-primary/30 border-2 border-primary">
-                <SolanaLogo className="w-8 h-8 text-primary" />
+              <div className="p-2.5 border-2 angled-corner-tr bg-primary/5 border-primary relative overflow-hidden">
+                <div className="absolute inset-0 bg-primary opacity-5" />
+                <Cube size={32} weight="duotone" className="text-primary relative z-10" />
               </div>
               <div className="status-indicator" />
             </div>
@@ -743,8 +744,9 @@ export default function VaultView() {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 jagged-corner-small bg-accent/30 border-2 border-accent">
-                <ArrowsClockwise size={32} weight="duotone" className="text-accent animate-pulse-glow" />
+              <div className="p-2.5 border-2 cut-corner-tr bg-accent/5 border-accent relative overflow-hidden">
+                <div className="absolute inset-0 bg-accent opacity-5" />
+                <Hexagon size={32} weight="duotone" className="text-accent animate-pulse-glow relative z-10" />
               </div>
               <div className="hud-readout text-accent">ACTIVE</div>
             </div>
@@ -779,8 +781,9 @@ export default function VaultView() {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary to-transparent" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 jagged-corner-small bg-secondary/30 border-2 border-secondary">
-                <ShieldCheck size={32} weight="duotone" className="text-secondary" />
+              <div className="p-2.5 border-2 angled-corner-br bg-secondary/5 border-secondary relative overflow-hidden">
+                <div className="absolute inset-0 bg-secondary opacity-5" />
+                <Pentagon size={32} weight="duotone" className="text-secondary relative z-10" />
               </div>
               <div className="status-indicator bg-secondary" style={{ boxShadow: '0 0 8px var(--secondary), 0 0 16px var(--secondary)' }} />
             </div>
