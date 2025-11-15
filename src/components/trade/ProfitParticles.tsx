@@ -4,48 +4,47 @@ import { motion } from 'framer-motion'
 interface Particle {
   id: number
   x: number
-  y: number
-  vx: number
-  vy: number
-  life: number
-  maxLife: number
-  size: number
-  color: string
-  rotation: number
-  rotationSpeed: number
-}
+  color: st
+  rotationSp
 
-interface ProfitParticlesProps {
-  isActive: boolean
-  onComplete?: () => void
+  isActive: bo
   amount?: number
-  type?: 'btc' | 'sol'
+}
+export default 
+  const particlesR
+  const startTimeRef = 
+ 
+
+    const ctx = canvas.getContex
+
+    canvas.width = canvas
+  amount?: number
+    const centerX = ca
 }
 
-export default function ProfitParticles({ isActive, onComplete, amount, type = 'btc' }: ProfitParticlesProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const particlesRef = useRef<Particle[]>([])
-  const animationFrameRef = useRef<number | undefined>(undefined)
-  const startTimeRef = useRef<number>(0)
 
-  useEffect(() => {
-    if (!isActive || !canvasRef.current) return
+    for (let i = 0; i < 80; i++) {
+      const velocity = 2 + Math.random() * 3
+        id: i,
+        y: centerY,
 
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+        maxLife: 0.
+        color: colors[Math.floor(Math.random() 
 
-    const dpr = window.devicePixelRatio || 1
-    canvas.width = canvas.offsetWidth * dpr
-    canvas.height = canvas.offsetHeight * dpr
-    ctx.scale(dpr, dpr)
+    }
+    startTimeRef.current = Date.now()
+    const animate = 
 
-    const centerX = canvas.offsetWidth / 2
-    const centerY = canvas.offsetHeight / 2
 
-    const colors = type === 'btc' 
-      ? ['#F7931A', '#FF9500', '#FFB84D', '#FFC973']
-      : ['#14F195', '#00E5A0', '#00D89F', '#00CC9C']
+      const progress = Math.min(elapsed / 2000, 1)
+      particlesRef.current = particlesRef.current.filter(partic
+
+        particle.life = Math.max(0, 1 - pr
+
+
+          ctx.translate(particle.x
+          
+          ctx.shadowColor = particle.color
 
     particlesRef.current = []
     for (let i = 0; i < 80; i++) {
@@ -95,37 +94,37 @@ export default function ProfitParticles({ isActive, onComplete, amount, type = '
           ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size)
           
           ctx.restore()
-          return true
+
         }
-        return false
+
       })
 
       if (particlesRef.current.length > 0) {
         animationFrameRef.current = requestAnimationFrame(animate)
       } else {
-        onComplete?.()
+
       }
-    }
+
 
     animationFrameRef.current = requestAnimationFrame(animate)
 
-    return () => {
+
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
       }
-    }
+
   }, [isActive, onComplete, type])
 
   if (!isActive) return null
 
   return (
-    <motion.div
+
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+
       exit={{ opacity: 0 }}
       className="absolute inset-0 pointer-events-none"
     >
-      <canvas
+
         ref={canvasRef}
         className="w-full h-full"
       />
@@ -133,13 +132,13 @@ export default function ProfitParticles({ isActive, onComplete, amount, type = '
       {amount && (
         <motion.div
           initial={{ scale: 0.5, y: 0, opacity: 0 }}
-          animate={{ 
+
             scale: [0.5, 1.2, 1],
             y: [0, -30, -40],
             opacity: [0, 1, 1, 0]
-          }}
+
           transition={{
-            duration: 2,
+
             times: [0, 0.3, 0.7, 1],
             ease: "easeOut"
           }}
@@ -147,9 +146,9 @@ export default function ProfitParticles({ isActive, onComplete, amount, type = '
         >
           <div className={`text-4xl font-bold ${type === 'btc' ? 'text-[#F7931A]' : 'text-accent'} drop-shadow-[0_0_20px_currentColor]`}>
             +{amount.toFixed(8)} {type.toUpperCase()}
-          </div>
+
         </motion.div>
-      )}
+
     </motion.div>
   )
 }
