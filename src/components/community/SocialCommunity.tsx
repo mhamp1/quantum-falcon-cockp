@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { getRotatingOffers, getTimeUntilNextRotation, type RotatingOffer } from '@/lib/rotatingOffers'
 import ProfileUpload from '@/components/shared/ProfileUpload'
 import LimitedOffersSection from './LimitedOffersSection'
+import Forum from './Forum'
 
 interface Strategy {
   id: string
@@ -457,71 +458,8 @@ export default function SocialCommunity() {
             ))}
           </TabsContent>
 
-          <TabsContent value="forum" className="space-y-4">
-            <div className="cyber-card-accent p-4 mb-4">
-              <Textarea 
-                placeholder="Ask a question, share your success, or start a discussion..."
-                className="mb-3 bg-background/50 border-accent/50"
-              />
-              <Button className="w-full jagged-corner-small">
-                <PaperPlaneRight size={16} weight="bold" className="mr-2" />
-                Post to Community
-              </Button>
-            </div>
-
-            {forumPosts.map((post) => (
-              <div key={post.id} className="glass-morph-card p-6 relative overflow-hidden group hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.3)] transition-all">
-                <div className="absolute inset-0 grid-background opacity-5" />
-                
-                <div className="relative z-10">
-                  <div className="flex items-start gap-4">
-                    <div className="text-4xl">{post.authorAvatar}</div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <h3 className="text-lg font-bold mb-1">{post.title}</h3>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span className="font-semibold">{post.author}</span>
-                            <span>•</span>
-                            <span>{formatTimeAgo(post.timestamp)}</span>
-                            <span>•</span>
-                            <div className="flex items-center gap-1">
-                              <Eye size={12} />
-                              {post.views}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <p className="text-sm text-foreground mb-3">{post.content}</p>
-                      
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {post.tags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-[10px]">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <Button size="sm" variant="outline" className="border-accent text-accent hover:bg-accent/10">
-                          <ArrowUp size={14} className="mr-1" />
-                          {post.likes}
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <ChatCircle size={14} className="mr-1" />
-                          {post.comments} Comments
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Share size={14} className="mr-1" />
-                          Share
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <TabsContent value="forum">
+            <Forum />
           </TabsContent>
         </Tabs>
       </div>

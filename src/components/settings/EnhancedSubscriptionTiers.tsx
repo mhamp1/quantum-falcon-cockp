@@ -21,22 +21,28 @@ export default function EnhancedSubscriptionTiers() {
 
   const tierIcons = {
     free: <Star size={32} weight="duotone" className="text-muted-foreground" />,
-    pro: <Lightning size={32} weight="fill" className="text-primary" />,
-    elite: <Crown size={32} weight="fill" className="text-accent" />,
+    starter: <Sparkle size={32} weight="fill" className="text-primary/70" />,
+    trader: <Lightning size={32} weight="fill" className="text-primary" />,
+    pro: <Crown size={32} weight="fill" className="text-accent" />,
+    elite: <Star size={32} weight="fill" className="text-accent" />,
     lifetime: <Infinity size={32} weight="fill" className="text-secondary" />
   }
 
   const tierColors = {
     free: 'border-muted text-muted-foreground',
-    pro: 'border-primary text-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)]',
-    elite: 'border-accent text-accent shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]',
-    lifetime: 'border-secondary text-secondary shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.5)]'
+    starter: 'border-primary/70 text-primary/70 shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.2)]',
+    trader: 'border-primary text-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)]',
+    pro: 'border-accent text-accent shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]',
+    elite: 'border-accent text-accent shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.5)]',
+    lifetime: 'border-secondary text-secondary shadow-[0_0_40px_oklch(0.68_0.18_330_/_0.6)]'
   }
 
   const tierBadges = {
     free: '',
-    pro: 'POPULAR',
-    elite: 'BEST VALUE',
+    starter: 'GET STARTED',
+    trader: 'POPULAR',
+    pro: 'BEST VALUE',
+    elite: 'MOST POWERFUL',
     lifetime: 'UNLIMITED'
   }
 
@@ -60,7 +66,7 @@ export default function EnhancedSubscriptionTiers() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(LICENSE_TIERS).map(([tierId, tier]) => {
             const isCurrentTier = currentTier === tierId
             const Icon = tierIcons[tierId as keyof typeof tierIcons]
@@ -113,7 +119,7 @@ export default function EnhancedSubscriptionTiers() {
                     </div>
                   </div>
 
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-2 mb-4 max-h-48 overflow-y-auto scrollbar-thin">
                     {tier.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-xs">
                         <CheckCircle size={14} weight="fill" className="text-primary flex-shrink-0 mt-0.5" />
@@ -181,7 +187,7 @@ export default function EnhancedSubscriptionTiers() {
                           {tier.strategiesUnlocked[0] === 'ALL' ? (
                             <p className="text-foreground">Access to all current and future trading strategies!</p>
                           ) : (
-                            <div className="space-y-1">
+                            <div className="space-y-1 max-h-32 overflow-y-auto scrollbar-thin">
                               {tier.strategiesUnlocked.map((strategy, idx) => (
                                 <div key={idx} className="flex items-center gap-1 text-foreground">
                                   <span className="text-primary">•</span>
@@ -201,18 +207,13 @@ export default function EnhancedSubscriptionTiers() {
                         <Star size={12} weight="fill" />
                         Special Perks
                       </div>
-                      <div className="space-y-1">
-                        {tier.specialPerks.slice(0, 3).map((perk, idx) => (
+                      <div className="space-y-1 max-h-24 overflow-y-auto scrollbar-thin">
+                        {tier.specialPerks.map((perk, idx) => (
                           <div key={idx} className="text-[10px] text-muted-foreground flex items-start gap-1">
                             <span className="text-accent">•</span>
                             <span>{perk}</span>
                           </div>
                         ))}
-                        {tier.specialPerks.length > 3 && (
-                          <div className="text-[10px] text-muted-foreground italic">
-                            +{tier.specialPerks.length - 3} more perks...
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}
@@ -224,23 +225,27 @@ export default function EnhancedSubscriptionTiers() {
                           description: 'This is your current subscription tier'
                         })
                       } else {
-                        window.open(`https://quantumfalcon.ai/upgrade/${tierId}`, '_blank')
+                        window.open(`https://quantumfalcon.ai/upgrade?tier=${tierId}`, '_blank')
                         toast.success('Opening Upgrade Page', {
                           description: `Redirecting to ${tier.name} tier upgrade`
                         })
                       }
                     }}
                     disabled={isCurrentTier}
-                    className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner ${
+                    className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner transition-all ${
                       isCurrentTier
                         ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                        : tierId === 'pro'
-                          ? 'bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]'
-                          : tierId === 'elite'
-                            ? 'bg-accent/20 hover:bg-accent/30 border-2 border-accent text-accent shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]'
-                            : tierId === 'lifetime'
-                              ? 'bg-secondary/20 hover:bg-secondary/30 border-2 border-secondary text-secondary shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]'
-                              : 'bg-muted/20 hover:bg-muted/30 border-2 border-muted text-foreground'
+                        : tierId === 'starter'
+                          ? 'bg-primary/15 hover:bg-primary/25 border-2 border-primary/70 text-primary shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.3)] hover:shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.5)]'
+                          : tierId === 'trader'
+                            ? 'bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]'
+                            : tierId === 'pro'
+                              ? 'bg-accent/20 hover:bg-accent/30 border-2 border-accent text-accent shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]'
+                              : tierId === 'elite'
+                                ? 'bg-accent/20 hover:bg-accent/30 border-2 border-accent text-accent shadow-[0_0_25px_oklch(0.68_0.18_330_/_0.5)] hover:shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.7)]'
+                                : tierId === 'lifetime'
+                                  ? 'bg-secondary/20 hover:bg-secondary/30 border-2 border-secondary text-secondary shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]'
+                                  : 'bg-muted/20 hover:bg-muted/30 border-2 border-muted text-foreground'
                     }`}
                   >
                     {isCurrentTier ? 'Current Tier' : tier.price === 0 ? 'Active' : 'Upgrade Now'}

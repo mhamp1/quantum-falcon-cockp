@@ -8,7 +8,7 @@ A comprehensive mobile-responsive progressive web app for cyberpunk-themed crypt
 3. **Community-Connected** - Social features like XP progression, trading chat, and forum discussions create an engaging ecosystem around trading success
 
 **Complexity Level**: Complex Application (advanced functionality, accounts, gamification)
-This is a sophisticated trading platform with multi-agent AI trading logic, real-time data streams, user authentication with license management, persistent state for portfolios and strategies, community features with XP systems, gamification (achievements, levels, education), advanced analytics with multiple chart types, trading strategies with backtesting, recurring buy automation (DCA), AI assistant integration, tiered subscription system (Free/Pro/Elite/Lifetime), license expiry tracking with renewal prompts, and crypto API integration.
+This is a sophisticated trading platform with multi-agent AI trading logic, real-time data streams, user authentication with license management, persistent state for portfolios and strategies, community features with XP systems and secure forum, gamification (achievements, levels, education), advanced analytics with multiple chart types, trading strategies with backtesting, recurring buy automation (DCA), AI assistant integration, **6-tier subscription system (Free/Starter/Trader/Pro/Elite/Lifetime) with paper trading available at all tiers**, license expiry tracking with renewal prompts, vault deposit/withdrawal system, and crypto API integration.
 
 ## Essential Features
 
@@ -48,25 +48,25 @@ This is a sophisticated trading platform with multi-agent AI trading logic, real
 - **Success criteria**: DCA executes on schedule (±5s accuracy), snipe detects new tokens <1s after launch, order history persists, slippage controls work
 
 ### 6. BTC Profit Vault
-- **Functionality**: Automated profit-taking that converts winning Solana trades to BTC with vault visualization, floating coin animations, and withdrawal controls
+- **Functionality**: Automated profit-taking that converts winning Solana trades to BTC with vault visualization, floating coin animations, **secure deposit and withdrawal controls with transaction history**
 - **Purpose**: Lock in gains to stable store-of-value asset, reducing portfolio volatility
 - **Trigger**: Automatic on profitable trade close, manual from "Vault" tab
-- **Progression**: Profitable trade closes → Agent triggers conversion → Solana amount swaps to BTC → BTC deposited to vault → Vault balance increments with animation → User receives notification → Can view history or withdraw to external wallet → Floating coin animations provide visual feedback
-- **Success criteria**: Conversion executes <30s after trade close, vault shows accurate BTC balance, withdrawal to external address works, transaction history persists, animations smooth at 60fps
+- **Progression**: Profitable trade closes → Agent triggers conversion → Solana amount swaps to BTC → BTC deposited to vault → Vault balance increments with animation → User can deposit additional BTC → View balance and transaction history → Withdraw to external wallet with address validation → Floating coin animations provide visual feedback
+- **Success criteria**: Conversion executes <30s after trade close, vault shows accurate BTC balance, deposit instantly credits balance, withdrawal to external address validates and executes, transaction history persists with deposit/withdrawal types, animations smooth at 60fps
 
-### 7. Community & XP System with Rotating Offers
-- **Functionality**: User profile with XP progression (15+ levels), level badges, achievement unlocks (12+ achievements), strategy marketplace with community-shared strategies, forum for trading discussions, and 50 rotating special offers that cycle every 3 days providing temporary boosts, upgrades, and perks across 6 categories (Trading, Analytics, Cosmetics, Community, Security, Gamification)
-- **Purpose**: Gamification increases engagement, community knowledge-sharing improves trading outcomes, rotating offers keep the interface fresh and provide monetization opportunities
-- **Trigger**: Navigate to "Community" tab, earn XP from trades/referrals/achievements, browse rotating offers
-- **Progression**: View rotating offers with live countdown timer → Hover card for detailed tooltip → Purchase offer → Activation confirmation → Browse community strategies with performance metrics (win rate, ROI, total trades) → Like, comment, share strategies → Post to forum → Engage in discussions → React to posts → Filter by tags → Use shared strategies → Offers rotate every 3 days with no repeats until full deck cycles
-- **Success criteria**: XP awards immediately, tooltip shows on all offer cards within 150ms, offers rotate deterministically every 3 days, purchased offers persist across sessions, strategies display accurate metrics, forum posts thread properly, real-time ready for WebSocket integration, draggable dialogs (login & AI assistant) reposition smoothly
+### 7. Community & XP System with Rotating Offers & Secure Forum
+- **Functionality**: User profile with XP progression (15+ levels), level badges, achievement unlocks (12+ achievements), strategy marketplace with community-shared strategies, **comprehensive secure forum with post creation, commenting, liking, search, filtering, and pinned posts**, and 50 rotating special offers that cycle every 3 days providing temporary boosts, upgrades, and perks across 6 categories (Trading, Analytics, Cosmetics, Community, Security, Gamification)
+- **Purpose**: Gamification increases engagement, community knowledge-sharing improves trading outcomes, secure forum enables safe discussion and Q&A, rotating offers keep the interface fresh and provide monetization opportunities
+- **Trigger**: Navigate to "Community" tab, earn XP from trades/referrals/achievements, browse rotating offers, participate in forum discussions
+- **Progression**: View rotating offers with live countdown timer → Hover card for detailed tooltip → Purchase offer → Activation confirmation → Browse community strategies with performance metrics (win rate, ROI, total trades) → Like, comment, share strategies → **Create forum post with title, content, and tags → Browse forum with search and filters → Click post to view full discussion → Add comments → Like posts and comments → View pinned important topics** → Filter by tags → Use shared strategies → Offers rotate every 3 days with no repeats until full deck cycles
+- **Success criteria**: XP awards immediately, tooltip shows on all offer cards within 150ms, offers rotate deterministically every 3 days, purchased offers persist across sessions, strategies display accurate metrics, **forum posts create instantly, search filters work in real-time, comments nest properly, likes persist across sessions, pinned posts appear at top**, real-time ready for WebSocket integration, draggable dialogs (login & AI assistant) reposition smoothly
 
 ### 8. Comprehensive Settings & Profile
-- **Functionality**: User profile with stats, achievements display (with progress bars), education center with courses, subscription tier management (Free/Pro/ProPlus), notification preferences, trading settings, audio controls, and security options
-- **Purpose**: Personalization, learning resources, and security controls tailored to user preferences
+- **Functionality**: User profile with stats, achievements display (with progress bars), education center with courses, **subscription tier management (Free/Starter/Trader/Pro/Elite/Lifetime) with paper trading available at all tiers**, notification preferences, trading settings, audio controls, and security options
+- **Purpose**: Personalization, learning resources, and security controls tailored to user preferences, clear tier differentiation with upgrade paths
 - **Trigger**: Navigate to "Settings" tab
-- **Progression**: Open Settings → View profile with level/XP → Browse achievements with unlock status → Start education courses → Review subscription tiers → Modify app settings → Configure notifications → Set trading preferences → Enable security features → View about/legal info
-- **Success criteria**: Settings persist across sessions, profile displays accurately, achievement progress tracked, course progress saved, subscription tiers clearly differentiated, biometrics work on supported devices
+- **Progression**: Open Settings → View profile with level/XP → Browse achievements with unlock status → Start education courses → **Review 6 subscription tiers with paper trading emphasized on Free tier** → Click upgrade button to open tier-specific upgrade page → Modify app settings → Configure notifications → Set trading preferences (including paper mode toggle) → Enable security features → View about/legal info
+- **Success criteria**: Settings persist across sessions, profile displays accurately, achievement progress tracked, course progress saved, **all 6 subscription tiers clearly differentiated with paper trading available in all tiers, upgrade buttons open correct tier-specific URLs**, biometrics work on supported devices
 
 ### 9. Gamification System
 - **Functionality**: Comprehensive XP earning system (trade execution: +10 XP, profitable trade: +50 XP, tutorials: +100 XP, streaks: +500 XP), level progression (50 levels with unlocks), achievement system (First Trade, Portfolio Milestones, Win Rates, Streaks, Community Engagement), and visual rewards
@@ -74,6 +74,20 @@ This is a sophisticated trading platform with multi-agent AI trading logic, real
 - **Trigger**: Any achievement-eligible action
 - **Progression**: User completes action → XP awarded with animated toast → Progress bar updates → Achievement unlocked (if applicable) → Confetti/celebration animation → New features/perks unlocked at milestones → User motivated to continue
 - **Success criteria**: XP awards instant, level-ups celebrated visually, achievements trackable, unlocks functional, clear progression path to level 50
+
+### 10. Six-Tier Subscription System
+- **Functionality**: Restructured 6-tier subscription model with paper trading available at all tiers to encourage user onboarding and practice
+- **Tiers**:
+  - **Free ($0)**: Paper trading with live data, 1 AI agent, basic analytics, community access, forum posting
+  - **Starter ($29/mo)**: Live trading enabled, 1 AI agent, basic analytics, RSI strategy, email support, 1.5x XP
+  - **Trader ($79/mo)**: 2 AI agents, enhanced analytics, MACD & momentum strategies, priority support, 2x XP, speed boost access
+  - **Pro ($197/mo)**: 3 AI agents, advanced analytics, all advanced strategies, token sniping, Bollinger bands, VIP support, 3x XP
+  - **Elite ($497/mo)**: 5 AI agents, custom strategy builder, arbitrage scanner, all premium strategies, VIP community, custom AI training, white-label options, 4x XP
+  - **Lifetime ($8,000 once)**: Everything in Elite, unlimited AI agents, lifetime access, all future strategies, API access, custom bot integration, 5x XP, founder badge, beta access (revenue sharing removed)
+- **Purpose**: Progressive pricing that reduces price gaps, makes entry more affordable, emphasizes paper trading as a risk-free learning tool, and provides clear upgrade paths
+- **Trigger**: Navigate to Settings → Subscription tab, or click upgrade buttons throughout app
+- **Progression**: View tier comparison → Read feature lists and tooltips → Click upgrade button → Opens tier-specific upgrade page with pricing → Complete purchase → Tier immediately activates with all features unlocked
+- **Success criteria**: All tiers display correctly in responsive 3-column grid (2 rows), upgrade buttons open correct URLs with tier parameter, paper trading toggle works in all tiers, tier badges and indicators show current subscription, XP multipliers apply correctly
 
 ## Edge Case Handling
 

@@ -143,6 +143,7 @@ export default function VaultView() {
   const [btcBalance, setBtcBalance] = useKV<number>('btc-vault-balance', 0.00234)
   const [solanaAccumulated, setSolanaAccumulated] = useKV<number>('solana-accumulated', 127.89)
   const [transactions, setTransactions] = useKV<VaultTransaction[]>('vault-transactions', [])
+  const [depositAmount, setDepositAmount] = useState('')
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [withdrawAddress, setWithdrawAddress] = useState('')
   const [floatingCoins, setFloatingCoins] = useState<FloatingCoin[]>([])
@@ -309,6 +310,32 @@ export default function VaultView() {
     
     setWithdrawAmount('')
     setWithdrawAddress('')
+  }
+
+  const handleDeposit = (amount: number) => {
+    if (!amount || amount <= 0) {
+      toast.error('Invalid amount', { description: 'Please enter a valid deposit amount' })
+      return
+    }
+
+    setBtcBalance((current) => (current || 0) + amount)
+    
+    const newTransaction: VaultTransaction = {
+      id: Date.now().toString(),
+      type: 'deposit',
+      amount,
+      timestamp: Date.now()
+    }
+
+    setTransactions((current) => {
+      if (!current) return [newTransaction]
+      return [newTransaction, ...current].slice(0, 50)
+    })
+
+    toast.success('Deposit successful!', { 
+      description: `${amount} BTC added to your vault`,
+      icon: '💰'
+    })
   }
 
   const handlePurchaseFlashSale = (card: FlashSaleCard) => {
@@ -841,6 +868,89 @@ export default function VaultView() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="border-4 border-accent/60 shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)] bg-gradient-to-br from-card to-background">
+        <div className="p-8 relative z-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 jagged-corner-small bg-accent/30 border-3 border-accent shadow-[0_0_15px_oklch(0.68_0.18_330_/_0.5)]">
+              <TrendUp size={32} weight="duotone" className="text-accent" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-accent hud-text" style={{
+                textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.68 0.18 330 / 0.9)',
+                WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+              }}>DEPOSIT BTC</h3>
+              <p className="text-xs uppercase tracking-wide mt-1 font-bold bg-card/90 px-2 py-1 inline-block border-2 border-accent/50" style={{
+                textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                color: 'oklch(0.90 0.08 195)'
+              }}>
+                Add Bitcoin to your secure vault
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="deposit-amount" className="uppercase tracking-wide text-xs font-black" style={{
+                  textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                  color: 'oklch(0.90 0.08 195)'
+                }}>
+                  Amount (BTC)
+                </Label>
+                <Input
+                  id="deposit-amount"
+                  type="number"
+                  step="0.000001"
+                  placeholder="0.000000"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  className="bg-card border-3 border-accent/50 focus:border-accent jagged-corner-small h-12 text-lg font-mono shadow-[0_0_10px_oklch(0.68_0.18_330_/_0.3)] focus:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.5)]"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[0.001, 0.005, 0.01].map((amount) => (
+                  <Button
+                    key={amount}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDepositAmount(amount.toString())}
+                    className="border-accent/50 text-accent hover:bg-accent/10 jagged-corner-small text-xs"
+                  >
+                    {amount} BTC
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-center p-6 bg-accent/10 border-2 border-accent/30 jagged-corner">
+              <div className="text-center space-y-2">
+                <ShieldCheck size={48} weight="duotone" className="text-accent mx-auto" />
+                <p className="text-sm font-bold uppercase tracking-wide" style={{
+                  textShadow: '1px 1px 0 oklch(0.08 0.02 280)',
+                  color: 'oklch(0.90 0.08 195)'
+                }}>
+                  INSTANT CREDIT
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Your BTC is instantly available for trading
+                </p>
+              </div>
+            </div>
+          </div>
+          <Button 
+            onClick={() => {
+              const amount = parseFloat(depositAmount)
+              if (amount) {
+                handleDeposit(amount)
+                setDepositAmount('')
+              }
+            }}
+            className="w-full mt-6 bg-accent hover:bg-accent/90 text-accent-foreground jagged-corner border-4 border-accent shadow-[0_0_25px_oklch(0.68_0.18_330_/_0.6)] hover:shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.8)] uppercase tracking-[0.15em] font-bold h-14 text-base"
+          >
+            <TrendUp size={24} weight="bold" className="mr-2" />
+            Secure Deposit
+          </Button>
         </div>
       </div>
 
