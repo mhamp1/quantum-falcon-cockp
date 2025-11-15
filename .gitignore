@@ -25,8 +25,6 @@ dist-ssr
 *.sw?
 
 .env
-.env.local
-.env.*.local
 **/agent-eval-report*
 packages
 pids
@@ -34,10 +32,3 @@ pids
 .devcontainer/
 
 .spark-workbench-id
-
-# Security - NEVER commit these files
-master.key
-*.key
-*.pem
-secrets/
-credentials/
