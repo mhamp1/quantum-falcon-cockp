@@ -1,10 +1,13 @@
 import { useKV } from '@github/spark/hooks'
-import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Flask } from '@phosphor-icons/react'
+import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Flask, Lightning } from '@phosphor-icons/react'
 import Dashboard from '@/components/dashboard/Dashboard'
 import BotOverview from '@/components/dashboard/BotOverview'
+import Analytics from '@/components/dashboard/Analytics'
 import Agents from '@/components/agents/Agents'
 import VaultView from '@/components/vault/VaultView'
 import Community from '@/components/community/Community'
+import TradingStrategies from '@/components/trade/TradingStrategies'
+import EnhancedSettings from '@/components/settings/EnhancedSettings'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 function ComingSoon({ title }: { title: string }) {
@@ -34,10 +37,11 @@ export default function App() {
     { id: 'dashboard', label: 'Dashboard', icon: House, component: Dashboard },
     { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
     { id: 'agents', label: 'AI Agents', icon: Robot, component: Agents },
+    { id: 'analytics', label: 'Analytics', icon: ChartLine, component: Analytics },
+    { id: 'trading', label: 'Trading', icon: Lightning, component: TradingStrategies },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'analytics', label: 'Analytics', icon: ChartLine, component: () => <ComingSoon title="Analytics" /> },
     { id: 'community', label: 'Community', icon: Users, component: Community },
-    { id: 'settings', label: 'Settings', icon: Gear, component: () => <ComingSoon title="Settings" /> },
+    { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
   ]
 
   const Component = tabs.find(tab => tab.id === activeTab)?.component || Dashboard
@@ -96,7 +100,7 @@ export default function App() {
         )}
 
         <main className="flex-1 overflow-y-auto" style={{ height: isMobile ? 'calc(100vh - 80px)' : '100vh' }}>
-          <div className="container mx-auto px-4 py-6 md:py-8 text-red-600">
+          <div className="container mx-auto px-4 py-6 md:py-8">
             <Component />
           </div>
         </main>

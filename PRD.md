@@ -1,58 +1,79 @@
 # Quantum Falcon Cockpit - Product Requirements Document
 
-A mobile-first progressive web app for cyberpunk-themed crypto trading, Solana accumulation, and BTC profit management with multi-agent AI system.
+A comprehensive mobile-responsive progressive web app for cyberpunk-themed crypto trading featuring AI-powered trading agents, advanced analytics, gamification, community features, and automated trading strategies.
 
 **Experience Qualities**:
 1. **Futuristic & Immersive** - Users should feel like they're piloting a sophisticated spacecraft console with holographic interfaces and neon data streams
 2. **Powerful Yet Accessible** - Complex trading agents and real-time data presented through intuitive touch-friendly controls that work seamlessly on mobile
 3. **Community-Connected** - Social features like XP progression, trading chat, and forum discussions create an engaging ecosystem around trading success
 
-**Complexity Level**: Complex Application (advanced functionality, accounts)
-This requires multi-agent trading logic, real-time data streams, user authentication, persistent state for portfolios and strategies, community features with XP systems, and integration with crypto APIs—making it a sophisticated trading platform rather than a simple tool.
+**Complexity Level**: Complex Application (advanced functionality, accounts, gamification)
+This is a sophisticated trading platform with multi-agent AI trading logic, real-time data streams, user authentication, persistent state for portfolios and strategies, community features with XP systems, gamification (achievements, levels, education), advanced analytics with multiple chart types, trading strategies with backtesting, recurring buy automation (DCA), AI assistant integration, and crypto API integration.
 
 ## Essential Features
 
 ### 1. Cyberpunk Dashboard
-- **Functionality**: Real-time portfolio overview with holographic card UI showing Solana balance, BTC profits, total portfolio value, 24h changes, and active agent status
+- **Functionality**: Real-time portfolio overview with holographic card UI showing Solana balance, BTC profits, total portfolio value, 24h changes, active agent status, recent activity logs, and live bot logs with auto-scroll
 - **Purpose**: Instant situational awareness of trading performance and bot health at a glance
 - **Trigger**: App launch (default landing screen)
-- **Progression**: Launch app → Animated neon splash → Dashboard materializes with staggered card animations → Live data streams pulse in → User scans metrics → Taps card for details
-- **Success criteria**: Dashboard loads <2s, all metrics visible without scrolling on mobile, live updates every 5s, smooth 60fps animations
+- **Progression**: Launch app → Animated neon splash → Dashboard materializes with staggered card animations → Live data streams pulse in → User scans metrics → Taps card for details → Views live bot logs
+- **Success criteria**: Dashboard loads <2s, all metrics visible without scrolling on mobile, live updates every 5s, smooth 60fps animations, bot logs stream in real-time
 
 ### 2. Multi-Agent Trading System
-- **Functionality**: Three autonomous agents (Market Analysis, Strategy Execution, RL Optimizer) with individual status displays, toggle controls, and performance metrics
+- **Functionality**: Three autonomous agents (Market Analysis, Strategy Execution, RL Optimizer) with individual status displays, toggle controls, performance metrics, XP levels, and confidence scores
 - **Purpose**: Automated trading intelligence that learns and adapts while giving users transparency and control
 - **Trigger**: Navigate to "Agents" tab or dashboard agent cards
-- **Progression**: Tap Agents → View 3 agent cards with status LEDs → Review each agent's metrics (confidence, actions taken, profit contribution) → Toggle agent on/off → Configure thresholds in settings → Agents execute trades → Toast notifications on key actions
-- **Success criteria**: Each agent independently processes, real-time status updates, <100ms toggle response, clear profit attribution per agent
+- **Progression**: Tap Agents → View 3 agent cards with status LEDs → Review each agent's metrics (confidence, actions taken, profit contribution, level/XP) → Toggle agent on/off → Configure thresholds in settings → Agents execute trades → Toast notifications on key actions → View agent activity logs
+- **Success criteria**: Each agent independently processes, real-time status updates, <100ms toggle response, clear profit attribution per agent, XP progression visible
 
-### 3. Solana Trading Hub (DCA/Sniping)
+### 3. Advanced Analytics Dashboard
+- **Functionality**: Comprehensive performance analytics including PnL time series charts, win rate by asset, strategy performance breakdown, portfolio composition pie chart, tax reserve calculations, and detailed trade history
+- **Purpose**: Deep insights into trading performance with visual representations and tax planning
+- **Trigger**: Navigate to "Analytics" tab
+- **Progression**: Open Analytics → View performance summary cards → Explore PnL chart with timeframe selector → Analyze win rates by asset → Review strategy performance → Check portfolio breakdown → Calculate tax obligations → Browse trade history
+- **Success criteria**: All charts load <1s, interactive elements respond smoothly, timeframe switching instant, clear visual hierarchy, mobile-optimized charts
+
+### 4. Trading Strategies Hub
+- **Functionality**: Activate and manage automated trading strategies (RSI, MACD, Bollinger, Momentum, etc.), configure recurring buys (DCA), interact with AI trading assistant, and access backtesting tools
+- **Purpose**: Empower users with professional trading tools and automation without coding
+- **Trigger**: Navigate to "Trading" tab
+- **Progression**: Open Trading → Browse strategy library → Select strategy → Configure parameters → Activate strategy → Monitor active strategies with real-time PnL → Set up DCA schedules → Chat with AI assistant for guidance → Backtest strategies before deployment
+- **Success criteria**: Strategy activation <500ms, DCA schedules execute on time (±5s), AI responses <2s, clear strategy status indicators, mobile-friendly controls
+
+### 5. Solana Trading Hub (DCA/Sniping)
 - **Functionality**: Configure and monitor DCA (Dollar Cost Averaging) schedules and token sniping parameters for Solana ecosystem tokens
 - **Purpose**: Systematic accumulation strategy with opportunistic sniping for new token launches
 - **Trigger**: Navigate to "Trade" tab or tap dashboard trading card
 - **Progression**: Open Trade → Choose DCA or Snipe mode → DCA: Set amount/interval/tokens → Snipe: Set token criteria/buy limits → Review strategy summary → Activate → Live orders display in timeline → Executed trades show profit/loss → Profits auto-convert to BTC
 - **Success criteria**: DCA executes on schedule (±5s accuracy), snipe detects new tokens <1s after launch, order history persists, slippage controls work
 
-### 4. BTC Profit Vault
-- **Functionality**: Automated profit-taking that converts winning Solana trades to BTC with vault visualization and withdrawal controls
+### 6. BTC Profit Vault
+- **Functionality**: Automated profit-taking that converts winning Solana trades to BTC with vault visualization, floating coin animations, and withdrawal controls
 - **Purpose**: Lock in gains to stable store-of-value asset, reducing portfolio volatility
 - **Trigger**: Automatic on profitable trade close, manual from "Vault" tab
-- **Progression**: Profitable trade closes → Agent triggers conversion → Solana amount swaps to BTC → BTC deposited to vault → Vault balance increments with animation → User receives notification → Can view history or withdraw to external wallet
-- **Success criteria**: Conversion executes <30s after trade close, vault shows accurate BTC balance, withdrawal to external address works, transaction history persists
+- **Progression**: Profitable trade closes → Agent triggers conversion → Solana amount swaps to BTC → BTC deposited to vault → Vault balance increments with animation → User receives notification → Can view history or withdraw to external wallet → Floating coin animations provide visual feedback
+- **Success criteria**: Conversion executes <30s after trade close, vault shows accurate BTC balance, withdrawal to external address works, transaction history persists, animations smooth at 60fps
 
-### 5. Community & XP System
-- **Functionality**: User profile with XP progression, level badges, trading chat room, and forum for strategy discussion
+### 7. Community & XP System
+- **Functionality**: User profile with XP progression (15+ levels), level badges, achievement unlocks (12+ achievements), trading chat room, leaderboards, strategy marketplace, and forum for strategy discussion
 - **Purpose**: Gamification increases engagement, community knowledge-sharing improves trading outcomes
-- **Trigger**: Navigate to "Community" tab, earn XP from trades/referrals
-- **Progression**: Complete action (trade, referral, forum post) → XP awarded with toast → Progress bar fills → Level up triggers neon animation → Unlock badges/perks → View leaderboard → Chat with other traders → Post strategies in forum → React/comment on posts
-- **Success criteria**: XP awards immediately, leaderboard updates real-time, chat messages send <500ms, forum posts persist, badge system unlocks 5+ tiers
+- **Trigger**: Navigate to "Community" tab, earn XP from trades/referrals/achievements
+- **Progression**: Complete action (trade, referral, forum post) → XP awarded with toast → Progress bar fills → Level up triggers neon animation → Unlock badges/perks → View leaderboard → Chat with other traders → Post strategies in forum → React/comment on posts → Download strategies from marketplace
+- **Success criteria**: XP awards immediately, leaderboard updates real-time, chat messages send <500ms, forum posts persist, badge system unlocks 5+ tiers, strategy marketplace functional
 
-### 6. Settings & Security
-- **Functionality**: Trading parameters, notification preferences, biometric authentication, API key management, theme customization
-- **Purpose**: Personalization and security controls tailored to user's risk tolerance and preferences
-- **Trigger**: Navigate to "Settings" tab or gear icon
-- **Progression**: Open Settings → View organized sections (Trading/Security/Notifications/Appearance) → Modify parameters → Changes auto-save → Security section: Enable biometrics → Add API keys (masked) → Set trading limits → Notification section: Toggle types → Appearance: Adjust neon intensity
-- **Success criteria**: Settings persist across sessions, biometrics work on supported devices, API keys encrypted in storage, limits enforced on trades
+### 8. Comprehensive Settings & Profile
+- **Functionality**: User profile with stats, achievements display (with progress bars), education center with courses, subscription tier management (Free/Pro/ProPlus), notification preferences, trading settings, audio controls, and security options
+- **Purpose**: Personalization, learning resources, and security controls tailored to user preferences
+- **Trigger**: Navigate to "Settings" tab
+- **Progression**: Open Settings → View profile with level/XP → Browse achievements with unlock status → Start education courses → Review subscription tiers → Modify app settings → Configure notifications → Set trading preferences → Enable security features → View about/legal info
+- **Success criteria**: Settings persist across sessions, profile displays accurately, achievement progress tracked, course progress saved, subscription tiers clearly differentiated, biometrics work on supported devices
+
+### 9. Gamification System
+- **Functionality**: Comprehensive XP earning system (trade execution: +10 XP, profitable trade: +50 XP, tutorials: +100 XP, streaks: +500 XP), level progression (50 levels with unlocks), achievement system (First Trade, Portfolio Milestones, Win Rates, Streaks, Community Engagement), and visual rewards
+- **Purpose**: Increase user engagement and retention through game mechanics
+- **Trigger**: Any achievement-eligible action
+- **Progression**: User completes action → XP awarded with animated toast → Progress bar updates → Achievement unlocked (if applicable) → Confetti/celebration animation → New features/perks unlocked at milestones → User motivated to continue
+- **Success criteria**: XP awards instant, level-ups celebrated visually, achievements trackable, unlocks functional, clear progression path to level 50
 
 ## Edge Case Handling
 
