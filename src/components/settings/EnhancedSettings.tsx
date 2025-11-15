@@ -472,19 +472,32 @@ export default function EnhancedSettings() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl rounded-full" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/10 blur-3xl rounded-full" />
               
+              <svg className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
+                <line x1="0" y1="20" x2="100%" y2="20" className="circuit-line" />
+                <line x1="20" y1="0" x2="20" y2="100%" className="circuit-line" />
+                <circle cx="20" cy="20" r="3" fill="var(--primary)" className="animate-pulse" />
+              </svg>
+              
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-primary/20 border border-primary/40 jagged-corner-small">
+                  <div className="p-3 bg-primary/20 border border-primary/40 jagged-corner-small relative">
                     <Bell size={24} weight="duotone" className="text-primary" />
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold uppercase tracking-[0.15em] hud-text text-primary">NOTIFICATIONS</h3>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">ALERT_SYSTEM</p>
                   </div>
+                  <div className="ml-auto flex items-center gap-1">
+                    <div className="w-1 h-1 bg-primary rounded-full" />
+                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                    <div className="w-1 h-1 bg-primary rounded-full" />
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Lightning size={18} weight="duotone" className="text-primary" />
                       <div>
@@ -498,7 +511,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <ChartLineUp size={18} weight="duotone" className="text-primary" />
                       <div>
@@ -512,7 +526,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <BellRinging size={18} weight="duotone" className="text-primary" />
                       <div>
@@ -526,7 +541,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <User size={18} weight="duotone" className="text-primary" />
                       <div>
@@ -543,24 +559,37 @@ export default function EnhancedSettings() {
               </div>
             </div>
 
-            <div className="glass-morph-card p-6 space-y-6 relative overflow-hidden group hover:shadow-[0_0_40px_oklch(0.72_0.20_195_/_0.3)] transition-all duration-500">
+            <div className="glass-morph-card p-6 space-y-6 relative overflow-hidden group hover:shadow-[0_0_40px_oklch(0.68_0.18_330_/_0.3)] transition-all duration-500">
               <div className="absolute inset-0 grid-background opacity-5" />
               <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 blur-3xl rounded-full" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 blur-3xl rounded-full" />
               
+              <svg className="absolute top-0 right-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
+                <line x1="100%" y1="20" x2="0" y2="20" className="circuit-line" strokeDasharray="3,3" />
+                <line x1="calc(100% - 20px)" y1="0" x2="calc(100% - 20px)" y2="100%" className="circuit-line" strokeDasharray="3,3" />
+                <circle cx="calc(100% - 20px)" cy="20" r="3" fill="var(--accent)" className="animate-pulse" />
+              </svg>
+              
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-accent/20 border border-accent/40 jagged-corner-small">
+                  <div className="p-3 bg-accent/20 border border-accent/40 jagged-corner-small relative">
                     <SpeakerHigh size={24} weight="duotone" className="text-accent" />
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold uppercase tracking-[0.15em] hud-text text-accent">AUDIO_SYSTEM</h3>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">SOUND_CONFIG</p>
                   </div>
+                  <div className="ml-auto flex items-center gap-1">
+                    <div className="w-1 h-3 bg-accent/40 rounded" />
+                    <div className="w-1 h-5 bg-accent/60 rounded" />
+                    <div className="w-1 h-4 bg-accent/50 rounded animate-pulse" />
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Lightning size={18} weight="duotone" className="text-accent" />
                       <div>
@@ -574,7 +603,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <SpeakerHigh size={18} weight="duotone" className="text-accent" />
                       <div>
@@ -588,7 +618,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <User size={18} weight="duotone" className="text-accent" />
                       <div>
@@ -602,10 +633,11 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-3">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-3 relative overflow-hidden">
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
                     <div className="flex items-center justify-between">
                       <Label className="font-bold uppercase text-xs tracking-wider">VOLUME</Label>
-                      <span className="text-accent font-bold text-sm">{settings.audio?.volume ?? 70}%</span>
+                      <span className="text-accent font-bold text-sm tabular-nums">{settings.audio?.volume ?? 70}%</span>
                     </div>
                     <Input 
                       type="range"
@@ -615,6 +647,10 @@ export default function EnhancedSettings() {
                       onChange={(e) => handleUpdateSetting(['audio', 'volume'], Number(e.target.value))}
                       className="w-full"
                     />
+                    <div className="flex justify-between text-[9px] text-muted-foreground uppercase tracking-wider">
+                      <span>MUTE</span>
+                      <span>MAX</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -625,19 +661,29 @@ export default function EnhancedSettings() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 blur-3xl rounded-full" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 blur-3xl rounded-full" />
               
+              <svg className="absolute bottom-0 left-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
+                <path d="M 0 100%, L 60 100%, L 60 60, L 100% 60" stroke="var(--secondary)" strokeWidth="2" fill="none" strokeDasharray="5,5" className="circuit-line" />
+                <circle cx="60" cy="60" r="4" fill="var(--secondary)" className="animate-pulse" />
+              </svg>
+              
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-secondary/20 border border-secondary/40 jagged-corner-small">
+                  <div className="p-3 bg-secondary/20 border border-secondary/40 jagged-corner-small relative">
                     <ChartLine size={24} weight="duotone" className="text-secondary" />
+                    <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-secondary rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold uppercase tracking-[0.15em] hud-text text-secondary">TRADING_CONFIG</h3>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">EXECUTION_SETTINGS</p>
                   </div>
+                  <div className="ml-auto px-2 py-1 bg-secondary/10 border border-secondary/30">
+                    <span className="text-[9px] font-bold text-secondary tracking-wider">ACTIVE</span>
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 hover:border-secondary/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 hover:border-secondary/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Database size={18} weight="duotone" className="text-secondary" />
                       <div>
@@ -651,7 +697,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 hover:border-secondary/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 hover:border-secondary/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Shield size={18} weight="duotone" className="text-secondary" />
                       <div>
@@ -665,7 +712,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 hover:border-secondary/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 hover:border-secondary/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <ArrowsClockwise size={18} weight="duotone" className="text-secondary" />
                       <div>
@@ -679,23 +727,25 @@ export default function EnhancedSettings() {
                     />
                   </div>
                   
-                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 space-y-2">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/50 to-transparent" />
                     <Label className="font-bold uppercase text-xs tracking-wider">DEFAULT_AMOUNT</Label>
                     <div className="flex items-center gap-2">
                       <Input 
                         type="number"
                         value={settings.trading?.defaultAmount ?? 100}
                         onChange={(e) => handleUpdateSetting(['trading', 'defaultAmount'], Number(e.target.value))}
-                        className="flex-1 bg-background/60"
+                        className="flex-1 bg-background/60 tabular-nums"
                       />
-                      <span className="text-secondary font-bold text-sm">SOL</span>
+                      <span className="text-secondary font-bold text-sm uppercase tracking-wider">SOL</span>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 space-y-2">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 space-y-2 relative overflow-hidden">
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/50 to-transparent" />
                     <div className="flex items-center justify-between">
                       <Label className="font-bold uppercase text-xs tracking-wider">SLIPPAGE</Label>
-                      <span className="text-secondary font-bold text-sm">{settings.trading?.slippage ?? 1.0}%</span>
+                      <span className="text-secondary font-bold text-sm tabular-nums">{settings.trading?.slippage ?? 1.0}%</span>
                     </div>
                     <Input 
                       type="range"
@@ -706,6 +756,10 @@ export default function EnhancedSettings() {
                       onChange={(e) => handleUpdateSetting(['trading', 'slippage'], Number(e.target.value))}
                       className="w-full"
                     />
+                    <div className="flex justify-between text-[9px] text-muted-foreground uppercase tracking-wider">
+                      <span>0.1%</span>
+                      <span>5.0%</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -716,19 +770,30 @@ export default function EnhancedSettings() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-destructive/10 blur-3xl rounded-full" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/10 blur-3xl rounded-full" />
               
+              <svg className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
+                <rect x="10" y="10" width="30" height="30" stroke="var(--destructive)" strokeWidth="2" fill="none" strokeDasharray="4,4" className="circuit-line" />
+                <circle cx="25" cy="25" r="5" fill="var(--destructive)" opacity="0.5" className="animate-pulse" />
+              </svg>
+              
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-destructive/20 border border-destructive/40 jagged-corner-small">
+                  <div className="p-3 bg-destructive/20 border border-destructive/40 jagged-corner-small relative">
                     <Lock size={24} weight="duotone" className="text-destructive" />
+                    <div className="absolute -top-1 -left-1 w-2 h-2 bg-destructive rounded-full animate-pulse" style={{ animationDelay: '0.7s' }} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold uppercase tracking-[0.15em] hud-text text-destructive">SECURITY</h3>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">PROTECTION_LAYER</p>
                   </div>
+                  <div className="ml-auto flex items-center gap-1">
+                    <Shield size={16} weight="fill" className="text-destructive" />
+                    <span className="text-[9px] font-bold text-destructive tracking-wider">SECURE</span>
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 hover:border-destructive/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 hover:border-destructive/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-destructive/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Key size={18} weight="duotone" className="text-destructive" />
                       <div>
@@ -742,7 +807,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 hover:border-destructive/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 hover:border-destructive/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-destructive/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Shield size={18} weight="duotone" className="text-destructive" />
                       <div>
@@ -756,7 +822,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 space-y-2">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/50 to-transparent" />
                     <Label className="font-bold uppercase text-xs tracking-wider">AUTO_LOGOUT</Label>
                     <Select 
                       value={String(settings.security?.autoLogout ?? 5)}
@@ -774,7 +841,8 @@ export default function EnhancedSettings() {
                     </Select>
                   </div>
 
-                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 space-y-2">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 space-y-2 relative overflow-hidden">
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/50 to-transparent" />
                     <Label className="font-bold uppercase text-xs tracking-wider">SESSION_TIMEOUT</Label>
                     <Select 
                       value={String(settings.security?.sessionTimeout ?? 30)}
@@ -800,19 +868,31 @@ export default function EnhancedSettings() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl rounded-full" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/10 blur-3xl rounded-full" />
               
+              <svg className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
+                <circle cx="50%" cy="50%" r="40" stroke="var(--primary)" strokeWidth="2" fill="none" strokeDasharray="6,6" className="circuit-line" />
+                <circle cx="50%" cy="50%" r="3" fill="var(--primary)" className="animate-pulse" />
+              </svg>
+              
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-primary/20 border border-primary/40 jagged-corner-small">
+                  <div className="p-3 bg-primary/20 border border-primary/40 jagged-corner-small relative">
                     <WifiHigh size={24} weight="duotone" className="text-primary" />
+                    <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold uppercase tracking-[0.15em] hud-text text-primary">NETWORK</h3>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">RPC_CONFIG</p>
                   </div>
+                  <div className="ml-auto flex items-center gap-1">
+                    <div className="w-1 h-2 bg-primary/60 rounded" />
+                    <div className="w-1 h-3 bg-primary/80 rounded" />
+                    <div className="w-1 h-4 bg-primary rounded animate-pulse" />
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-primary/20 space-y-2">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-primary/20 space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                     <Label className="font-bold uppercase text-xs tracking-wider">RPC_ENDPOINT</Label>
                     <Select 
                       value={settings.network?.rpcEndpoint ?? 'mainnet'}
@@ -831,19 +911,21 @@ export default function EnhancedSettings() {
                   </div>
 
                   {settings.network?.rpcEndpoint === 'custom' && (
-                    <div className="p-4 bg-background/40 backdrop-blur-sm border border-primary/20 space-y-2">
+                    <div className="p-4 bg-background/40 backdrop-blur-sm border border-primary/20 space-y-2 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                       <Label className="font-bold uppercase text-xs tracking-wider">CUSTOM_ENDPOINT</Label>
                       <Input 
                         type="text"
                         placeholder="https://..."
                         value={settings.network?.customEndpoint ?? ''}
                         onChange={(e) => handleUpdateSetting(['network', 'customEndpoint'], e.target.value)}
-                        className="bg-background/60"
+                        className="bg-background/60 font-mono text-xs"
                       />
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Lightning size={18} weight="duotone" className="text-primary" />
                       <div>
@@ -857,13 +939,14 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="p-4 bg-primary/10 border border-primary/30 space-y-2">
-                    <div className="flex items-center gap-2">
+                  <div className="p-4 bg-primary/10 border border-primary/30 space-y-2 relative overflow-hidden">
+                    <div className="absolute inset-0 grid-background opacity-10" />
+                    <div className="relative z-10 flex items-center gap-2">
                       <div className="status-indicator" style={{ width: '6px', height: '6px' }} />
                       <span className="hud-readout text-[10px]">CONNECTION_ACTIVE</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Connected to Solana {settings.network?.rpcEndpoint ?? 'mainnet'}
+                    <p className="text-xs text-muted-foreground relative z-10">
+                      Connected to Solana <span className="text-primary font-bold uppercase">{settings.network?.rpcEndpoint ?? 'mainnet'}</span>
                     </p>
                   </div>
                 </div>
@@ -875,19 +958,31 @@ export default function EnhancedSettings() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 blur-3xl rounded-full" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 blur-3xl rounded-full" />
               
+              <svg className="absolute bottom-0 right-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
+                <path d="M 100% 100%, L 80% 100%, L 80% 70%, L 50% 70%" stroke="var(--accent)" strokeWidth="2" fill="none" strokeDasharray="4,4" className="circuit-line" />
+                <circle cx="50%" cy="70%" r="3" fill="var(--accent)" className="animate-pulse" />
+              </svg>
+              
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-accent/20 border border-accent/40 jagged-corner-small">
+                  <div className="p-3 bg-accent/20 border border-accent/40 jagged-corner-small relative">
                     <SquaresFour size={24} weight="duotone" className="text-accent" />
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-pulse" style={{ animationDelay: '1.3s' }} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold uppercase tracking-[0.15em] hud-text text-accent">DISPLAY</h3>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">UI_PREFERENCES</p>
                   </div>
+                  <div className="ml-auto flex flex-col items-end gap-0.5">
+                    <div className="w-8 h-px bg-accent/60" />
+                    <div className="w-6 h-px bg-accent/40" />
+                    <div className="w-4 h-px bg-accent/20" />
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <SquaresFour size={18} weight="duotone" className="text-accent" />
                       <div>
@@ -901,7 +996,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Wallet size={18} weight="duotone" className="text-accent" />
                       <div>
@@ -915,7 +1011,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Palette size={18} weight="duotone" className="text-accent" />
                       <div>
@@ -929,7 +1026,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item">
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
                       <Cpu size={18} weight="duotone" className="text-accent" />
                       <div>
@@ -943,7 +1041,8 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
-                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-2">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
                     <Label className="font-bold uppercase text-xs tracking-wider">CHART_TYPE</Label>
                     <Select 
                       value={settings.display?.chartType ?? 'candlestick'}
@@ -961,7 +1060,8 @@ export default function EnhancedSettings() {
                     </Select>
                   </div>
 
-                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-2">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-2 relative overflow-hidden">
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
                     <Label className="font-bold uppercase text-xs tracking-wider">REFRESH_RATE</Label>
                     <Select 
                       value={String(settings.display?.refreshRate ?? 5)}
@@ -988,14 +1088,45 @@ export default function EnhancedSettings() {
             <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 blur-3xl rounded-full" />
             
-            <div className="relative z-10 flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-text text-primary mb-2">SYSTEM_STATUS</h3>
-                <p className="text-sm text-muted-foreground">All systems operational • Last updated: {new Date().toLocaleTimeString()}</p>
+            <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none" style={{ zIndex: 1 }}>
+              <line x1="0" y1="50%" x2="100%" y2="50%" stroke="var(--primary)" strokeWidth="1" strokeDasharray="10,10" className="circuit-line" />
+              <circle cx="20%" cy="50%" r="4" fill="var(--primary)" className="animate-pulse" />
+              <circle cx="80%" cy="50%" r="4" fill="var(--accent)" className="animate-pulse" style={{ animationDelay: '0.5s' }} />
+            </svg>
+            
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-primary/20 border border-primary/40">
+                    <Cpu size={20} weight="duotone" className="text-primary" />
+                  </div>
+                  <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-text text-primary">SYSTEM_STATUS</h3>
+                </div>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <div className="status-indicator" style={{ width: '6px', height: '6px' }} />
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">All systems operational</span>
+                  </div>
+                  <div className="h-3 w-px bg-border" />
+                  <span className="text-xs text-muted-foreground">
+                    Last updated: <span className="text-primary font-mono">{new Date().toLocaleTimeString()}</span>
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <div className="px-2 py-1 bg-primary/10 border border-primary/30">
+                    <span className="text-[9px] font-bold text-primary tracking-wider">CPU: 23%</span>
+                  </div>
+                  <div className="px-2 py-1 bg-accent/10 border border-accent/30">
+                    <span className="text-[9px] font-bold text-accent tracking-wider">MEM: 45%</span>
+                  </div>
+                  <div className="px-2 py-1 bg-secondary/10 border border-secondary/30">
+                    <span className="text-[9px] font-bold text-secondary tracking-wider">NET: 12ms</span>
+                  </div>
+                </div>
               </div>
               <Button 
                 variant="outline" 
-                className="border-primary text-primary hover:bg-primary/10"
+                className="border-primary text-primary hover:bg-primary/10 relative group"
                 onClick={() => {
                   setSettings((current) => ({
                     ...current!,
@@ -1013,6 +1144,7 @@ export default function EnhancedSettings() {
               >
                 <ArrowsClockwise size={18} weight="duotone" className="mr-2" />
                 RESET_TO_DEFAULTS
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Button>
             </div>
           </div>
