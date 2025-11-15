@@ -1,6 +1,6 @@
 import { useKV } from '@github/spark/hooks'
-import { TrendUp, TrendDown, Coins, Lightning, ArrowsClockwise, ChartLine, Target } from '@phosphor-icons/react'
-import { useEffect } from 'react'
+import { TrendUp, TrendDown, Coins, Lightning, ArrowsClockwise, ChartLine, Target, Terminal, Brain, CheckCircle, ArrowRight } from '@phosphor-icons/react'
+import { useEffect, useRef, useState } from 'react'
 import Wireframe3D from '@/components/shared/Wireframe3D'
 
 interface PortfolioData {
@@ -11,6 +11,31 @@ interface PortfolioData {
   activeAgents: number
 }
 
+interface LogEntry {
+  id: string
+  timestamp: string
+  agent: string
+  type: 'thinking' | 'analysis' | 'execution' | 'success' | 'info'
+  message: string
+}
+
+const LOG_TEMPLATES = [
+  { agent: 'A1_MARKET', type: 'thinking', message: 'Analyzing market conditions for SOL/USD pair...' },
+  { agent: 'A1_MARKET', type: 'analysis', message: 'Detected 5.2% price volatility in last 15min window' },
+  { agent: 'A2_STRATEGY', type: 'thinking', message: 'Evaluating DCA entry point for BTC position' },
+  { agent: 'A2_STRATEGY', type: 'execution', message: 'Executing DCA buy order: 0.00025 BTC @ $42,150' },
+  { agent: 'A2_STRATEGY', type: 'success', message: 'Trade executed successfully. Slippage: 0.12%' },
+  { agent: 'A3_RL_OPT', type: 'thinking', message: 'Running reinforcement learning optimization cycle' },
+  { agent: 'A3_RL_OPT', type: 'analysis', message: 'Model confidence: 87.3% for bullish continuation' },
+  { agent: 'A1_MARKET', type: 'info', message: 'New token detected: BONK - Initial liquidity: $2.4M' },
+  { agent: 'A2_STRATEGY', type: 'thinking', message: 'Calculating optimal position sizing for BONK entry' },
+  { agent: 'A2_STRATEGY', type: 'execution', message: 'Snipe order placed: 1.5 SOL → BONK' },
+  { agent: 'A2_STRATEGY', type: 'success', message: 'Snipe successful. Entry price: $0.0000142' },
+  { agent: 'A3_RL_OPT', type: 'analysis', message: 'Portfolio rebalance recommended: +2.3% SOL allocation' },
+  { agent: 'A1_MARKET', type: 'info', message: 'Market sentiment score: 72/100 (Bullish)' },
+  { agent: 'A3_RL_OPT', type: 'thinking', message: 'Adjusting risk parameters based on volatility index' },
+]
+
 export default function Dashboard() {
   const [portfolio, setPortfolio] = useKV<PortfolioData>('portfolio-data', {
     solanaBalance: 125.47,
@@ -19,6 +44,10 @@ export default function Dashboard() {
     change24h: 5.72,
     activeAgents: 3
   })
+
+  const [logs, setLogs] = useState<LogEntry[]>([])
+  const logsEndRef = useRef<HTMLDivElement>(null)
+  const [autoScroll, setAutoScroll] = useState(true)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -42,9 +71,65 @@ export default function Dashboard() {
     return () => clearInterval(interval)
   }, [setPortfolio])
 
+  useEffect(() => {
+    const logInterval = setInterval(() => {
+      const template = LOG_TEMPLATES[Math.floor(Math.random() * LOG_TEMPLATES.length)]
+      const newLog: LogEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+        agent: template.agent,
+        type: template.type as LogEntry['type'],
+        message: template.message
+      }
+      
+      setLogs((currentLogs) => {
+        const updated = [...currentLogs, newLog]
+        return updated.slice(-50)
+      })
+    }, 3000)
+
+    return () => clearInterval(logInterval)
+  }, [])
+
+  useEffect(() => {
+    if (autoScroll && logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [logs, autoScroll])
+
   if (!portfolio) return null
 
   const isPositive = portfolio.change24h >= 0
+
+  const getLogIcon = (type: LogEntry['type']) => {
+    switch (type) {
+      case 'thinking':
+        return <Brain size={14} weight="duotone" className="text-primary" />
+      case 'analysis':
+        return <ChartLine size={14} weight="duotone" className="text-accent" />
+      case 'execution':
+        return <ArrowRight size={14} weight="bold" className="text-secondary" />
+      case 'success':
+        return <CheckCircle size={14} weight="duotone" className="text-primary" />
+      case 'info':
+        return <Terminal size={14} weight="duotone" className="text-muted-foreground" />
+    }
+  }
+
+  const getLogColor = (type: LogEntry['type']) => {
+    switch (type) {
+      case 'thinking':
+        return 'text-primary'
+      case 'analysis':
+        return 'text-accent'
+      case 'execution':
+        return 'text-secondary'
+      case 'success':
+        return 'text-primary'
+      case 'info':
+        return 'text-muted-foreground'
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -275,6 +360,77 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="cyber-card relative overflow-hidden">
+        <div className="absolute inset-0 technical-grid pointer-events-none opacity-10" />
+        <div className="scan-line-effect absolute inset-0 pointer-events-none" />
+        <div className="p-6 relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">BOT_LOGS</h3>
+              <div className="px-3 py-1 bg-primary/20 border border-primary/40 flex items-center gap-2">
+                <Terminal size={14} weight="duotone" className="text-primary" />
+                <span className="text-xs font-bold text-primary uppercase tracking-[0.15em]">LIVE</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setAutoScroll(!autoScroll)}
+                className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all border ${
+                  autoScroll 
+                    ? 'bg-primary/20 border-primary/40 text-primary' 
+                    : 'bg-muted/30 border-muted-foreground/30 text-muted-foreground'
+                }`}
+              >
+                {autoScroll ? 'AUTO' : 'MANUAL'}
+              </button>
+              <button
+                onClick={() => setLogs([])}
+                className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-muted/30 border border-muted-foreground/30 text-muted-foreground hover:bg-destructive/20 hover:border-destructive hover:text-destructive transition-all"
+              >
+                CLEAR
+              </button>
+            </div>
+          </div>
+          
+          <div className="bg-background/80 border border-primary/20 h-[400px] overflow-y-auto scrollbar-thin relative">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <div className="p-4 space-y-2 font-mono text-xs">
+              {logs.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <div className="text-center space-y-2">
+                    <Terminal size={32} weight="duotone" className="mx-auto opacity-50" />
+                    <p className="data-label">WAITING_FOR_LOGS</p>
+                  </div>
+                </div>
+              ) : (
+                logs.map((log) => (
+                  <div 
+                    key={log.id} 
+                    className="flex items-start gap-3 p-2 hover:bg-primary/5 transition-colors border-l-2 border-transparent hover:border-primary/30 group"
+                  >
+                    <span className="text-muted-foreground/60 font-bold shrink-0 w-16">
+                      {log.timestamp}
+                    </span>
+                    <span className="px-2 py-0.5 bg-primary/10 text-primary font-bold shrink-0 text-[10px] tracking-wider">
+                      {log.agent}
+                    </span>
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                      <div className="shrink-0 mt-0.5">
+                        {getLogIcon(log.type)}
+                      </div>
+                      <span className={`${getLogColor(log.type)} break-words`}>
+                        {log.message}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+              <div ref={logsEndRef} />
+            </div>
           </div>
         </div>
       </div>
