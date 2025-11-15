@@ -258,7 +258,7 @@ export default function EnhancedSettings() {
     toast.success('Setting updated')
   }
 
-  if (!profile || !settings || !settings.audio || !settings.notifications || !settings.trading || !settings.security || !settings.network || !settings.display || !settings.theme) {
+  if (!profile || !settings) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-4">
