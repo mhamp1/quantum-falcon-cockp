@@ -100,53 +100,54 @@ export default function EnhancedCommunity() {
 
   const microTransactions: MicroTransaction[] = [
     {
-      id: 'neural-core',
-      title: 'NEURAL CORE',
-      subtitle: 'UPGRADE YOUR REFLEX LOOP',
-      description: 'Boost aim assist, dodge speed, and precision attack control',
-      price: 4.99,
-      icon: <Brain size={48} weight="duotone" className="text-primary neon-glow-primary" />,
+      id: 'sniper-mode',
+      title: 'SNIPER MODE',
+      subtitle: 'PRECISION TOKEN HUNTER',
+      description: 'Advanced token launch detection with sub-second entry timing and slippage protection',
+      price: 7.99,
+      icon: <Target size={48} weight="duotone" className="text-primary neon-glow-primary" />,
       category: 'upgrade',
       duration: 168,
       featured: true,
-      benefit1: 'Precision Speed',
-      benefit2: 'Total control',
-      benefit3: 'For a price',
-      purchased: purchasedItems?.includes('neural-core') || false
+      benefit1: 'Sub-second detection',
+      benefit2: 'Auto-slippage calc',
+      benefit3: '7-day access',
+      purchased: purchasedItems?.includes('sniper-mode') || false
     },
     {
-      id: 'ex-coin',
-      title: 'EX-COIN',
-      subtitle: 'EARN BY COMBAT',
-      description: 'Bonus in-mission combat, search on replays, earn, and topple sell',
+      id: 'market-intel',
+      title: 'MARKET INTEL PRO',
+      subtitle: 'WHALE TRACKER SYSTEM',
+      description: 'Real-time whale wallet monitoring with instant alerts on large movements and accumulation patterns',
+      price: 9.99,
+      icon: <Brain size={48} weight="duotone" className="text-accent neon-glow-accent" />,
+      category: 'upgrade',
+      duration: 168,
+      featured: true,
+      benefit1: 'Whale alerts',
+      benefit2: 'Accumulation zones',
+      benefit3: 'Smart money flow',
+      purchased: purchasedItems?.includes('market-intel') || false
+    },
+    {
+      id: 'dca-optimizer',
+      title: 'DCA OPTIMIZER',
+      subtitle: 'INTELLIGENT ACCUMULATION',
+      description: 'AI-powered DCA timing that buys dips automatically based on RSI and support levels',
       price: 6.99,
-      icon: <Coins size={48} weight="duotone" className="text-accent neon-glow-accent" />,
+      icon: <GitBranch size={48} weight="duotone" className="text-secondary neon-glow-secondary" />,
       category: 'upgrade',
       duration: 168,
       featured: true,
-      benefit1: 'Encrypted',
-      benefit2: 'Trace-free',
-      benefit3: 'Yours forever',
-      purchased: purchasedItems?.includes('ex-coin') || false
-    },
-    {
-      id: 'quantum-pistol',
-      title: 'ZX-G1 PISTOL',
-      subtitle: 'STANDARD-ISSUE SIDEARM',
-      description: 'For aggressive running solo operators. Fast, lethal, versatile',
-      price: 8.99,
-      icon: <Target size={48} weight="duotone" className="text-secondary neon-glow-secondary" />,
-      category: 'cosmetic',
-      featured: true,
-      benefit1: 'Upgradable',
-      benefit2: 'Silent',
-      benefit3: 'Deadly',
-      purchased: purchasedItems?.includes('quantum-pistol') || false
+      benefit1: 'Smart dip buying',
+      benefit2: 'RSI-based timing',
+      benefit3: 'Lower avg entry',
+      purchased: purchasedItems?.includes('dca-optimizer') || false
     },
     {
       id: 'xp-boost-small',
       title: 'XP SURGE',
-      description: '+50% XP earnings boost. Level up in half the time',
+      description: '+50% XP earnings boost for 24 hours',
       price: 2.99,
       icon: <Lightning size={40} weight="duotone" className="text-primary" />,
       category: 'boost',
@@ -156,21 +157,21 @@ export default function EnhancedCommunity() {
       purchased: purchasedItems?.includes('xp-boost-small') || false
     },
     {
-      id: 'trade-speed',
-      title: 'PRIORITY EXEC',
-      description: 'Fast-track execution with quantum routing',
+      id: 'flash-execution',
+      title: 'FLASH EXECUTION',
+      description: 'Priority routing for instant trades during volatile market moves',
       price: 4.99,
       icon: <Rocket size={40} weight="duotone" className="text-accent" />,
       category: 'boost',
       duration: 48,
       discount: 20,
       expiresIn: 7200,
-      purchased: purchasedItems?.includes('trade-speed') || false
+      purchased: purchasedItems?.includes('flash-execution') || false
     },
     {
       id: 'instant-xp',
       title: 'INSTANT 500 XP',
-      description: 'Immediate level progression. No grinding',
+      description: 'Immediate level boost with no grinding required',
       price: 1.99,
       icon: <Star size={40} weight="fill" className="text-primary" />,
       category: 'boost',
@@ -181,7 +182,7 @@ export default function EnhancedCommunity() {
     {
       id: 'profit-multiplier',
       title: 'PROFIT AMPLIFIER',
-      description: '+25% earnings on every trade for 30 days',
+      description: 'Access advanced RL agent strategies for 30 days',
       price: 19.99,
       icon: <ChartLineUp size={40} weight="duotone" className="text-accent" />,
       category: 'upgrade',
@@ -189,23 +190,23 @@ export default function EnhancedCommunity() {
       purchased: purchasedItems?.includes('profit-multiplier') || false
     },
     {
-      id: 'tactical-badge',
-      title: 'ELITE OPERATOR',
-      description: 'Exclusive badge. Stand out from the crowd',
-      price: 7.99,
+      id: 'elite-badge',
+      title: 'ELITE TRADER',
+      description: 'Exclusive neon badge showing your commitment',
+      price: 5.99,
       icon: <ShieldCheck size={40} weight="duotone" className="text-secondary" />,
       category: 'cosmetic',
-      purchased: purchasedItems?.includes('tactical-badge') || false
+      purchased: purchasedItems?.includes('elite-badge') || false
     },
     {
-      id: 'algorithm-core',
-      title: 'ALGORITHM CORE',
-      description: 'Advanced AI prediction system with quantum analysis',
-      price: 14.99,
+      id: 'sentiment-scanner',
+      title: 'SENTIMENT SCANNER',
+      description: 'AI sentiment analysis from Twitter, Reddit, and Discord in real-time',
+      price: 12.99,
       icon: <Atom size={40} weight="duotone" className="text-primary" />,
       category: 'upgrade',
       duration: 336,
-      purchased: purchasedItems?.includes('algorithm-core') || false
+      purchased: purchasedItems?.includes('sentiment-scanner') || false
     }
   ]
 
@@ -218,7 +219,7 @@ export default function EnhancedCommunity() {
     }
 
     toast.success('Purchase Successful!', {
-      description: `${item.title} has been activated`,
+      description: `${item.title} has been activated for ${item.duration || 0} hours`,
       icon: '✨'
     })
 
@@ -246,7 +247,7 @@ export default function EnhancedCommunity() {
           newLevel += 1
           newXPToNext = current.xpToNextLevel + 500
           toast.success('Level Up!', {
-            description: `You are now level ${newLevel}!`,
+            description: `You are now level ${newLevel}! Check your new perks!`,
             icon: '🎉'
           })
         }
@@ -259,6 +260,63 @@ export default function EnhancedCommunity() {
         }
       })
     }
+  }
+
+  const levelRewards = [
+    { level: 5, perk: 'FLASH EXECUTION', duration: '24h', description: 'Priority trade routing unlocked' },
+    { level: 10, perk: 'SNIPER MODE', duration: '48h', description: 'Token launch detection active' },
+    { level: 15, perk: 'MARKET INTEL PRO', duration: '72h', description: 'Whale tracker enabled' },
+    { level: 20, perk: 'PROFIT AMPLIFIER', duration: '7 days', description: 'Advanced RL agents unlocked' },
+    { level: 25, perk: 'SENTIMENT SCANNER', duration: '14 days', description: 'Social sentiment analysis active' },
+  ]
+
+  const nextReward = levelRewards.find((r) => r.level > profile.level)
+
+  const earnXP = (actionType: string, xpAmount: number) => {
+    setProfile((current) => {
+      if (!current) {
+        return {
+          username: 'QuantumTrader',
+          level: 1,
+          xp: xpAmount,
+          xpToNextLevel: 1000,
+          badges: [],
+          rank: 999,
+          wins: 0,
+          streak: 0
+        }
+      }
+
+      const newXP = current.xp + xpAmount
+      let newLevel = current.level
+      let newXPToNext = current.xpToNextLevel
+
+      if (newXP >= current.xpToNextLevel) {
+        newLevel += 1
+        newXPToNext = current.xpToNextLevel + 500
+        
+        const reward = levelRewards.find((r) => r.level === newLevel)
+        if (reward) {
+          toast.success(`Level ${newLevel} Unlocked!`, {
+            description: `🎁 ${reward.perk} active for ${reward.duration}`,
+            duration: 5000,
+            icon: '🎉'
+          })
+        }
+      }
+
+      return {
+        ...current,
+        xp: newXP >= current.xpToNextLevel ? newXP - current.xpToNextLevel : newXP,
+        level: newLevel,
+        xpToNextLevel: newXPToNext
+      }
+    })
+
+    toast.success(`+${xpAmount} XP`, {
+      description: actionType,
+      duration: 2000
+    })
   }
 
   const formatTime = (seconds: number) => {
@@ -363,6 +421,43 @@ export default function EnhancedCommunity() {
           </div>
         </div>
       </div>
+
+      {nextReward && (
+        <div className="cyber-card-accent p-6 space-y-3 relative overflow-hidden">
+          <div className="absolute inset-0 diagonal-stripes opacity-5" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-accent/20 rounded-full border-2 border-accent/50">
+                  <Star size={24} weight="fill" className="text-accent neon-glow-accent" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold uppercase tracking-wider text-accent hud-text">Next Reward</h4>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Level {nextReward.level} unlock</p>
+                </div>
+              </div>
+              <Badge className="bg-accent/20 text-accent border-2 border-accent/50 uppercase tracking-wider font-black px-3 py-1.5 jagged-corner-small">
+                {nextReward.level - profile.level} LEVELS AWAY
+              </Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold uppercase tracking-wider text-foreground">{nextReward.perk}</span>
+                <span className="text-sm text-accent font-black hud-value">{nextReward.duration}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">{nextReward.description}</p>
+              <Button 
+                onClick={() => earnXP('Daily Challenge Complete', 250)}
+                size="sm"
+                className="w-full mt-3 jagged-corner-small bg-accent hover:bg-accent/90"
+              >
+                <Lightning size={16} weight="fill" className="mr-2" />
+                Earn Quick XP (+250)
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Tabs defaultValue="marketplace" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -13,17 +14,19 @@ interface Message {
   timestamp: number
 }
 
+const defaultMessages: Message[] = [
+  {
+    id: '1',
+    role: 'assistant',
+    content: 'Hello! I\'m your Quantum Falcon AI assistant. I can help you with trading strategies, market analysis, platform setup, and more. What would you like to know?',
+    timestamp: Date.now()
+  }
+]
+
 export default function AIAssistant() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hello! I\'m your Quantum Falcon AI assistant. I can help you with trading strategies, market analysis, platform setup, and more. What would you like to know?',
-      timestamp: Date.now()
-    }
-  ])
+  const [isOpen, setIsOpen] = useKV<boolean>('ai-assistant-open', false)
+  const [isMinimized, setIsMinimized] = useKV<boolean>('ai-assistant-minimized', false)
+  const [messages, setMessages] = useKV<Message[]>('ai-assistant-messages', defaultMessages)
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -44,7 +47,7 @@ export default function AIAssistant() {
       timestamp: Date.now()
     }
 
-    setMessages((prev) => [...prev, userMessage])
+    setMessages((prev) => [...(prev || defaultMessages), userMessage])
     setInput('')
     setIsLoading(true)
 
@@ -67,7 +70,7 @@ Provide a helpful, concise response about trading strategies, market insights, o
         timestamp: Date.now()
       }
 
-      setMessages((prev) => [...prev, assistantMessage])
+      setMessages((prev) => [...(prev || defaultMessages), assistantMessage])
     } catch (error) {
       toast.error('Failed to get response', {
         description: 'Please try again in a moment'
@@ -168,7 +171,7 @@ Provide a helpful, concise response about trading strategies, market insights, o
 
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="space-y-4">
-            {messages.map((message) => (
+            {(messages || defaultMessages).map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
