@@ -16,7 +16,7 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
-import SubscriptionTiers from './SubscriptionTiers'
+import EnhancedSubscriptionTiers from './EnhancedSubscriptionTiers'
 import APIIntegration from './APIIntegration'
 
 interface UserProfile {
@@ -467,7 +467,7 @@ export default function EnhancedSettings() {
         </TabsContent>
 
         <TabsContent value="subscription">
-          <SubscriptionTiers />
+          <EnhancedSubscriptionTiers />
         </TabsContent>
 
         <TabsContent value="api">
@@ -1160,7 +1160,7 @@ export default function EnhancedSettings() {
         </TabsContent>
 
         <TabsContent value="subscription">
-          <SubscriptionTiers />
+          <EnhancedSubscriptionTiers />
         </TabsContent>
 
         <TabsContent value="api">

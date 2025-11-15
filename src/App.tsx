@@ -1,6 +1,6 @@
 import { useKV } from '@github/spark/hooks'
 import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Flask, Lightning } from '@phosphor-icons/react'
-import Dashboard from '@/components/dashboard/Dashboard'
+import EnhancedDashboard from '@/components/dashboard/EnhancedDashboard'
 import BotOverview from '@/components/dashboard/BotOverview'
 import Analytics from '@/components/dashboard/Analytics'
 import EnhancedAnalytics from '@/components/dashboard/EnhancedAnalytics'
@@ -8,8 +8,7 @@ import Agents from '@/components/agents/Agents'
 import VaultView from '@/components/vault/VaultView'
 import Community from '@/components/community/Community'
 import EnhancedCommunity from '@/components/community/EnhancedCommunity'
-import TradingStrategies from '@/components/trade/TradingStrategies'
-import EnhancedTradingHub from '@/components/trade/EnhancedTradingHub'
+import AdvancedTradingHub from '@/components/trade/AdvancedTradingHub'
 import EnhancedSettings from '@/components/settings/EnhancedSettings'
 import AIAssistant from '@/components/shared/AIAssistant'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -38,17 +37,17 @@ export default function App() {
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard')
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: House, component: Dashboard },
+    { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
     { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
     { id: 'agents', label: 'AI Agents', icon: Robot, component: Agents },
     { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
-    { id: 'trading', label: 'Trading', icon: Lightning, component: EnhancedTradingHub },
+    { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
     { id: 'community', label: 'Community', icon: Users, component: EnhancedCommunity },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
   ]
 
-  const Component = tabs.find(tab => tab.id === activeTab)?.component || Dashboard
+  const Component = tabs.find(tab => tab.id === activeTab)?.component || EnhancedDashboard
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">

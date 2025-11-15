@@ -1,6 +1,6 @@
 # Quantum Falcon Cockpit - Product Requirements Document
 
-A comprehensive mobile-responsive progressive web app for cyberpunk-themed crypto trading featuring AI-powered trading agents, advanced analytics, gamification, community features, and automated trading strategies.
+A comprehensive mobile-responsive progressive web app for cyberpunk-themed crypto trading featuring AI-powered trading agents, advanced analytics, gamification, community features, automated trading strategies, and tiered licensing system with login capabilities.
 
 **Experience Qualities**:
 1. **Futuristic & Immersive** - Users should feel like they're piloting a sophisticated spacecraft console with holographic interfaces and neon data streams
@@ -8,7 +8,7 @@ A comprehensive mobile-responsive progressive web app for cyberpunk-themed crypt
 3. **Community-Connected** - Social features like XP progression, trading chat, and forum discussions create an engaging ecosystem around trading success
 
 **Complexity Level**: Complex Application (advanced functionality, accounts, gamification)
-This is a sophisticated trading platform with multi-agent AI trading logic, real-time data streams, user authentication, persistent state for portfolios and strategies, community features with XP systems, gamification (achievements, levels, education), advanced analytics with multiple chart types, trading strategies with backtesting, recurring buy automation (DCA), AI assistant integration, and crypto API integration.
+This is a sophisticated trading platform with multi-agent AI trading logic, real-time data streams, user authentication with license management, persistent state for portfolios and strategies, community features with XP systems, gamification (achievements, levels, education), advanced analytics with multiple chart types, trading strategies with backtesting, recurring buy automation (DCA), AI assistant integration, tiered subscription system (Free/Pro/Elite/Lifetime), license expiry tracking with renewal prompts, and crypto API integration.
 
 ## Essential Features
 

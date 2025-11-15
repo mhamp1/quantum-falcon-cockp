@@ -23,6 +23,7 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
+import XPPerksShop from './XPPerksShop'
 
 interface UserProfile {
   username: string
@@ -460,13 +461,20 @@ export default function EnhancedCommunity() {
       )}
 
       <Tabs defaultValue="marketplace" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
+        <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
           <TabsTrigger 
             value="marketplace" 
             className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
           >
             <Sparkle size={16} weight="duotone" className="mr-2" />
             OFFERS
+          </TabsTrigger>
+          <TabsTrigger 
+            value="perks" 
+            className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-accent/20 data-[state=active]:text-accent data-[state=active]:border-2 data-[state=active]:border-accent jagged-corner-small transition-all"
+          >
+            <Star size={16} weight="fill" className="mr-2" />
+            XP PERKS
           </TabsTrigger>
           <TabsTrigger 
             value="boosts" 
@@ -700,6 +708,10 @@ export default function EnhancedCommunity() {
               })}
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="perks" className="space-y-4">
+          <XPPerksShop />
         </TabsContent>
 
         <TabsContent value="boosts" className="space-y-4">
