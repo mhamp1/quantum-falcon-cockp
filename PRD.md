@@ -66,25 +66,25 @@ This requires multi-agent trading logic, real-time data streams, user authentica
 
 ## Design Direction
 
-The design should evoke the feeling of piloting a high-tech spacecraft in a neon-lit cyberpunk cityscape—powerful, futuristic, and dangerous. Think Blade Runner holographic interfaces meets Tron energy grids with aggressive HUD overlays inspired by sci-fi targeting systems. The interface features sharp, jagged edges with zero border radius, creating an angular, military-grade aesthetic. Holographic cards float above a dark void with intense neon glows, animated scan lines, and data streams. All elements use sharp clip-path cuts for corners, aggressive neon box-shadows with multiple layers, and high-contrast borders. The aesthetic is unapologetically cyberpunk with no softness—every element feels like a hardened, glowing hologram projected in 3D space.
+The design should evoke the feeling of a high-tech military HUD from a sci-fi spacecraft—dense with technical readouts, wireframe 3D elements, and layered information displays. Think retro-futuristic interfaces inspired by 80s/90s sci-fi films with modern execution: intense yellow/cyan neon glows on near-black backgrounds, diagonal stripe patterns, technical grid overlays, and wireframe 3D geometry. The interface features sharp, angular elements with zero border radius, creating a technical, data-dense aesthetic. Every element feels like a holographic projection with glowing borders, animated scan lines, and data visualization. The color scheme combines electric cyan and bright yellow accents (inspired by the reference image) while maintaining Solana's signature purple/blue undertones in the darker backgrounds. This creates a unique fusion of classic HUD aesthetics with modern crypto trading functionality.
 
 ## Color Selection
 
-**Custom Palette** - Intense cyberpunk neon theme with electric cyan and orange accents on deep black backgrounds to create aggressive holographic depth and high-tech atmosphere.
+**Custom Palette** - Retro-futuristic HUD theme with electric yellow and cyan accents on deep black backgrounds, inspired by 80s/90s sci-fi interfaces while maintaining Solana's purple undertones.
 
-- **Primary Color**: Electric Cyan `oklch(0.70 0.20 195)` - Main holographic UI elements, primary buttons, active agent indicators, borders. Communicates cutting-edge technology and digital energy with intense multi-layer glow effects.
+- **Primary Color**: Electric Cyan `oklch(0.75 0.18 195)` - Wireframe elements, grid overlays, data visualization. Communicates technical precision and digital information with subtle neon glow.
 - **Secondary Colors**: 
-  - Deep Black Void `oklch(0.08 0.05 280)` - Main backgrounds, creating the absolute "void" for neon elements to float in
-  - Neon Orange `oklch(0.65 0.25 45)` - Secondary accents, profit indicators, warm contrast to cyan
-  - Hot Magenta `oklch(0.70 0.25 330)` - Urgent alerts, destructive actions, loss indicators
-- **Accent Color**: Electric Cyan (same as primary) - Used for success states, profit gains, active trading signals. Creates unified holographic appearance.
+  - Bright Yellow/Gold `oklch(0.80 0.20 70)` - Main HUD text, technical readouts, active borders. The signature color inspired by the reference image.
+  - Deep Void Black `oklch(0.06 0.04 280)` - Main backgrounds with slight Solana purple undertone
+  - Hot Magenta `oklch(0.72 0.22 330)` - Error states, urgent alerts, destructive actions
+- **Accent Color**: Bright Yellow `oklch(0.80 0.20 70)` - Used for active states, important readouts, success indicators. Creates the iconic HUD aesthetic.
 - **Foreground/Background Pairings**:
-  - Background (Deep Black `oklch(0.08 0.05 280)`): Bright Cyan text `oklch(0.95 0.05 195)` - Ratio 15.8:1 ✓
-  - Card (Dark Slate `oklch(0.12 0.08 280)`): Bright Cyan text `oklch(0.95 0.05 195)` - Ratio 14.2:1 ✓
-  - Primary (Electric Cyan `oklch(0.70 0.20 195)`): Deep Black text `oklch(0.08 0.05 280)` - Ratio 10.2:1 ✓
-  - Secondary (Neon Orange `oklch(0.65 0.25 45)`): Deep Black text `oklch(0.08 0.05 280)` - Ratio 8.8:1 ✓
-  - Destructive (Hot Magenta `oklch(0.70 0.25 330)`): Bright text `oklch(0.95 0.05 195)` - Ratio 6.8:1 ✓
-  - Muted (Dark Panel `oklch(0.22 0.08 280)`): Dim Cyan text `oklch(0.60 0.10 195)` - Ratio 4.9:1 ✓
+  - Background (Deep Black `oklch(0.06 0.04 280)`): Bright Yellow text `oklch(0.92 0.08 70)` - Ratio 16.2:1 ✓
+  - Card (Dark Slate `oklch(0.10 0.06 280)`): Bright Yellow text `oklch(0.92 0.08 70)` - Ratio 15.1:1 ✓
+  - Primary (Electric Cyan `oklch(0.75 0.18 195)`): Deep Black text `oklch(0.06 0.04 280)` - Ratio 11.5:1 ✓
+  - Secondary (Bright Yellow `oklch(0.80 0.20 70)`): Deep Black text `oklch(0.06 0.04 280)` - Ratio 12.8:1 ✓
+  - Destructive (Hot Magenta `oklch(0.72 0.22 330)`): Bright Yellow text `oklch(0.92 0.08 70)` - Ratio 7.2:1 ✓
+  - Muted (Dark Panel `oklch(0.18 0.06 280)`): Dim Cyan text `oklch(0.55 0.08 195)` - Ratio 5.1:1 ✓
 
 ## Font Selection
 
@@ -128,12 +128,14 @@ Animations should feel like holographic projections materializing in 3D space—
   - **Toast** (sonner) - Sharp rectangular notifications with intense border glows
 
 - **Customizations**: 
-  - **Holographic Cards** - Custom CSS class with clip-path jagged corners, multi-layer box-shadow neon glows, backdrop-blur with gradient overlays, animated holographic shimmer overlays, scan-line effects
-  - **Circular HUD Elements** - Custom SVG components inspired by sci-fi targeting systems with rotating segmented rings, crosshairs, and animated elements
-  - **Agent Status LED** - Custom pulsing glow circles with intense neon effects (cyan=active, magenta=error, orange=processing)
-  - **Neon Data Display** - Large numbers with intense text-shadow glows, uppercase tracking, and +/- color coding
-  - **Corner Notches** - Decorative sharp corner brackets on key UI elements to reinforce angular HUD aesthetic
-  - **Data Stream Effects** - Animated flowing light effects that sweep across elements
+  - **Holographic Cards** - Custom CSS class with clip-path jagged corners, multi-layer yellow/cyan neon glows, backdrop-blur with gradient overlays, animated holographic shimmer, diagonal stripe patterns, technical grid overlays
+  - **Wireframe 3D Elements** - Custom SVG components rendering dome/sphere/grid wireframe graphics inspired by sci-fi targeting systems with cyan/yellow glow effects
+  - **Technical Readouts** - Large yellow numbers with gradient effects and drop-shadow glows, uppercase monospace tracking
+  - **HUD Corners** - L-shaped corner brackets in yellow/cyan on key UI elements
+  - **Data Visualization** - Mini bar charts, waveforms, and metric bars with animated yellow accents
+  - **Status Indicators** - Pulsing square dots with expanding ring animations (yellow=active, cyan=processing, magenta=error)
+  - **Diagonal Stripes** - Decorative 45-degree stripe patterns as texture overlays
+  - **Technical Grids** - Background grid patterns with perspective effects
 
 - **States**: 
   - Buttons: Default (sharp 2px neon border), Hover (intense multi-layer glow + subtle scale), Active (inner glow pulse), Disabled (dim + 50% opacity)
