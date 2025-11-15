@@ -25,9 +25,10 @@ interface TradingStrategyCardProps {
   }
   userTier: string
   onToggle: (id: string) => void
+  onUpgradeClick?: (requiredTier: string) => void
 }
 
-export default function TradingStrategyCard({ strategy, userTier, onToggle }: TradingStrategyCardProps) {
+export default function TradingStrategyCard({ strategy, userTier, onToggle, onUpgradeClick }: TradingStrategyCardProps) {
   const [showDetails, setShowDetails] = useState(false)
   const hasAccess = canAccessFeature(userTier, strategy.requiredTier)
   const isLocked = strategy.status === 'locked' || !hasAccess
@@ -66,9 +67,17 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle }: Tr
                 </div>
                 <Button
                   size="sm"
-                  onClick={() => toast.info('Upgrade Required', {
-                    description: `Upgrade to ${strategy.requiredTier.toUpperCase()} tier to unlock this strategy`
-                  })}
+                  onClick={() => {
+                    if (onUpgradeClick) {
+                      onUpgradeClick(strategy.requiredTier)
+                    } else {
+                      window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
+                      setTimeout(() => {
+                        const settingsSection = document.getElementById('subscription-tiers-section')
+                        settingsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      }, 300)
+                    }
+                  }}
                   className="bg-accent/20 hover:bg-accent/30 border border-accent text-accent text-xs uppercase tracking-wider font-bold angled-corner-tr"
                 >
                   <Crown size={14} className="mr-1" weight="fill" />

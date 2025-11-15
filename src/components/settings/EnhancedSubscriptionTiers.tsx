@@ -101,7 +101,7 @@ export default function EnhancedSubscriptionTiers() {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="space-y-6">
+      <div className="space-y-6" id="subscription-tiers-section">
         <div className="cyber-card p-6 relative overflow-hidden">
           <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
           <div className="relative z-10">

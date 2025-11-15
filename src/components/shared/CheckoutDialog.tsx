@@ -216,7 +216,7 @@ export default function CheckoutDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="cyber-card border-2 border-primary max-w-lg">
+      <DialogContent className="cyber-card border-2 border-primary max-w-lg fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold uppercase tracking-wider text-primary flex items-center gap-2">
             <CreditCard size={24} weight="fill" />
