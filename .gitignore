@@ -41,3 +41,14 @@ mobile/.packages
 mobile/build/
 mobile/android/app/google-services.json
 mobile/ios/Runner/GoogleService-Info.plist
+
+# Flutter/Mobile App (alternative directory)
+mobile_app/.dart_tool/
+mobile_app/.flutter-plugins
+mobile_app/.flutter-plugins-dependencies
+mobile_app/.packages
+mobile_app/build/
+mobile_app/*.hive
+mobile_app/*.lock
+mobile_app/test_data/
+mobile_app/test_sync_data/
