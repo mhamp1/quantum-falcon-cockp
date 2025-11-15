@@ -1,5 +1,5 @@
 import { useKV } from '@github/spark/hooks'
-import { TrendUp, TrendDown, Coins, Lightning, ArrowsClockwise, ChartLine, Target, Terminal, Brain, CheckCircle, ArrowRight } from '@phosphor-icons/react'
+import { TrendUp, TrendDown, Coins, Lightning, ArrowsClockwise, ChartLine, Target, Terminal, Brain, CheckCircle, ArrowRight, ShieldCheck } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import Wireframe3D from '@/components/shared/Wireframe3D'
 
@@ -133,6 +133,70 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <div className="cyber-card relative overflow-hidden">
+        <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
+          <Wireframe3D type="sphere" size={256} color="secondary" animated={true} />
+        </div>
+        <div className="p-6 md:p-8 relative z-10">
+          <div className="flex flex-col md:flex-row items-start gap-6">
+            <div className="flex-shrink-0">
+              <div className="p-6 jagged-corner bg-gradient-to-br from-primary/20 to-accent/20 border-4 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]">
+                <Brain size={64} weight="duotone" className="text-primary" />
+              </div>
+            </div>
+            <div className="flex-1 space-y-4">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-3xl md:text-4xl font-bold tracking-[0.2em] uppercase">
+                    <span className="text-primary neon-glow-primary">QUANTUM</span>
+                    <span className="text-secondary neon-glow-secondary ml-2">FALCON</span>
+                  </h2>
+                  <div className="px-3 py-1 jagged-corner-small bg-secondary/20 border border-secondary">
+                    <span className="text-xs font-bold text-secondary uppercase tracking-[0.15em]">V2.4.1</span>
+                  </div>
+                </div>
+                <p className="text-sm uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+                  ADVANCED AI-POWERED AUTONOMOUS TRADING SYSTEM
+                </p>
+              </div>
+              
+              <p className="text-base leading-relaxed text-foreground">
+                <span className="text-accent font-bold">Quantum Falcon</span> is an advanced AI-powered mobile assistant designed to cater to a futuristic, fully integrated user experience. It leverages cutting-edge{' '}
+                <span className="text-primary font-bold">quantum computing principles</span> to enhance real-time decision-making processes, automate user tasks, and deliver rich analytics across multiple domains including{' '}
+                <span className="text-secondary font-bold">finance</span>,{' '}
+                <span className="text-secondary font-bold">education</span>, and{' '}
+                <span className="text-secondary font-bold">AI-driven experimentation</span>.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                <div className="p-3 bg-muted/30 border-l-2 border-primary hover:border-accent transition-all">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Lightning size={16} weight="fill" className="text-primary" />
+                    <p className="text-xs uppercase tracking-wide font-bold text-primary">Autonomous Trading</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Multi-agent AI system for 24/7 market analysis</p>
+                </div>
+                <div className="p-3 bg-muted/30 border-l-2 border-accent hover:border-secondary transition-all">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Target size={16} weight="fill" className="text-accent" />
+                    <p className="text-xs uppercase tracking-wide font-bold text-accent">Quantum Analytics</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Real-time insights powered by quantum computing</p>
+                </div>
+                <div className="p-3 bg-muted/30 border-l-2 border-secondary hover:border-primary transition-all">
+                  <div className="flex items-center gap-2 mb-1">
+                    <ShieldCheck size={16} weight="fill" className="text-secondary" />
+                    <p className="text-xs uppercase tracking-wide font-bold text-secondary">Secure Vault</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Automated profit conversion and protection</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between relative">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl md:text-3xl font-bold tracking-[0.25em] uppercase">
