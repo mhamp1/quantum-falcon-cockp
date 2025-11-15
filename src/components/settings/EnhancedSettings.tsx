@@ -192,14 +192,22 @@ export default function EnhancedSettings() {
   ]
 
   const handleUpdateSetting = (path: string[], value: any) => {
-    if (!settings) return
-    
     setSettings((current) => {
-      const base = current || settings
+      const base = current || {
+        notifications: { tradeAlerts: true, priceAlerts: true, forumReplies: false },
+        theme: { darkMode: true, colorScheme: 'neon-green' },
+        currency: 'USD',
+        audio: { soundEffects: true, ambientMusic: false, voiceNarration: false },
+        trading: { paperMode: true, defaultAmount: 100, confirmTrades: true },
+        security: { biometric: true, twoFactor: false, autoLogout: 5 }
+      }
       const updated = { ...base }
       let obj: any = updated
       
       for (let i = 0; i < path.length - 1; i++) {
+        if (!obj[path[i]]) {
+          obj[path[i]] = {}
+        }
         obj = obj[path[i]]
       }
       obj[path[path.length - 1]] = value
@@ -209,7 +217,18 @@ export default function EnhancedSettings() {
     toast.success('Setting updated')
   }
 
-  if (!profile || !settings) return null
+  if (!profile || !settings || !settings.audio || !settings.notifications || !settings.trading || !settings.security) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <div className="inline-flex p-4 bg-primary/20 border-2 border-primary">
+            <Gear size={48} weight="duotone" className="text-primary animate-pulse" />
+          </div>
+          <p className="data-label">LOADING_SETTINGS...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -417,21 +436,21 @@ export default function EnhancedSettings() {
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">TRADE_ALERTS</Label>
                     <Switch 
-                      checked={settings.notifications.tradeAlerts}
+                      checked={settings.notifications?.tradeAlerts ?? true}
                       onCheckedChange={(v) => handleUpdateSetting(['notifications', 'tradeAlerts'], v)}
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">PRICE_ALERTS</Label>
                     <Switch 
-                      checked={settings.notifications.priceAlerts}
+                      checked={settings.notifications?.priceAlerts ?? true}
                       onCheckedChange={(v) => handleUpdateSetting(['notifications', 'priceAlerts'], v)}
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">FORUM_REPLIES</Label>
                     <Switch 
-                      checked={settings.notifications.forumReplies}
+                      checked={settings.notifications?.forumReplies ?? false}
                       onCheckedChange={(v) => handleUpdateSetting(['notifications', 'forumReplies'], v)}
                     />
                   </div>
@@ -447,21 +466,21 @@ export default function EnhancedSettings() {
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">SOUND_EFFECTS</Label>
                     <Switch 
-                      checked={settings.audio.soundEffects}
+                      checked={settings.audio?.soundEffects ?? true}
                       onCheckedChange={(v) => handleUpdateSetting(['audio', 'soundEffects'], v)}
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">AMBIENT_MUSIC</Label>
                     <Switch 
-                      checked={settings.audio.ambientMusic}
+                      checked={settings.audio?.ambientMusic ?? false}
                       onCheckedChange={(v) => handleUpdateSetting(['audio', 'ambientMusic'], v)}
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">VOICE_NARRATION</Label>
                     <Switch 
-                      checked={settings.audio.voiceNarration}
+                      checked={settings.audio?.voiceNarration ?? false}
                       onCheckedChange={(v) => handleUpdateSetting(['audio', 'voiceNarration'], v)}
                     />
                   </div>
@@ -477,14 +496,14 @@ export default function EnhancedSettings() {
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">PAPER_MODE</Label>
                     <Switch 
-                      checked={settings.trading.paperMode}
+                      checked={settings.trading?.paperMode ?? true}
                       onCheckedChange={(v) => handleUpdateSetting(['trading', 'paperMode'], v)}
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">CONFIRM_TRADES</Label>
                     <Switch 
-                      checked={settings.trading.confirmTrades}
+                      checked={settings.trading?.confirmTrades ?? true}
                       onCheckedChange={(v) => handleUpdateSetting(['trading', 'confirmTrades'], v)}
                     />
                   </div>
@@ -492,7 +511,7 @@ export default function EnhancedSettings() {
                     <Label className="data-label">DEFAULT_AMOUNT</Label>
                     <Input 
                       type="number"
-                      value={settings.trading.defaultAmount}
+                      value={settings.trading?.defaultAmount ?? 100}
                       onChange={(e) => handleUpdateSetting(['trading', 'defaultAmount'], Number(e.target.value))}
                     />
                   </div>
@@ -508,14 +527,14 @@ export default function EnhancedSettings() {
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">PIN/BIOMETRIC</Label>
                     <Switch 
-                      checked={settings.security.biometric}
+                      checked={settings.security?.biometric ?? true}
                       onCheckedChange={(v) => handleUpdateSetting(['security', 'biometric'], v)}
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/20 border border-muted/30">
                     <Label className="data-label cursor-pointer">TWO_FACTOR_AUTH</Label>
                     <Switch 
-                      checked={settings.security.twoFactor}
+                      checked={settings.security?.twoFactor ?? false}
                       onCheckedChange={(v) => handleUpdateSetting(['security', 'twoFactor'], v)}
                     />
                   </div>
