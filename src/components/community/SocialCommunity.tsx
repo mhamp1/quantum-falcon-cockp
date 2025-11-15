@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner'
 import { getRotatingOffers, getTimeUntilNextRotation, type RotatingOffer } from '@/lib/rotatingOffers'
 import ProfileUpload from '@/components/shared/ProfileUpload'
+import LimitedOffersSection from './LimitedOffersSection'
 
 interface Strategy {
   id: string
@@ -223,6 +224,8 @@ export default function SocialCommunity() {
           </div>
         </div>
 
+        <LimitedOffersSection />
+
         <div className="relative overflow-hidden bg-gradient-to-br from-background via-card to-background border-3 border-accent/40 p-6 jagged-corner">
           <div className="absolute inset-0 diagonal-stripes opacity-5" />
           <div className="absolute top-0 right-0 w-48 h-48 bg-accent/10 blur-3xl" />
@@ -232,10 +235,10 @@ export default function SocialCommunity() {
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <Lightning size={32} weight="fill" className="text-accent neon-glow-accent" />
-                  <h3 className="text-3xl font-black uppercase tracking-[0.2em] text-accent">Rotating Offers</h3>
+                  <h3 className="text-3xl font-black uppercase tracking-[0.2em] text-accent">Special Offers</h3>
                 </div>
                 <p className="text-xs text-muted-foreground uppercase tracking-[0.15em]">
-                  Premium features rotating every 3 days • Real-time powered
+                  Premium features rotating every 3 days • Higher-tier enhancements
                 </p>
               </div>
               <div className="cyber-card-accent p-3 text-center">
