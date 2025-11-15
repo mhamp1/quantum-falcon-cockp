@@ -1,15 +1,15 @@
 import { useEffect, useRef } from 'react'
-
+import { motion } from 'framer-motion'
 
 interface Particle {
   id: number
   x: number
-  color: st
-  rotationSp
-
-  isActive: bo
-  type: 'btc' | '
-}
+  y: number
+  vx: number
+  vy: number
+  life: number
+  maxLife: number
+  size: number
   color: string
   rotation: number
   rotationSpeed: number
@@ -32,7 +32,7 @@ export default function ProfitParticles({ isActive, onComplete, type, amount }: 
     if (!isActive) return
 
     const canvas = canvasRef.current
-    startTimeRef.curren
+    if (!canvas) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -48,13 +48,13 @@ export default function ProfitParticles({ isActive, onComplete, type, amount }: 
       : ['oklch(0.80 0.25 195)', 'oklch(0.70 0.25 195)', 'oklch(0.65 0.30 195)']
 
     particlesRef.current = []
-        return false
+    for (let i = 0; i < 80; i++) {
       const angle = (Math.PI * 2 * i) / 80
-        animationFrameRef.current = requestA
+      const velocity = 2 + Math.random() * 3
       particlesRef.current.push({
-    }
+        id: i,
         x: centerX,
-    return () => {
+        y: centerY,
         vx: Math.cos(angle) * velocity,
         vy: Math.sin(angle) * velocity,
         life: 1,
@@ -64,69 +64,68 @@ export default function ProfitParticles({ isActive, onComplete, type, amount }: 
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.2
       })
-     
+    }
 
     startTimeRef.current = Date.now()
 
     const animate = () => {
       if (!ctx || !canvas) return
 
-      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight)
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       const elapsed = Date.now() - startTimeRef.current
       const progress = Math.min(elapsed / 2000, 1)
 
       particlesRef.current = particlesRef.current.filter(particle => {
         particle.x += particle.vx
-
+        particle.y += particle.vy
         particle.vy += 0.08
         particle.life = Math.max(0, 1 - progress / particle.maxLife)
         particle.rotation += particle.rotationSpeed
 
         if (particle.life > 0) {
-
+          ctx.save()
           ctx.globalAlpha = particle.life
           ctx.translate(particle.x, particle.y)
           ctx.rotate(particle.rotation)
 
           ctx.shadowBlur = 10
-
+          ctx.shadowColor = particle.color
           ctx.fillStyle = particle.color
           ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size)
           
           ctx.restore()
           return true
-
-
-
+        }
+        return false
       })
 
       if (particlesRef.current.length > 0) {
         animationFrameRef.current = requestAnimationFrame(animate)
       } else {
-
+        onComplete()
       }
-
+    }
 
     animationFrameRef.current = requestAnimationFrame(animate)
 
-
+    return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
       }
-
+    }
   }, [isActive, onComplete, type])
 
   if (!isActive) return null
 
   return (
-
+    <motion.div
       initial={{ opacity: 0 }}
-
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="absolute inset-0 pointer-events-none"
     >
-
+      <canvas
         ref={canvasRef}
         className="w-full h-full"
       />
@@ -134,13 +133,13 @@ export default function ProfitParticles({ isActive, onComplete, type, amount }: 
       {amount && (
         <motion.div
           initial={{ scale: 0.5, y: 0, opacity: 0 }}
-
+          animate={{
             scale: [0.5, 1.2, 1],
             y: [0, -30, -40],
             opacity: [0, 1, 1, 0]
-
+          }}
           transition={{
-
+            duration: 1.5,
             times: [0, 0.3, 0.7, 1],
             ease: "easeOut"
           }}
@@ -148,9 +147,9 @@ export default function ProfitParticles({ isActive, onComplete, type, amount }: 
         >
           <div className={`text-4xl font-bold ${type === 'btc' ? 'text-[#F7931A]' : 'text-accent'} drop-shadow-[0_0_20px_currentColor]`}>
             +{amount.toFixed(8)} {type.toUpperCase()}
-
+          </div>
         </motion.div>
-
+      )}
     </motion.div>
   )
 }
