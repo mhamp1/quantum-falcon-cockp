@@ -18,33 +18,33 @@
 }
 
 :root {
-  --background: oklch(0.12 0.02 265);
-  --foreground: oklch(0.95 0.05 195);
+  --background: oklch(0.15 0.08 280);
+  --foreground: oklch(0.98 0.02 280);
   
-  --card: oklch(0.18 0.03 265);
-  --card-foreground: oklch(0.95 0.05 195);
+  --card: oklch(0.20 0.10 280);
+  --card-foreground: oklch(0.98 0.02 280);
   
-  --popover: oklch(0.18 0.03 265);
-  --popover-foreground: oklch(0.95 0.05 195);
+  --popover: oklch(0.20 0.10 280);
+  --popover-foreground: oklch(0.98 0.02 280);
   
-  --primary: oklch(0.75 0.15 195);
-  --primary-foreground: oklch(0.10 0.02 265);
+  --primary: oklch(0.65 0.30 195);
+  --primary-foreground: oklch(0.98 0.02 280);
   
-  --secondary: oklch(0.65 0.25 300);
-  --secondary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.75 0.28 320);
+  --secondary-foreground: oklch(0.98 0.02 280);
   
-  --muted: oklch(0.22 0.03 265);
-  --muted-foreground: oklch(0.70 0.08 195);
+  --muted: oklch(0.25 0.10 280);
+  --muted-foreground: oklch(0.70 0.15 195);
   
-  --accent: oklch(0.80 0.20 140);
-  --accent-foreground: oklch(0.10 0.02 265);
+  --accent: oklch(0.80 0.25 195);
+  --accent-foreground: oklch(0.15 0.08 280);
   
-  --destructive: oklch(0.70 0.28 330);
-  --destructive-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.75 0.28 320);
+  --destructive-foreground: oklch(0.98 0.02 280);
   
-  --border: oklch(0.30 0.05 265);
-  --input: oklch(0.30 0.05 265);
-  --ring: oklch(0.75 0.15 195);
+  --border: oklch(0.35 0.15 280);
+  --input: oklch(0.35 0.15 280);
+  --ring: oklch(0.65 0.30 195);
   
   --radius: 0.5rem;
 }
@@ -82,15 +82,19 @@
 }
 
 .neon-glow {
-  box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+  box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary), 0 0 45px var(--primary);
 }
 
 .neon-glow-accent {
-  box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+  box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent), 0 0 45px var(--accent);
 }
 
 .neon-glow-destructive {
-  box-shadow: 0 0 10px var(--destructive), 0 0 20px var(--destructive);
+  box-shadow: 0 0 15px var(--destructive), 0 0 30px var(--destructive), 0 0 45px var(--destructive);
+}
+
+.neon-glow-secondary {
+  box-shadow: 0 0 15px var(--secondary), 0 0 30px var(--secondary), 0 0 45px var(--secondary);
 }
 
 @keyframes pulse-glow {
