@@ -297,6 +297,10 @@ export default function EnhancedSettings() {
             <Trophy size={16} weight="duotone" />
             ACHIEVEMENTS
           </TabsTrigger>
+          <TabsTrigger value="security" className="data-label gap-2">
+            <Shield size={16} weight="duotone" />
+            SECURITY
+          </TabsTrigger>
           <TabsTrigger value="subscription" className="data-label gap-2">
             <Crown size={16} weight="duotone" />
             SUBSCRIPTION
@@ -427,40 +431,181 @@ export default function EnhancedSettings() {
           </div>
         </TabsContent>
 
-        <TabsContent value="education" className="space-y-6">
-          <div className="cyber-card">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <GraduationCap size={24} weight="duotone" className="text-primary" />
-                <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">LEARN_TO_TRADE</h3>
-              </div>
-
-              <div className="space-y-4">
-                {courses.map((course) => (
-                  <div key={course.id} className="cyber-card-accent">
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-bold uppercase tracking-wide mb-1">{course.title}</h4>
-                          <p className="data-label text-xs">
-                            {course.completedLessons}/{course.lessons} lessons completed
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-primary">{course.progress}%</div>
-                        </div>
-                      </div>
-                      <Progress value={course.progress} className="h-2 mb-3" />
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        className="border-primary text-primary hover:bg-primary/10 w-full"
-                      >
-                        {course.progress === 0 ? 'START_COURSE' : 'CONTINUE'}
-                      </Button>
+        <TabsContent value="security" className="space-y-6">
+          <div className="grid grid-cols-1 gap-6">
+            <div className="glass-morph-card p-6 space-y-6 relative overflow-hidden group hover:shadow-[0_0_40px_oklch(0.65_0.25_25_/_0.3)] transition-all duration-500">
+              <div className="absolute inset-0 diagonal-stripes opacity-5" />
+              <div className="absolute top-0 right-0 w-48 h-48 bg-destructive/10 blur-3xl rounded-full" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 blur-3xl rounded-full" />
+              
+              <svg className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
+                <rect x="10" y="10" width="40" height="40" stroke="var(--destructive)" strokeWidth="2" fill="none" strokeDasharray="4,4" className="circuit-line" />
+                <circle cx="30" cy="30" r="6" fill="var(--destructive)" opacity="0.5" className="animate-pulse" />
+                <path d="M 80 20 L 120 20 L 120 60 L 80 60 Z" stroke="var(--destructive)" strokeWidth="2" fill="none" strokeDasharray="3,3" className="circuit-line" />
+              </svg>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-destructive/20 border border-destructive/40 jagged-corner-small relative">
+                      <Shield size={28} weight="duotone" className="text-destructive" />
+                      <div className="absolute -top-1 -left-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold uppercase tracking-[0.2em] hud-text text-destructive">SECURITY_CENTER</h3>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">ACCOUNT_PROTECTION</p>
                     </div>
                   </div>
-                ))}
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10 border border-destructive/30">
+                    <Shield size={18} weight="fill" className="text-destructive" />
+                    <span className="text-xs font-bold text-destructive tracking-wider">SECURE</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="cyber-card-accent p-4 relative overflow-hidden group/card">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-destructive/5 blur-2xl rounded-full" />
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Key size={20} weight="duotone" className="text-destructive" />
+                        <h4 className="font-bold uppercase tracking-wide text-sm">Authentication</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">Secure your account with biometric or PIN</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase tracking-wider text-destructive">
+                          {settings.security?.biometric ? 'ENABLED' : 'DISABLED'}
+                        </span>
+                        <Switch 
+                          checked={settings.security?.biometric ?? true}
+                          onCheckedChange={(v) => handleUpdateSetting(['security', 'biometric'], v)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="cyber-card-accent p-4 relative overflow-hidden group/card">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-destructive/5 blur-2xl rounded-full" />
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield size={20} weight="duotone" className="text-destructive" />
+                        <h4 className="font-bold uppercase tracking-wide text-sm">Two-Factor Auth</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">Additional layer of account security</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase tracking-wider text-destructive">
+                          {settings.security?.twoFactor ? 'ENABLED' : 'DISABLED'}
+                        </span>
+                        <Switch 
+                          checked={settings.security?.twoFactor ?? false}
+                          onCheckedChange={(v) => handleUpdateSetting(['security', 'twoFactor'], v)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 hover:border-destructive/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-destructive/50 group-hover/item:w-2 transition-all" />
+                    <div className="flex items-center gap-3 mb-3">
+                      <Lock size={20} weight="duotone" className="text-destructive" />
+                      <div className="flex-1">
+                        <Label className="font-bold uppercase text-sm tracking-wider">AUTO_LOGOUT_TIMER</Label>
+                        <p className="text-xs text-muted-foreground mt-1">Automatically log out after inactivity</p>
+                      </div>
+                    </div>
+                    <Select 
+                      value={String(settings.security?.autoLogout ?? 5)}
+                      onValueChange={(v) => handleUpdateSetting(['security', 'autoLogout'], Number(v))}
+                    >
+                      <SelectTrigger className="bg-background/60">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5 minutes</SelectItem>
+                        <SelectItem value="15">15 minutes</SelectItem>
+                        <SelectItem value="30">30 minutes</SelectItem>
+                        <SelectItem value="60">1 hour</SelectItem>
+                        <SelectItem value="0">Never</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-destructive/20 hover:border-destructive/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-destructive/50 group-hover/item:w-2 transition-all" />
+                    <div className="flex items-center gap-3 mb-3">
+                      <Key size={20} weight="duotone" className="text-destructive" />
+                      <div className="flex-1">
+                        <Label className="font-bold uppercase text-sm tracking-wider">SESSION_TIMEOUT</Label>
+                        <p className="text-xs text-muted-foreground mt-1">Maximum session duration</p>
+                      </div>
+                    </div>
+                    <Select 
+                      value={String(settings.security?.sessionTimeout ?? 30)}
+                      onValueChange={(v) => handleUpdateSetting(['security', 'sessionTimeout'], Number(v))}
+                    >
+                      <SelectTrigger className="bg-background/60">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 minutes</SelectItem>
+                        <SelectItem value="30">30 minutes</SelectItem>
+                        <SelectItem value="60">1 hour</SelectItem>
+                        <SelectItem value="120">2 hours</SelectItem>
+                        <SelectItem value="240">4 hours</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-primary/10 border border-primary/30 relative overflow-hidden">
+                  <div className="absolute inset-0 grid-background opacity-10" />
+                  <div className="relative z-10">
+                    <div className="flex items-start gap-3">
+                      <Shield size={20} weight="duotone" className="text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-bold uppercase tracking-wide text-sm mb-2 text-primary">SECURITY_RECOMMENDATIONS</h4>
+                        <ul className="space-y-2 text-xs text-muted-foreground">
+                          <li className="flex items-center gap-2">
+                            <div className="w-1 h-1 bg-primary rounded-full" />
+                            Enable Two-Factor Authentication for maximum protection
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <div className="w-1 h-1 bg-primary rounded-full" />
+                            Use biometric authentication when available
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <div className="w-1 h-1 bg-primary rounded-full" />
+                            Never share your credentials or API keys
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <div className="w-1 h-1 bg-primary rounded-full" />
+                            Review connected sessions regularly
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    variant="outline" 
+                    className="border-destructive text-destructive hover:bg-destructive/10 flex-1"
+                    onClick={() => toast.success('Password change requested')}
+                  >
+                    <Key size={18} weight="duotone" className="mr-2" />
+                    CHANGE_PASSWORD
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="border-primary text-primary hover:bg-primary/10 flex-1"
+                    onClick={() => toast.success('Active sessions displayed')}
+                  >
+                    <Users size={18} weight="duotone" className="mr-2" />
+                    VIEW_SESSIONS
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

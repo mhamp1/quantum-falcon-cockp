@@ -95,14 +95,14 @@ Provide a helpful, concise response about trading strategies, market insights, o
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        className="fixed bottom-4 right-4 z-40 w-12 h-12 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-[45] w-12 h-12 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
         onClick={() => setIsOpen(true)}
         style={{
           boxShadow: '0 0 15px var(--primary), 0 0 30px var(--primary)'
         }}
       >
-        <Robot size={22} weight="duotone" className="group-hover:scale-110 transition-transform" />
-        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-accent rounded-full animate-pulse" />
+        <Robot size={20} weight="duotone" className="group-hover:scale-110 transition-transform" />
+        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-accent rounded-full animate-pulse" />
       </motion.button>
     )
   }
@@ -112,22 +112,22 @@ Provide a helpful, concise response about trading strategies, market insights, o
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="fixed bottom-4 right-4 z-40"
+        className="fixed bottom-6 right-6 z-[45]"
       >
-        <div className="cyber-card p-3 flex items-center gap-2 cursor-pointer" onClick={() => setIsMinimized(false)}>
-          <Robot size={18} weight="duotone" className="text-primary" />
+        <div className="cyber-card p-2.5 flex items-center gap-2 cursor-pointer" onClick={() => setIsMinimized(false)}>
+          <Robot size={16} weight="duotone" className="text-primary" />
           <span className="text-xs font-bold uppercase tracking-wider">AI Assistant</span>
           <Button
             size="sm"
             variant="ghost"
-            className="ml-2 h-6 w-6 p-0"
+            className="ml-1 h-5 w-5 p-0"
             onClick={(e) => {
               e.stopPropagation()
               setIsOpen(false)
               setIsMinimized(false)
             }}
           >
-            <X size={12} />
+            <X size={10} />
           </Button>
         </div>
       </motion.div>
@@ -141,49 +141,49 @@ Provide a helpful, concise response about trading strategies, market insights, o
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 20, opacity: 0 }}
-        className="fixed bottom-4 right-4 z-40 w-80 max-w-[calc(100vw-2rem)]"
+        className="fixed bottom-6 right-6 z-[45] w-72 max-w-[calc(100vw-2rem)]"
       >
-        <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '400px', maxHeight: '70vh' }}>
-          <div className="drag-handle cursor-move p-3 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors">
+        <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '380px', maxHeight: '60vh' }}>
+          <div className="drag-handle cursor-move p-2.5 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors">
             <div className="flex items-center gap-2">
-              <Robot size={18} weight="duotone" className="text-primary neon-glow-primary" />
+              <Robot size={16} weight="duotone" className="text-primary neon-glow-primary" />
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider">AI Assistant</h3>
-                <p className="text-[9px] text-muted-foreground">Drag to move</p>
+                <p className="text-[8px] text-muted-foreground">Drag to move</p>
               </div>
             </div>
             <div className="flex gap-1">
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-6 w-6 p-0"
+                className="h-5 w-5 p-0"
                 onClick={() => setIsMinimized(true)}
               >
-                <Minus size={12} />
+                <Minus size={10} />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-6 w-6 p-0"
+                className="h-5 w-5 p-0"
                 onClick={() => {
                   setIsOpen(false)
                   setIsMinimized(false)
                 }}
               >
-                <X size={12} />
+                <X size={10} />
               </Button>
             </div>
           </div>
 
-        <ScrollArea className="flex-1 p-3" ref={scrollRef}>
-          <div className="space-y-3">
+        <ScrollArea className="flex-1 p-2.5" ref={scrollRef}>
+          <div className="space-y-2.5">
             {(messages || defaultMessages).map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-2 ${
+                  className={`max-w-[85%] p-2 ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground jagged-corner-small'
                       : 'bg-muted text-foreground jagged-corner-small border border-primary/30'
@@ -207,7 +207,7 @@ Provide a helpful, concise response about trading strategies, market insights, o
           </div>
         </ScrollArea>
 
-        <div className="p-3 border-t-2 border-primary/30 bg-card/80 backdrop-blur">
+        <div className="p-2.5 border-t-2 border-primary/30 bg-card/80 backdrop-blur">
           <div className="flex gap-2">
             <Input
               value={input}
@@ -215,14 +215,14 @@ Provide a helpful, concise response about trading strategies, market insights, o
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything..."
               disabled={isLoading}
-              className="flex-1 jagged-corner-small border-primary/50 focus:border-primary text-xs h-8"
+              className="flex-1 jagged-corner-small border-primary/50 focus:border-primary text-xs h-7"
             />
             <Button
               onClick={sendMessage}
               disabled={isLoading || !input.trim()}
-              className="jagged-corner-small h-8 w-8 p-0"
+              className="jagged-corner-small h-7 w-7 p-0"
             >
-              <PaperPlaneRight size={14} weight="duotone" />
+              <PaperPlaneRight size={12} weight="duotone" />
             </Button>
           </div>
         </div>
