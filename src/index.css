@@ -83,9 +83,12 @@
 
 .neon-glow {
   text-shadow: 
+    0 0 2px var(--primary),
     0 0 4px var(--primary),
-    0 0 8px var(--primary),
-    0 0 12px var(--primary);
+    0 0 6px var(--primary);
+  -webkit-text-stroke: 0.5px currentColor;
+  text-stroke: 0.5px currentColor;
+  paint-order: stroke fill;
 }
 
 .neon-glow-accent {
@@ -94,9 +97,12 @@
     0 0 16px var(--accent),
     inset 0 0 8px oklch(0.68 0.18 330 / 0.2);
   text-shadow: 
+    0 0 2px var(--accent),
     0 0 4px var(--accent),
-    0 0 8px var(--accent),
-    0 0 12px var(--accent);
+    0 0 6px var(--accent);
+  -webkit-text-stroke: 0.5px currentColor;
+  text-stroke: 0.5px currentColor;
+  paint-order: stroke fill;
 }
 
 .neon-glow-destructive {
@@ -108,16 +114,22 @@
 
 .neon-glow-secondary {
   text-shadow: 
+    0 0 2px var(--secondary),
     0 0 4px var(--secondary),
-    0 0 8px var(--secondary),
-    0 0 12px var(--secondary);
+    0 0 6px var(--secondary);
+  -webkit-text-stroke: 0.5px currentColor;
+  text-stroke: 0.5px currentColor;
+  paint-order: stroke fill;
 }
 
 .neon-glow-primary {
   text-shadow: 
+    0 0 2px var(--primary),
     0 0 4px var(--primary),
-    0 0 8px var(--primary),
-    0 0 12px var(--primary);
+    0 0 6px var(--primary);
+  -webkit-text-stroke: 0.5px currentColor;
+  text-stroke: 0.5px currentColor;
+  paint-order: stroke fill;
 }
 
 .holographic-border {
@@ -323,7 +335,11 @@
   font-size: 0.65rem;
   color: var(--primary);
   text-shadow: 
-    0 0 6px var(--primary);
+    0 0 3px var(--primary),
+    0 0 1px oklch(0 0 0 / 0.8);
+  -webkit-text-stroke: 0.3px currentColor;
+  text-stroke: 0.3px currentColor;
+  paint-order: stroke fill;
 }
 
 .data-label {
@@ -569,7 +585,10 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 8px oklch(0.72 0.20 195 / 0.5));
+  filter: drop-shadow(0 0 4px oklch(0.72 0.20 195 / 0.5)) drop-shadow(0 0 1px oklch(0 0 0));
+  -webkit-text-stroke: 0.3px oklch(0.72 0.20 195);
+  text-stroke: 0.3px oklch(0.72 0.20 195);
+  paint-order: stroke fill;
 }
 
 .wireframe-3d {
