@@ -18,29 +18,6 @@ No problem! If you were just checking things out and don’t need to keep this c
 - Simply delete your Spark.
 - Everything will be cleaned up — no traces left behind.
 
-🎨 Cyberpunk Neon Theme
-
-This app features a custom Solana-inspired cyberpunk theme with neon aesthetics, holographic effects, and smooth animations.
-
-**Key Features:**
-- Solana Green (#14F195) and Purple (#9945FF) color palette
-- Holographic cards with neon glow effects
-- Animated progress bars with shimmer effects
-- Custom notification toasts and badges
-- Fully responsive design
-
-📖 **[Complete Theme Guide](./THEME_GUIDE.md)** - Learn how to customize and extend the theme
-
-**Quick Start:**
-```tsx
-import { HolographicCard, NeonProgress, NeonBadge } from '@/components/ui'
-
-<HolographicCard variant="primary" glow pulse>
-  <NeonProgress value={750} max={1000} animate />
-  <NeonBadge variant="accent">Elite Trader</NeonBadge>
-</HolographicCard>
-```
-
 📄 License For Spark Template Resources 
 
 The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
