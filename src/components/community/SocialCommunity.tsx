@@ -16,6 +16,8 @@ import { getRotatingOffers, getTimeUntilNextRotation, type RotatingOffer } from 
 import ProfileUpload from '@/components/shared/ProfileUpload'
 import LimitedOffersSection from './LimitedOffersSection'
 import Forum from './Forum'
+import CheckoutDialog from '@/components/shared/CheckoutDialog'
+import { CheckoutItem } from '@/lib/checkout'
 
 interface Strategy {
   id: string
@@ -51,6 +53,9 @@ export default function SocialCommunity() {
   const [rotatingOffers, setRotatingOffers] = useState<RotatingOffer[]>([])
   const [timeUntilRotation, setTimeUntilRotation] = useState({ days: 0, hours: 0, minutes: 0 })
   const [purchasedOffers, setPurchasedOffers] = useKV<string[]>('purchased-rotating-offers', [])
+  
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<CheckoutItem | null>(null)
 
   useEffect(() => {
     setRotatingOffers(getRotatingOffers(6))
@@ -186,12 +191,28 @@ export default function SocialCommunity() {
       return
     }
 
-    toast.success('Purchase Successful!', {
-      description: `${offer.title} has been activated${offer.duration ? ` for ${offer.duration} hours` : ''}`,
-      icon: '✨'
-    })
+    const checkoutItem: CheckoutItem = {
+      id: offer.id,
+      name: offer.title,
+      description: offer.description,
+      price: offer.price,
+      type: 'offer',
+      duration: offer.duration
+    }
 
-    setPurchasedOffers((current) => [...(current || []), offer.id])
+    setSelectedItem(checkoutItem)
+    setCheckoutOpen(true)
+  }
+
+  const handleCheckoutSuccess = () => {
+    if (selectedItem) {
+      setPurchasedOffers((current) => [...(current || []), selectedItem.id])
+      
+      toast.success('Purchase Successful!', {
+        description: `${selectedItem.name} has been activated${selectedItem.duration ? ` for ${selectedItem.duration} hours` : ''}`,
+        icon: '✨'
+      })
+    }
   }
 
   const colorByCategory = {
@@ -463,6 +484,13 @@ export default function SocialCommunity() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <CheckoutDialog
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        item={selectedItem}
+        onSuccess={handleCheckoutSuccess}
+      />
     </TooltipProvider>
   )
 }

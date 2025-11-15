@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import CheckoutDialog from '@/components/shared/CheckoutDialog'
+import { CheckoutItem } from '@/lib/checkout'
 
 export default function EnhancedSubscriptionTiers() {
-  const [auth] = useKV<UserAuth>('user-auth', {
+  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
     username: null,
@@ -16,6 +18,9 @@ export default function EnhancedSubscriptionTiers() {
     avatar: null,
     license: null
   })
+
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<CheckoutItem | null>(null)
 
   const currentTier = auth?.license?.tier || 'free'
 
@@ -44,6 +49,54 @@ export default function EnhancedSubscriptionTiers() {
     pro: 'BEST VALUE',
     elite: 'MOST POWERFUL',
     lifetime: 'UNLIMITED'
+  }
+
+  const handleUpgrade = (tierId: string, tier: typeof LICENSE_TIERS[keyof typeof LICENSE_TIERS]) => {
+    if (currentTier === tierId) {
+      toast.info('Already Active', {
+        description: 'This is your current subscription tier'
+      })
+      return
+    }
+
+    if (tier.price === 0) {
+      return
+    }
+
+    const checkoutItem: CheckoutItem = {
+      id: `tier_${tierId}`,
+      name: `${tier.name} Tier`,
+      description: `Upgrade to ${tier.name} tier with ${tier.maxAgents === 999 ? 'unlimited' : tier.maxAgents} AI agents and ${tier.xpMultiplier}x XP multiplier`,
+      price: tier.price,
+      type: 'subscription',
+      recurring: tierId !== 'lifetime'
+    }
+
+    setSelectedItem(checkoutItem)
+    setCheckoutOpen(true)
+  }
+
+  const handleCheckoutSuccess = () => {
+    if (selectedItem && auth) {
+      const tierId = selectedItem.id.replace('tier_', '')
+      const tier = LICENSE_TIERS[tierId as keyof typeof LICENSE_TIERS]
+      
+      setAuth({
+        ...auth,
+        license: {
+          userId: auth.userId || '',
+          tier: tierId as any,
+          expiresAt: tierId === 'lifetime' ? null : Date.now() + 30 * 24 * 60 * 60 * 1000,
+          purchasedAt: Date.now(),
+          isActive: true,
+          transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        }
+      })
+
+      toast.success('Subscription Activated!', {
+        description: `Welcome to ${tier.name} tier`
+      })
+    }
   }
 
   return (
@@ -219,18 +272,7 @@ export default function EnhancedSubscriptionTiers() {
                   )}
 
                   <Button
-                    onClick={() => {
-                      if (isCurrentTier) {
-                        toast.info('Already Active', {
-                          description: 'This is your current subscription tier'
-                        })
-                      } else {
-                        window.open(`https://quantumfalcon.ai/upgrade?tier=${tierId}`, '_blank')
-                        toast.success('Opening Upgrade Page', {
-                          description: `Redirecting to ${tier.name} tier upgrade`
-                        })
-                      }
-                    }}
+                    onClick={() => handleUpgrade(tierId, tier)}
                     disabled={isCurrentTier}
                     className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner transition-all ${
                       isCurrentTier
@@ -292,6 +334,13 @@ export default function EnhancedSubscriptionTiers() {
           </div>
         </div>
       </div>
+
+      <CheckoutDialog
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        item={selectedItem}
+        onSuccess={handleCheckoutSuccess}
+      />
     </TooltipProvider>
   )
 }

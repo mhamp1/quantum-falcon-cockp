@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Clock, Lightning, Star, Coin } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import CheckoutDialog from '@/components/shared/CheckoutDialog'
+import { CheckoutItem } from '@/lib/checkout'
 import {
   getLimitedOffers,
   getFlashSales,
@@ -19,6 +21,9 @@ export default function LimitedOffersSection() {
   const [dailyTimer, setDailyTimer] = useState({ hours: 0, minutes: 0 })
   const [flashTimer, setFlashTimer] = useState({ hours: 0, minutes: 0 })
   const [purchasedOffers, setPurchasedOffers] = useKV<string[]>('purchased-limited-offers', [])
+  
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<CheckoutItem | null>(null)
 
   useEffect(() => {
     setLimitedOffers(getLimitedOffers(5))
@@ -43,12 +48,28 @@ export default function LimitedOffersSection() {
       return
     }
 
-    toast.success('Micro-Transaction Complete!', {
-      description: `${offer.title} activated for ${offer.duration}h`,
-      icon: '⚡'
-    })
+    const checkoutItem: CheckoutItem = {
+      id: offer.id,
+      name: offer.title,
+      description: offer.description,
+      price: offer.price,
+      type: 'offer',
+      duration: offer.duration
+    }
 
-    setPurchasedOffers((current) => [...(current || []), offer.id])
+    setSelectedItem(checkoutItem)
+    setCheckoutOpen(true)
+  }
+
+  const handleCheckoutSuccess = () => {
+    if (selectedItem) {
+      setPurchasedOffers((current) => [...(current || []), selectedItem.id])
+      
+      toast.success('Purchase Complete!', {
+        description: `${selectedItem.name} activated for ${selectedItem.duration}h`,
+        icon: '⚡'
+      })
+    }
   }
 
   const colorByCategory = {
@@ -132,7 +153,7 @@ export default function LimitedOffersSection() {
                     isPurchased ? 'opacity-50' : ''
                   }`}
                 >
-                  {isPurchased ? 'Owned' : 'Buy'}
+                  {isPurchased ? 'Owned' : 'Claim'}
                 </Button>
               </div>
             </div>
@@ -228,6 +249,13 @@ export default function LimitedOffersSection() {
           </div>
         </div>
       </div>
+
+      <CheckoutDialog
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        item={selectedItem}
+        onSuccess={handleCheckoutSuccess}
+      />
     </TooltipProvider>
   )
 }
