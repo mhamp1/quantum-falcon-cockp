@@ -19,24 +19,32 @@ function App() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_var(--primary)_0%,_transparent_50%)] opacity-10 pointer-events-none" />
       
       <div className="relative z-10">
-        <header className="border-b-2 border-secondary backdrop-blur-md bg-card/90 sticky top-0 z-50 scan-line-effect">
-          <div className="container mx-auto px-4 py-3">
+        <header className="border-b border-primary/30 backdrop-blur-md bg-card/95 sticky top-0 z-50 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+          
+          <div className="container mx-auto px-4 py-3 relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="hidden md:block diagonal-stripes w-12 h-12 opacity-30" />
-                <h1 className="text-xl md:text-2xl font-bold tracking-[0.3em] uppercase hud-text">
-                  <span className="text-secondary neon-glow-secondary">QUANTUM</span>
-                  <span className="text-primary neon-glow ml-2">FALCON</span>
+                <div className="hidden md:flex items-center gap-2">
+                  <div className="w-8 h-8 border-2 border-primary clip-path-[polygon(30%_0%,_70%_0%,_100%_50%,_70%_100%,_30%_100%,_0%_50%)] relative">
+                    <div className="absolute inset-0 bg-primary/20" />
+                  </div>
+                </div>
+                <h1 className="text-xl md:text-2xl font-bold tracking-[0.25em] uppercase">
+                  <span className="text-primary neon-glow-primary">QUANTUM</span>
+                  <span className="text-accent neon-glow-secondary ml-2">FALCON</span>
                 </h1>
               </div>
               <div className="flex items-center gap-3">
-                <div className="hidden md:flex items-center gap-2 px-4 py-2 jagged-corner-small bg-secondary/20 border-2 border-secondary relative">
-                  <div className="status-indicator bg-secondary" style={{ width: '6px', height: '6px' }} />
-                  <span className="hud-readout text-xs">SYS_ONLINE</span>
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-card/80 border-l-2 border-primary relative">
+                  <div className="absolute top-0 left-0 w-8 h-px bg-primary" />
+                  <div className="status-indicator" />
+                  <span className="hud-readout">SYS_ONLINE</span>
                 </div>
-                <div className="hidden lg:flex gap-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="w-1 h-6 bg-secondary/30" style={{ height: `${20 + Math.random() * 12}px` }} />
+                <div className="hidden lg:flex gap-1 items-end h-6">
+                  {[24, 18, 28, 16, 22].map((height, i) => (
+                    <div key={i} className="w-1 bg-primary/40" style={{ height: `${height}px` }} />
                   ))}
                 </div>
               </div>
@@ -46,29 +54,30 @@ function App() {
 
         <main className="container mx-auto px-4 py-6 pb-24 md:pb-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="hidden md:inline-flex w-full justify-start mb-6 bg-card/80 backdrop-blur-md border-2 border-secondary p-1 jagged-corner relative">
-              <div className="absolute inset-0 diagonal-stripes opacity-5 pointer-events-none" />
-              <TabsTrigger value="dashboard" className="gap-2 jagged-corner-small data-[state=active]:bg-secondary/30 data-[state=active]:text-secondary data-[state=active]:border-2 data-[state=active]:border-secondary data-[state=active]:neon-glow-accent relative z-10">
+            <TabsList className="hidden md:inline-flex w-full justify-start mb-6 bg-card/60 backdrop-blur-md border border-primary/30 p-1 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
+              <div className="absolute top-0 left-0 w-20 h-px bg-gradient-to-r from-primary to-transparent" />
+              <TabsTrigger value="dashboard" className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary relative z-10 data-[state=active]:shadow-[0_0_12px_oklch(0.72_0.20_195_/_0.3)]">
                 <House size={18} weight="duotone" />
                 <span className="font-bold uppercase tracking-[0.15em] text-xs">Dashboard</span>
               </TabsTrigger>
-              <TabsTrigger value="agents" className="gap-2 jagged-corner-small data-[state=active]:bg-secondary/30 data-[state=active]:text-secondary data-[state=active]:border-2 data-[state=active]:border-secondary data-[state=active]:neon-glow-accent relative z-10">
+              <TabsTrigger value="agents" className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary relative z-10 data-[state=active]:shadow-[0_0_12px_oklch(0.72_0.20_195_/_0.3)]">
                 <Robot size={18} weight="duotone" />
                 <span className="font-bold uppercase tracking-[0.15em] text-xs">Agents</span>
               </TabsTrigger>
-              <TabsTrigger value="trade" className="gap-2 jagged-corner-small data-[state=active]:bg-secondary/30 data-[state=active]:text-secondary data-[state=active]:border-2 data-[state=active]:border-secondary data-[state=active]:neon-glow-accent relative z-10">
+              <TabsTrigger value="trade" className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary relative z-10 data-[state=active]:shadow-[0_0_12px_oklch(0.72_0.20_195_/_0.3)]">
                 <TrendUp size={18} weight="duotone" />
                 <span className="font-bold uppercase tracking-[0.15em] text-xs">Trade</span>
               </TabsTrigger>
-              <TabsTrigger value="vault" className="gap-2 jagged-corner-small data-[state=active]:bg-secondary/30 data-[state=active]:text-secondary data-[state=active]:border-2 data-[state=active]:border-secondary data-[state=active]:neon-glow-accent relative z-10">
+              <TabsTrigger value="vault" className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary relative z-10 data-[state=active]:shadow-[0_0_12px_oklch(0.72_0.20_195_/_0.3)]">
                 <Vault size={18} weight="duotone" />
                 <span className="font-bold uppercase tracking-[0.15em] text-xs">Vault</span>
               </TabsTrigger>
-              <TabsTrigger value="community" className="gap-2 jagged-corner-small data-[state=active]:bg-secondary/30 data-[state=active]:text-secondary data-[state=active]:border-2 data-[state=active]:border-secondary data-[state=active]:neon-glow-accent relative z-10">
+              <TabsTrigger value="community" className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary relative z-10 data-[state=active]:shadow-[0_0_12px_oklch(0.72_0.20_195_/_0.3)]">
                 <Users size={18} weight="duotone" />
                 <span className="font-bold uppercase tracking-[0.15em] text-xs">Community</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-2 jagged-corner-small data-[state=active]:bg-secondary/30 data-[state=active]:text-secondary data-[state=active]:border-2 data-[state=active]:border-secondary data-[state=active]:neon-glow-accent relative z-10">
+              <TabsTrigger value="settings" className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary relative z-10 data-[state=active]:shadow-[0_0_12px_oklch(0.72_0.20_195_/_0.3)]">
                 <Gear size={18} weight="duotone" />
                 <span className="font-bold uppercase tracking-[0.15em] text-xs">Settings</span>
               </TabsTrigger>
@@ -95,12 +104,13 @@ function App() {
           </Tabs>
         </main>
 
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t-2 border-secondary backdrop-blur-md bg-card/95 z-50">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-primary/30 backdrop-blur-md bg-card/98 z-50 relative">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
           <div className="grid grid-cols-6 h-16">
             <button
               onClick={() => setActiveTab('dashboard')}
               className={`flex flex-col items-center justify-center gap-1 transition-all ${
-                activeTab === 'dashboard' ? 'text-secondary neon-glow-accent' : 'text-muted-foreground'
+                activeTab === 'dashboard' ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <House size={24} weight={activeTab === 'dashboard' ? 'fill' : 'duotone'} />
@@ -108,7 +118,7 @@ function App() {
             <button
               onClick={() => setActiveTab('agents')}
               className={`flex flex-col items-center justify-center gap-1 transition-all ${
-                activeTab === 'agents' ? 'text-secondary neon-glow-accent' : 'text-muted-foreground'
+                activeTab === 'agents' ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <Robot size={24} weight={activeTab === 'agents' ? 'fill' : 'duotone'} />
@@ -116,7 +126,7 @@ function App() {
             <button
               onClick={() => setActiveTab('trade')}
               className={`flex flex-col items-center justify-center gap-1 transition-all ${
-                activeTab === 'trade' ? 'text-secondary neon-glow-accent' : 'text-muted-foreground'
+                activeTab === 'trade' ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <TrendUp size={24} weight={activeTab === 'trade' ? 'fill' : 'duotone'} />
@@ -124,7 +134,7 @@ function App() {
             <button
               onClick={() => setActiveTab('vault')}
               className={`flex flex-col items-center justify-center gap-1 transition-all ${
-                activeTab === 'vault' ? 'text-secondary neon-glow-accent' : 'text-muted-foreground'
+                activeTab === 'vault' ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <Vault size={24} weight={activeTab === 'vault' ? 'fill' : 'duotone'} />
@@ -132,7 +142,7 @@ function App() {
             <button
               onClick={() => setActiveTab('community')}
               className={`flex flex-col items-center justify-center gap-1 transition-all ${
-                activeTab === 'community' ? 'text-secondary neon-glow-accent' : 'text-muted-foreground'
+                activeTab === 'community' ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <Users size={24} weight={activeTab === 'community' ? 'fill' : 'duotone'} />
@@ -140,7 +150,7 @@ function App() {
             <button
               onClick={() => setActiveTab('settings')}
               className={`flex flex-col items-center justify-center gap-1 transition-all ${
-                activeTab === 'settings' ? 'text-secondary neon-glow-accent' : 'text-muted-foreground'
+                activeTab === 'settings' ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <Gear size={24} weight={activeTab === 'settings' ? 'fill' : 'duotone'} />
