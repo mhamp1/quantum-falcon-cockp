@@ -3,11 +3,15 @@ import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Flask, Lightning
 import Dashboard from '@/components/dashboard/Dashboard'
 import BotOverview from '@/components/dashboard/BotOverview'
 import Analytics from '@/components/dashboard/Analytics'
+import EnhancedAnalytics from '@/components/dashboard/EnhancedAnalytics'
 import Agents from '@/components/agents/Agents'
 import VaultView from '@/components/vault/VaultView'
 import Community from '@/components/community/Community'
+import EnhancedCommunity from '@/components/community/EnhancedCommunity'
 import TradingStrategies from '@/components/trade/TradingStrategies'
+import EnhancedTradingHub from '@/components/trade/EnhancedTradingHub'
 import EnhancedSettings from '@/components/settings/EnhancedSettings'
+import AIAssistant from '@/components/shared/AIAssistant'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 function ComingSoon({ title }: { title: string }) {
@@ -37,10 +41,10 @@ export default function App() {
     { id: 'dashboard', label: 'Dashboard', icon: House, component: Dashboard },
     { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
     { id: 'agents', label: 'AI Agents', icon: Robot, component: Agents },
-    { id: 'analytics', label: 'Analytics', icon: ChartLine, component: Analytics },
-    { id: 'trading', label: 'Trading', icon: Lightning, component: TradingStrategies },
+    { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
+    { id: 'trading', label: 'Trading', icon: Lightning, component: EnhancedTradingHub },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'community', label: 'Community', icon: Users, component: Community },
+    { id: 'community', label: 'Community', icon: Users, component: EnhancedCommunity },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
   ]
 
@@ -151,6 +155,8 @@ export default function App() {
           </nav>
         )}
       </div>
+
+      <AIAssistant />
     </div>
   );
 }

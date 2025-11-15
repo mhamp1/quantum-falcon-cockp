@@ -3,10 +3,11 @@ import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock } from '@phosphor-icons/react'
+import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import SolanaLogo from '@/components/shared/SolanaLogo'
+import VaultTutorial from './VaultTutorial'
 
 interface VaultTransaction {
   id: string
@@ -31,6 +32,7 @@ export default function VaultView() {
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [withdrawAddress, setWithdrawAddress] = useState('')
   const [floatingCoins, setFloatingCoins] = useState<FloatingCoin[]>([])
+  const [showTutorial, setShowTutorial] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -298,9 +300,10 @@ export default function VaultView() {
             <Button 
               size="lg"
               variant="outline"
+              onClick={() => setShowTutorial(true)}
               className="jagged-corner border-4 border-primary text-primary hover:bg-primary/10 uppercase tracking-[0.15em] font-bold px-8 py-6 text-base shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.6)] bg-card/80 backdrop-blur-sm"
             >
-              <ShieldCheck size={24} weight="duotone" className="mr-2" />
+              <Question size={24} weight="duotone" className="mr-2" />
               Learn How It Works
             </Button>
           </motion.div>
@@ -607,6 +610,8 @@ export default function VaultView() {
           )}
         </div>
       </div>
+
+      <VaultTutorial open={showTutorial} onOpenChange={setShowTutorial} />
     </div>
   )
 }
