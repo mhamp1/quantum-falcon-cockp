@@ -53,7 +53,13 @@ export default function App() {
             <div className="p-6 border-b-2 border-primary/30">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 jagged-corner-small bg-primary/20 border-2 border-primary">
-                  <Robot size={24} weight="duotone" className="text-primary" />
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-primary">
+                    <path d="M12 2L4 6V12C4 17.55 7.84 22.54 13 24C18.16 22.54 22 17.55 22 12V6L12 2Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 8L8 10.5V13.5L12 16L16 13.5V10.5L12 8Z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="10" cy="11" r="0.5" fill="currentColor"/>
+                    <circle cx="14" cy="11" r="0.5" fill="currentColor"/>
+                    <path d="M12 13.5V16M9 18L12 16L15 18" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
                 <div>
                   <h1 className="text-lg font-bold tracking-[0.15em] uppercase leading-tight">
