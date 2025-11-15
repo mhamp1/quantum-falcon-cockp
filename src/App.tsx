@@ -118,7 +118,7 @@ export default function App() {
         )}
 
         <main className="flex-1 overflow-y-auto scrollbar-thin" style={{ height: isMobile ? 'calc(100vh - 80px)' : '100vh' }}>
-          <div className="container mx-auto px-4 py-6 md:py-8">
+          <div className="container mx-auto px-4 py-6 md:py-8 pb-24">
             <Component />
           </div>
         </main>

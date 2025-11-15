@@ -95,14 +95,14 @@ Provide a helpful, concise response about trading strategies, market insights, o
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+        className="fixed bottom-4 right-4 z-40 w-12 h-12 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
         onClick={() => setIsOpen(true)}
         style={{
-          boxShadow: '0 0 20px var(--primary), 0 0 40px var(--primary)'
+          boxShadow: '0 0 15px var(--primary), 0 0 30px var(--primary)'
         }}
       >
-        <Robot size={28} weight="duotone" className="group-hover:scale-110 transition-transform" />
-        <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-pulse" />
+        <Robot size={22} weight="duotone" className="group-hover:scale-110 transition-transform" />
+        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-accent rounded-full animate-pulse" />
       </motion.button>
     )
   }
@@ -112,22 +112,22 @@ Provide a helpful, concise response about trading strategies, market insights, o
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="fixed bottom-6 right-6 z-50"
+        className="fixed bottom-4 right-4 z-40"
       >
-        <div className="cyber-card p-4 flex items-center gap-3 cursor-pointer" onClick={() => setIsMinimized(false)}>
-          <Robot size={24} weight="duotone" className="text-primary" />
-          <span className="text-sm font-bold uppercase tracking-wider">AI Assistant</span>
+        <div className="cyber-card p-3 flex items-center gap-2 cursor-pointer" onClick={() => setIsMinimized(false)}>
+          <Robot size={18} weight="duotone" className="text-primary" />
+          <span className="text-xs font-bold uppercase tracking-wider">AI Assistant</span>
           <Button
             size="sm"
             variant="ghost"
-            className="ml-4"
+            className="ml-2 h-6 w-6 p-0"
             onClick={(e) => {
               e.stopPropagation()
               setIsOpen(false)
               setIsMinimized(false)
             }}
           >
-            <X size={16} />
+            <X size={12} />
           </Button>
         </div>
       </motion.div>
@@ -141,63 +141,65 @@ Provide a helpful, concise response about trading strategies, market insights, o
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 20, opacity: 0 }}
-        className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-3rem)]"
+        className="fixed bottom-4 right-4 z-40 w-80 max-w-[calc(100vw-2rem)]"
       >
-        <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '500px', maxHeight: '80vh' }}>
-          <div className="drag-handle cursor-move p-4 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors">
-            <div className="flex items-center gap-3">
-              <Robot size={24} weight="duotone" className="text-primary neon-glow-primary" />
+        <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '400px', maxHeight: '70vh' }}>
+          <div className="drag-handle cursor-move p-3 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors">
+            <div className="flex items-center gap-2">
+              <Robot size={18} weight="duotone" className="text-primary neon-glow-primary" />
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider">AI Assistant</h3>
-                <p className="text-xs text-muted-foreground">Drag to reposition</p>
+                <h3 className="text-xs font-bold uppercase tracking-wider">AI Assistant</h3>
+                <p className="text-[9px] text-muted-foreground">Drag to move</p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <Button
                 size="sm"
                 variant="ghost"
+                className="h-6 w-6 p-0"
                 onClick={() => setIsMinimized(true)}
               >
-                <Minus size={16} />
+                <Minus size={12} />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
+                className="h-6 w-6 p-0"
                 onClick={() => {
                   setIsOpen(false)
                   setIsMinimized(false)
                 }}
               >
-                <X size={16} />
+                <X size={12} />
               </Button>
             </div>
           </div>
 
-        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-          <div className="space-y-4">
+        <ScrollArea className="flex-1 p-3" ref={scrollRef}>
+          <div className="space-y-3">
             {(messages || defaultMessages).map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-3 ${
+                  className={`max-w-[80%] p-2 ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground jagged-corner-small'
                       : 'bg-muted text-foreground jagged-corner-small border border-primary/30'
                   }`}
                 >
-                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <p className="text-xs leading-relaxed">{message.content}</p>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-muted p-3 jagged-corner-small border border-primary/30">
+                <div className="bg-muted p-2 jagged-corner-small border border-primary/30">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
                   </div>
                 </div>
               </div>
@@ -205,7 +207,7 @@ Provide a helpful, concise response about trading strategies, market insights, o
           </div>
         </ScrollArea>
 
-        <div className="p-4 border-t-2 border-primary/30 bg-card/80 backdrop-blur">
+        <div className="p-3 border-t-2 border-primary/30 bg-card/80 backdrop-blur">
           <div className="flex gap-2">
             <Input
               value={input}
@@ -213,14 +215,14 @@ Provide a helpful, concise response about trading strategies, market insights, o
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything..."
               disabled={isLoading}
-              className="flex-1 jagged-corner-small border-primary/50 focus:border-primary"
+              className="flex-1 jagged-corner-small border-primary/50 focus:border-primary text-xs h-8"
             />
             <Button
               onClick={sendMessage}
               disabled={isLoading || !input.trim()}
-              className="jagged-corner-small"
+              className="jagged-corner-small h-8 w-8 p-0"
             >
-              <PaperPlaneRight size={18} weight="duotone" />
+              <PaperPlaneRight size={14} weight="duotone" />
             </Button>
           </div>
         </div>
