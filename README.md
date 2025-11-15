@@ -1,5 +1,34 @@
 # 🚀 Quantum Falcon Cockpit
 
+A cyberpunk-themed trading platform with Solana-inspired neon aesthetics, AI-powered agents, and comprehensive mobile-desktop integration.
+
+![Quantum Falcon Theme](https://github.com/user-attachments/assets/650689ad-bb01-4ece-83f2-c129c179c6d9)
+
+## 🎨 Cyberpunk Neon Theme
+
+This app features a custom Solana-inspired cyberpunk theme with neon aesthetics, holographic effects, and smooth animations.
+
+**Key Features:**
+- Solana Green (#14F195) and Purple (#9945FF) color palette
+- Holographic cards with neon glow effects
+- Animated progress bars with shimmer effects
+- Custom notification toasts and badges
+- Fully responsive design (mobile-first)
+
+📖 **[Complete Theme Guide](./THEME_GUIDE.md)** - Learn how to customize and extend the theme
+
+**Quick Start:**
+```tsx
+import { HolographicCard, NeonProgress, NeonBadge } from '@/components/ui'
+
+<HolographicCard variant="primary" glow pulse>
+  <NeonProgress value={750} max={1000} animate />
+  <NeonBadge variant="accent">Elite Trader</NeonBadge>
+</HolographicCard>
+```
+
+## 🧪 Testing
+
 A cyberpunk-themed progressive web app for crypto trading with AI-powered trading agents, advanced analytics, gamification, and community features. Built with React, TypeScript, and Vite, designed with a Cyberpunk Neon HUD aesthetic.
 
 ## 📋 Table of Contents
@@ -1345,12 +1374,14 @@ The mobile app includes comprehensive unit tests covering:
 - ✅ Error handling and retry logic
 - ✅ Data persistence across restarts
 
+**Run all tests:**
 Run all tests:
 ```bash
 cd mobile_app
 flutter test
 ```
 
+**Run specific test file:**
 Run specific test file:
 ```bash
 flutter test test/services/xp_service_test.dart
@@ -1471,12 +1502,50 @@ _syncTimer = Timer.periodic(const Duration(minutes: 10), (_) {
 - Run `flutter pub run build_runner build --delete-conflicting-outputs`
 - Check that all Hive models have proper annotations
 
+## 🚀 Development
+
+### Web App (React/TypeScript)
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### Mobile App (Flutter)
+
+```bash
+# Install dependencies
+cd mobile_app
+flutter pub get
+
+# Run on device/simulator
+flutter run
+
+# Run tests
+flutter test
+
+# Build for production
+flutter build apk  # Android
+flutter build ios  # iOS
+```
+
 ## 📚 Additional Resources
 
 - [Flutter Documentation](https://docs.flutter.dev/)
 - [Hive Documentation](https://docs.hivedb.dev/)
 - [Provider State Management](https://pub.dev/packages/provider)
 - [Connectivity Plus](https://pub.dev/packages/connectivity_plus)
+- [Tailwind CSS Documentation](https://tailwindcss.com/)
+- [Solana Branding Guidelines](https://solana.com/branding)
 
 ## 🤝 Contributing
 
