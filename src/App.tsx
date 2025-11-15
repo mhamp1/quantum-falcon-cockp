@@ -53,12 +53,16 @@ export default function App() {
             <div className="p-6 border-b-2 border-primary/30">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 jagged-corner-small bg-primary/20 border-2 border-primary">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-primary">
-                    <path d="M12 2L4 6V12C4 17.55 7.84 22.54 13 24C18.16 22.54 22 17.55 22 12V6L12 2Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 8L8 10.5V13.5L12 16L16 13.5V10.5L12 8Z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <circle cx="10" cy="11" r="0.5" fill="currentColor"/>
-                    <circle cx="14" cy="11" r="0.5" fill="currentColor"/>
-                    <path d="M12 13.5V16M9 18L12 16L15 18" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-primary">
+                    <path d="M12 3C10 3 8 4 7 5.5C6.5 6.2 6 7.5 6 9C6 10 6.2 11 7 12C7.5 12.5 8 13 9 13.2C9 14 9.5 15 10.5 15.5C11 15.8 11.5 16 12 16C12.5 16 13 15.8 13.5 15.5C14.5 15 15 14 15 13.2C16 13 16.5 12.5 17 12C17.8 11 18 10 18 9C18 7.5 17.5 6.2 17 5.5C16 4 14 3 12 3Z" fill="currentColor" fillOpacity="0.3"/>
+                    <path d="M12 3C10 3 8 4 7 5.5C6.5 6.2 6 7.5 6 9C6 10 6.2 11 7 12C7.5 12.5 8 13 9 13.2M12 3C14 3 16 4 17 5.5C17.5 6.2 18 7.5 18 9C18 10 17.8 11 17 12C16.5 12.5 16 13 15 13.2M12 3V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 8C11 8.5 10 9.5 9.5 11C9.3 11.5 9.2 12 9 13.2M12 8C13 8.5 14 9.5 14.5 11C14.7 11.5 14.8 12 15 13.2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="9.5" cy="8" r="1" fill="currentColor" stroke="currentColor" strokeWidth="0.5"/>
+                    <circle cx="14.5" cy="8" r="1" fill="currentColor" stroke="currentColor" strokeWidth="0.5"/>
+                    <circle cx="9.5" cy="8" r="0.3" fill="oklch(0.72 0.20 195)"/>
+                    <circle cx="14.5" cy="8" r="0.3" fill="oklch(0.72 0.20 195)"/>
+                    <path d="M10.5 15.5C11 15.8 11.5 16 12 16C12.5 16 13 15.8 13.5 15.5C14.5 15 15 14 15 13.2C15.5 13 16 12.5 16.5 12M9 13.2C9 14 9.5 15 10.5 15.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 16C11.5 17 11 18.5 10.5 20M12 16C12.5 17 13 18.5 13.5 20" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity="0.6"/>
                   </svg>
                 </div>
                 <div>
