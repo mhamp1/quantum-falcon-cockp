@@ -46,7 +46,6 @@ export default function App() {
     <div className="min-h-screen bg-background relative overflow-hidden">
       <div className="absolute inset-0 technical-grid opacity-10 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
-      
       <div className="relative z-10 flex">
         {!isMobile && (
           <aside className="w-64 border-r-2 border-primary/30 bg-card/80 backdrop-blur-sm sticky top-0 h-screen flex flex-col">
@@ -97,7 +96,7 @@ export default function App() {
         )}
 
         <main className="flex-1 overflow-y-auto" style={{ height: isMobile ? 'calc(100vh - 80px)' : '100vh' }}>
-          <div className="container mx-auto px-4 py-6 md:py-8">
+          <div className="container mx-auto px-4 py-6 md:py-8 text-red-600">
             <Component />
           </div>
         </main>
@@ -130,5 +129,5 @@ export default function App() {
         )}
       </div>
     </div>
-  )
+  );
 }
