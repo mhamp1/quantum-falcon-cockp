@@ -35,7 +35,7 @@ export default function VaultView() {
 
   useEffect(() => {
     const coins: FloatingCoin[] = []
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 16; i++) {
       coins.push({
         id: i,
         x: Math.random() * 100,
@@ -170,21 +170,23 @@ export default function VaultView() {
           </div>
         </motion.div>
         
-        {floatingCoins.map((coin) => (
+        {floatingCoins.map((coin) => {
+          const isBitcoin = coin.id % 2 === 0
+          return (
           <motion.div
             key={coin.id}
-            className="absolute w-20 h-20 md:w-28 md:h-28 pointer-events-none"
+            className="absolute w-24 h-24 md:w-32 md:h-32 pointer-events-none"
             style={{
               left: `${coin.x}%`,
               top: `${coin.y}%`,
-              perspective: '1000px',
+              perspective: '1200px',
               transformStyle: 'preserve-3d'
             }}
             animate={{
-              y: [0, -30, 0],
-              x: [0, Math.sin(coin.id) * 20, 0],
+              y: [0, -40, 0],
+              x: [0, Math.sin(coin.id) * 25, 0],
               rotateY: [0, 360],
-              scale: [1, 1.15, 1],
+              scale: [1, 1.2, 1],
             }}
             transition={{
               duration: coin.duration,
@@ -194,27 +196,43 @@ export default function VaultView() {
             }}
           >
             <div className="relative w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-accent to-primary blur-2xl opacity-70 animate-pulse" />
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-card to-background border-4 border-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.6),inset_0_0_20px_oklch(0.72_0.20_195_/_0.2)] flex items-center justify-center" 
+              <div className={`absolute inset-0 rounded-full blur-3xl opacity-80 animate-pulse ${isBitcoin ? 'bg-gradient-to-br from-[oklch(0.70_0.18_50)] via-[oklch(0.65_0.15_45)] to-[oklch(0.70_0.18_50)]' : 'bg-gradient-to-br from-primary via-accent to-primary'}`} />
+              <div 
+                className={`absolute inset-0 rounded-full bg-gradient-to-br from-card/95 to-background/95 border-[6px] flex items-center justify-center ${isBitcoin ? 'border-[oklch(0.70_0.18_50)]' : 'border-primary'}`}
                 style={{ 
-                  transform: 'translateZ(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.5), 0 0 20px oklch(0.72 0.20 195 / 0.6), inset 0 0 20px oklch(0.72 0.20 195 / 0.2)'
+                  transform: 'translateZ(15px)',
+                  boxShadow: isBitcoin 
+                    ? '0 15px 40px rgba(0,0,0,0.6), 0 0 30px oklch(0.70 0.18 50 / 0.8), inset 0 0 30px oklch(0.70 0.18 50 / 0.3), inset 0 -8px 20px rgba(0,0,0,0.4)'
+                    : '0 15px 40px rgba(0,0,0,0.6), 0 0 30px oklch(0.72 0.20 195 / 0.8), inset 0 0 30px oklch(0.72 0.20 195 / 0.3), inset 0 -8px 20px rgba(0,0,0,0.4)'
                 }}
               >
-                <div className="relative">
-                  <div className="absolute inset-0 blur-md">
-                    <SolanaLogo className="w-10 h-10 md:w-16 md:h-16 text-primary" />
+                {isBitcoin ? (
+                  <div className="relative">
+                    <div className="absolute inset-0 blur-lg">
+                      <CurrencyBtc className="w-12 h-12 md:w-20 md:h-20 text-[oklch(0.70_0.18_50)]" weight="fill" />
+                    </div>
+                    <CurrencyBtc className="w-12 h-12 md:w-20 md:h-20 text-[oklch(0.70_0.18_50)] relative z-10" weight="fill" />
                   </div>
-                  <SolanaLogo className="w-10 h-10 md:w-16 md:h-16 text-primary relative z-10" />
-                </div>
+                ) : (
+                  <div className="relative">
+                    <div className="absolute inset-0 blur-lg">
+                      <SolanaLogo className="w-12 h-12 md:w-20 md:h-20 text-primary" />
+                    </div>
+                    <SolanaLogo className="w-12 h-12 md:w-20 md:h-20 text-primary relative z-10" />
+                  </div>
+                )}
               </div>
               <div 
-                className="absolute inset-0 rounded-full bg-gradient-to-t from-black/40 to-transparent"
-                style={{ transform: 'translateZ(5px)' }}
+                className="absolute inset-0 rounded-full bg-gradient-to-t from-black/50 to-transparent"
+                style={{ transform: 'translateZ(8px)' }}
+              />
+              <div 
+                className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent"
+                style={{ transform: 'translateZ(20px)' }}
               />
             </div>
           </motion.div>
-        ))}
+        )})}
 
         <div className="relative z-10 space-y-6">
           <motion.div
@@ -236,23 +254,32 @@ export default function VaultView() {
                 <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">VAULT PROTOCOL</p>
               </div>
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.15em] uppercase leading-tight drop-shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.8)]" style={{ textShadow: '3px 3px 0 oklch(0.08 0.02 280), -1px -1px 0 oklch(0.08 0.02 280), 1px -1px 0 oklch(0.08 0.02 280), -1px 1px 0 oklch(0.08 0.02 280), 0 0 20px oklch(0.72 0.20 195 / 0.8)' }}>
-              <span className="block text-foreground">REVOLUTIONIZING</span>
-              <span className="block text-primary neon-glow-primary mt-2">CRYPTO WEALTH</span>
-              <span className="block text-accent neon-glow-accent mt-2">ACCUMULATION</span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.15em] uppercase leading-tight" style={{ 
+              textShadow: '4px 4px 0 oklch(0.08 0.02 280), -1px -1px 0 oklch(0.08 0.02 280), 1px -1px 0 oklch(0.08 0.02 280), -1px 1px 0 oklch(0.08 0.02 280), 0 0 25px oklch(0.72 0.20 195 / 0.9)',
+              WebkitTextStroke: '1px oklch(0.08 0.02 280)'
+            }}>
+              <span className="block text-foreground drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">REVOLUTIONIZING</span>
+              <span className="block text-primary neon-glow-primary mt-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">CRYPTO WEALTH</span>
+              <span className="block text-accent neon-glow-accent mt-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">ACCUMULATION</span>
             </h1>
           </motion.div>
 
           <motion.p
-            className="text-lg md:text-xl text-foreground max-w-2xl leading-relaxed font-semibold bg-card/80 border-2 border-primary/40 p-6 jagged-corner-small backdrop-blur-sm shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.3)]"
+            className="text-lg md:text-xl max-w-2xl leading-relaxed font-bold bg-card/95 border-3 border-primary/60 p-6 jagged-corner-small backdrop-blur-sm shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
+            style={{
+              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)'
+            }}
           >
-            A new paradigm of autonomous trading, built for investors who value{' '}
-            <span className="text-primary font-bold neon-glow-primary">speed</span>,{' '}
-            <span className="text-accent font-bold neon-glow-accent">clarity</span>, and{' '}
-            <span className="text-secondary font-bold neon-glow-secondary">security</span>.
+            <span className="text-foreground">A new paradigm of autonomous trading, built for investors who value{' '}</span>
+            <span className="text-primary font-black neon-glow-primary drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">speed</span>
+            <span className="text-foreground">,{' '}</span>
+            <span className="text-accent font-black neon-glow-accent drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">clarity</span>
+            <span className="text-foreground">, and{' '}</span>
+            <span className="text-secondary font-black neon-glow-secondary drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">security</span>
+            <span className="text-foreground">.</span>
           </motion.p>
 
           <motion.div
@@ -295,13 +322,23 @@ export default function VaultView() {
               </div>
               <div className="status-indicator" />
             </div>
-            <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-bold mb-2 drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
+            <h3 className="text-sm uppercase tracking-[0.2em] font-black mb-2" style={{
+              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
+              WebkitTextStroke: '0.5px oklch(0.12 0.03 280)',
+              color: 'oklch(0.95 0.08 195)'
+            }}>
               AUTO CONVERT SOL
             </h3>
-            <p className="text-3xl font-black text-primary neon-glow-primary mb-1 drop-shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.8)]">
+            <p className="text-3xl font-black text-primary neon-glow-primary mb-1" style={{
+              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.72 0.20 195 / 0.9)',
+              WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+            }}>
               {solanaAccumulated?.toFixed(2) || '0.00'}
             </p>
-            <p className="text-xs text-foreground uppercase tracking-wide font-semibold bg-card/60 px-2 py-1 inline-block border border-primary/30">
+            <p className="text-xs uppercase tracking-wide font-bold bg-card/90 px-2 py-1 inline-block border-2 border-primary/50" style={{
+              textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+              color: 'oklch(0.90 0.08 195)'
+            }}>
               Solana accumulated from trades
             </p>
           </div>
@@ -321,13 +358,23 @@ export default function VaultView() {
               </div>
               <div className="hud-readout text-accent">ACTIVE</div>
             </div>
-            <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-bold mb-2 drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
+            <h3 className="text-sm uppercase tracking-[0.2em] font-black mb-2" style={{
+              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
+              WebkitTextStroke: '0.5px oklch(0.12 0.03 280)',
+              color: 'oklch(0.95 0.08 195)'
+            }}>
               CONVERSION RATE
             </h3>
-            <p className="text-3xl font-black text-accent neon-glow-accent mb-1 drop-shadow-[0_0_10px_oklch(0.68_0.18_330_/_0.8)]">
+            <p className="text-3xl font-black text-accent neon-glow-accent mb-1" style={{
+              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.68 0.18 330 / 0.9)',
+              WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+            }}>
               AUTO
             </p>
-            <p className="text-xs text-foreground uppercase tracking-wide font-semibold bg-card/60 px-2 py-1 inline-block border border-accent/30">
+            <p className="text-xs uppercase tracking-wide font-bold bg-card/90 px-2 py-1 inline-block border-2 border-accent/50" style={{
+              textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+              color: 'oklch(0.90 0.08 195)'
+            }}>
               Optimal market conversion to BTC
             </p>
           </div>
@@ -347,13 +394,23 @@ export default function VaultView() {
               </div>
               <div className="status-indicator bg-secondary" style={{ boxShadow: '0 0 8px var(--secondary), 0 0 16px var(--secondary)' }} />
             </div>
-            <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-bold mb-2 drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
+            <h3 className="text-sm uppercase tracking-[0.2em] font-black mb-2" style={{
+              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
+              WebkitTextStroke: '0.5px oklch(0.12 0.03 280)',
+              color: 'oklch(0.95 0.08 195)'
+            }}>
               ZERO FEES
             </h3>
-            <p className="text-3xl font-black text-secondary neon-glow-secondary mb-1 drop-shadow-[0_0_10px_oklch(0.68_0.18_330_/_0.8)]">
+            <p className="text-3xl font-black text-secondary neon-glow-secondary mb-1" style={{
+              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.68 0.18 330 / 0.9)',
+              WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+            }}>
               0%
             </p>
-            <p className="text-xs text-foreground uppercase tracking-wide font-semibold bg-card/60 px-2 py-1 inline-block border border-secondary/30">
+            <p className="text-xs uppercase tracking-wide font-bold bg-card/90 px-2 py-1 inline-block border-2 border-secondary/50" style={{
+              textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+              color: 'oklch(0.90 0.08 195)'
+            }}>
               No trading fees on conversions
             </p>
           </div>
@@ -371,30 +428,53 @@ export default function VaultView() {
                   <CurrencyBtc size={40} weight="duotone" className="text-secondary" />
                 </div>
                 <div>
-                  <p className="text-xs text-foreground uppercase tracking-[0.15em] hud-text font-bold drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
+                  <p className="text-xs uppercase tracking-[0.15em] hud-text font-black" style={{
+                    textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
+                    WebkitTextStroke: '0.5px oklch(0.12 0.03 280)',
+                    color: 'oklch(0.95 0.08 195)'
+                  }}>
                     TOTAL BTC VAULT BALANCE
                   </p>
-                  <p className="text-sm text-foreground uppercase tracking-wide mt-1 font-semibold bg-card/60 px-2 py-1 inline-block border border-secondary/30">
+                  <p className="text-sm uppercase tracking-wide mt-1 font-bold bg-card/90 px-2 py-1 inline-block border-2 border-secondary/50" style={{
+                    textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                    color: 'oklch(0.90 0.08 195)'
+                  }}>
                     Secured & Growing
                   </p>
                 </div>
               </div>
-              <p className="text-5xl md:text-6xl font-black text-secondary neon-glow-secondary hud-value mb-2 drop-shadow-[0_0_15px_oklch(0.68_0.18_330_/_0.9)]" style={{ textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.68 0.18 330 / 0.9)' }}>
+              <p className="text-5xl md:text-6xl font-black text-secondary neon-glow-secondary hud-value mb-2" style={{ 
+                textShadow: '3px 3px 0 oklch(0.08 0.02 280), 0 0 20px oklch(0.68 0.18 330 / 0.9)',
+                WebkitTextStroke: '1px oklch(0.08 0.02 280)'
+              }}>
                 {btcBalance?.toFixed(6) || '0.000000'}
                 <span className="text-2xl ml-2">BTC</span>
               </p>
-              <p className="text-lg text-foreground uppercase tracking-wide font-semibold bg-card/60 px-3 py-1.5 inline-block border-2 border-secondary/40">
+              <p className="text-lg uppercase tracking-wide font-black bg-card/90 px-3 py-1.5 inline-block border-3 border-secondary/60" style={{
+                textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
+                color: 'oklch(0.90 0.08 195)'
+              }}>
                 ≈ ${((btcBalance || 0) * 45000).toFixed(2)} USD
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-card border-3 border-primary/40 jagged-corner-small shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.3)]">
-                <p className="text-xs text-foreground uppercase tracking-wide mb-1 font-bold">24H</p>
-                <p className="text-xl font-bold text-secondary neon-glow-secondary">+0.00012</p>
+              <div className="text-center p-4 bg-card border-3 border-primary/50 jagged-corner-small shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.4)]">
+                <p className="text-xs uppercase tracking-wide mb-1 font-black" style={{
+                  textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                  color: 'oklch(0.90 0.08 195)'
+                }}>24H</p>
+                <p className="text-xl font-black text-secondary neon-glow-secondary" style={{
+                  textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 10px oklch(0.68 0.18 330 / 0.9)'
+                }}>+0.00012</p>
               </div>
-              <div className="text-center p-4 bg-card border-3 border-primary/40 jagged-corner-small shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.3)]">
-                <p className="text-xs text-foreground uppercase tracking-wide mb-1 font-bold">GAIN</p>
-                <p className="text-xl font-bold text-secondary neon-glow-secondary">+47.3%</p>
+              <div className="text-center p-4 bg-card border-3 border-primary/50 jagged-corner-small shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.4)]">
+                <p className="text-xs uppercase tracking-wide mb-1 font-black" style={{
+                  textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                  color: 'oklch(0.90 0.08 195)'
+                }}>GAIN</p>
+                <p className="text-xl font-black text-secondary neon-glow-secondary" style={{
+                  textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 10px oklch(0.68 0.18 330 / 0.9)'
+                }}>+47.3%</p>
               </div>
             </div>
           </div>
@@ -408,15 +488,24 @@ export default function VaultView() {
               <ArrowUp size={32} weight="duotone" className="text-primary" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text drop-shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.8)]">WITHDRAW BTC</h3>
-              <p className="text-xs text-foreground uppercase tracking-wide mt-1 font-semibold bg-card/60 px-2 py-1 inline-block border border-primary/30">
+              <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text" style={{
+                textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.72 0.20 195 / 0.9)',
+                WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+              }}>WITHDRAW BTC</h3>
+              <p className="text-xs uppercase tracking-wide mt-1 font-bold bg-card/90 px-2 py-1 inline-block border-2 border-primary/50" style={{
+                textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                color: 'oklch(0.90 0.08 195)'
+              }}>
                 Transfer Bitcoin from vault to external wallet
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="withdraw-amount" className="uppercase tracking-wide text-xs font-bold text-foreground drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
+              <Label htmlFor="withdraw-amount" className="uppercase tracking-wide text-xs font-black" style={{
+                textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                color: 'oklch(0.90 0.08 195)'
+              }}>
                 Amount (BTC)
               </Label>
               <Input
@@ -430,7 +519,10 @@ export default function VaultView() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="withdraw-address" className="uppercase tracking-wide text-xs font-bold text-foreground drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
+              <Label htmlFor="withdraw-address" className="uppercase tracking-wide text-xs font-black" style={{
+                textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                color: 'oklch(0.90 0.08 195)'
+              }}>
                 Destination Address
               </Label>
               <Input
@@ -455,13 +547,19 @@ export default function VaultView() {
 
       <div className="scan-line-effect border-4 border-primary/60 shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)] bg-gradient-to-br from-card to-background">
         <div className="p-8 relative z-10">
-          <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text mb-6 drop-shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.8)]">
+          <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text mb-6" style={{
+            textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.72 0.20 195 / 0.9)',
+            WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+          }}>
             TRANSACTION HISTORY
           </h3>
           {!transactions || transactions.length === 0 ? (
             <div className="text-center py-12">
               <Vault size={64} weight="duotone" className="text-muted-foreground mx-auto mb-4 opacity-50" />
-              <p className="text-foreground uppercase tracking-wide font-semibold">NO TRANSACTIONS YET</p>
+              <p className="uppercase tracking-wide font-black" style={{
+                textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                color: 'oklch(0.90 0.08 195)'
+              }}>NO TRANSACTIONS YET</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -483,13 +581,24 @@ export default function VaultView() {
                       </div>
                     )}
                     <div>
-                      <p className="text-base font-bold uppercase tracking-wide text-foreground drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">{tx.type}</p>
-                      <p className="text-xs text-foreground uppercase tracking-wide font-semibold bg-card/60 px-2 py-0.5 inline-block border border-primary/30">
+                      <p className="text-base font-black uppercase tracking-wide" style={{
+                        textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                        color: 'oklch(0.90 0.08 195)'
+                      }}>{tx.type}</p>
+                      <p className="text-xs uppercase tracking-wide font-bold bg-card/90 px-2 py-0.5 inline-block border border-primary/40" style={{
+                        textShadow: '1px 1px 0 oklch(0.08 0.02 280)',
+                        color: 'oklch(0.80 0.08 195)'
+                      }}>
                         {new Date(tx.timestamp).toLocaleString()}
                       </p>
                     </div>
                   </div>
-                  <p className={`text-lg font-bold hud-value ${tx.type === 'deposit' ? 'text-secondary neon-glow-secondary' : 'text-destructive neon-glow-destructive'}`} style={{ textShadow: tx.type === 'deposit' ? '1px 1px 0 oklch(0.08 0.02 280), 0 0 10px oklch(0.68 0.18 330 / 0.9)' : '1px 1px 0 oklch(0.08 0.02 280), 0 0 10px oklch(0.65 0.25 25 / 0.9)' }}>
+                  <p className={`text-lg font-black hud-value ${tx.type === 'deposit' ? 'text-secondary neon-glow-secondary' : 'text-destructive neon-glow-destructive'}`} style={{ 
+                    textShadow: tx.type === 'deposit' 
+                      ? '2px 2px 0 oklch(0.08 0.02 280), 0 0 12px oklch(0.68 0.18 330 / 0.9)' 
+                      : '2px 2px 0 oklch(0.08 0.02 280), 0 0 12px oklch(0.65 0.25 25 / 0.9)',
+                    WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+                  }}>
                     {tx.type === 'deposit' ? '+' : '-'}{tx.amount.toFixed(6)} BTC
                   </p>
                 </motion.div>
