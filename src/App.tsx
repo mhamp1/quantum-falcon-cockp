@@ -266,10 +266,10 @@ export default function VaultView() {
 
           <motion.p
             className="text-lg md:text-xl max-w-2xl leading-relaxed font-bold bg-card/95 border-3 border-primary/60 p-6 jagged-corner-small backdrop-blur-sm shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]"
-            className="text-lg md:text-xl max-w-2xl leading-relaxed font-bold backdrop-blur-sm"
             initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            style={{
               textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)'
             }}
           >
