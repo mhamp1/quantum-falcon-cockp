@@ -32,3 +32,14 @@ pids
 .devcontainer/
 
 .spark-workbench-id
+
+# Flutter/Mobile App
+mobile_app/.dart_tool/
+mobile_app/.flutter-plugins
+mobile_app/.flutter-plugins-dependencies
+mobile_app/.packages
+mobile_app/build/
+mobile_app/*.hive
+mobile_app/*.lock
+mobile_app/test_data/
+mobile_app/test_sync_data/
