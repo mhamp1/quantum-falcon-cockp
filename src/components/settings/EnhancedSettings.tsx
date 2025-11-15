@@ -12,7 +12,7 @@ import {
   CurrencyDollar, SpeakerHigh, Shield, ChartLine, Medal, Star,
   Fire, Target, CheckCircle, Crown, ArrowsClockwise, Lightning, 
   Wallet, CloudArrowUp, Database, Key, LinkSimple, WifiHigh, Cpu,
-  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim
+  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -1151,102 +1151,352 @@ export default function EnhancedSettings() {
         </TabsContent>
 
         <TabsContent value="subscription" className="space-y-6">
-          <div className="cyber-card">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <Crown size={24} weight="duotone" className="text-accent" />
-                <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">SUBSCRIPTION_TIER</h3>
+          <div className="glass-morph-card p-6 relative overflow-hidden">
+            <div className="absolute inset-0 grid-background opacity-5" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-accent/10 blur-3xl rounded-full" />
+            
+            <div className="relative z-10">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-3 mb-4">
+                  <Crown size={32} weight="duotone" className="text-accent neon-glow-accent" />
+                  <h3 className="text-3xl font-bold uppercase tracking-[0.25em] hud-text text-accent">UNLOCK_FULL_POWER</h3>
+                </div>
+                <p className="text-muted-foreground max-w-2xl mx-auto text-sm uppercase tracking-wider">
+                  Choose the perfect plan to accelerate your trading journey
+                </p>
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 jagged-corner-small">
+                  <Lightning size={16} weight="fill" className="text-primary animate-pulse" />
+                  <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                    Limited time: 30% off annual plans
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="cyber-card p-6 space-y-4">
-                  <div>
-                    <h4 className="text-2xl font-bold uppercase mb-2">FREE</h4>
-                    <p className="text-3xl font-bold text-primary">$0</p>
-                    <p className="data-label">ALWAYS_FREE</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="cyber-card p-6 space-y-6 relative group hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.2)] transition-all duration-500">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-2xl rounded-full" />
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-2xl font-bold uppercase tracking-wider">STARTER</h4>
+                      <div className="px-2 py-1 bg-muted/30 border border-muted/50">
+                        <span className="text-[10px] font-bold uppercase tracking-wider">FREE</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className="text-5xl font-bold text-primary">$0</span>
+                        <span className="text-muted-foreground text-sm uppercase tracking-wider">/month</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Perfect to get started</p>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-primary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Paper Trading Mode</p>
+                          <p className="text-xs text-muted-foreground">Practice with virtual funds</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-primary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">3 Basic Strategies</p>
+                          <p className="text-xs text-muted-foreground">Pre-configured trading bots</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-primary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Community Access</p>
+                          <p className="text-xs text-muted-foreground">Join the discussion</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-primary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Basic Analytics</p>
+                          <p className="text-xs text-muted-foreground">Track your progress</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 opacity-40">
+                        <div className="w-[18px] h-[18px] border-2 border-current rounded-full flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Advanced AI Agents</p>
+                          <p className="text-xs text-muted-foreground line-through">Upgrade to unlock</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-primary/30 hover:bg-primary/5 relative group/btn"
+                      disabled
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <CheckCircle size={16} weight="fill" />
+                        <span className="font-bold uppercase tracking-wider">CURRENT_PLAN</span>
+                      </div>
+                    </Button>
                   </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Paper Trading</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Basic Strategies (3)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Community Features</span>
-                    </div>
-                    <div className="flex items-center gap-2 opacity-50">
-                      <span>×</span>
-                      <span>Advanced Analytics</span>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="w-full" disabled>
-                    CURRENT_PLAN
-                  </Button>
                 </div>
 
-                <div className="cyber-card-accent p-6 space-y-4 relative">
-                  <div className="absolute top-2 right-2 px-2 py-1 bg-accent/20 border border-accent/40">
-                    <span className="text-xs font-bold text-accent uppercase">POPULAR</span>
-                  </div>
-                  <div>
-                    <h4 className="text-2xl font-bold uppercase mb-2">PRO</h4>
-                    <p className="text-3xl font-bold text-accent">$9.99</p>
-                    <p className="data-label">PER_MONTH</p>
-                  </div>
-                  <div className="space-y-2 text-sm">
+                <div className="glass-morph-card p-6 space-y-6 relative group hover:shadow-[0_0_50px_oklch(0.68_0.18_330_/_0.4)] transition-all duration-500 scale-105 md:scale-110">
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-primary/5" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 blur-3xl rounded-full" />
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-accent border-2 border-accent/60 jagged-corner-small z-20">
                     <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Everything in Free</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Advanced Analytics</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>10 Premium Strategies</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Unlimited Trades</span>
+                      <Star size={14} weight="fill" className="text-accent-foreground" />
+                      <span className="text-xs font-bold text-accent-foreground uppercase tracking-wider">MOST POPULAR</span>
+                      <Star size={14} weight="fill" className="text-accent-foreground" />
                     </div>
                   </div>
-                  <Button className="w-full">
-                    UPGRADE_TO_PRO
-                  </Button>
+                  
+                  <div className="relative z-10 pt-2">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-2xl font-bold uppercase tracking-wider text-accent neon-glow-accent">PRO</h4>
+                      <div className="px-2 py-1 bg-accent/20 border border-accent/40 animate-pulse-glow">
+                        <span className="text-[10px] font-bold text-accent uppercase tracking-wider">BEST VALUE</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-2xl text-muted-foreground line-through">$14.99</span>
+                        <span className="text-5xl font-bold text-accent">$9.99</span>
+                        <span className="text-muted-foreground text-sm uppercase tracking-wider">/mo</span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="px-2 py-0.5 bg-destructive/20 border border-destructive/40">
+                          <span className="text-[10px] font-bold text-destructive uppercase tracking-wider">SAVE 33%</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">Limited time offer</span>
+                      </div>
+                      <p className="text-xs text-accent uppercase tracking-wider font-semibold">For serious traders</p>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-start gap-3">
+                        <Lightning size={18} weight="fill" className="text-accent flex-shrink-0 mt-0.5 neon-glow-accent" />
+                        <div>
+                          <p className="text-sm font-bold text-accent">Everything in Starter</p>
+                          <p className="text-xs text-muted-foreground">Plus exclusive features</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-accent flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Advanced Analytics Suite</p>
+                          <p className="text-xs text-muted-foreground">Deep market insights & predictions</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-accent flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">10 Premium AI Strategies</p>
+                          <p className="text-xs text-muted-foreground">Maximize profit potential</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-accent flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Unlimited Trading Volume</p>
+                          <p className="text-xs text-muted-foreground">No restrictions on trades</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-accent flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Priority Support 24/7</p>
+                          <p className="text-xs text-muted-foreground">Get help when you need it</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-accent flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Real-time Alerts</p>
+                          <p className="text-xs text-muted-foreground">Never miss an opportunity</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground relative group/btn overflow-hidden border-2 border-accent/60"
+                      onClick={() => toast.success('Redirecting to checkout...')}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />
+                      <div className="flex items-center justify-center gap-2 relative z-10">
+                        <Lightning size={18} weight="fill" />
+                        <span className="font-bold uppercase tracking-wider">UPGRADE NOW</span>
+                        <Fire size={18} weight="fill" />
+                      </div>
+                    </Button>
+                    
+                    <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <Shield size={14} weight="fill" className="text-accent" />
+                      <span>30-day money-back guarantee</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="cyber-card p-6 space-y-4">
-                  <div>
-                    <h4 className="text-2xl font-bold uppercase mb-2">PRO+</h4>
-                    <p className="text-3xl font-bold text-secondary">$19.99</p>
-                    <p className="data-label">PER_MONTH</p>
+                <div className="cyber-card p-6 space-y-6 relative group hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.2)] transition-all duration-500">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 blur-2xl rounded-full" />
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-2xl font-bold uppercase tracking-wider text-secondary">ELITE</h4>
+                      <div className="px-2 py-1 bg-secondary/20 border border-secondary/40">
+                        <span className="text-[10px] font-bold text-secondary uppercase tracking-wider">PREMIUM</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className="text-5xl font-bold text-secondary">$19.99</span>
+                        <span className="text-muted-foreground text-sm uppercase tracking-wider">/mo</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">For professional traders</p>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-start gap-3">
+                        <Crown size={18} weight="fill" className="text-secondary flex-shrink-0 mt-0.5 neon-glow-secondary" />
+                        <div>
+                          <p className="text-sm font-bold text-secondary">Everything in Pro</p>
+                          <p className="text-xs text-muted-foreground">Plus elite-level features</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-secondary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">AI Trading Assistant</p>
+                          <p className="text-xs text-muted-foreground">Personal AI trading coach</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-secondary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Advanced Copy Trading</p>
+                          <p className="text-xs text-muted-foreground">Follow top traders</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-secondary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Strategy Backtesting</p>
+                          <p className="text-xs text-muted-foreground">Test before you trade</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-secondary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Custom API Access</p>
+                          <p className="text-xs text-muted-foreground">Build your own tools</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-secondary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">White-glove Onboarding</p>
+                          <p className="text-xs text-muted-foreground">Dedicated setup assistance</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      variant="outline"
+                      className="w-full border-secondary text-secondary hover:bg-secondary/10 relative group/btn"
+                      onClick={() => toast.success('Redirecting to checkout...')}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Crown size={16} weight="fill" />
+                        <span className="font-bold uppercase tracking-wider">GO ELITE</span>
+                      </div>
+                    </Button>
                   </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Everything in Pro</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="cyber-card p-6 relative overflow-hidden group hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.2)] transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 blur-2xl rounded-full" />
+                  <div className="relative z-10 flex items-start gap-4">
+                    <div className="p-3 bg-primary/20 border border-primary/40 jagged-corner-small flex-shrink-0">
+                      <Shield size={24} weight="duotone" className="text-primary" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>AI Trading Assistant</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Copy Trading</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={16} weight="fill" className="text-primary" />
-                      <span>Backtesting</span>
+                    <div>
+                      <h4 className="font-bold uppercase tracking-wider text-sm mb-1">SECURE PAYMENTS</h4>
+                      <p className="text-xs text-muted-foreground">Bank-level encryption & PCI compliance</p>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full border-secondary text-secondary hover:bg-secondary/10">
-                    UPGRADE_TO_PRO+
-                  </Button>
+                </div>
+
+                <div className="cyber-card p-6 relative overflow-hidden group hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.2)] transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 blur-2xl rounded-full" />
+                  <div className="relative z-10 flex items-start gap-4">
+                    <div className="p-3 bg-accent/20 border border-accent/40 jagged-corner-small flex-shrink-0">
+                      <ArrowsClockwise size={24} weight="duotone" className="text-accent" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold uppercase tracking-wider text-sm mb-1">CANCEL ANYTIME</h4>
+                      <p className="text-xs text-muted-foreground">No questions asked, instant cancellation</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="cyber-card p-6 relative overflow-hidden group hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.2)] transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-secondary/5 blur-2xl rounded-full" />
+                  <div className="relative z-10 flex items-start gap-4">
+                    <div className="p-3 bg-secondary/20 border border-secondary/40 jagged-corner-small flex-shrink-0">
+                      <Users size={24} weight="duotone" className="text-secondary" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold uppercase tracking-wider text-sm mb-1">10K+ USERS</h4>
+                      <p className="text-xs text-muted-foreground">Join thousands of successful traders</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 glass-morph-card p-6 relative overflow-hidden">
+                <div className="absolute inset-0 diagonal-stripes opacity-5" />
+                <div className="relative z-10 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Star size={20} weight="fill" className="text-accent" />
+                    <Star size={20} weight="fill" className="text-accent" />
+                    <Star size={20} weight="fill" className="text-accent" />
+                    <Star size={20} weight="fill" className="text-accent" />
+                    <Star size={20} weight="fill" className="text-accent" />
+                  </div>
+                  <p className="text-sm text-muted-foreground italic mb-2">
+                    "Upgraded to Pro and my trading results improved by 45% in the first month. The AI strategies are game-changing!"
+                  </p>
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-8 h-8 bg-primary/20 border border-primary/40 rounded-full flex items-center justify-center">
+                      <User size={16} weight="duotone" className="text-primary" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-bold uppercase tracking-wider">Sarah M.</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">PRO Member Since Jan 2024</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex items-center justify-center gap-6 flex-wrap text-xs text-muted-foreground uppercase tracking-wider">
+                <div className="flex items-center gap-2">
+                  <CheckCircle size={14} weight="fill" className="text-primary" />
+                  <span>No Hidden Fees</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle size={14} weight="fill" className="text-primary" />
+                  <span>Instant Access</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle size={14} weight="fill" className="text-primary" />
+                  <span>Free Trial Available</span>
                 </div>
               </div>
             </div>
