@@ -1,7 +1,5 @@
 import { useKV } from '@github/spark/hooks'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
 import { Robot, Brain, ChartLine } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -71,8 +69,8 @@ export default function Agents() {
 
   const getStatusColor = (status: Agent['status']) => {
     switch (status) {
-      case 'active': return 'bg-accent'
-      case 'error': return 'bg-destructive'
+      case 'active': return 'bg-secondary neon-glow-secondary'
+      case 'error': return 'bg-destructive neon-glow-destructive'
       default: return 'bg-muted-foreground'
     }
   }
@@ -89,11 +87,11 @@ export default function Agents() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-wider uppercase mb-2">
-          AI Agents
+        <h2 className="text-3xl font-bold tracking-[0.2em] uppercase hud-text">
+          <span className="text-primary neon-glow">AI AGENTS</span>
         </h2>
-        <p className="text-muted-foreground">
-          Autonomous trading intelligence with multi-agent coordination
+        <p className="text-muted-foreground uppercase tracking-wide text-sm mt-2">
+          AUTONOMOUS TRADING INTELLIGENCE WITH MULTI-AGENT COORDINATION
         </p>
       </div>
 
@@ -101,39 +99,37 @@ export default function Agents() {
         {agents.map((agent) => {
           const Icon = getIcon(agent.id)
           return (
-            <Card
+            <div
               key={agent.id}
-              className={`backdrop-blur-md bg-card/50 border-primary/30 relative overflow-hidden transition-all ${
-                agent.enabled ? 'border-accent/50' : 'opacity-60'
+              className={`holographic-card transition-all ${
+                agent.enabled ? 'scale-100' : 'opacity-50 scale-95'
               }`}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent transition-opacity ${
-                agent.enabled ? 'opacity-100' : 'opacity-0'
-              }`} />
-              
-              <CardHeader className="relative">
-                <div className="flex items-start justify-between">
+              <div className="p-6 relative z-10">
+                <div className="flex items-start justify-between mb-6">
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-full border transition-all ${
+                    <div className={`p-3 jagged-corner-small border-2 transition-all ${
                       agent.enabled 
-                        ? 'bg-accent/20 border-accent/30' 
-                        : 'bg-muted/20 border-muted-foreground/30'
+                        ? 'bg-secondary/20 border-secondary neon-glow-secondary' 
+                        : 'bg-muted/20 border-muted-foreground'
                     }`}>
-                      <Icon size={24} weight="duotone" className={agent.enabled ? 'text-accent' : 'text-muted-foreground'} />
+                      <Icon size={28} weight="duotone" className={agent.enabled ? 'text-secondary' : 'text-muted-foreground'} />
                     </div>
                     <div>
-                      <div className="flex items-center gap-3 mb-1">
-                        <CardTitle className="text-xl">{agent.name}</CardTitle>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-xl font-bold uppercase tracking-wide text-foreground">{agent.name}</h3>
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${getStatusColor(agent.status)} ${
+                          <div className={`w-3 h-3 rounded-full ${getStatusColor(agent.status)} ${
                             agent.enabled ? 'animate-pulse-glow' : ''
                           }`} />
-                          <Badge variant="outline" className="text-xs">
-                            {agent.status.toUpperCase()}
-                          </Badge>
+                          <div className="px-2 py-0.5 jagged-corner-small bg-primary/20 border border-primary">
+                            <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                              {agent.status}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <CardDescription>{agent.description}</CardDescription>
+                      <p className="text-sm text-muted-foreground uppercase tracking-wide">{agent.description}</p>
                     </div>
                   </div>
                   <Switch
@@ -141,57 +137,54 @@ export default function Agents() {
                     onCheckedChange={() => toggleAgent(agent.id)}
                   />
                 </div>
-              </CardHeader>
 
-              <CardContent className="relative">
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Confidence</p>
-                    <p className="text-2xl font-bold text-primary">{agent.metrics.confidence}%</p>
+                  <div className="p-4 jagged-corner bg-muted/30 border-2 border-primary/50">
+                    <p className="text-xs text-muted-foreground mb-2 uppercase tracking-[0.15em] hud-text">Confidence</p>
+                    <p className="text-3xl font-bold text-primary neon-glow">{agent.metrics.confidence}%</p>
                   </div>
-                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Actions</p>
-                    <p className="text-2xl font-bold text-secondary">{agent.metrics.actionsToday}</p>
+                  <div className="p-4 jagged-corner bg-muted/30 border-2 border-primary/50">
+                    <p className="text-xs text-muted-foreground mb-2 uppercase tracking-[0.15em] hud-text">Actions</p>
+                    <p className="text-3xl font-bold text-secondary neon-glow-secondary">{agent.metrics.actionsToday}</p>
                   </div>
-                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Profit</p>
-                    <p className="text-2xl font-bold text-accent">+${agent.metrics.profitContribution.toFixed(2)}</p>
+                  <div className="p-4 jagged-corner bg-muted/30 border-2 border-primary/50">
+                    <p className="text-xs text-muted-foreground mb-2 uppercase tracking-[0.15em] hud-text">Profit</p>
+                    <p className="text-3xl font-bold text-secondary neon-glow-secondary">+${agent.metrics.profitContribution.toFixed(2)}</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )
         })}
       </div>
 
-      <Card className="backdrop-blur-md bg-card/50 border-primary/30">
-        <CardHeader>
-          <CardTitle>Agent Performance</CardTitle>
-          <CardDescription>Combined metrics from all active agents</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div className="holographic-card scan-line-effect">
+        <div className="p-6 relative z-10">
+          <h3 className="text-xl font-bold uppercase tracking-[0.15em] text-primary hud-text mb-2">AGENT PERFORMANCE</h3>
+          <p className="text-sm text-muted-foreground uppercase tracking-wide mb-6">COMBINED METRICS FROM ALL ACTIVE AGENTS</p>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 rounded-lg bg-muted/30 border border-border/50">
-              <p className="text-sm text-muted-foreground mb-2">Total Trades Today</p>
-              <p className="text-3xl font-bold text-primary">
+            <div className="text-center p-6 jagged-corner bg-muted/30 border-2 border-primary/50">
+              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-[0.15em] hud-text">Total Trades Today</p>
+              <p className="text-4xl font-bold text-primary neon-glow">
                 {agents.reduce((sum, agent) => sum + agent.metrics.actionsToday, 0)}
               </p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-muted/30 border border-border/50">
-              <p className="text-sm text-muted-foreground mb-2">Combined Profit</p>
-              <p className="text-3xl font-bold text-accent">
+            <div className="text-center p-6 jagged-corner bg-muted/30 border-2 border-secondary/50">
+              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-[0.15em] hud-text">Combined Profit</p>
+              <p className="text-4xl font-bold text-secondary neon-glow-secondary">
                 +${agents.reduce((sum, agent) => sum + agent.metrics.profitContribution, 0).toFixed(2)}
               </p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-muted/30 border border-border/50">
-              <p className="text-sm text-muted-foreground mb-2">Avg Confidence</p>
-              <p className="text-3xl font-bold text-secondary">
+            <div className="text-center p-6 jagged-corner bg-muted/30 border-2 border-primary/50">
+              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-[0.15em] hud-text">Avg Confidence</p>
+              <p className="text-4xl font-bold text-primary neon-glow">
                 {Math.round(agents.reduce((sum, agent) => sum + agent.metrics.confidence, 0) / agents.length)}%
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

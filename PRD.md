@@ -66,25 +66,25 @@ This requires multi-agent trading logic, real-time data streams, user authentica
 
 ## Design Direction
 
-The design should evoke the feeling of piloting a high-tech spacecraft in a neon-lit cyberpunk cityscape—powerful, futuristic, and slightly dangerous. Think Blade Runner holographic interfaces meets Tron energy grids. The interface should feel alive with pulsing glows, data streams, and holographic cards that float above a dark void. Balance rich visual effects with functional clarity: neon accents draw attention to critical data without overwhelming, while generous dark space creates calm focus zones. The aesthetic is unapologetically cyberpunk but restrained enough for hours of comfortable use.
+The design should evoke the feeling of piloting a high-tech spacecraft in a neon-lit cyberpunk cityscape—powerful, futuristic, and dangerous. Think Blade Runner holographic interfaces meets Tron energy grids with aggressive HUD overlays inspired by sci-fi targeting systems. The interface features sharp, jagged edges with zero border radius, creating an angular, military-grade aesthetic. Holographic cards float above a dark void with intense neon glows, animated scan lines, and data streams. All elements use sharp clip-path cuts for corners, aggressive neon box-shadows with multiple layers, and high-contrast borders. The aesthetic is unapologetically cyberpunk with no softness—every element feels like a hardened, glowing hologram projected in 3D space.
 
 ## Color Selection
 
-**Custom Palette** - Cyberpunk neon theme with electric accents on deep space backgrounds to create holographic depth and high-tech atmosphere.
+**Custom Palette** - Intense cyberpunk neon theme with electric cyan and orange accents on deep black backgrounds to create aggressive holographic depth and high-tech atmosphere.
 
-- **Primary Color**: Electric Cyan `oklch(0.75 0.15 195)` - Main holographic UI elements, primary buttons, active agent indicators. Communicates cutting-edge technology and digital energy.
+- **Primary Color**: Electric Cyan `oklch(0.70 0.20 195)` - Main holographic UI elements, primary buttons, active agent indicators, borders. Communicates cutting-edge technology and digital energy with intense multi-layer glow effects.
 - **Secondary Colors**: 
-  - Deep Void `oklch(0.12 0.02 265)` - Main backgrounds, creating the "space" for neon elements to float in
-  - Neon Purple `oklch(0.65 0.25 300)` - Secondary buttons, accent panels, profit indicators
-  - Hot Magenta `oklch(0.70 0.28 330)` - Urgent alerts, destructive actions, loss indicators
-- **Accent Color**: Laser Green `oklch(0.80 0.20 140)` - Success states, profit gains, active trading signals, "online" status. Creates strong contrast against cyan/purple for key CTAs.
+  - Deep Black Void `oklch(0.08 0.05 280)` - Main backgrounds, creating the absolute "void" for neon elements to float in
+  - Neon Orange `oklch(0.65 0.25 45)` - Secondary accents, profit indicators, warm contrast to cyan
+  - Hot Magenta `oklch(0.70 0.25 330)` - Urgent alerts, destructive actions, loss indicators
+- **Accent Color**: Electric Cyan (same as primary) - Used for success states, profit gains, active trading signals. Creates unified holographic appearance.
 - **Foreground/Background Pairings**:
-  - Background (Deep Void `oklch(0.12 0.02 265)`): Bright Cyan text `oklch(0.95 0.05 195)` - Ratio 13.2:1 ✓
-  - Card (Dark Slate `oklch(0.18 0.03 265)`): Bright Cyan text `oklch(0.95 0.05 195)` - Ratio 11.8:1 ✓
-  - Primary (Electric Cyan `oklch(0.75 0.15 195)`): Deep Space text `oklch(0.10 0.02 265)` - Ratio 9.5:1 ✓
-  - Secondary (Neon Purple `oklch(0.65 0.25 300)`): White text `oklch(0.98 0 0)` - Ratio 6.2:1 ✓
-  - Accent (Laser Green `oklch(0.80 0.20 140)`): Deep Space text `oklch(0.10 0.02 265)` - Ratio 11.1:1 ✓
-  - Muted (Dark Panel `oklch(0.22 0.03 265)`): Dim Cyan text `oklch(0.70 0.08 195)` - Ratio 5.8:1 ✓
+  - Background (Deep Black `oklch(0.08 0.05 280)`): Bright Cyan text `oklch(0.95 0.05 195)` - Ratio 15.8:1 ✓
+  - Card (Dark Slate `oklch(0.12 0.08 280)`): Bright Cyan text `oklch(0.95 0.05 195)` - Ratio 14.2:1 ✓
+  - Primary (Electric Cyan `oklch(0.70 0.20 195)`): Deep Black text `oklch(0.08 0.05 280)` - Ratio 10.2:1 ✓
+  - Secondary (Neon Orange `oklch(0.65 0.25 45)`): Deep Black text `oklch(0.08 0.05 280)` - Ratio 8.8:1 ✓
+  - Destructive (Hot Magenta `oklch(0.70 0.25 330)`): Bright text `oklch(0.95 0.05 195)` - Ratio 6.8:1 ✓
+  - Muted (Dark Panel `oklch(0.22 0.08 280)`): Dim Cyan text `oklch(0.60 0.10 195)` - Ratio 4.9:1 ✓
 
 ## Font Selection
 
@@ -114,34 +114,35 @@ Animations should feel like holographic projections materializing in 3D space—
 ## Component Selection
 
 - **Components**: 
-  - **Cards** (shadcn Card) - Primary container for dashboard metrics, agent status, trade panels. Add `backdrop-blur-md bg-card/50` for glassmorphic effect, neon border with `border-primary/30`, subtle box-shadow glow
-  - **Tabs** (shadcn Tabs) - Main navigation between Dashboard/Agents/Trade/Vault/Community/Settings. Customize with neon underline indicator, icon+label layout
-  - **Buttons** (shadcn Button) - All CTAs. Variants: primary (neon glow), secondary (outlined neon), destructive (red glow), ghost (transparent hover glow)
-  - **Dialog/Sheet** (shadcn Dialog for desktop, Sheet for mobile) - Trade configuration, agent settings, vault withdrawal. Add dark overlay with neon border
-  - **Progress** (shadcn Progress) - XP bars, DCA schedule timers, loading states. Animate with neon glow trail
-  - **Avatar** (shadcn Avatar) - User profile, leaderboard. Add neon ring border for active status
-  - **Badge** (shadcn Badge) - XP levels, agent status, token tags. Neon variants matching agent/status type
-  - **Switch/Checkbox** (shadcn Switch) - Agent enable/disable, setting toggles. Neon glow on active state
-  - **Input/Textarea** (shadcn Input) - Trade amounts, chat messages. Neon focus ring, monospace for numbers
-  - **ScrollArea** (shadcn ScrollArea) - Chat messages, transaction history. Custom neon scrollbar
-  - **Tooltip** (shadcn Tooltip) - Contextual help for trading terms, agent metrics. Dark with neon accent border
-  - **Toast** (sonner) - Notifications for trades, XP gains, agent actions. Neon border matching type (success=green, error=red, info=cyan)
+  - **Holographic Cards** (Custom) - Primary container for dashboard metrics, agent status, trade panels. Features aggressive clip-path corners (12px jagged cuts), multi-layer neon box-shadows, backdrop-blur with gradient overlays, animated holographic shimmer effects, and scan-line animations
+  - **Tabs** (shadcn Tabs) - Main navigation with sharp-edged tabs, 2px borders, jagged corners, intense neon glow on active state
+  - **Buttons** (shadcn Button) - All CTAs with zero border radius, 2px borders, jagged corners. Variants: primary (intense cyan glow), secondary (orange neon), destructive (magenta glow)
+  - **Dialog/Sheet** (shadcn Dialog for desktop, Sheet for mobile) - Sharp-edged modals with neon borders, holographic backgrounds
+  - **Progress** (shadcn Progress) - Sharp rectangular bars with neon glow trail and animated data stream effects
+  - **Avatar** (shadcn Avatar) - User profile with jagged-corner frames and neon ring borders
+  - **Badge** (shadcn Badge) - Sharp rectangular badges with jagged corners, 2px borders, uppercase text with wide tracking
+  - **Switch/Checkbox** (shadcn Switch) - Sharp geometric toggle with intense glow on active state
+  - **Input/Textarea** (shadcn Input) - Sharp-edged inputs with 2px neon borders on focus, animated glow rings
+  - **ScrollArea** (shadcn ScrollArea) - Custom sharp scrollbar with neon accent
+  - **Tooltip** (shadcn Tooltip) - Sharp-edged tooltips with 2px neon borders
+  - **Toast** (sonner) - Sharp rectangular notifications with intense border glows
 
 - **Customizations**: 
-  - **Holographic Cards** - Custom component wrapping Card with animated gradient border, floating shadow, and hover lift effect
-  - **Agent Status LED** - Custom animated SVG showing pulsing glow circle (green=active, red=error, yellow=processing)
-  - **Neon Data Display** - Custom number component with count-up animation, neon glow, and +/- color coding
-  - **Trade Timeline** - Custom vertical timeline component with connected dots and neon connector lines
-  - **Particle Background** - Custom canvas component with drifting particles and grid overlay for depth
+  - **Holographic Cards** - Custom CSS class with clip-path jagged corners, multi-layer box-shadow neon glows, backdrop-blur with gradient overlays, animated holographic shimmer overlays, scan-line effects
+  - **Circular HUD Elements** - Custom SVG components inspired by sci-fi targeting systems with rotating segmented rings, crosshairs, and animated elements
+  - **Agent Status LED** - Custom pulsing glow circles with intense neon effects (cyan=active, magenta=error, orange=processing)
+  - **Neon Data Display** - Large numbers with intense text-shadow glows, uppercase tracking, and +/- color coding
+  - **Corner Notches** - Decorative sharp corner brackets on key UI elements to reinforce angular HUD aesthetic
+  - **Data Stream Effects** - Animated flowing light effects that sweep across elements
 
 - **States**: 
-  - Buttons: Default (neon outline), Hover (glow intensifies + slight scale), Active (inner glow), Disabled (dim + reduced opacity)
-  - Inputs: Default (subtle border), Focus (neon border glow + ring), Error (red glow + shake animation), Success (green glow)
-  - Cards: Default (static), Hover (lift + glow increase), Loading (pulsing skeleton with neon shimmer)
-  - Agents: Online (green LED pulse), Offline (dark), Processing (yellow LED spin), Error (red LED rapid pulse)
+  - Buttons: Default (sharp 2px neon border), Hover (intense multi-layer glow + subtle scale), Active (inner glow pulse), Disabled (dim + 50% opacity)
+  - Inputs: Default (2px border), Focus (intense neon border glow + ring + scan-line), Error (magenta glow + shake animation), Success (cyan glow)
+  - Cards: Default (holographic shimmer), Hover (scale transform + intensified glow), Loading (pulsing skeleton with neon shimmer)
+  - Agents: Online (cyan LED pulse with glow), Offline (dark), Processing (orange LED pulse), Error (magenta LED rapid pulse)
 
 - **Icon Selection**: 
-  - @phosphor-icons/react with `weight="duotone"` for depth
+  - @phosphor-icons/react with `weight="duotone"` for layered depth effect
   - Navigation: House (dashboard), Robot (agents), TrendUp (trade), Vault (vault), Users (community), Gear (settings)
   - Actions: Play/Pause (agent toggle), ArrowsClockwise (refresh), Bell (notifications), SignOut (logout)
   - Status: CheckCircle (success), Warning (alerts), XCircle (error), Lightning (fast action)

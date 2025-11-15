@@ -1,8 +1,6 @@
 import { useKV } from '@github/spark/hooks'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendUp, TrendDown, Coins, Lightning, ArrowsClockwise } from '@phosphor-icons/react'
 import { useEffect } from 'react'
-import { Badge } from '@/components/ui/badge'
 
 interface PortfolioData {
   solanaBalance: number
@@ -50,160 +48,147 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-wider uppercase">
-          Mission Control
+        <h2 className="text-3xl font-bold tracking-[0.2em] uppercase hud-text">
+          <span className="text-primary neon-glow">MISSION CONTROL</span>
         </h2>
-        <button className="p-2 rounded-lg hover:bg-primary/20 transition-colors">
+        <button className="p-2 jagged-corner-small border-2 border-primary bg-primary/10 hover:bg-primary/30 hover:neon-glow transition-all">
           <ArrowsClockwise size={20} weight="duotone" className="text-primary" />
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="backdrop-blur-md bg-card/50 border-primary/30 relative overflow-hidden group hover:border-primary/50 transition-all">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <CardHeader className="relative">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              Total Portfolio
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="relative">
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-3xl font-bold text-primary">
-                  ${portfolio.totalValue.toFixed(2)}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                  {isPositive ? (
-                    <TrendUp size={16} weight="bold" className="text-accent" />
-                  ) : (
-                    <TrendDown size={16} weight="bold" className="text-destructive" />
-                  )}
-                  <span className={`text-sm font-semibold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
-                    {isPositive ? '+' : ''}{portfolio.change24h.toFixed(2)}%
-                  </span>
-                  <span className="text-xs text-muted-foreground">24h</span>
-                </div>
+        <div className="holographic-card group hover:scale-[1.02] transition-transform duration-300">
+          <div className="p-6 relative z-10">
+            <div className="flex items-start justify-between mb-4">
+              <div className="text-xs font-bold text-primary uppercase tracking-[0.15em] hud-text">
+                TOTAL PORTFOLIO
               </div>
-              <div className="p-3 rounded-full bg-primary/20 border border-primary/30">
-                <Coins size={24} weight="duotone" className="text-primary" />
+              <div className="p-2 jagged-corner-small bg-primary/30 border border-primary">
+                <Coins size={20} weight="duotone" className="text-primary" />
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="backdrop-blur-md bg-card/50 border-accent/30 relative overflow-hidden group hover:border-accent/50 transition-all">
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <CardHeader className="relative">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              Solana Balance
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="relative">
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-3xl font-bold text-accent">
-                  {portfolio.solanaBalance.toFixed(2)}
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">SOL</p>
+            <div className="space-y-3">
+              <div className="text-4xl font-bold text-primary neon-glow">
+                ${portfolio.totalValue.toFixed(2)}
               </div>
-              <div className="p-3 rounded-full bg-accent/20 border border-accent/30">
-                <Lightning size={24} weight="duotone" className="text-accent" />
+              <div className="flex items-center gap-2">
+                {isPositive ? (
+                  <TrendUp size={18} weight="bold" className="text-secondary" />
+                ) : (
+                  <TrendDown size={18} weight="bold" className="text-destructive" />
+                )}
+                <span className={`text-lg font-bold ${isPositive ? 'text-secondary neon-glow-secondary' : 'text-destructive neon-glow-destructive'}`}>
+                  {isPositive ? '+' : ''}{portfolio.change24h.toFixed(2)}%
+                </span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wide">24H</span>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="backdrop-blur-md bg-card/50 border-secondary/30 relative overflow-hidden group hover:border-secondary/50 transition-all">
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <CardHeader className="relative">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              BTC Vault
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="relative">
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-3xl font-bold text-secondary">
-                  {portfolio.btcBalance.toFixed(6)}
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">BTC</p>
-              </div>
-              <div className="p-3 rounded-full bg-secondary/20 border border-secondary/30">
-                <Coins size={24} weight="duotone" className="text-secondary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="backdrop-blur-md bg-card/50 border-primary/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Active Agents
-            <Badge variant="outline" className="bg-accent/20 border-accent/30 text-accent">
-              {portfolio.activeAgents} Online
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg bg-muted/50 border border-border">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold">Market Analyst</span>
-                <div className="w-2 h-2 rounded-full bg-accent animate-pulse-glow" />
-              </div>
-              <p className="text-xs text-muted-foreground">Scanning 247 tokens</p>
-            </div>
-            <div className="p-4 rounded-lg bg-muted/50 border border-border">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold">Strategy Engine</span>
-                <div className="w-2 h-2 rounded-full bg-accent animate-pulse-glow" />
-              </div>
-              <p className="text-xs text-muted-foreground">3 active trades</p>
-            </div>
-            <div className="p-4 rounded-lg bg-muted/50 border border-border">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold">RL Optimizer</span>
-                <div className="w-2 h-2 rounded-full bg-accent animate-pulse-glow" />
-              </div>
-              <p className="text-xs text-muted-foreground">Learning cycle 47</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card className="backdrop-blur-md bg-card/50 border-primary/30">
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <div className="holographic-card group hover:scale-[1.02] transition-transform duration-300">
+          <div className="p-6 relative z-10">
+            <div className="flex items-start justify-between mb-4">
+              <div className="text-xs font-bold text-primary uppercase tracking-[0.15em] hud-text">
+                SOLANA BALANCE
+              </div>
+              <div className="p-2 jagged-corner-small bg-secondary/30 border border-secondary">
+                <Lightning size={20} weight="duotone" className="text-secondary" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="text-4xl font-bold text-secondary neon-glow-secondary">
+                {portfolio.solanaBalance.toFixed(2)}
+              </div>
+              <div className="text-sm text-muted-foreground uppercase tracking-wide">SOL</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="holographic-card group hover:scale-[1.02] transition-transform duration-300">
+          <div className="p-6 relative z-10">
+            <div className="flex items-start justify-between mb-4">
+              <div className="text-xs font-bold text-primary uppercase tracking-[0.15em] hud-text">
+                BTC VAULT
+              </div>
+              <div className="p-2 jagged-corner-small bg-secondary/30 border border-secondary">
+                <Coins size={20} weight="duotone" className="text-secondary" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="text-4xl font-bold text-secondary neon-glow-secondary">
+                {portfolio.btcBalance.toFixed(6)}
+              </div>
+              <div className="text-sm text-muted-foreground uppercase tracking-wide">BTC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="holographic-card scan-line-effect">
+        <div className="p-6 relative z-10">
+          <div className="flex items-center gap-3 mb-6">
+            <h3 className="text-xl font-bold uppercase tracking-[0.15em] text-primary hud-text">ACTIVE AGENTS</h3>
+            <div className="px-3 py-1 jagged-corner-small bg-secondary/30 border border-secondary">
+              <span className="text-sm font-bold text-secondary uppercase tracking-wide">{portfolio.activeAgents} ONLINE</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 jagged-corner bg-muted/50 border-2 border-primary/50 hover:border-primary transition-all group/agent">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-bold uppercase tracking-wide text-foreground">MARKET ANALYST</span>
+                <div className="w-3 h-3 rounded-full bg-secondary neon-glow-secondary animate-pulse-glow" />
+              </div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">SCANNING 247 TOKENS</p>
+            </div>
+            <div className="p-4 jagged-corner bg-muted/50 border-2 border-primary/50 hover:border-primary transition-all group/agent">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-bold uppercase tracking-wide text-foreground">STRATEGY ENGINE</span>
+                <div className="w-3 h-3 rounded-full bg-secondary neon-glow-secondary animate-pulse-glow" />
+              </div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">3 ACTIVE TRADES</p>
+            </div>
+            <div className="p-4 jagged-corner bg-muted/50 border-2 border-primary/50 hover:border-primary transition-all group/agent">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-bold uppercase tracking-wide text-foreground">RL OPTIMIZER</span>
+                <div className="w-3 h-3 rounded-full bg-secondary neon-glow-secondary animate-pulse-glow" />
+              </div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">LEARNING CYCLE 47</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="holographic-card">
+        <div className="p-6 relative z-10">
+          <h3 className="text-xl font-bold uppercase tracking-[0.15em] text-primary hud-text mb-6">RECENT ACTIVITY</h3>
           <div className="space-y-3">
             {[
-              { action: 'DCA Buy', token: 'SOL', amount: '2.5 SOL', time: '2m ago', profit: null },
-              { action: 'Profit Conversion', token: 'BTC', amount: '0.00012 BTC', time: '15m ago', profit: '+$8.42' },
-              { action: 'Snipe Success', token: 'BONK', amount: '1M BONK', time: '1h ago', profit: '+12.3%' },
+              { action: 'DCA BUY', token: 'SOL', amount: '2.5 SOL', time: '2M AGO', profit: null },
+              { action: 'PROFIT CONVERSION', token: 'BTC', amount: '0.00012 BTC', time: '15M AGO', profit: '+$8.42' },
+              { action: 'SNIPE SUCCESS', token: 'BONK', amount: '1M BONK', time: '1H AGO', profit: '+12.3%' },
             ].map((activity, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
-                    <Lightning size={16} weight="duotone" className="text-primary" />
+              <div key={i} className="flex items-center justify-between p-4 jagged-corner bg-muted/30 border border-primary/30 hover:border-primary/60 transition-all group/activity">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 jagged-corner-small bg-primary/20 border border-primary flex items-center justify-center">
+                    <Lightning size={18} weight="duotone" className="text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.amount}</p>
+                    <p className="text-sm font-bold uppercase tracking-wide text-foreground">{activity.action}</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{activity.amount}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   {activity.profit && (
-                    <p className="text-sm font-semibold text-accent">{activity.profit}</p>
+                    <p className="text-sm font-bold text-secondary neon-glow-secondary">{activity.profit}</p>
                   )}
-                  <p className="text-xs text-muted-foreground">{activity.time}</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{activity.time}</p>
                 </div>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }
