@@ -1267,6 +1267,12 @@ export default function EnhancedSettings() {
                         <span className="text-5xl font-bold text-accent">$45</span>
                       </div>
                       <p className="text-xs text-accent uppercase tracking-wider font-semibold">For serious traders</p>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle size={18} weight="fill" className="text-accent flex-shrink-0 mt-0.5" />
+                        <div>
                           <p className="text-sm font-bold text-accent">Everything in Starter</p>
                           <p className="text-xs text-muted-foreground">Plus exclusive features</p>
                         </div>
