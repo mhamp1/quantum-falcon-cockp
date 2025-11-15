@@ -141,10 +141,10 @@ Provide a helpful, concise response about trading strategies, market insights, o
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 20, opacity: 0 }}
-        className="fixed bottom-6 right-6 z-[45] w-72 max-w-[calc(100vw-2rem)]"
+        className="fixed bottom-6 right-6 z-[45] w-80 max-w-[calc(100vw-2rem)]"
       >
-        <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '380px', maxHeight: '60vh' }}>
-          <div className="drag-handle cursor-move p-2.5 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors">
+        <div className="cyber-card overflow-hidden flex flex-col h-[480px] max-h-[calc(100vh-4rem)]">
+          <div className="drag-handle cursor-move p-2.5 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors flex-shrink-0">
             <div className="flex items-center gap-2">
               <Robot size={16} weight="duotone" className="text-primary neon-glow-primary" />
               <div>
@@ -175,59 +175,60 @@ Provide a helpful, concise response about trading strategies, market insights, o
             </div>
           </div>
 
-        <ScrollArea className="flex-1 p-2.5" ref={scrollRef}>
-          <div className="space-y-2.5">
-            {(messages || defaultMessages).map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+          <div className="flex-1 overflow-y-auto p-2.5 scrollbar-thin" ref={scrollRef}>
+            <div className="space-y-2.5">
+              {(messages || defaultMessages).map((message) => (
                 <div
-                  className={`max-w-[85%] p-2 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground jagged-corner-small'
-                      : 'bg-muted text-foreground jagged-corner-small border border-primary/30'
-                  }`}
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <p className="text-xs leading-relaxed">{message.content}</p>
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted p-2 jagged-corner-small border border-primary/30">
-                  <div className="flex gap-1">
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                  <div
+                    className={`max-w-[85%] p-2 ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground jagged-corner-small'
+                        : 'bg-muted text-foreground jagged-corner-small border border-primary/30'
+                    }`}
+                  >
+                    <p className="text-xs leading-relaxed">{message.content}</p>
                   </div>
                 </div>
-              </div>
-            )}
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted p-2 jagged-corner-small border border-primary/30">
+                    <div className="flex gap-1">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </ScrollArea>
 
-        <div className="p-2.5 border-t-2 border-primary/30 bg-card/80 backdrop-blur">
-          <div className="flex gap-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask me anything..."
-              disabled={isLoading}
-              className="flex-1 jagged-corner-small border-primary/50 focus:border-primary text-xs h-7"
-            />
-            <Button
-              onClick={sendMessage}
-              disabled={isLoading || !input.trim()}
-              className="jagged-corner-small h-7 w-7 p-0"
-            >
-              <PaperPlaneRight size={12} weight="duotone" />
-            </Button>
+          <div className="p-2.5 border-t-2 border-primary/30 bg-card/80 backdrop-blur flex-shrink-0">
+            <div className="flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask me anything..."
+                disabled={isLoading}
+                className="flex-1 jagged-corner-small border-primary/50 focus:border-primary text-xs h-8"
+                autoComplete="off"
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={isLoading || !input.trim()}
+                className="jagged-corner-small h-8 w-8 p-0"
+              >
+                <PaperPlaneRight size={14} weight="duotone" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
     </Draggable>
   )
 }
