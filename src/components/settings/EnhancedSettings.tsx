@@ -1264,23 +1264,9 @@ export default function EnhancedSettings() {
                     
                     <div className="mb-6">
                       <div className="flex items-baseline gap-2 mb-1">
-                        <span className="text-2xl text-muted-foreground line-through">$14.99</span>
-                        <span className="text-5xl font-bold text-accent">$9.99</span>
-                        <span className="text-muted-foreground text-sm uppercase tracking-wider">/mo</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="px-2 py-0.5 bg-destructive/20 border border-destructive/40">
-                          <span className="text-[10px] font-bold text-destructive uppercase tracking-wider">SAVE 33%</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">Limited time offer</span>
+                        <span className="text-5xl font-bold text-accent">$45</span>
                       </div>
                       <p className="text-xs text-accent uppercase tracking-wider font-semibold">For serious traders</p>
-                    </div>
-
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-start gap-3">
-                        <Lightning size={18} weight="fill" className="text-accent flex-shrink-0 mt-0.5 neon-glow-accent" />
-                        <div>
                           <p className="text-sm font-bold text-accent">Everything in Starter</p>
                           <p className="text-xs text-muted-foreground">Plus exclusive features</p>
                         </div>
