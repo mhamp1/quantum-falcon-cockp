@@ -1,7 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, CheckCircle, ShieldCheck, ArrowsClockwise, Vault, Lightning, X } from '@phosphor-icons/react'
-import Draggable from 'react-draggable'
 
 interface VaultTutorialProps {
   open: boolean
@@ -53,7 +52,6 @@ const tutorialSteps = [
 
 export default function VaultTutorial({ open, onOpenChange }: VaultTutorialProps) {
   const [currentStep, setCurrentStep] = useState(0)
-  const nodeRef = useRef(null)
 
   const nextStep = () => {
     if (currentStep < tutorialSteps.length - 1) {
@@ -77,25 +75,24 @@ export default function VaultTutorial({ open, onOpenChange }: VaultTutorialProps
   return (
     <>
       <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" onClick={() => onOpenChange(false)} />
-      <Draggable nodeRef={nodeRef} handle=".drag-handle" bounds="parent">
-        <div ref={nodeRef} className="fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2">
-          <div className="cyber-card border-2 border-primary/50 shadow-2xl shadow-primary/20 bg-card p-6">
-            <div className="drag-handle cursor-move pb-4 border-b-2 border-primary/30 flex justify-between items-start">
-              <div>
-                <h2 className="text-2xl font-bold uppercase tracking-wider text-primary hud-text">
-                  How the BTC Vault Works
-                </h2>
-                <p className="text-muted-foreground uppercase text-xs tracking-wider mt-1">
-                  Step {currentStep + 1} of {tutorialSteps.length} • Drag to move
-                </p>
-              </div>
-              <button
-                onClick={() => onOpenChange(false)}
-                className="p-2 hover:bg-primary/20 transition-colors jagged-corner-small"
-              >
-                <X size={20} className="text-muted-foreground" />
-              </button>
+      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2">
+        <div className="cyber-card border-2 border-primary/50 shadow-2xl shadow-primary/20 bg-card p-6">
+          <div className="pb-4 border-b-2 border-primary/30 flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-bold uppercase tracking-wider text-primary hud-text">
+                How the BTC Vault Works
+              </h2>
+              <p className="text-muted-foreground uppercase text-xs tracking-wider mt-1">
+                Step {currentStep + 1} of {tutorialSteps.length}
+              </p>
             </div>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="p-2 hover:bg-primary/20 transition-colors jagged-corner-small"
+            >
+              <X size={20} className="text-muted-foreground" />
+            </button>
+          </div>
 
             <div className="py-6">
               <div className="flex flex-col items-center text-center space-y-6">
@@ -156,7 +153,6 @@ export default function VaultTutorial({ open, onOpenChange }: VaultTutorialProps
             </div>
           </div>
         </div>
-      </Draggable>
     </>
   )
 }

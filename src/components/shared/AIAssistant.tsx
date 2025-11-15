@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
-import Draggable from 'react-draggable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -25,7 +24,6 @@ const defaultMessages: Message[] = [
 ]
 
 export default function AIAssistant() {
-  const dragRef = useRef(null)
   const [isOpen, setIsOpen] = useKV<boolean>('ai-assistant-open', false)
   const [isMinimized, setIsMinimized] = useKV<boolean>('ai-assistant-minimized', false)
   const [messages, setMessages] = useKV<Message[]>('ai-assistant-messages', defaultMessages)
@@ -149,101 +147,97 @@ Provide a helpful, insightful response incorporating live market data when relev
   }
 
   return (
-    <Draggable nodeRef={dragRef} handle=".drag-handle" bounds="body">
-      <motion.div
-        ref={dragRef}
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 20, opacity: 0 }}
-        className="fixed bottom-6 right-6 z-[45] w-80 max-w-[calc(100vw-2rem)]"
-        style={{ maxHeight: 'calc(100vh - 3rem)' }}
-      >
-        <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '500px', maxHeight: 'calc(100vh - 3rem)' }}>
-          <div className="drag-handle cursor-move p-2.5 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <Robot size={16} weight="duotone" className="text-primary neon-glow-primary" />
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider">AI Assistant</h3>
-                <p className="text-[8px] text-muted-foreground">Drag to move</p>
-              </div>
-            </div>
-            <div className="flex gap-1">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-5 w-5 p-0"
-                onClick={() => setIsMinimized(true)}
-              >
-                <Minus size={10} />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-5 w-5 p-0"
-                onClick={() => {
-                  setIsOpen(false)
-                  setIsMinimized(false)
-                }}
-              >
-                <X size={10} />
-              </Button>
+    <motion.div
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 20, opacity: 0 }}
+      className="fixed bottom-6 right-6 z-[45] w-80 max-w-[calc(100vw-2rem)]"
+      style={{ maxHeight: 'calc(100vh - 3rem)' }}
+    >
+      <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '500px', maxHeight: 'calc(100vh - 3rem)' }}>
+        <div className="p-2.5 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <Robot size={16} weight="duotone" className="text-primary neon-glow-primary" />
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider">AI Assistant</h3>
             </div>
           </div>
-
-          <div className="flex-1 overflow-y-auto p-2.5 scrollbar-thin" ref={scrollRef} style={{ minHeight: 0 }}>
-            <div className="space-y-2.5">
-              {(messages || defaultMessages).map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[85%] p-2 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground jagged-corner-small'
-                        : 'bg-muted text-foreground jagged-corner-small border border-primary/30'
-                    }`}
-                  >
-                    <p className="text-xs leading-relaxed">{message.content}</p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-muted p-2 jagged-corner-small border border-primary/30">
-                    <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="p-2.5 border-t-2 border-primary/30 bg-card/80 backdrop-blur flex-shrink-0">
-            <div className="flex gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder="Ask me anything..."
-                disabled={isLoading}
-                className="flex-1 jagged-corner-small border-primary/50 focus:border-primary text-xs h-8"
-                autoComplete="off"
-              />
-              <Button
-                onClick={sendMessage}
-                disabled={isLoading || !input.trim()}
-                className="jagged-corner-small h-8 w-8 p-0"
-              >
-                <PaperPlaneRight size={14} weight="duotone" />
-              </Button>
-            </div>
+          <div className="flex gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-5 w-5 p-0"
+              onClick={() => setIsMinimized(true)}
+            >
+              <Minus size={10} />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-5 w-5 p-0"
+              onClick={() => {
+                setIsOpen(false)
+                setIsMinimized(false)
+              }}
+            >
+              <X size={10} />
+            </Button>
           </div>
         </div>
-      </motion.div>
-    </Draggable>
+
+        <div className="flex-1 overflow-y-auto p-2.5 scrollbar-thin" ref={scrollRef} style={{ minHeight: 0 }}>
+          <div className="space-y-2.5">
+            {(messages || defaultMessages).map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[85%] p-2 ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground jagged-corner-small'
+                      : 'bg-muted text-foreground jagged-corner-small border border-primary/30'
+                  }`}
+                >
+                  <p className="text-xs leading-relaxed">{message.content}</p>
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-muted p-2 jagged-corner-small border border-primary/30">
+                  <div className="flex gap-1">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="p-2.5 border-t-2 border-primary/30 bg-card/80 backdrop-blur flex-shrink-0">
+          <div className="flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="Ask me anything..."
+              disabled={isLoading}
+              className="flex-1 jagged-corner-small border-primary/50 focus:border-primary text-xs h-8"
+              autoComplete="off"
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={isLoading || !input.trim()}
+              className="jagged-corner-small h-8 w-8 p-0"
+            >
+              <PaperPlaneRight size={14} weight="duotone" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   )
 }
