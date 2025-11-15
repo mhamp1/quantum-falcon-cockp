@@ -94,21 +94,30 @@ export default function EnhancedDashboard() {
       label: 'View Analytics',
       icon: <ChartLine size={20} weight="duotone" />,
       color: 'accent',
-      action: () => toast.info('Opening analytics...')
+      action: () => {
+        const event = new CustomEvent('navigate-tab', { detail: 'analytics' })
+        window.dispatchEvent(event)
+      }
     },
     {
       id: 'check-vault',
       label: 'Check Vault',
       icon: <Vault size={20} weight="duotone" />,
       color: 'secondary',
-      action: () => toast.info('Opening vault...')
+      action: () => {
+        const event = new CustomEvent('navigate-tab', { detail: 'vault' })
+        window.dispatchEvent(event)
+      }
     },
     {
       id: 'community',
       label: 'Community',
       icon: <Users size={20} weight="duotone" />,
       color: 'primary',
-      action: () => toast.info('Opening community...')
+      action: () => {
+        const event = new CustomEvent('navigate-tab', { detail: 'community' })
+        window.dispatchEvent(event)
+      }
     }
   ]
 

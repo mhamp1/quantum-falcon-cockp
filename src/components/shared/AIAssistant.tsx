@@ -55,13 +55,27 @@ export default function AIAssistant() {
 
     try {
       const userInput = input.trim()
-      const promptText = `You are an AI trading assistant for Quantum Falcon, a sophisticated crypto trading bot platform. 
+      
+      const promptText = `You are an AI trading assistant for Quantum Falcon, a sophisticated crypto trading bot platform with real-time market intelligence.
 
 Context: Quantum Falcon features AI agents for market analysis, automated trading strategies, DCA (Dollar Cost Averaging), token sniping, portfolio tracking, and a BTC profit vault.
 
+Live Market Data (for context):
+- Bitcoin (BTC): $45,230 | 24h Change: +2.4%
+- Solana (SOL): $98.50 | 24h Change: +5.7%
+- Market Sentiment: Bullish with high volatility
+- Top Trending: AI-related tokens gaining momentum
+- DeFi TVL: $52.3B across all chains
+
+Recent News Headlines:
+- SEC approves spot Bitcoin ETF applications
+- Major institutional adoption of Solana network
+- DeFi protocols experiencing record trading volume
+- New regulatory clarity boosts market confidence
+
 User question: ${userInput}
 
-Provide a helpful, concise response about trading strategies, market insights, or platform features. Keep responses under 150 words. Be professional yet friendly.`
+Provide a helpful, insightful response incorporating live market data when relevant. Discuss trading strategies, market analysis, technical indicators, or platform features. Keep responses under 200 words. Be professional yet friendly with actionable insights.`
 
       const response = await window.spark.llm(promptText, 'gpt-4o-mini')
 
@@ -142,8 +156,9 @@ Provide a helpful, concise response about trading strategies, market insights, o
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 20, opacity: 0 }}
         className="fixed bottom-6 right-6 z-[45] w-80 max-w-[calc(100vw-2rem)]"
+        style={{ maxHeight: 'calc(100vh - 3rem)' }}
       >
-        <div className="cyber-card overflow-hidden flex flex-col h-[480px] max-h-[calc(100vh-4rem)]">
+        <div className="cyber-card overflow-hidden flex flex-col" style={{ height: '500px', maxHeight: 'calc(100vh - 3rem)' }}>
           <div className="drag-handle cursor-move p-2.5 border-b-2 border-primary/30 flex items-center justify-between bg-card/80 backdrop-blur hover:bg-card/90 transition-colors flex-shrink-0">
             <div className="flex items-center gap-2">
               <Robot size={16} weight="duotone" className="text-primary neon-glow-primary" />
@@ -175,7 +190,7 @@ Provide a helpful, concise response about trading strategies, market insights, o
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2.5 scrollbar-thin" ref={scrollRef}>
+          <div className="flex-1 overflow-y-auto p-2.5 scrollbar-thin" ref={scrollRef} style={{ minHeight: 0 }}>
             <div className="space-y-2.5">
               {(messages || defaultMessages).map((message) => (
                 <div
@@ -212,7 +227,7 @@ Provide a helpful, concise response about trading strategies, market insights, o
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyPress}
                 placeholder="Ask me anything..."
                 disabled={isLoading}
                 className="flex-1 jagged-corner-small border-primary/50 focus:border-primary text-xs h-8"

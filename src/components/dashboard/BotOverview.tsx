@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear } from '@phosphor-icons/react'
+import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword } from '@phosphor-icons/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { Slider } from '@/components/ui/slider'
+import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import Wireframe3D from '@/components/shared/Wireframe3D'
+
+type AggressionLevel = 'cautious' | 'moderate' | 'aggressive'
 
 interface BotConfig {
   marketAnalyst: {
@@ -77,6 +81,8 @@ const defaultConfig: BotConfig = {
 
 export default function BotOverview() {
   const [config, setConfig] = useKV<BotConfig>('bot-config', defaultConfig)
+  const [aggressionLevel, setAggressionLevel] = useKV<AggressionLevel>('bot-aggression', 'moderate')
+  const [aggressionValue, setAggressionValue] = useKV<number>('bot-aggression-value', 50)
   const [metrics] = useKV<BotMetrics>('bot-metrics', {
     uptime: 94.7,
     totalTrades: 1247,
@@ -94,6 +100,44 @@ export default function BotOverview() {
   })
 
   const [selectedTab, setSelectedTab] = useState('overview')
+
+  const getAggressionLevel = (value: number): AggressionLevel => {
+    if (value < 34) return 'cautious'
+    if (value < 67) return 'moderate'
+    return 'aggressive'
+  }
+
+  const getAggressionColor = (level: AggressionLevel) => {
+    switch (level) {
+      case 'cautious':
+        return 'text-secondary'
+      case 'moderate':
+        return 'text-accent'
+      case 'aggressive':
+        return 'text-destructive'
+    }
+  }
+
+  const getAggressionIcon = (level: AggressionLevel) => {
+    switch (level) {
+      case 'cautious':
+        return <ShieldCheck size={24} weight="fill" className="text-secondary" />
+      case 'moderate':
+        return <ShieldWarning size={24} weight="fill" className="text-accent" />
+      case 'aggressive':
+        return <Sword size={24} weight="fill" className="text-destructive" />
+    }
+  }
+
+  const handleAggressionChange = (value: number[]) => {
+    const newValue = value[0]
+    setAggressionValue(newValue)
+    const newLevel = getAggressionLevel(newValue)
+    setAggressionLevel(newLevel)
+    toast.success(`Aggression set to ${newLevel.toUpperCase()}`, {
+      description: `Bot will now trade with ${newLevel} risk parameters`
+    })
+  }
 
   const toggleAgent = (agent: keyof BotConfig) => {
     setConfig((current) => {
@@ -239,6 +283,83 @@ export default function BotOverview() {
               <Lightning size={16} weight="fill" className="text-accent" />
             </div>
             <p className="text-4xl font-bold text-accent neon-glow-accent hud-value">${metrics.totalProfit.toFixed(0)}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="cyber-card-accent relative overflow-hidden">
+        <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
+        <div className="p-6 relative z-10">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-4">
+                {getAggressionIcon(aggressionLevel || 'moderate')}
+                <div>
+                  <h3 className="text-xl font-bold uppercase tracking-[0.15em] hud-text">BOT AGGRESSION LEVEL</h3>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Adjust risk tolerance and trading frequency
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm uppercase tracking-wide font-bold">Current Mode</Label>
+                  <div className={`px-4 py-2 jagged-corner-small border-2 ${
+                    (aggressionLevel || 'moderate') === 'cautious' ? 'border-secondary bg-secondary/20' :
+                    (aggressionLevel || 'moderate') === 'moderate' ? 'border-accent bg-accent/20' :
+                    'border-destructive bg-destructive/20'
+                  }`}>
+                    <span className={`text-sm font-bold uppercase tracking-wider ${getAggressionColor(aggressionLevel || 'moderate')}`}>
+                      {aggressionLevel || 'moderate'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>CAUTIOUS</span>
+                    <span>MODERATE</span>
+                    <span>AGGRESSIVE</span>
+                  </div>
+                  <Slider
+                    value={[aggressionValue || 50]}
+                    onValueChange={handleAggressionChange}
+                    max={100}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="p-2 bg-secondary/10 border-l-2 border-secondary">
+                      <p className="font-bold text-secondary mb-1">Safe Trading</p>
+                      <p className="text-muted-foreground">Lower risk, stable returns</p>
+                    </div>
+                    <div className="p-2 bg-accent/10 border-l-2 border-accent">
+                      <p className="font-bold text-accent mb-1">Balanced</p>
+                      <p className="text-muted-foreground">Moderate risk & reward</p>
+                    </div>
+                    <div className="p-2 bg-destructive/10 border-l-2 border-destructive">
+                      <p className="font-bold text-destructive mb-1">High Risk</p>
+                      <p className="text-muted-foreground">Maximum profits potential</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-shrink-0">
+              <div className="p-6 jagged-corner bg-card border-3 border-accent text-center min-w-[200px]">
+                <p className="text-xs uppercase tracking-wide mb-2 text-muted-foreground font-bold">AGGRESSION VALUE</p>
+                <p className={`text-5xl font-black mb-2 hud-value ${getAggressionColor(aggressionLevel || 'moderate')} neon-glow-${(aggressionLevel || 'moderate') === 'cautious' ? 'secondary' : (aggressionLevel || 'moderate') === 'moderate' ? 'accent' : 'destructive'}`}>
+                  {aggressionValue || 50}
+                </p>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {(aggressionLevel || 'moderate') === 'cautious' && 'Conservative approach with capital preservation'}
+                  {(aggressionLevel || 'moderate') === 'moderate' && 'Balanced strategy with calculated risks'}
+                  {(aggressionLevel || 'moderate') === 'aggressive' && 'Maximized profit potential with higher exposure'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

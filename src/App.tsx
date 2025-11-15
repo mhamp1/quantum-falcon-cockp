@@ -1,4 +1,5 @@
 import { useKV } from '@github/spark/hooks'
+import { useEffect } from 'react'
 import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Flask, Lightning } from '@phosphor-icons/react'
 import EnhancedDashboard from '@/components/dashboard/EnhancedDashboard'
 import BotOverview from '@/components/dashboard/BotOverview'
@@ -35,6 +36,16 @@ function ComingSoon({ title }: { title: string }) {
 export default function App() {
   const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard')
+
+  useEffect(() => {
+    const handleNavigateTab = (e: Event) => {
+      const customEvent = e as CustomEvent<string>
+      setActiveTab(customEvent.detail)
+    }
+
+    window.addEventListener('navigate-tab', handleNavigateTab)
+    return () => window.removeEventListener('navigate-tab', handleNavigateTab)
+  }, [setActiveTab])
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },

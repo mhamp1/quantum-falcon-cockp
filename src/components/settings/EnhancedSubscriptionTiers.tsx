@@ -224,18 +224,23 @@ export default function EnhancedSubscriptionTiers() {
                           description: 'This is your current subscription tier'
                         })
                       } else {
-                        toast.success('Upgrade Initiated', {
-                          description: `Visit quantumfalcon.ai to upgrade to ${tier.name}`
+                        window.open(`https://quantumfalcon.ai/upgrade/${tierId}`, '_blank')
+                        toast.success('Opening Upgrade Page', {
+                          description: `Redirecting to ${tier.name} tier upgrade`
                         })
                       }
                     }}
                     disabled={isCurrentTier}
-                    className={`w-full mt-4 uppercase tracking-wider font-bold text-xs jagged-corner-small ${
+                    className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner ${
                       isCurrentTier
                         ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                        : `bg-${tierId === 'pro' ? 'primary' : tierId === 'elite' ? 'accent' : tierId === 'lifetime' ? 'secondary' : 'muted'}/20 
-                           hover:bg-${tierId === 'pro' ? 'primary' : tierId === 'elite' ? 'accent' : tierId === 'lifetime' ? 'secondary' : 'muted'}/30 
-                           border-2 border-${tierId === 'pro' ? 'primary' : tierId === 'elite' ? 'accent' : tierId === 'lifetime' ? 'secondary' : 'muted'}`
+                        : tierId === 'pro'
+                          ? 'bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]'
+                          : tierId === 'elite'
+                            ? 'bg-accent/20 hover:bg-accent/30 border-2 border-accent text-accent shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]'
+                            : tierId === 'lifetime'
+                              ? 'bg-secondary/20 hover:bg-secondary/30 border-2 border-secondary text-secondary shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]'
+                              : 'bg-muted/20 hover:bg-muted/30 border-2 border-muted text-foreground'
                     }`}
                   >
                     {isCurrentTier ? 'Current Tier' : tier.price === 0 ? 'Active' : 'Upgrade Now'}

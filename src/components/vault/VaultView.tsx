@@ -507,6 +507,15 @@ export default function VaultView() {
           >
             <Button 
               size="lg"
+              onClick={() => {
+                const vaultSection = document.getElementById('vault-balance-section')
+                if (vaultSection) {
+                  vaultSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  toast.success('Accessing Vault', {
+                    description: 'Scrolling to your BTC balance'
+                  })
+                }
+              }}
               className="bg-primary hover:bg-primary/90 text-primary-foreground jagged-corner border-4 border-primary shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.6)] hover:shadow-[0_0_35px_oklch(0.72_0.20_195_/_0.8)] uppercase tracking-[0.15em] font-bold px-8 py-6 text-base group"
             >
               <Vault size={24} weight="duotone" className="mr-2 group-hover:animate-pulse" />
@@ -771,7 +780,7 @@ export default function VaultView() {
         </motion.div>
       </div>
 
-      <div className="relative overflow-hidden border-4 border-secondary/60 shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)] bg-gradient-to-br from-card to-background">
+      <div className="relative overflow-hidden border-4 border-secondary/60 shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)] bg-gradient-to-br from-card to-background" id="vault-balance-section">
         <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent" />
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent" />
         <div className="p-8 relative z-10">
