@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { ArrowsDownUp, Lightning, Clock } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import ProfitConverter from './ProfitConverter'
+import TradeExecutionEffect from './TradeExecutionEffect'
 
 interface TradeHistory {
   id: string
@@ -24,6 +26,7 @@ export default function Trade() {
   const [snipeToken, setSnipeToken] = useState('')
   const [snipeBudget, setSnipeBudget] = useState('')
   const [history, setHistory] = useKV<TradeHistory[]>('trade-history', [])
+  const [executingTrade, setExecutingTrade] = useState<'dca' | 'snipe' | null>(null)
 
   const executeDCA = () => {
     if (!dcaAmount || parseFloat(dcaAmount) <= 0) {
@@ -31,26 +34,31 @@ export default function Trade() {
       return
     }
 
-    const newTrade: TradeHistory = {
-      id: Date.now().toString(),
-      type: 'dca',
-      token: 'SOL',
-      amount: dcaAmount,
-      price: '125.42',
-      profit: 0,
-      timestamp: Date.now()
-    }
+    setExecutingTrade('dca')
 
-    setHistory((current) => {
-      if (!current) return [newTrade]
-      return [newTrade, ...current].slice(0, 50)
-    })
+    setTimeout(() => {
+      const newTrade: TradeHistory = {
+        id: Date.now().toString(),
+        type: 'dca',
+        token: 'SOL',
+        amount: dcaAmount,
+        price: '125.42',
+        profit: 0,
+        timestamp: Date.now()
+      }
 
-    toast.success('DCA Order Placed', { 
-      description: `Buying ${dcaAmount} SOL every ${dcaInterval}h`
-    })
-    
-    setDcaAmount('')
+      setHistory((current) => {
+        if (!current) return [newTrade]
+        return [newTrade, ...current].slice(0, 50)
+      })
+
+      toast.success('DCA Order Placed', { 
+        description: `Buying ${dcaAmount} SOL every ${dcaInterval}h`
+      })
+      
+      setDcaAmount('')
+      setExecutingTrade(null)
+    }, 1500)
   }
 
   const executeSnipe = () => {
@@ -59,12 +67,17 @@ export default function Trade() {
       return
     }
 
-    toast.success('Snipe Activated', { 
-      description: `Watching for ${snipeToken.toUpperCase()} with ${snipeBudget} SOL budget`
-    })
-    
-    setSnipeToken('')
-    setSnipeBudget('')
+    setExecutingTrade('snipe')
+
+    setTimeout(() => {
+      toast.success('Snipe Activated', { 
+        description: `Watching for ${snipeToken.toUpperCase()} with ${snipeBudget} SOL budget`
+      })
+      
+      setSnipeToken('')
+      setSnipeBudget('')
+      setExecutingTrade(null)
+    }, 1500)
   }
 
   return (
@@ -77,6 +90,8 @@ export default function Trade() {
           Configure DCA strategies and token sniping parameters
         </p>
       </div>
+
+      <ProfitConverter />
 
       <Tabs defaultValue="dca" className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-card/50 backdrop-blur-md border border-primary/30">
@@ -91,7 +106,11 @@ export default function Trade() {
         </TabsList>
 
         <TabsContent value="dca" className="space-y-4 mt-4">
-          <Card className="backdrop-blur-md bg-card/50 border-primary/30">
+          <Card className="backdrop-blur-md bg-card/50 border-primary/30 relative">
+            <TradeExecutionEffect 
+              isActive={executingTrade === 'dca'} 
+              type="dca"
+            />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock size={24} weight="duotone" className="text-primary" />
@@ -126,6 +145,7 @@ export default function Trade() {
               </div>
               <Button 
                 onClick={executeDCA}
+                disabled={executingTrade !== null}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 <ArrowsDownUp size={20} weight="bold" className="mr-2" />
@@ -136,7 +156,11 @@ export default function Trade() {
         </TabsContent>
 
         <TabsContent value="snipe" className="space-y-4 mt-4">
-          <Card className="backdrop-blur-md bg-card/50 border-accent/30">
+          <Card className="backdrop-blur-md bg-card/50 border-accent/30 relative">
+            <TradeExecutionEffect 
+              isActive={executingTrade === 'snipe'} 
+              type="snipe"
+            />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lightning size={24} weight="duotone" className="text-accent" />
@@ -171,6 +195,7 @@ export default function Trade() {
               </div>
               <Button 
                 onClick={executeSnipe}
+                disabled={executingTrade !== null}
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
               >
                 <Lightning size={20} weight="bold" className="mr-2" />
