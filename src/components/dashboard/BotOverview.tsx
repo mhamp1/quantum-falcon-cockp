@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import Wireframe3D from '@/components/shared/Wireframe3D'
+import BotAggressionControl from './BotAggressionControl'
 
 type AggressionLevel = 'cautious' | 'moderate' | 'aggressive'
 
@@ -375,6 +376,8 @@ export default function BotOverview() {
           </div>
         </div>
       </div>
+
+      <BotAggressionControl />
 
       <div className="cyber-card scan-line-effect">
         <div className="p-6 relative z-10">

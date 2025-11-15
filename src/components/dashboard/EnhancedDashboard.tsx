@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import LoginDialog from '@/components/shared/LoginDialog'
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
 import NewsTicker from '@/components/shared/NewsTicker'
+import BotLogs from '@/components/shared/BotLogs'
 import { toast } from 'sonner'
 import Wireframe3D from '@/components/shared/Wireframe3D'
 
@@ -442,6 +443,8 @@ export default function EnhancedDashboard() {
           </div>
         </div>
       </div>
+
+      <BotLogs />
     </div>
   )
 }

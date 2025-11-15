@@ -1,25 +1,45 @@
 import { useKV } from '@github/spark/hooks'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Slider } from '@/components/ui/slider'
-import { Shield, Lightning, Target } from '@phosphor-icons/react'
+import { Shield, Lightning, Target, Atom, Cube } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface AggressionLevel {
   value: number
   label: string
   color: string
+  glowColor: string
   description: string
 }
 
 const aggressionLevels: AggressionLevel[] = [
-  { value: 0, label: 'CAUTIOUS', color: 'oklch(0.72 0.20 195)', description: 'Conservative strategy, minimal risk, focus on preservation' },
-  { value: 50, label: 'MODERATE', color: 'oklch(0.68 0.18 330)', description: 'Balanced approach, moderate risk for steady growth' },
-  { value: 100, label: 'AGGRESSIVE', color: 'oklch(0.65 0.25 25)', description: 'High-risk strategy, maximum profit potential' }
+  { 
+    value: 0, 
+    label: 'CAUTIOUS', 
+    color: 'oklch(0.72 0.20 195)',
+    glowColor: '115, 205, 230',
+    description: 'Conservative strategy, minimal risk, focus on preservation' 
+  },
+  { 
+    value: 50, 
+    label: 'MODERATE', 
+    color: 'oklch(0.68 0.18 330)',
+    glowColor: '200, 100, 200', 
+    description: 'Balanced approach, moderate risk for steady growth' 
+  },
+  { 
+    value: 100, 
+    label: 'AGGRESSIVE', 
+    color: 'oklch(0.65 0.25 25)',
+    glowColor: '255, 60, 90',
+    description: 'High-risk strategy, maximum profit potential' 
+  }
 ]
 
 export default function BotAggressionControl() {
   const [aggression, setAggression] = useKV<number>('bot-aggression', 50)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [particles, setParticles] = useState<Array<{id: number, x: number, y: number}>>([])
 
   const aggressionValue = aggression ?? 50
 
@@ -34,148 +54,244 @@ export default function BotAggressionControl() {
   const handleAggressionChange = (value: number[]) => {
     setAggression(value[0])
     setIsAnimating(true)
-    setTimeout(() => setIsAnimating(false), 500)
+    
+    const newParticles: Array<{id: number, x: number, y: number}> = []
+    const count = Math.floor(value[0] / 5) + 10
+    for (let i = 0; i < count; i++) {
+      newParticles.push({
+        id: Date.now() + i,
+        x: (Math.random() - 0.5) * 150,
+        y: (Math.random() - 0.5) * 150
+      })
+    }
+    setParticles(newParticles)
+    
+    setTimeout(() => {
+      setIsAnimating(false)
+      setParticles([])
+    }, 1000)
   }
 
-  const getParticleCount = () => Math.floor(aggressionValue / 5) + 8
-
   return (
-    <div className="glass-morph-card p-6 md:p-8 relative overflow-hidden group hover:shadow-[0_0_60px_oklch(0.72_0.20_195_/_0.4)] transition-all duration-500">
-      <div className="absolute inset-0 technical-grid opacity-10 pointer-events-none animate-pulse" style={{ animationDuration: '4s' }} />
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 pointer-events-none" />
+    <div className="relative overflow-hidden p-8 rounded-lg" style={{
+      background: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%)',
+      border: '2px solid rgba(0, 200, 255, 0.2)',
+      boxShadow: `0 0 40px rgba(${currentLevel.glowColor}, 0.3), 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 0 80px rgba(${currentLevel.glowColor}, 0.05)`
+    }}>
       
-      <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
-        <defs>
-          <linearGradient id="holo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.3" />
-            <stop offset="50%" stopColor="var(--accent)" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="var(--secondary)" stopOpacity="0.3" />
-          </linearGradient>
-        </defs>
-        <rect x="0" y="0" width="100%" height="100%" fill="url(#holo-gradient)" opacity="0.05" />
-        <line x1="0" y1="20%" x2="100%" y2="20%" stroke="var(--primary)" strokeWidth="1" strokeDasharray="10,10" className="circuit-line" />
-        <line x1="0" y1="80%" x2="100%" y2="80%" stroke="var(--accent)" strokeWidth="1" strokeDasharray="10,10" className="circuit-line" />
-        <circle cx="10%" cy="20%" r="3" fill="var(--primary)" className="animate-pulse" />
-        <circle cx="90%" cy="80%" r="3" fill="var(--accent)" className="animate-pulse" style={{ animationDelay: '0.5s' }} />
-      </svg>
-      
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 relative z-10">
-        <div className="flex items-center gap-4">
-          <div className="p-4 jagged-corner-small bg-gradient-to-br from-primary/30 to-accent/30 border-3 border-primary/60 shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.5)] relative overflow-hidden group/icon">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 opacity-0 group-hover/icon:opacity-100 transition-opacity" />
-            <Target size={32} weight="duotone" className="text-primary neon-glow-primary relative z-10" />
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
-          </div>
+      <div className="absolute inset-0 pointer-events-none opacity-10">
+        <div 
+          className="absolute inset-0" 
+          style={{
+            backgroundImage: 'linear-gradient(rgba(0, 200, 255, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 200, 255, 0.4) 1px, transparent 1px)',
+            backgroundSize: '30px 30px',
+            transform: 'perspective(500px) rotateX(60deg)'
+          }}
+        />
+      </div>
+
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `radial-gradient(circle at center, rgba(${currentLevel.glowColor}, 0.15) 0%, transparent 70%)`,
+        }}
+        animate={{
+          scale: [1, 1.1, 1],
+          opacity: [0.3, 0.5, 0.3]
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-60" />
+      <div className="absolute top-0 bottom-0 left-0 w-px bg-gradient-to-b from-transparent via-pink-500 to-transparent opacity-40" />
+      <div className="absolute top-0 bottom-0 right-0 w-px bg-gradient-to-b from-transparent via-cyan-500 to-transparent opacity-40" />
+
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-10 relative z-10">
+        <div className="flex items-center gap-5">
+          <motion.div 
+            className="relative p-6 rounded-lg overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, rgba(${currentLevel.glowColor}, 0.15), rgba(${currentLevel.glowColor}, 0.05))`,
+              border: `2px solid rgba(${currentLevel.glowColor}, 0.5)`,
+              boxShadow: `0 0 30px rgba(${currentLevel.glowColor}, 0.4), inset 0 0 30px rgba(${currentLevel.glowColor}, 0.1)`
+            }}
+            animate={{
+              boxShadow: isAnimating 
+                ? `0 0 50px rgba(${currentLevel.glowColor}, 0.7), inset 0 0 50px rgba(${currentLevel.glowColor}, 0.2)`
+                : `0 0 30px rgba(${currentLevel.glowColor}, 0.4), inset 0 0 30px rgba(${currentLevel.glowColor}, 0.1)`
+            }}
+          >
+            <motion.div
+              className="absolute inset-0 opacity-20"
+              style={{
+                background: `conic-gradient(from 0deg, rgba(${currentLevel.glowColor}, 0), rgba(${currentLevel.glowColor}, 0.5), rgba(${currentLevel.glowColor}, 0))`
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+            />
+            <Target size={36} weight="duotone" style={{ color: currentLevel.color, filter: `drop-shadow(0 0 10px ${currentLevel.color})`, position: 'relative', zIndex: 10 }} />
+            <motion.div 
+              className="absolute top-0 right-0 w-3 h-3 rounded-full"
+              style={{ backgroundColor: currentLevel.color, boxShadow: `0 0 10px ${currentLevel.color}` }}
+              animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+          </motion.div>
           <div>
-            <h3 className="text-xl md:text-2xl font-bold uppercase tracking-[0.2em] hud-text text-primary neon-glow-primary mb-1">
-              BOT AGGRESSION LEVEL
-            </h3>
-            <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
-              HOLOGRAPHIC RISK MANAGEMENT INTERFACE
+            <motion.h3 
+              className="text-3xl md:text-4xl font-black uppercase tracking-[0.25em] mb-2"
+              style={{
+                color: currentLevel.color,
+                textShadow: `0 0 20px ${currentLevel.color}, 0 0 40px ${currentLevel.color}, 0 0 60px ${currentLevel.color}`,
+                fontFamily: "'Orbitron', monospace"
+              }}
+              animate={isAnimating ? { 
+                textShadow: [
+                  `0 0 20px ${currentLevel.color}, 0 0 40px ${currentLevel.color}`,
+                  `0 0 40px ${currentLevel.color}, 0 0 80px ${currentLevel.color}`,
+                  `0 0 20px ${currentLevel.color}, 0 0 40px ${currentLevel.color}`
+                ]
+              } : {}}
+            >
+              BOT AGGRESSION
+            </motion.h3>
+            <p className="text-sm uppercase tracking-[0.2em] text-cyan-400/70 font-semibold" style={{
+              textShadow: '0 0 10px rgba(0, 200, 255, 0.5)'
+            }}>
+              HOLOGRAPHIC RISK CONTROL
             </p>
           </div>
         </div>
         
-        <div className="relative">
-          <motion.div
-            className="p-6 jagged-corner bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-xl border-3 relative overflow-hidden"
-            animate={{
-              borderColor: currentLevel.color,
-              boxShadow: isAnimating 
-                ? `0 0 40px ${currentLevel.color}, 0 0 80px ${currentLevel.color}50, inset 0 0 30px ${currentLevel.color}30`
-                : `0 0 25px ${currentLevel.color}, 0 0 50px ${currentLevel.color}30, inset 0 0 20px ${currentLevel.color}20`
+        <motion.div
+          className="relative p-8 rounded-lg overflow-hidden"
+          style={{
+            background: `linear-gradient(135deg, rgba(10, 10, 26, 0.9), rgba(26, 26, 46, 0.8))`,
+            border: `3px solid rgba(${currentLevel.glowColor}, 0.6)`,
+            boxShadow: `0 0 40px rgba(${currentLevel.glowColor}, 0.5), 0 0 80px rgba(${currentLevel.glowColor}, 0.3), inset 0 0 40px rgba(${currentLevel.glowColor}, 0.1)`,
+            backdropFilter: 'blur(10px)'
+          }}
+          animate={{
+            borderColor: isAnimating 
+              ? `rgba(${currentLevel.glowColor}, 1)`
+              : `rgba(${currentLevel.glowColor}, 0.6)`,
+            boxShadow: isAnimating 
+              ? `0 0 60px rgba(${currentLevel.glowColor}, 0.8), 0 0 120px rgba(${currentLevel.glowColor}, 0.5), inset 0 0 60px rgba(${currentLevel.glowColor}, 0.2)`
+              : `0 0 40px rgba(${currentLevel.glowColor}, 0.5), 0 0 80px rgba(${currentLevel.glowColor}, 0.3), inset 0 0 40px rgba(${currentLevel.glowColor}, 0.1)`
+          }}
+          transition={{ duration: 0.4 }}
+        >
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: 'linear-gradient(rgba(0, 200, 255, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 200, 255, 0.3) 1px, transparent 1px)',
+              backgroundSize: '20px 20px'
             }}
-            transition={{ duration: 0.4 }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/10 to-transparent opacity-30" style={{ color: currentLevel.color }} />
-            
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute h-px bg-current opacity-20"
-                  style={{ 
-                    color: currentLevel.color,
-                    top: `${20 + i * 20}%`,
-                    left: 0,
-                    right: 0
-                  }}
-                  animate={{
-                    opacity: [0.1, 0.3, 0.1],
-                    scaleX: [0.8, 1, 0.8]
-                  }}
-                  transition={{
-                    duration: 2,
-                    delay: i * 0.2,
-                    repeat: Infinity
-                  }}
-                />
-              ))}
-            </div>
-            
-            <div className="text-center relative z-10">
+          />
+          
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute h-px left-0 right-0"
+              style={{ 
+                top: `${20 + i * 15}%`,
+                background: `linear-gradient(90deg, transparent, rgba(${currentLevel.glowColor}, 0.4), transparent)`
+              }}
+              animate={{
+                opacity: [0.1, 0.5, 0.1],
+                scaleX: [0.8, 1, 0.8]
+              }}
+              transition={{
+                duration: 2.5,
+                delay: i * 0.2,
+                repeat: Infinity
+              }}
+            />
+          ))}
+          
+          <div className="text-center relative z-10">
+            <motion.div 
+              className="text-8xl font-black relative mb-3"
+              style={{ 
+                color: currentLevel.color,
+                textShadow: `0 0 20px ${currentLevel.color}, 0 0 40px ${currentLevel.color}, 0 0 60px ${currentLevel.color}, 0 0 80px ${currentLevel.color}`,
+                fontFamily: "'Orbitron', monospace",
+                letterSpacing: '0.05em'
+              }}
+              animate={isAnimating ? { 
+                scale: [1, 1.15, 1], 
+                rotate: [0, 3, -3, 0],
+                textShadow: [
+                  `0 0 20px ${currentLevel.color}, 0 0 40px ${currentLevel.color}`,
+                  `0 0 40px ${currentLevel.color}, 0 0 80px ${currentLevel.color}, 0 0 120px ${currentLevel.color}`,
+                  `0 0 20px ${currentLevel.color}, 0 0 40px ${currentLevel.color}`
+                ]
+              } : {}}
+              transition={{ duration: 0.6 }}
+            >
+              {aggression}
               <motion.div 
-                className="text-6xl font-black hud-value mb-2 relative"
-                style={{ 
-                  color: currentLevel.color,
-                  textShadow: `0 0 15px ${currentLevel.color}, 0 0 30px ${currentLevel.color}, 0 0 45px ${currentLevel.color}`,
-                  filter: 'drop-shadow(0 0 10px currentColor)'
-                }}
-                animate={isAnimating ? { scale: [1, 1.1, 1], rotate: [0, 2, -2, 0] } : {}}
-                transition={{ duration: 0.5 }}
+                className="absolute inset-0 blur-2xl opacity-60"
+                style={{ color: currentLevel.color }}
               >
                 {aggression}
-                <div className="absolute inset-0 blur-lg opacity-50" style={{ color: currentLevel.color }}>
-                  {aggression}
-                </div>
               </motion.div>
-              <div 
-                className="text-sm font-bold uppercase tracking-[0.25em] hud-readout"
-                style={{ 
-                  color: currentLevel.color,
-                  textShadow: `0 0 10px ${currentLevel.color}`
-                }}
-              >
-                {currentLevel.label}
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+            <motion.div 
+              className="text-lg font-black uppercase tracking-[0.3em]"
+              style={{ 
+                color: currentLevel.color,
+                textShadow: `0 0 15px ${currentLevel.color}`,
+                fontFamily: "'Orbitron', monospace"
+              }}
+              animate={isAnimating ? { scale: [1, 1.1, 1] } : {}}
+            >
+              {currentLevel.label}
+            </motion.div>
+          </div>
           
           <AnimatePresence>
-            {isAnimating && (
-              <div className="absolute inset-0 pointer-events-none">
-                {[...Array(getParticleCount())].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute w-2 h-2 rounded-full"
-                    style={{ 
-                      backgroundColor: currentLevel.color,
-                      boxShadow: `0 0 10px ${currentLevel.color}`,
-                      left: '50%',
-                      top: '50%'
-                    }}
-                    initial={{ opacity: 1, scale: 0 }}
-                    animate={{
-                      opacity: 0,
-                      scale: [0, 1.5, 0],
-                      x: Math.cos((i / getParticleCount()) * Math.PI * 2) * (80 + Math.random() * 40),
-                      y: Math.sin((i / getParticleCount()) * Math.PI * 2) * (80 + Math.random() * 40)
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.8, ease: 'easeOut' }}
-                  />
-                ))}
-              </div>
-            )}
+            {particles.map((particle) => (
+              <motion.div
+                key={particle.id}
+                className="absolute w-2 h-2 rounded-full"
+                style={{ 
+                  backgroundColor: currentLevel.color,
+                  boxShadow: `0 0 15px ${currentLevel.color}`,
+                  left: '50%',
+                  top: '50%'
+                }}
+                initial={{ opacity: 1, scale: 0 }}
+                animate={{
+                  opacity: 0,
+                  scale: [0, 2, 0],
+                  x: particle.x,
+                  y: particle.y
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1, ease: 'easeOut' }}
+              />
+            ))}
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
 
-      <div className="space-y-8 relative z-10">
-        <div className="relative p-6 bg-gradient-to-r from-background/60 via-background/40 to-background/60 backdrop-blur-sm border border-primary/30 rounded-sm">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-50" />
+      <div className="space-y-10 relative z-10">
+        <div className="relative p-8 rounded-lg overflow-hidden" style={{
+          background: 'linear-gradient(135deg, rgba(10, 10, 26, 0.6), rgba(26, 26, 46, 0.4))',
+          border: '2px solid rgba(0, 200, 255, 0.3)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div 
+            className="absolute inset-0 opacity-10"
+            style={{
+              background: `radial-gradient(circle at 50% 50%, rgba(${currentLevel.glowColor}, 0.3), transparent 70%)`
+            }}
+          />
           
-          <div className="relative">
+          <div className="relative mb-6">
             <Slider
               value={[aggressionValue]}
               onValueChange={handleAggressionChange}
@@ -185,80 +301,108 @@ export default function BotAggressionControl() {
             />
             
             <motion.div 
-              className="absolute top-1/2 left-0 h-2 pointer-events-none transition-all duration-300 rounded-full"
+              className="absolute top-1/2 left-0 h-3 pointer-events-none rounded-full"
               style={{
                 width: `${aggressionValue}%`,
-                background: `linear-gradient(90deg, ${aggressionLevels[0].color}, ${aggressionLevels[1].color}, ${aggressionLevels[2].color})`,
-                boxShadow: `0 0 20px ${currentLevel.color}, 0 0 40px ${currentLevel.color}50`,
+                background: `linear-gradient(90deg, rgba(115, 205, 230, 0.8), rgba(200, 100, 200, 0.8), rgba(255, 60, 90, 0.8))`,
+                boxShadow: `0 0 20px rgba(${currentLevel.glowColor}, 0.8), 0 0 40px rgba(${currentLevel.glowColor}, 0.5)`,
                 transform: 'translateY(-50%)',
-                filter: 'blur(1px)'
+                filter: 'blur(2px)'
               }}
-              animate={isAnimating ? { scale: [1, 1.05, 1] } : {}}
+              animate={isAnimating ? { boxShadow: `0 0 40px rgba(${currentLevel.glowColor}, 1), 0 0 80px rgba(${currentLevel.glowColor}, 0.8)` } : {}}
             />
             
             <motion.div 
-              className="absolute top-1/2 h-6 w-1 pointer-events-none"
+              className="absolute top-1/2 h-8 w-2 pointer-events-none rounded-full"
               style={{
                 left: `${aggressionValue}%`,
-                background: currentLevel.color,
-                boxShadow: `0 0 15px ${currentLevel.color}, 0 0 30px ${currentLevel.color}`,
+                background: `linear-gradient(180deg, ${currentLevel.color}, rgba(${currentLevel.glowColor}, 0.5))`,
+                boxShadow: `0 0 20px ${currentLevel.color}, 0 0 40px ${currentLevel.color}`,
                 transform: 'translate(-50%, -50%)',
               }}
-              animate={isAnimating ? { scaleY: [1, 1.5, 1] } : {}}
+              animate={isAnimating ? { 
+                scaleY: [1, 1.8, 1],
+                boxShadow: [
+                  `0 0 20px ${currentLevel.color}`,
+                  `0 0 60px ${currentLevel.color}, 0 0 120px ${currentLevel.color}`,
+                  `0 0 20px ${currentLevel.color}`
+                ]
+              } : {}}
             />
           </div>
+
+          {[0, 50, 100].map((mark) => (
+            <div
+              key={mark}
+              className="absolute bottom-2 text-xs font-bold uppercase tracking-wider"
+              style={{
+                left: `${mark}%`,
+                transform: 'translateX(-50%)',
+                color: aggressionValue >= mark - 5 && aggressionValue <= mark + 5 ? currentLevel.color : 'rgba(150, 150, 150, 0.5)',
+                textShadow: aggressionValue >= mark - 5 && aggressionValue <= mark + 5 ? `0 0 10px ${currentLevel.color}` : 'none'
+              }}
+            >
+              {mark}
+            </div>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {aggressionLevels.map((level) => {
             const isActive = level.label === currentLevel.label
             return (
               <motion.button
                 key={level.label}
                 onClick={() => setAggression(level.value)}
-                className={`p-5 jagged-corner border-3 transition-all relative overflow-hidden group/btn ${
-                  isActive ? 'bg-gradient-to-br from-card/90 to-card/70' : 'bg-gradient-to-br from-muted/30 to-muted/20 hover:from-muted/40 hover:to-muted/30'
-                }`}
+                className="relative p-6 rounded-lg overflow-hidden transition-all"
                 style={{
-                  borderColor: isActive ? level.color : 'oklch(0.35 0.12 195 / 0.3)',
-                  boxShadow: isActive ? `0 0 30px ${level.color}50, inset 0 0 20px ${level.color}20` : 'none'
+                  background: isActive 
+                    ? `linear-gradient(135deg, rgba(${level.glowColor}, 0.15), rgba(${level.glowColor}, 0.05))`
+                    : 'linear-gradient(135deg, rgba(40, 40, 60, 0.3), rgba(30, 30, 50, 0.2))',
+                  border: `2px solid ${isActive ? `rgba(${level.glowColor}, 0.7)` : 'rgba(100, 100, 120, 0.3)'}`,
+                  boxShadow: isActive 
+                    ? `0 0 30px rgba(${level.glowColor}, 0.5), inset 0 0 30px rgba(${level.glowColor}, 0.1)`
+                    : '0 4px 16px rgba(0, 0, 0, 0.4)'
                 }}
-                whileHover={{ scale: 1.03, y: -2 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.03, y: -4 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <div className="absolute inset-0 technical-grid opacity-10" />
+                <div 
+                  className="absolute inset-0 opacity-10"
+                  style={{
+                    backgroundImage: 'linear-gradient(rgba(0, 200, 255, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 200, 255, 0.3) 1px, transparent 1px)',
+                    backgroundSize: '15px 15px'
+                  }}
+                />
                 
                 {isActive && (
                   <>
                     <motion.div 
-                      className="absolute inset-0 opacity-20"
+                      className="absolute inset-0 opacity-30"
                       style={{ 
-                        background: `radial-gradient(circle at center, ${level.color}, transparent 70%)`
+                        background: `radial-gradient(circle at center, rgba(${level.glowColor}, 0.4), transparent 70%)`
                       }}
                       animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.2, 0.3, 0.2]
+                        scale: [1, 1.3, 1],
+                        opacity: [0.2, 0.4, 0.2]
                       }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      transition={{ duration: 2.5, repeat: Infinity }}
                     />
                     
-                    {[...Array(3)].map((_, i) => (
+                    {[...Array(4)].map((_, i) => (
                       <motion.div
                         key={i}
-                        className="absolute h-px bg-current"
+                        className="absolute h-px left-0 right-0"
                         style={{ 
-                          color: level.color,
-                          top: `${30 + i * 20}%`,
-                          left: 0,
-                          right: 0,
-                          opacity: 0.3
+                          top: `${25 + i * 20}%`,
+                          background: `linear-gradient(90deg, transparent, rgba(${level.glowColor}, 0.5), transparent)`
                         }}
                         animate={{
-                          opacity: [0.1, 0.4, 0.1]
+                          opacity: [0.1, 0.6, 0.1]
                         }}
                         transition={{
-                          duration: 1.5,
-                          delay: i * 0.3,
+                          duration: 2,
+                          delay: i * 0.4,
                           repeat: Infinity
                         }}
                       />
@@ -267,32 +411,50 @@ export default function BotAggressionControl() {
                 )}
                 
                 <div className="relative z-10">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="p-3 rounded-sm border-2 relative" style={{ borderColor: level.color, boxShadow: isActive ? `0 0 15px ${level.color}` : 'none' }}>
-                      {level.value === 0 && <Shield size={24} weight="duotone" style={{ color: level.color }} />}
-                      {level.value === 50 && <Target size={24} weight="duotone" style={{ color: level.color }} />}
-                      {level.value === 100 && <Lightning size={24} weight="duotone" style={{ color: level.color }} />}
-                      {isActive && <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: level.color }} />}
+                  <div className="flex items-center justify-center mb-4">
+                    <div 
+                      className="p-4 rounded-lg relative overflow-hidden"
+                      style={{ 
+                        border: `2px solid ${level.color}`, 
+                        boxShadow: isActive ? `0 0 20px ${level.color}, inset 0 0 20px rgba(${level.glowColor}, 0.2)` : 'none',
+                        background: `rgba(${level.glowColor}, 0.1)`
+                      }}
+                    >
+                      {level.value === 0 && <Shield size={28} weight="duotone" style={{ color: level.color, filter: `drop-shadow(0 0 8px ${level.color})` }} />}
+                      {level.value === 50 && <Target size={28} weight="duotone" style={{ color: level.color, filter: `drop-shadow(0 0 8px ${level.color})` }} />}
+                      {level.value === 100 && <Lightning size={28} weight="duotone" style={{ color: level.color, filter: `drop-shadow(0 0 8px ${level.color})` }} />}
+                      {isActive && (
+                        <motion.div 
+                          className="absolute top-1 right-1 w-2 h-2 rounded-full"
+                          style={{ backgroundColor: level.color, boxShadow: `0 0 8px ${level.color}` }}
+                          animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
+                          transition={{ duration: 1.2, repeat: Infinity }}
+                        />
+                      )}
                     </div>
                   </div>
                   <div 
-                    className="text-sm font-bold uppercase tracking-[0.15em] text-center mb-2"
+                    className="text-base font-black uppercase tracking-[0.2em] text-center mb-3"
                     style={{ 
-                      color: isActive ? level.color : 'oklch(0.70 0.10 195)',
-                      textShadow: isActive ? `0 0 10px ${level.color}` : 'none'
+                      color: isActive ? level.color : 'rgba(180, 180, 200, 0.7)',
+                      textShadow: isActive ? `0 0 15px ${level.color}` : 'none'
                     }}
                   >
                     {level.label}
                   </div>
-                  <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                  <p className="text-xs text-center leading-relaxed" style={{
+                    color: isActive ? 'rgba(230, 230, 250, 0.9)' : 'rgba(150, 150, 170, 0.7)'
+                  }}>
                     {level.description}
                   </p>
                 </div>
                 
                 {isActive && (
                   <motion.div 
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-current to-transparent"
-                    style={{ color: level.color }}
+                    className="absolute bottom-0 left-0 right-0 h-1 rounded-b-lg"
+                    style={{ 
+                      background: `linear-gradient(90deg, transparent, ${level.color}, transparent)`
+                    }}
                     animate={{
                       opacity: [0.5, 1, 0.5]
                     }}
@@ -305,20 +467,44 @@ export default function BotAggressionControl() {
         </div>
 
         <motion.div 
-          className="p-5 jagged-corner-small bg-gradient-to-r from-muted/30 via-muted/20 to-muted/30 border-2 border-primary/40 relative overflow-hidden"
-          animate={isAnimating ? { borderColor: [currentLevel.color, 'oklch(0.72 0.20 195 / 0.4)', currentLevel.color] } : {}}
+          className="p-6 rounded-lg relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(40, 40, 60, 0.4), rgba(30, 30, 50, 0.3))',
+            border: `2px solid rgba(${currentLevel.glowColor}, 0.4)`,
+            boxShadow: `0 4px 24px rgba(0, 0, 0, 0.4)`,
+            backdropFilter: 'blur(8px)'
+          }}
+          animate={isAnimating ? { borderColor: `rgba(${currentLevel.glowColor}, 0.8)` } : {}}
           transition={{ duration: 1 }}
         >
-          <div className="absolute inset-0 diagonal-stripes opacity-5" />
-          <div className="flex items-start gap-3 relative z-10">
+          <div 
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 200, 255, 0.3) 10px, rgba(0, 200, 255, 0.3) 11px)'
+            }}
+          />
+          <div className="flex items-start gap-4 relative z-10">
             <div className="mt-1">
-              <div className="w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: currentLevel.color, boxShadow: `0 0 10px ${currentLevel.color}` }} />
+              <motion.div 
+                className="w-4 h-4 rounded-full"
+                style={{ 
+                  backgroundColor: currentLevel.color, 
+                  boxShadow: `0 0 15px ${currentLevel.color}`
+                }}
+                animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-foreground font-semibold mb-2" style={{ color: currentLevel.color }}>
+              <p className="text-base font-bold mb-3" style={{ 
+                color: currentLevel.color,
+                textShadow: `0 0 10px ${currentLevel.color}`
+              }}>
                 {currentLevel.description}
               </p>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide leading-relaxed">
+              <p className="text-sm uppercase tracking-wide leading-relaxed" style={{
+                color: 'rgba(180, 180, 200, 0.8)'
+              }}>
                 Bot will dynamically adapt strategies based on real-time market conditions and selected aggression level. Position sizing, stop-losses, and trade frequency will be automatically adjusted.
               </p>
             </div>
@@ -326,11 +512,15 @@ export default function BotAggressionControl() {
         </motion.div>
       </div>
 
-      <div className="absolute top-0 right-0 w-64 h-64 opacity-5 pointer-events-none">
+      <div className="absolute top-4 right-4 w-32 h-32 opacity-10 pointer-events-none">
         <motion.div 
-          className="diagonal-stripes w-full h-full"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(0, 200, 255, 0.5) 8px, rgba(0, 200, 255, 0.5) 9px)',
+            width: '100%',
+            height: '100%'
+          }}
           animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
         />
       </div>
     </div>

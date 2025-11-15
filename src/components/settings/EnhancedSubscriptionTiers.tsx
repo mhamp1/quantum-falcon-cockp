@@ -6,8 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import CheckoutDialog from '@/components/shared/CheckoutDialog'
-import { CheckoutItem } from '@/lib/checkout'
+import SubscriptionUpgrade from './SubscriptionUpgrade'
 
 export default function EnhancedSubscriptionTiers() {
   const [auth, setAuth] = useKV<UserAuth>('user-auth', {
@@ -20,7 +19,7 @@ export default function EnhancedSubscriptionTiers() {
   })
 
   const [checkoutOpen, setCheckoutOpen] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<CheckoutItem | null>(null)
+  const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime'>('free')
 
   const currentTier = auth?.license?.tier || 'free'
 
@@ -63,40 +62,8 @@ export default function EnhancedSubscriptionTiers() {
       return
     }
 
-    const checkoutItem: CheckoutItem = {
-      id: `tier_${tierId}`,
-      name: `${tier.name} Tier`,
-      description: `Upgrade to ${tier.name} tier with ${tier.maxAgents === 999 ? 'unlimited' : tier.maxAgents} AI agents and ${tier.xpMultiplier}x XP multiplier`,
-      price: tier.price,
-      type: 'subscription',
-      recurring: tierId !== 'lifetime'
-    }
-
-    setSelectedItem(checkoutItem)
+    setSelectedTier(tierId as any)
     setCheckoutOpen(true)
-  }
-
-  const handleCheckoutSuccess = () => {
-    if (selectedItem && auth) {
-      const tierId = selectedItem.id.replace('tier_', '')
-      const tier = LICENSE_TIERS[tierId as keyof typeof LICENSE_TIERS]
-      
-      setAuth({
-        ...auth,
-        license: {
-          userId: auth.userId || '',
-          tier: tierId as any,
-          expiresAt: tierId === 'lifetime' ? null : Date.now() + 30 * 24 * 60 * 60 * 1000,
-          purchasedAt: Date.now(),
-          isActive: true,
-          transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        }
-      })
-
-      toast.success('Subscription Activated!', {
-        description: `Welcome to ${tier.name} tier`
-      })
-    }
   }
 
   return (
@@ -335,11 +302,10 @@ export default function EnhancedSubscriptionTiers() {
         </div>
       </div>
 
-      <CheckoutDialog
+      <SubscriptionUpgrade 
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}
-        item={selectedItem}
-        onSuccess={handleCheckoutSuccess}
+        tier={selectedTier}
       />
     </TooltipProvider>
   )
