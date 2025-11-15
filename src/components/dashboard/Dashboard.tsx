@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   const [logs, setLogs] = useState<LogEntry[]>([])
   const logsEndRef = useRef<HTMLDivElement>(null)
-  const [autoScroll, setAutoScroll] = useState(true)
+  const [autoScroll, setAutoScroll] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
