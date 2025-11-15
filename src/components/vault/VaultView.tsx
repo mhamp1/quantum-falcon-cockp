@@ -3,9 +3,10 @@ import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise } from '@phosphor-icons/react'
+import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
+import SolanaLogo from '@/components/shared/SolanaLogo'
 
 interface VaultTransaction {
   id: string
@@ -145,29 +146,45 @@ export default function VaultView() {
 
   return (
     <div className="space-y-6">
-      <div className="relative min-h-[500px] overflow-hidden cyber-card p-8 md:p-12">
+      <div className="relative min-h-[500px] overflow-hidden border-4 border-primary/50 shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4),inset_0_0_50px_oklch(0.72_0.20_195_/_0.1)] p-8 md:p-12 bg-gradient-to-br from-card via-background to-card">
         <canvas 
           ref={canvasRef}
           className="absolute inset-0 w-full h-full pointer-events-none"
           style={{ mixBlendMode: 'screen' }}
         />
         
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none" />
         <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
+        
+        <motion.div 
+          className="absolute top-6 right-6 flex items-center gap-3 bg-card/95 border-3 border-primary/60 px-6 py-3 jagged-corner shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]"
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <Lock size={32} weight="duotone" className="text-primary" />
+          <div>
+            <p className="text-xs text-primary uppercase tracking-[0.2em] font-bold">SECURED</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">VAULT SYSTEM</p>
+          </div>
+        </motion.div>
         
         {floatingCoins.map((coin) => (
           <motion.div
             key={coin.id}
-            className="absolute w-16 h-16 md:w-24 md:h-24 pointer-events-none"
+            className="absolute w-20 h-20 md:w-28 md:h-28 pointer-events-none"
             style={{
               left: `${coin.x}%`,
               top: `${coin.y}%`,
+              perspective: '1000px',
+              transformStyle: 'preserve-3d'
             }}
             animate={{
               y: [0, -30, 0],
               x: [0, Math.sin(coin.id) * 20, 0],
               rotateY: [0, 360],
-              scale: [1, 1.1, 1],
+              scale: [1, 1.15, 1],
             }}
             transition={{
               duration: coin.duration,
@@ -176,15 +193,25 @@ export default function VaultView() {
               ease: "easeInOut"
             }}
           >
-            <div className="relative w-full h-full">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-primary/50 blur-lg opacity-60" />
-              <div className="absolute inset-0 rounded-full bg-card border-4 border-primary flex items-center justify-center neon-glow">
-                {coin.id % 3 === 0 ? (
-                  <CurrencyBtc weight="fill" className="w-8 h-8 md:w-12 md:h-12 text-accent" />
-                ) : (
-                  <Lightning weight="fill" className="w-8 h-8 md:w-12 md:h-12 text-primary" />
-                )}
+            <div className="relative w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-accent to-primary blur-2xl opacity-70 animate-pulse" />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-card to-background border-4 border-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.6),inset_0_0_20px_oklch(0.72_0.20_195_/_0.2)] flex items-center justify-center" 
+                style={{ 
+                  transform: 'translateZ(10px)',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5), 0 0 20px oklch(0.72 0.20 195 / 0.6), inset 0 0 20px oklch(0.72 0.20 195 / 0.2)'
+                }}
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 blur-md">
+                    <SolanaLogo className="w-10 h-10 md:w-16 md:h-16 text-primary" />
+                  </div>
+                  <SolanaLogo className="w-10 h-10 md:w-16 md:h-16 text-primary relative z-10" />
+                </div>
               </div>
+              <div 
+                className="absolute inset-0 rounded-full bg-gradient-to-t from-black/40 to-transparent"
+                style={{ transform: 'translateZ(5px)' }}
+              />
             </div>
           </motion.div>
         ))}
@@ -194,8 +221,22 @@ export default function VaultView() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="space-y-3"
           >
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.15em] uppercase leading-tight">
+            <div className="flex items-center gap-4 mb-6">
+              <motion.div 
+                className="p-4 jagged-corner bg-primary/20 border-4 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Vault size={48} weight="duotone" className="text-primary" />
+              </motion.div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-primary font-bold mb-1">QUANTUM FALCON</p>
+                <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">VAULT PROTOCOL</p>
+              </div>
+            </div>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.15em] uppercase leading-tight drop-shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.8)]" style={{ textShadow: '3px 3px 0 oklch(0.08 0.02 280), -1px -1px 0 oklch(0.08 0.02 280), 1px -1px 0 oklch(0.08 0.02 280), -1px 1px 0 oklch(0.08 0.02 280), 0 0 20px oklch(0.72 0.20 195 / 0.8)' }}>
               <span className="block text-foreground">REVOLUTIONIZING</span>
               <span className="block text-primary neon-glow-primary mt-2">CRYPTO WEALTH</span>
               <span className="block text-accent neon-glow-accent mt-2">ACCUMULATION</span>
@@ -203,15 +244,15 @@ export default function VaultView() {
           </motion.div>
 
           <motion.p
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed"
+            className="text-lg md:text-xl text-foreground max-w-2xl leading-relaxed font-semibold bg-card/80 border-2 border-primary/40 p-6 jagged-corner-small backdrop-blur-sm shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.3)]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             A new paradigm of autonomous trading, built for investors who value{' '}
-            <span className="text-primary font-bold">speed</span>,{' '}
-            <span className="text-accent font-bold">clarity</span>, and{' '}
-            <span className="text-secondary font-bold">security</span>.
+            <span className="text-primary font-bold neon-glow-primary">speed</span>,{' '}
+            <span className="text-accent font-bold neon-glow-accent">clarity</span>, and{' '}
+            <span className="text-secondary font-bold neon-glow-secondary">security</span>.
           </motion.p>
 
           <motion.div
@@ -222,7 +263,7 @@ export default function VaultView() {
           >
             <Button 
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground jagged-corner border-2 border-primary neon-glow uppercase tracking-[0.15em] font-bold px-8 py-6 text-base group"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground jagged-corner border-4 border-primary shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.6)] hover:shadow-[0_0_35px_oklch(0.72_0.20_195_/_0.8)] uppercase tracking-[0.15em] font-bold px-8 py-6 text-base group"
             >
               <Vault size={24} weight="duotone" className="mr-2 group-hover:animate-pulse" />
               Access Vault
@@ -230,7 +271,7 @@ export default function VaultView() {
             <Button 
               size="lg"
               variant="outline"
-              className="jagged-corner border-2 border-primary text-primary hover:bg-primary/10 uppercase tracking-[0.15em] font-bold px-8 py-6 text-base"
+              className="jagged-corner border-4 border-primary text-primary hover:bg-primary/10 uppercase tracking-[0.15em] font-bold px-8 py-6 text-base shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.6)] bg-card/80 backdrop-blur-sm"
             >
               <ShieldCheck size={24} weight="duotone" className="mr-2" />
               Learn How It Works
@@ -241,131 +282,141 @@ export default function VaultView() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.div
-          className="cyber-card-accent p-6 relative overflow-hidden group cursor-pointer"
+          className="relative overflow-hidden group cursor-pointer border-3 border-primary/60 p-6 jagged-corner bg-gradient-to-br from-card to-background shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)] hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.5)]"
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <Lightning size={40} weight="duotone" className="text-primary" />
+              <div className="p-2 jagged-corner-small bg-primary/30 border-2 border-primary">
+                <SolanaLogo className="w-8 h-8 text-primary" />
+              </div>
               <div className="status-indicator" />
             </div>
-            <h3 className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold mb-2">
+            <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-bold mb-2 drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
               AUTO CONVERT SOL
             </h3>
-            <p className="text-3xl font-black text-primary neon-glow-primary mb-1">
+            <p className="text-3xl font-black text-primary neon-glow-primary mb-1 drop-shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.8)]">
               {solanaAccumulated?.toFixed(2) || '0.00'}
             </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">
+            <p className="text-xs text-foreground uppercase tracking-wide font-semibold bg-card/60 px-2 py-1 inline-block border border-primary/30">
               Solana accumulated from trades
             </p>
           </div>
         </motion.div>
 
         <motion.div
-          className="cyber-card-accent p-6 relative overflow-hidden group cursor-pointer"
+          className="relative overflow-hidden group cursor-pointer border-3 border-accent/60 p-6 jagged-corner bg-gradient-to-br from-card to-background shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.5)]"
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-all" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <ArrowsClockwise size={40} weight="duotone" className="text-accent animate-pulse-glow" />
+              <div className="p-2 jagged-corner-small bg-accent/30 border-2 border-accent">
+                <ArrowsClockwise size={32} weight="duotone" className="text-accent animate-pulse-glow" />
+              </div>
               <div className="hud-readout text-accent">ACTIVE</div>
             </div>
-            <h3 className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold mb-2">
+            <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-bold mb-2 drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
               CONVERSION RATE
             </h3>
-            <p className="text-3xl font-black text-accent neon-glow-accent mb-1">
+            <p className="text-3xl font-black text-accent neon-glow-accent mb-1 drop-shadow-[0_0_10px_oklch(0.68_0.18_330_/_0.8)]">
               AUTO
             </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">
+            <p className="text-xs text-foreground uppercase tracking-wide font-semibold bg-card/60 px-2 py-1 inline-block border border-accent/30">
               Optimal market conversion to BTC
             </p>
           </div>
         </motion.div>
 
         <motion.div
-          className="cyber-card-accent p-6 relative overflow-hidden group cursor-pointer"
+          className="relative overflow-hidden group cursor-pointer border-3 border-secondary/60 p-6 jagged-corner bg-gradient-to-br from-card to-background shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.5)]"
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-all" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary to-transparent" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <ShieldCheck size={40} weight="duotone" className="text-secondary" />
+              <div className="p-2 jagged-corner-small bg-secondary/30 border-2 border-secondary">
+                <ShieldCheck size={32} weight="duotone" className="text-secondary" />
+              </div>
               <div className="status-indicator bg-secondary" style={{ boxShadow: '0 0 8px var(--secondary), 0 0 16px var(--secondary)' }} />
             </div>
-            <h3 className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold mb-2">
+            <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-bold mb-2 drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
               ZERO FEES
             </h3>
-            <p className="text-3xl font-black text-secondary neon-glow-secondary mb-1">
+            <p className="text-3xl font-black text-secondary neon-glow-secondary mb-1 drop-shadow-[0_0_10px_oklch(0.68_0.18_330_/_0.8)]">
               0%
             </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">
+            <p className="text-xs text-foreground uppercase tracking-wide font-semibold bg-card/60 px-2 py-1 inline-block border border-secondary/30">
               No trading fees on conversions
             </p>
           </div>
         </motion.div>
       </div>
 
-      <div className="cyber-card relative overflow-hidden">
+      <div className="relative overflow-hidden border-4 border-secondary/60 shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)] bg-gradient-to-br from-card to-background">
         <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent" />
         <div className="p-8 relative z-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 jagged-corner bg-secondary/30 border-2 border-secondary neon-glow-secondary">
-                  <CurrencyBtc size={32} weight="duotone" className="text-secondary" />
+                <div className="p-3 jagged-corner bg-secondary/30 border-4 border-secondary shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.5)]">
+                  <CurrencyBtc size={40} weight="duotone" className="text-secondary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] hud-text">
+                  <p className="text-xs text-foreground uppercase tracking-[0.15em] hud-text font-bold drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
                     TOTAL BTC VAULT BALANCE
                   </p>
-                  <p className="text-sm text-muted-foreground uppercase tracking-wide mt-1">
+                  <p className="text-sm text-foreground uppercase tracking-wide mt-1 font-semibold bg-card/60 px-2 py-1 inline-block border border-secondary/30">
                     Secured & Growing
                   </p>
                 </div>
               </div>
-              <p className="text-5xl md:text-6xl font-black text-secondary neon-glow-secondary hud-value mb-2">
+              <p className="text-5xl md:text-6xl font-black text-secondary neon-glow-secondary hud-value mb-2 drop-shadow-[0_0_15px_oklch(0.68_0.18_330_/_0.9)]" style={{ textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.68 0.18 330 / 0.9)' }}>
                 {btcBalance?.toFixed(6) || '0.000000'}
                 <span className="text-2xl ml-2">BTC</span>
               </p>
-              <p className="text-lg text-muted-foreground uppercase tracking-wide">
+              <p className="text-lg text-foreground uppercase tracking-wide font-semibold bg-card/60 px-3 py-1.5 inline-block border-2 border-secondary/40">
                 ≈ ${((btcBalance || 0) * 45000).toFixed(2)} USD
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-muted/30 jagged-corner-small border border-primary/30">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">24H</p>
-                <p className="text-xl font-bold text-secondary">+0.00012</p>
+              <div className="text-center p-4 bg-card border-3 border-primary/40 jagged-corner-small shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.3)]">
+                <p className="text-xs text-foreground uppercase tracking-wide mb-1 font-bold">24H</p>
+                <p className="text-xl font-bold text-secondary neon-glow-secondary">+0.00012</p>
               </div>
-              <div className="text-center p-4 bg-muted/30 jagged-corner-small border border-primary/30">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">GAIN</p>
-                <p className="text-xl font-bold text-secondary">+47.3%</p>
+              <div className="text-center p-4 bg-card border-3 border-primary/40 jagged-corner-small shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.3)]">
+                <p className="text-xs text-foreground uppercase tracking-wide mb-1 font-bold">GAIN</p>
+                <p className="text-xl font-bold text-secondary neon-glow-secondary">+47.3%</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="cyber-card">
+      <div className="border-4 border-primary/60 shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)] bg-gradient-to-br from-card to-background">
         <div className="p-8 relative z-10">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 jagged-corner-small bg-primary/30 border-2 border-primary">
-              <ArrowUp size={28} weight="duotone" className="text-primary" />
+            <div className="p-3 jagged-corner-small bg-primary/30 border-3 border-primary shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.5)]">
+              <ArrowUp size={32} weight="duotone" className="text-primary" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text">WITHDRAW BTC</h3>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+              <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text drop-shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.8)]">WITHDRAW BTC</h3>
+              <p className="text-xs text-foreground uppercase tracking-wide mt-1 font-semibold bg-card/60 px-2 py-1 inline-block border border-primary/30">
                 Transfer Bitcoin from vault to external wallet
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="withdraw-amount" className="uppercase tracking-wide text-xs font-bold text-primary">
+              <Label htmlFor="withdraw-amount" className="uppercase tracking-wide text-xs font-bold text-foreground drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
                 Amount (BTC)
               </Label>
               <Input
@@ -375,11 +426,11 @@ export default function VaultView() {
                 placeholder="0.000000"
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
-                className="bg-muted/50 border-2 border-primary/50 focus:border-primary jagged-corner-small h-12 text-lg font-mono"
+                className="bg-card border-3 border-primary/50 focus:border-primary jagged-corner-small h-12 text-lg font-mono shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.3)] focus:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.5)]"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="withdraw-address" className="uppercase tracking-wide text-xs font-bold text-primary">
+              <Label htmlFor="withdraw-address" className="uppercase tracking-wide text-xs font-bold text-foreground drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">
                 Destination Address
               </Label>
               <Input
@@ -388,13 +439,13 @@ export default function VaultView() {
                 placeholder="bc1q..."
                 value={withdrawAddress}
                 onChange={(e) => setWithdrawAddress(e.target.value)}
-                className="bg-muted/50 border-2 border-primary/50 focus:border-primary jagged-corner-small font-mono text-sm h-12"
+                className="bg-card border-3 border-primary/50 focus:border-primary jagged-corner-small font-mono text-sm h-12 shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.3)] focus:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.5)]"
               />
             </div>
           </div>
           <Button 
             onClick={handleWithdraw}
-            className="w-full mt-6 bg-primary hover:bg-primary/90 text-primary-foreground jagged-corner border-2 border-primary neon-glow uppercase tracking-[0.15em] font-bold h-14 text-base"
+            className="w-full mt-6 bg-primary hover:bg-primary/90 text-primary-foreground jagged-corner border-4 border-primary shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.6)] hover:shadow-[0_0_35px_oklch(0.72_0.20_195_/_0.8)] uppercase tracking-[0.15em] font-bold h-14 text-base"
           >
             <ArrowUp size={24} weight="bold" className="mr-2" />
             Initiate Secure Withdrawal
@@ -402,15 +453,15 @@ export default function VaultView() {
         </div>
       </div>
 
-      <div className="cyber-card scan-line-effect">
+      <div className="scan-line-effect border-4 border-primary/60 shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)] bg-gradient-to-br from-card to-background">
         <div className="p-8 relative z-10">
-          <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text mb-6">
+          <h3 className="text-2xl font-bold uppercase tracking-[0.15em] text-primary hud-text mb-6 drop-shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.8)]">
             TRANSACTION HISTORY
           </h3>
           {!transactions || transactions.length === 0 ? (
             <div className="text-center py-12">
               <Vault size={64} weight="duotone" className="text-muted-foreground mx-auto mb-4 opacity-50" />
-              <p className="text-muted-foreground uppercase tracking-wide">NO TRANSACTIONS YET</p>
+              <p className="text-foreground uppercase tracking-wide font-semibold">NO TRANSACTIONS YET</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -419,26 +470,26 @@ export default function VaultView() {
                   key={tx.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center justify-between p-5 jagged-corner bg-muted/30 border-2 border-primary/30 hover:border-primary/60 transition-all group"
+                  className="flex items-center justify-between p-5 jagged-corner bg-card border-3 border-primary/40 hover:border-primary/70 transition-all group shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.2)] hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]"
                 >
                   <div className="flex items-center gap-4">
                     {tx.type === 'deposit' ? (
-                      <div className="w-12 h-12 jagged-corner-small bg-secondary/30 border-2 border-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 jagged-corner-small bg-secondary/30 border-3 border-secondary flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_10px_oklch(0.68_0.18_330_/_0.4)]">
                         <TrendUp size={20} weight="duotone" className="text-secondary" />
                       </div>
                     ) : (
-                      <div className="w-12 h-12 jagged-corner-small bg-destructive/30 border-2 border-destructive flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 jagged-corner-small bg-destructive/30 border-3 border-destructive flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_10px_oklch(0.65_0.25_25_/_0.4)]">
                         <ArrowUp size={20} weight="duotone" className="text-destructive" />
                       </div>
                     )}
                     <div>
-                      <p className="text-base font-bold uppercase tracking-wide">{tx.type}</p>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      <p className="text-base font-bold uppercase tracking-wide text-foreground drop-shadow-[0_2px_4px_oklch(0.08_0.02_280)]">{tx.type}</p>
+                      <p className="text-xs text-foreground uppercase tracking-wide font-semibold bg-card/60 px-2 py-0.5 inline-block border border-primary/30">
                         {new Date(tx.timestamp).toLocaleString()}
                       </p>
                     </div>
                   </div>
-                  <p className={`text-lg font-bold hud-value ${tx.type === 'deposit' ? 'text-secondary neon-glow-secondary' : 'text-destructive neon-glow-destructive'}`}>
+                  <p className={`text-lg font-bold hud-value ${tx.type === 'deposit' ? 'text-secondary neon-glow-secondary' : 'text-destructive neon-glow-destructive'}`} style={{ textShadow: tx.type === 'deposit' ? '1px 1px 0 oklch(0.08 0.02 280), 0 0 10px oklch(0.68 0.18 330 / 0.9)' : '1px 1px 0 oklch(0.08 0.02 280), 0 0 10px oklch(0.65 0.25 25 / 0.9)' }}>
                     {tx.type === 'deposit' ? '+' : '-'}{tx.amount.toFixed(6)} BTC
                   </p>
                 </motion.div>
