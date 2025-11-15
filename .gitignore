@@ -34,6 +34,7 @@ pids
 .spark-workbench-id
 
 # Flutter/Mobile app
+# Flutter/Dart - mobile directory
 mobile/.dart_tool/
 mobile/.flutter-plugins
 mobile/.flutter-plugins-dependencies
@@ -43,6 +44,10 @@ mobile/android/app/google-services.json
 mobile/ios/Runner/GoogleService-Info.plist
 
 # Flutter/Mobile App (alternative directory)
+mobile/pubspec.lock
+
+# Flutter/Mobile App - mobile_app directory
+# Flutter/Mobile App
 mobile_app/.dart_tool/
 mobile_app/.flutter-plugins
 mobile_app/.flutter-plugins-dependencies
