@@ -1,5 +1,9 @@
 import { useKV } from '@github/spark/hooks'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect } from 'react'
+import { Provider, useSelector, useDispatch } from 'react-redux'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +19,11 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { motion, AnimatePresence } from 'framer-motion'
 import io, { Socket } from 'socket.io-client'
+import { store, Strategy, Trade, TradingState } from '@/store/tradingStore'
+import { useSocket } from '@/hooks/useSocket'
+import { ParticleBackground } from '@/components/shared/ParticleBackground'
+import { DraggableWidget } from '@/components/trade/DraggableWidget'
+import { TradingChart } from '@/components/trade/TradingChart'
 
 interface ActiveStrategy {
   id: string
@@ -177,6 +186,15 @@ export default function TradingStrategies({
   apiUrl = '/api', 
   wsUrl = 'ws://localhost:3001' 
 }: TradingStrategiesProps = {}) {
+// WebSocket URL - can be configured via props or environment variable
+const DEFAULT_WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
+
+function TradingStrategiesContent() {
+  const dispatch = useDispatch()
+  const reduxStrategies = useSelector((state: TradingState) => state.strategies)
+  const reduxTrades = useSelector((state: TradingState) => state.trades)
+  const wsConnected = useSelector((state: TradingState) => state.isConnected)
+
   const [activeStrategies, setActiveStrategies] = useKV<ActiveStrategy[]>('active-strategies', [
     {
       id: '1',
@@ -189,6 +207,9 @@ export default function TradingStrategies({
       startedAt: Date.now() - 86400000
     }
   ])
+
+  const [explodeParticles, setExplodeParticles] = useState(false)
+  const { socket, isConnected } = useSocket(DEFAULT_WS_URL)
 
   const [recurringBuys, setRecurringBuys] = useKV<RecurringBuy[]>('recurring-buys', [
     {
@@ -325,6 +346,67 @@ export default function TradingStrategies({
     initChart()
     */
   }, [chartData])
+
+  // WebSocket connection status update
+  useEffect(() => {
+    dispatch({ type: 'SET_CONNECTION_STATUS', payload: isConnected })
+  }, [isConnected, dispatch])
+
+  // WebSocket event listeners for real-time updates
+  useEffect(() => {
+    if (!socket) return
+
+    // Listen for strategy updates
+    socket.on('strategyUpdate', (data: Strategy[]) => {
+      dispatch({ type: 'UPDATE_STRATEGIES', payload: data })
+      toast.info('Strategies updated via WebSocket')
+    })
+
+    // Listen for new trades with particle explosion
+    socket.on('newTrade', (trade: Trade) => {
+      dispatch({ type: 'ADD_TRADE', payload: trade })
+      setExplodeParticles(true)
+      setTimeout(() => setExplodeParticles(false), 2000)
+      
+      // Award XP for profitable trades
+      if (trade.pnl && trade.pnl > 0) {
+        window.dispatchEvent(new CustomEvent('tradeCompleted', { 
+          detail: { pnl: trade.pnl, symbol: trade.symbol } 
+        }))
+        toast.success(`Trade completed! PnL: $${trade.pnl.toFixed(2)}`)
+      }
+    })
+
+    // Listen for real-time news updates
+    socket.on('newsUpdate', (newsData: any) => {
+      toast.info(`News: ${newsData.title}`, { duration: 5000 })
+    })
+
+    return () => {
+      socket.off('strategyUpdate')
+      socket.off('newTrade')
+      socket.off('newsUpdate')
+    }
+  }, [socket, dispatch])
+
+  // Keyboard shortcuts for accessibility
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Alt+1-5 for quick tab navigation
+      if (e.altKey && e.key >= '1' && e.key <= '5') {
+        const tabs = ['active', 'strategies', 'dca', 'news', 'ai']
+        const tabIndex = parseInt(e.key) - 1
+        if (tabs[tabIndex]) {
+          const tabElement = document.querySelector(`[value="${tabs[tabIndex]}"]`) as HTMLElement
+          tabElement?.click()
+          e.preventDefault()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [])
 
   const builtInStrategies = [
     { id: 'baseline', name: 'Baseline (Buy & Hold)', type: 'Buy & Hold', risk: 'Low' },
@@ -510,6 +592,56 @@ export default function TradingStrategies({
               </div>
             </div>
           </div>
+    <div className="space-y-6 relative">
+      <ParticleBackground explode={explodeParticles} />
+      
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-[0.25em] uppercase">
+          <span className="text-primary neon-glow-primary">TRADING_HUB</span>
+        </h2>
+        <div className="flex items-center gap-3">
+          {/* WebSocket connection indicator */}
+          <div className="flex items-center gap-2" role="status" aria-live="polite">
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-primary animate-pulse' : 'bg-muted-foreground/50'}`} />
+            <span className="text-xs uppercase tracking-wider" style={{ color: isConnected ? 'var(--primary)' : 'var(--muted-foreground)' }}>
+              {isConnected ? 'LIVE' : 'OFFLINE'}
+            </span>
+          </div>
+          <button className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group">
+            <ArrowsClockwise size={18} weight="duotone" className="text-primary" />
+            <div className="hud-corner-tl" />
+            <div className="hud-corner-br" />
+          </button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="active" className="space-y-6">
+        <TabsList className="bg-muted/30 border border-primary/30">
+          <TabsTrigger value="active" className="data-label gap-2">
+            <Lightning size={16} weight="duotone" />
+            ACTIVE
+          </TabsTrigger>
+          <TabsTrigger value="strategies" className="data-label gap-2">
+            <Robot size={16} weight="duotone" />
+            STRATEGIES
+          </TabsTrigger>
+          <TabsTrigger value="dca" className="data-label gap-2">
+            <Calendar size={16} weight="duotone" />
+            DCA
+          </TabsTrigger>
+          <TabsTrigger value="news" className="data-label gap-2">
+            <Newspaper size={16} weight="duotone" />
+            NEWS_FEED
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="data-label gap-2">
+            <Brain size={16} weight="duotone" />
+            AI_ASSISTANT
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="active" className="space-y-6">
+          {/* Advanced Trading Chart */}
+          <TradingChart />
 
           <div className="cyber-card">
             <div className="p-6">
@@ -530,6 +662,8 @@ export default function TradingStrategies({
                       className="cyber-card-accent cursor-move"
                     >
                       <div className="p-6">
+                    <DraggableWidget key={strategy.id} id={`strategy-${strategy.id}`}>
+                      <div className="cyber-card-accent p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
@@ -571,7 +705,7 @@ export default function TradingStrategies({
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" role="group" aria-label="Strategy controls">
                           {strategy.status === 'running' && (
                             <>
                               <Button 
@@ -579,8 +713,9 @@ export default function TradingStrategies({
                                 variant="outline"
                                 className="border-accent text-accent hover:bg-accent/10"
                                 onClick={() => handleStrategyToggle(strategy.id, 'pause')}
+                                aria-label={`Pause ${strategy.name} strategy`}
                               >
-                                <Pause size={14} weight="fill" className="mr-2" />
+                                <Pause size={14} weight="fill" className="mr-2" aria-hidden="true" />
                                 PAUSE
                               </Button>
                               <Button 
@@ -588,8 +723,9 @@ export default function TradingStrategies({
                                 variant="outline"
                                 className="border-destructive text-destructive hover:bg-destructive/10"
                                 onClick={() => handleStrategyToggle(strategy.id, 'stop')}
+                                aria-label={`Stop ${strategy.name} strategy`}
                               >
-                                <Stop size={14} weight="fill" className="mr-2" />
+                                <Stop size={14} weight="fill" className="mr-2" aria-hidden="true" />
                                 STOP
                               </Button>
                             </>
@@ -600,8 +736,9 @@ export default function TradingStrategies({
                               variant="outline"
                               className="border-primary text-primary hover:bg-primary/10"
                               onClick={() => handleStrategyToggle(strategy.id, 'resume')}
+                              aria-label={`Resume ${strategy.name} strategy`}
                             >
-                              <Play size={14} weight="fill" className="mr-2" />
+                              <Play size={14} weight="fill" className="mr-2" aria-hidden="true" />
                               RESUME
                             </Button>
                           )}
@@ -609,8 +746,9 @@ export default function TradingStrategies({
                             size="sm"
                             variant="outline"
                             className="border-primary/30 text-primary hover:bg-primary/10"
+                            aria-label={`Open settings for ${strategy.name} strategy`}
                           >
-                            <Gear size={14} weight="duotone" className="mr-2" />
+                            <Gear size={14} weight="duotone" className="mr-2" aria-hidden="true" />
                             SETTINGS
                           </Button>
                         </div>
@@ -857,8 +995,76 @@ export default function TradingStrategies({
             </div>
           </div>
         </TabsContent>
+
+        <TabsContent value="news" className="space-y-6">
+          <DraggableWidget id="news-feed">
+            <div className="cyber-card">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <Newspaper size={24} weight="duotone" className="text-primary" />
+                  <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">REAL-TIME_NEWS_FEED</h3>
+                  {isConnected && (
+                    <div className="ml-auto flex items-center gap-2">
+                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                      <span className="text-xs uppercase tracking-wider text-primary">LIVE</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {reduxTrades.slice(-5).reverse().map((trade, idx) => (
+                    <div key={trade.id} className="p-4 bg-muted/30 border-l-2 border-primary hover:bg-muted/50 transition-all">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="hud-readout text-sm mb-1">
+                            Trade Executed: {trade.symbol || 'BTC/USDT'}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(trade.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+                        {trade.pnl && (
+                          <div className={`text-sm font-bold ${trade.pnl > 0 ? 'text-primary' : 'text-destructive'}`}>
+                            {trade.pnl > 0 ? '+' : ''}${trade.pnl.toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {reduxTrades.length === 0 && (
+                    <div className="text-center py-12">
+                      <Newspaper size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4 opacity-50" />
+                      <p className="data-label">NO_TRADES_YET</p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {isConnected ? 'Waiting for real-time updates...' : 'Connect to WebSocket to receive live updates'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-6 p-4 bg-primary/10 border border-primary/30">
+                  <p className="text-xs text-muted-foreground">
+                    <strong className="text-primary">Real-Time Features:</strong> Live trade updates via WebSocket, instant notifications, market news integration, and automated trade logging with XP rewards.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </DraggableWidget>
+        </TabsContent>
       </Tabs>
     </div>
     </DndProvider>
+  )
+}
+
+// Main component wrapped with Redux Provider and DnD
+export default function TradingStrategies() {
+  return (
+    <Provider store={store}>
+      <DndProvider backend={HTML5Backend}>
+        <TradingStrategiesContent />
+      </DndProvider>
+    </Provider>
   )
 }
