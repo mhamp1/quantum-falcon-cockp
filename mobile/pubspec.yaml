@@ -1,10 +1,7 @@
 name: quantum_falcon_mobile
-description: Quantum Falcon Mobile App with real-time notifications
+description: Mobile app for Quantum Falcon Cockpit with XP gamification integration and real-time notifications
 version: 1.0.0+1
 publish_to: 'none'
-description: Mobile app for Quantum Falcon Cockpit with XP gamification integration
-publish_to: 'none'
-version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -20,11 +17,12 @@ dependencies:
   # Local Notifications
   flutter_local_notifications: ^16.3.0
   
-  # Storage
+  # Storage & Local Persistence
   shared_preferences: ^2.2.2
   
   # UI
   cupertino_icons: ^1.0.6
+  
   # HTTP & API
   http: ^1.1.0
   dio: ^5.4.0
@@ -34,9 +32,6 @@ dependencies:
   
   # JSON Serialization
   json_annotation: ^4.8.1
-  
-  # Local Storage
-  shared_preferences: ^2.2.2
   
   # Environment Variables
   flutter_dotenv: ^5.1.0
@@ -55,12 +50,6 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   integration_test:
     sdk: flutter
-
-flutter:
-  uses-material-design: true
-  
-  # Linting
-  flutter_lints: ^3.0.0
   
   # Code Generation
   build_runner: ^2.4.7
