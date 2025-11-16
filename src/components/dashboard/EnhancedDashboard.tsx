@@ -1,14 +1,11 @@
 // Enhanced Dashboard with React 19 performance optimizations and AI integration
-import { useKV } from '@github/spark/hooks'
-import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
-import { motion } from 'framer-motion'
 import { useKV } from '@/hooks/useKVFallback'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
-  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database
+  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database, Vault
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -26,8 +23,6 @@ const Wireframe3D = lazy(() => import('@/components/shared/Wireframe3D'))
 const QuickStatsCard = lazy(() => import('./QuickStatsCard').then(m => ({ default: m.QuickStatsCard })))
 const QuickActionButton = lazy(() => import('./QuickActionButton').then(m => ({ default: m.QuickActionButton })))
 const AIAdvisor = lazy(() => import('./AIAdvisor').then(m => ({ default: m.AIAdvisor })))
-
-import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface QuickStat {
   id: string
@@ -395,35 +390,12 @@ export default function EnhancedDashboard() {
           <Lightning size={24} weight="fill" className="text-accent" />
           <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {quickActions.map((action, idx) => (
             <Suspense key={action.id} fallback={<div className="animate-pulse h-20 bg-muted/20 rounded border border-accent/20" />}>
               <QuickActionButton action={action} index={idx} />
             </Suspense>
           ))}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {quickActions.map((action, idx) => {
-            const colorClasses = {
-              primary: 'bg-primary/10 hover:bg-primary/20 border-primary/50 hover:border-primary text-primary hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)]',
-              accent: 'bg-accent/10 hover:bg-accent/20 border-accent/50 hover:border-accent text-accent hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
-              secondary: 'bg-secondary/10 hover:bg-secondary/20 border-secondary/50 hover:border-secondary text-secondary hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
-              destructive: 'bg-destructive/10 hover:bg-destructive/20 border-destructive/50 hover:border-destructive text-destructive hover:shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.3)]'
-            }
-            
-            return (
-              <Button
-                key={action.id}
-                onClick={action.action}
-                className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                <div className="relative z-10">
-                  {action.icon}
-                </div>
-                <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
-              </Button>
-            )
-          })}
         </div>
       </div>
 

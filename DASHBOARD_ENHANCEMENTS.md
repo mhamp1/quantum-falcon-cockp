@@ -8,7 +8,6 @@ This document describes the comprehensive enhancements made to the Quantum Falco
 ### 1. Performance Optimizations
 - **Lazy Loading**: Heavy components (BotLogs, NewsTicker, Wireframe3D, AIAdvisor) are now loaded on-demand using React.lazy()
 - **Memoization**: QuickStats grid uses useMemo to prevent unnecessary re-renders during 3-second update intervals
-- **Code Splitting**: Application is split into optimized chunks, reducing initial load time
 - **Code Splitting**: Application is split into 7 optimized chunks, reducing initial load time
 - **Concurrent Rendering**: Bot toggles and mode switches use useTransition for non-blocking UI updates
 

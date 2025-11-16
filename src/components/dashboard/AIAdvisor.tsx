@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Brain, TrendUp, TrendDown } from '@phosphor-icons/react'
 
