@@ -1247,6 +1247,30 @@ The mobile app is built with an offline-first approach, ensuring users can conti
 - Background synchronization every 5 minutes when online
 - Immediate sync when reconnecting after being offline
 - Manual sync option available via UI
+🛠️ Getting Started
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Configure environment variables (optional):**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+🧠 What Can You Do?
 
 #### 3. **Sync Status Indicator**
 - Visual indicator showing current sync status

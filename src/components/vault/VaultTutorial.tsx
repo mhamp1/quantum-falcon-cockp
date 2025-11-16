@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, CheckCircle, ShieldCheck, ArrowsClockwise, Vault, Lightning, X } from '@phosphor-icons/react'
 
@@ -52,6 +52,10 @@ const tutorialSteps = [
 
 export default function VaultTutorial({ open, onOpenChange }: VaultTutorialProps) {
   const [currentStep, setCurrentStep] = useState(0)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const modalRef = useRef<HTMLDivElement>(null)
 
   const nextStep = () => {
     if (currentStep < tutorialSteps.length - 1) {
@@ -68,6 +72,38 @@ export default function VaultTutorial({ open, onOpenChange }: VaultTutorialProps
     }
   }
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    })
+  }
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      })
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [isDragging, dragStart])
+
   const step = tutorialSteps[currentStep]
 
   if (!open) return null
@@ -75,15 +111,27 @@ export default function VaultTutorial({ open, onOpenChange }: VaultTutorialProps
   return (
     <>
       <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" onClick={() => onOpenChange(false)} />
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2">
+      <div 
+        ref={modalRef}
+        className="fixed z-50 w-full max-w-2xl px-4 md:px-0"
+        style={{
+          left: position.x ? `${position.x}px` : '50%',
+          top: position.y ? `${position.y}px` : '15%',
+          transform: position.x ? 'none' : 'translateX(-50%)',
+          cursor: isDragging ? 'grabbing' : 'default'
+        }}
+      >
         <div className="cyber-card border-2 border-primary/50 shadow-2xl shadow-primary/20 bg-card p-6">
-          <div className="pb-4 border-b-2 border-primary/30 flex justify-between items-start">
+          <div 
+            className="pb-4 border-b-2 border-primary/30 flex justify-between items-start cursor-grab active:cursor-grabbing"
+            onMouseDown={handleMouseDown}
+          >
             <div>
               <h2 className="text-2xl font-bold uppercase tracking-wider text-primary hud-text">
                 How the BTC Vault Works
               </h2>
               <p className="text-muted-foreground uppercase text-xs tracking-wider mt-1">
-                Step {currentStep + 1} of {tutorialSteps.length}
+                Step {currentStep + 1} of {tutorialSteps.length} • Drag to move
               </p>
             </div>
             <button

@@ -236,10 +236,10 @@ export default function BotLogs() {
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-[10px] text-muted-foreground font-mono">
+                            <span className="text-xs text-muted-foreground font-mono">
                               {formatTimestamp(log.timestamp)}
                             </span>
-                            <span className="text-[9px] px-1.5 py-0.5 bg-accent/10 border border-accent/30 text-accent uppercase tracking-wider font-bold rounded-sm">
+                            <span className="text-[10px] px-1.5 py-0.5 bg-accent/10 border border-accent/30 text-accent uppercase tracking-wider font-bold rounded-sm">
                               {log.agent}
                             </span>
                             <div 
@@ -248,11 +248,11 @@ export default function BotLogs() {
                             />
                           </div>
                           
-                          <p className="text-[11px] text-foreground font-semibold leading-tight mb-1">
+                          <p className="text-sm text-foreground font-semibold leading-tight mb-1">
                             {log.message}
                           </p>
                           
-                          <p className="text-[10px] text-muted-foreground leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">
+                          <p className="text-xs text-muted-foreground leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">
                             {log.details}
                           </p>
                         </div>

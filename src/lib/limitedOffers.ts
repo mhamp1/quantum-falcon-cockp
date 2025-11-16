@@ -22,7 +22,7 @@ import {
   Lightning, Gauge, Target, TrendUp, Shield, Coin,
   ChartLineUp, Brain, Eye, Crosshair, Fire, Sparkle,
   ArrowsOutSimple, Clock, ChartBar, Diamond, Gift,
-  Rocket, Lock, Cpu, Graph
+  Rocket, Lock, Cpu, Graph, Robot
 } from '@phosphor-icons/react'
 
 export interface LimitedOffer {
@@ -358,6 +358,92 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     category: 'gamified',
     duration: 1,
     benefit: 'One AI analysis report',
+    tier: 'micro'
+  },
+
+  // TIER-UPGRADE RELATED (AI AGENTS & STRATEGIES)
+  {
+    id: 'extra-ai-agent-24h',
+    title: '+1 AI Agent (24h)',
+    subtitle: 'TEMPORARY AGENT ACCESS',
+    description: 'Unlock an additional AI agent slot for 24 hours - access higher tier agent outside your subscription level',
+    price: 3.99,
+    icon: Robot,
+    category: 'limits',
+    duration: 24,
+    benefit: '+1 AI agent slot for 24h',
+    tier: 'micro'
+  },
+  {
+    id: 'extra-ai-agent-72h',
+    title: '+1 AI Agent (72h)',
+    subtitle: '3-DAY AGENT ACCESS',
+    description: 'Unlock an additional AI agent slot for 72 hours - extended access to premium agents',
+    price: 8.99,
+    icon: Robot,
+    category: 'limits',
+    duration: 72,
+    benefit: '+1 AI agent slot for 72h',
+    tier: 'micro'
+  },
+  {
+    id: 'strategy-unlock-macd-48h',
+    title: 'MACD Strategy (48h)',
+    subtitle: 'ADVANCED STRATEGY',
+    description: 'Temporarily unlock MACD trading strategy for 48 hours - usually requires Trader tier or higher',
+    price: 2.99,
+    icon: TrendUp,
+    category: 'analytics',
+    duration: 48,
+    benefit: 'MACD strategy for 48h',
+    tier: 'micro'
+  },
+  {
+    id: 'strategy-unlock-bollinger-48h',
+    title: 'Bollinger Bands (48h)',
+    subtitle: 'PRO STRATEGY',
+    description: 'Temporarily unlock Bollinger Bands strategy for 48 hours - usually requires Pro tier',
+    price: 3.99,
+    icon: ChartLineUp,
+    category: 'analytics',
+    duration: 48,
+    benefit: 'Bollinger Bands for 48h',
+    tier: 'micro'
+  },
+  {
+    id: 'strategy-unlock-sniping-24h',
+    title: 'Token Sniping (24h)',
+    subtitle: 'ELITE STRATEGY',
+    description: 'Temporarily unlock Token Sniping strategy for 24 hours - usually requires Pro tier or higher',
+    price: 4.99,
+    icon: Crosshair,
+    category: 'execution',
+    duration: 24,
+    benefit: 'Token sniping for 24h',
+    tier: 'micro'
+  },
+  {
+    id: 'strategy-unlock-arbitrage-24h',
+    title: 'Arbitrage Scanner (24h)',
+    subtitle: 'ELITE STRATEGY',
+    description: 'Temporarily unlock Arbitrage Scanner for 24 hours - usually requires Elite tier',
+    price: 4.99,
+    icon: ArrowsOutSimple,
+    category: 'analytics',
+    duration: 24,
+    benefit: 'Arbitrage scanner for 24h',
+    tier: 'micro'
+  },
+  {
+    id: 'premium-signals-12h',
+    title: 'Premium Signals (12h)',
+    subtitle: 'ELITE FEATURE',
+    description: 'Access premium market signals for 12 hours - elite-tier exclusive feature',
+    price: 2.49,
+    icon: Lightning,
+    category: 'analytics',
+    duration: 12,
+    benefit: 'Premium signals for 12h',
     tier: 'micro'
   },
 
