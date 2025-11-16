@@ -1,13 +1,13 @@
 import { useKV } from '@github/spark/hooks'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Provider, useSelector, useDispatch } from 'react-redux'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
-  Robot, Brain, Lightning, ArrowsClockwise, 
-  Play, Pause, Stop, Gear, ChartLine, Calendar, ChatCircle, Newspaper 
+  Robot, Brain, Lightning, 
+  Play, Pause, Stop, Gear, Calendar, ChatCircle, Newspaper 
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Switch } from '@/components/ui/switch'
@@ -55,14 +55,7 @@ interface NewsItem {
   sentiment: 'positive' | 'negative' | 'neutral'
 }
 
-interface TradeData {
-  timestamp: number
-  open: number
-  high: number
-  low: number
-  close: number
-  volume: number
-}
+
 
 interface TradingStrategiesProps {
   apiUrl?: string
@@ -74,8 +67,6 @@ const DEFAULT_WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
 
 function TradingStrategiesContent({ wsUrl = DEFAULT_WS_URL }: TradingStrategiesProps) {
   const dispatch = useDispatch()
-  const reduxStrategies = useSelector((state: TradingState) => state.strategies)
-  const reduxTrades = useSelector((state: TradingState) => state.trades)
   
   // Use KV storage for active strategies (UI-specific state)
   const [activeStrategies, setActiveStrategies] = useKV<ActiveStrategy[]>('active-strategies', [
