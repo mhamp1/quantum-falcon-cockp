@@ -377,21 +377,21 @@ For questions about this disclaimer, contact: legal@quantumfalcon.ai
                   </div>
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[80vh] cyber-card border-2 border-primary/50">
-                <DialogHeader>
+              <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] cyber-card border-2 border-primary/50 flex flex-col">
+                <DialogHeader className="flex-shrink-0">
                   <DialogTitle className="flex items-center gap-3 text-xl uppercase tracking-wide">
                     <Icon size={24} weight="duotone" className="text-primary" />
                     {doc.title}
                   </DialogTitle>
                 </DialogHeader>
-                <ScrollArea className="h-[60vh] pr-4">
+                <ScrollArea className="flex-1 pr-4 -mx-6 px-6">
                   <div className="space-y-4">
                     <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                       {doc.content}
                     </pre>
                   </div>
                 </ScrollArea>
-                <div className="pt-4 border-t-2 border-primary/30 flex justify-end">
+                <div className="pt-4 border-t-2 border-primary/30 flex justify-end flex-shrink-0">
                   <Button onClick={() => setOpenDialog(null)} className="jagged-corner">
                     Close
                   </Button>
