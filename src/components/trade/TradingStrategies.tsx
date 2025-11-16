@@ -1,24 +1,18 @@
 import { useKV } from '@github/spark/hooks'
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Provider, useSelector, useDispatch } from 'react-redux'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { 
-  Robot, Brain, Lightning, Target, TrendUp, ArrowsClockwise, 
+  Robot, Brain, Lightning, ArrowsClockwise, 
   Play, Pause, Stop, Gear, ChartLine, Calendar, ChatCircle, Newspaper 
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { DndProvider, useDrag, useDrop } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import { motion, AnimatePresence } from 'framer-motion'
-import io, { Socket } from 'socket.io-client'
+
 import { store, Strategy, Trade, TradingState } from '@/store/tradingStore'
 import { useSocket } from '@/hooks/useSocket'
 import { ParticleBackground } from '@/components/shared/ParticleBackground'
@@ -75,126 +69,15 @@ interface TradingStrategiesProps {
   wsUrl?: string
 }
 
-// Custom hook for WebSocket connection with JWT auth
-function useSocket(url: string) {
-  const [socket, setSocket] = useState<Socket | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
-
-  useEffect(() => {
-    const token = localStorage.getItem('jwt') || 'demo-token'
-    const socketInstance = io(url, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    })
-
-    socketInstance.on('connect', () => {
-      console.log('WebSocket connected')
-      setIsConnected(true)
-    })
-
-    socketInstance.on('disconnect', () => {
-      console.log('WebSocket disconnected')
-      setIsConnected(false)
-    })
-
-    socketInstance.on('connect_error', (error) => {
-      console.warn('WebSocket connection error:', error.message)
-      setIsConnected(false)
-    })
-
-    setSocket(socketInstance)
-
-    return () => {
-      socketInstance.disconnect()
-    }
-  }, [url])
-
-  return { socket, isConnected }
-}
-
-// Draggable Widget Component
-interface DraggableWidgetProps {
-  id: string
-  children: React.ReactNode
-  className?: string
-}
-
-function DraggableWidget({ id, children, className = '' }: DraggableWidgetProps) {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'widget',
-    item: { id },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }))
-
-  return (
-    <motion.div
-      ref={drag}
-      className={className}
-      whileHover={{ scale: 1.02 }}
-      style={{ opacity: isDragging ? 0.5 : 1 }}
-      role="button"
-      aria-label={`Draggable widget ${id}`}
-      tabIndex={0}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-// Particle effect component for trade celebrations
-function TradeParticles({ show }: { show: boolean }) {
-  if (!show) return null
-  
-  return (
-    <motion.div
-      className="fixed inset-0 pointer-events-none z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      {[...Array(20)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-primary rounded-full"
-          initial={{
-            x: '50vw',
-            y: '50vh',
-            scale: 0,
-          }}
-          animate={{
-            x: `${Math.random() * 100}vw`,
-            y: `${Math.random() * 100}vh`,
-            scale: [0, 1, 0],
-          }}
-          transition={{
-            duration: 2,
-            ease: 'easeOut',
-            delay: i * 0.05,
-          }}
-        />
-      ))}
-    </motion.div>
-  )
-}
-
-export default function TradingStrategies({ 
-  apiUrl = '/api', 
-  wsUrl = 'ws://localhost:3001' 
-}: TradingStrategiesProps = {}) {
 // WebSocket URL - can be configured via props or environment variable
 const DEFAULT_WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
 
-function TradingStrategiesContent() {
+function TradingStrategiesContent({ wsUrl = DEFAULT_WS_URL }: TradingStrategiesProps) {
   const dispatch = useDispatch()
   const reduxStrategies = useSelector((state: TradingState) => state.strategies)
   const reduxTrades = useSelector((state: TradingState) => state.trades)
-  const wsConnected = useSelector((state: TradingState) => state.isConnected)
-
+  
+  // Use KV storage for active strategies (UI-specific state)
   const [activeStrategies, setActiveStrategies] = useKV<ActiveStrategy[]>('active-strategies', [
     {
       id: '1',
@@ -208,8 +91,8 @@ function TradingStrategiesContent() {
     }
   ])
 
-  const [explodeParticles, setExplodeParticles] = useState(false)
-  const { socket, isConnected } = useSocket(DEFAULT_WS_URL)
+  const [showParticles, setShowParticles] = useState(false)
+  const { socket, isConnected } = useSocket(wsUrl)
 
   const [recurringBuys, setRecurringBuys] = useKV<RecurringBuy[]>('recurring-buys', [
     {
@@ -229,12 +112,6 @@ function TradingStrategiesContent() {
   ])
   const [userInput, setUserInput] = useState('')
   
-  // WebSocket connection
-  const { socket, isConnected } = useSocket(wsUrl)
-  
-  // Particle explosion state
-  const [showParticles, setShowParticles] = useState(false)
-  
   // News feed state
   const [newsItems, setNewsItems] = useState<NewsItem[]>([
     {
@@ -253,100 +130,6 @@ function TradingStrategiesContent() {
     }
   ])
   
-  // Chart data state
-  const [chartData, setChartData] = useState<TradeData[]>([])
-  const chartContainerRef = useRef<HTMLDivElement>(null)
-  
-  // WebSocket event listeners
-  useEffect(() => {
-    if (!socket) return
-
-    socket.on('strategyUpdate', (data: ActiveStrategy[]) => {
-      setActiveStrategies(data)
-    })
-
-    socket.on('newTrade', (trade: { id: string; pnl: number; strategy: string }) => {
-      // Trigger particle effect
-      setShowParticles(true)
-      setTimeout(() => setShowParticles(false), 2000)
-      
-      // Update strategies
-      setActiveStrategies((current) => {
-        if (!current) return []
-        return current.map((s) => {
-          if (s.name === trade.strategy) {
-            return { 
-              ...s, 
-              trades: s.trades + 1, 
-              pnl: s.pnl + trade.pnl 
-            }
-          }
-          return s
-        })
-      })
-      
-      // Show toast notification
-      toast.success(`Trade completed: ${trade.pnl > 0 ? '+' : ''}$${trade.pnl.toFixed(2)}`, {
-        description: `Strategy: ${trade.strategy}`
-      })
-      
-      // Dispatch custom event for XP system
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('tradeCompleted', { 
-          detail: { pnl: trade.pnl } 
-        }))
-      }
-    })
-
-    socket.on('newsUpdate', (news: NewsItem) => {
-      setNewsItems((prev) => [news, ...prev].slice(0, 20))
-    })
-
-    socket.on('chartData', (data: TradeData[]) => {
-      setChartData(data)
-    })
-
-    return () => {
-      socket.off('strategyUpdate')
-      socket.off('newTrade')
-      socket.off('newsUpdate')
-      socket.off('chartData')
-    }
-  }, [socket, setActiveStrategies])
-
-  // SciChart initialization effect
-  useEffect(() => {
-    if (!chartContainerRef.current || chartData.length === 0) return
-
-    // SciChart initialization would go here
-    // Note: This requires SciChart license and proper setup
-    // For now, we'll just log that the chart is ready
-    console.log('SciChart container ready with', chartData.length, 'data points')
-    
-    // Example SciChart initialization (commented out - requires license):
-    /*
-    const initChart = async () => {
-      const { sciChartSurface, wasmContext } = await SciChartSurface.create(chartContainerRef.current)
-      const xAxis = new NumericAxis(wasmContext)
-      const yAxis = new NumericAxis(wasmContext)
-      sciChartSurface.xAxes.add(xAxis)
-      sciChartSurface.yAxes.add(yAxis)
-      
-      const candlestickSeries = new FastCandlestickRenderableSeries(wasmContext, {
-        dataSeries: new OhlcDataSeries(wasmContext, {
-          xValues: chartData.map(d => d.timestamp),
-          openValues: chartData.map(d => d.open),
-          highValues: chartData.map(d => d.high),
-          lowValues: chartData.map(d => d.low),
-          closeValues: chartData.map(d => d.close),
-        })
-      })
-      sciChartSurface.renderableSeries.add(candlestickSeries)
-    }
-    initChart()
-    */
-  }, [chartData])
-
   // WebSocket connection status update
   useEffect(() => {
     dispatch({ type: 'SET_CONNECTION_STATUS', payload: isConnected })
@@ -359,14 +142,40 @@ function TradingStrategiesContent() {
     // Listen for strategy updates
     socket.on('strategyUpdate', (data: Strategy[]) => {
       dispatch({ type: 'UPDATE_STRATEGIES', payload: data })
-      toast.info('Strategies updated via WebSocket')
+      // Update KV storage for active strategies UI
+      setActiveStrategies(data.map(s => ({
+        id: s.id,
+        name: s.name,
+        symbol: s.symbol,
+        status: s.status,
+        trades: s.trades,
+        pnl: s.pnl,
+        pnlPercent: s.pnlPercent,
+        startedAt: s.startedAt
+      })))
     })
 
     // Listen for new trades with particle explosion
     socket.on('newTrade', (trade: Trade) => {
       dispatch({ type: 'ADD_TRADE', payload: trade })
-      setExplodeParticles(true)
-      setTimeout(() => setExplodeParticles(false), 2000)
+      setShowParticles(true)
+      setTimeout(() => setShowParticles(false), 2000)
+      
+      // Update active strategies with new trade data
+      setActiveStrategies((current) => {
+        if (!current) return []
+        return current.map((s) => {
+          // Match by symbol if strategy name not provided
+          if (trade.symbol && s.symbol === trade.symbol) {
+            return { 
+              ...s, 
+              trades: s.trades + 1, 
+              pnl: trade.pnl ? s.pnl + trade.pnl : s.pnl 
+            }
+          }
+          return s
+        })
+      })
       
       // Award XP for profitable trades
       if (trade.pnl && trade.pnl > 0) {
@@ -378,8 +187,9 @@ function TradingStrategiesContent() {
     })
 
     // Listen for real-time news updates
-    socket.on('newsUpdate', (newsData: any) => {
-      toast.info(`News: ${newsData.title}`, { duration: 5000 })
+    socket.on('newsUpdate', (news: NewsItem) => {
+      setNewsItems((prev) => [news, ...prev].slice(0, 20))
+      toast.info(`News: ${news.title}`, { duration: 5000 })
     })
 
     return () => {
@@ -387,7 +197,7 @@ function TradingStrategiesContent() {
       socket.off('newTrade')
       socket.off('newsUpdate')
     }
-  }, [socket, dispatch])
+  }, [socket, dispatch, setActiveStrategies])
 
   // Keyboard shortcuts for accessibility
   useEffect(() => {
@@ -499,35 +309,32 @@ function TradingStrategiesContent() {
   }
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <AnimatePresence>
-        {showParticles && <TradeParticles show={showParticles} />}
-      </AnimatePresence>
+    <div className="space-y-6 relative">
+      <ParticleBackground explode={showParticles} />
       
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-[0.25em] uppercase">
-            <span className="text-primary neon-glow-primary">TRADING_HUB</span>
-          </h2>
-          <div className="flex items-center gap-3">
-            {isConnected && (
-              <div className="flex items-center gap-2" role="status" aria-live="polite">
-                <div className="status-indicator" />
-                <span className="hud-readout text-xs text-primary">WS_CONNECTED</span>
-              </div>
-            )}
-            <button 
-              className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group"
-              aria-label="Refresh data"
-            >
-              <ArrowsClockwise size={18} weight="duotone" className="text-primary" />
-              <div className="hud-corner-tl" />
-              <div className="hud-corner-br" />
-            </button>
-          </div>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-[0.25em] uppercase">
+          <span className="text-primary neon-glow-primary">TRADING_HUB</span>
+        </h2>
+        <div className="flex items-center gap-3">
+          {isConnected && (
+            <div className="flex items-center gap-2" role="status" aria-live="polite">
+              <div className="status-indicator" />
+              <span className="hud-readout text-xs text-primary">WS_CONNECTED</span>
+            </div>
+          )}
+          <button 
+            className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group"
+            aria-label="Refresh data"
+          >
+            <ArrowsClockwise size={18} weight="duotone" className="text-primary" />
+            <div className="hud-corner-tl" />
+            <div className="hud-corner-br" />
+          </button>
         </div>
+      </div>
 
-        <Tabs defaultValue="active" className="space-y-6">
+      <Tabs defaultValue="active" className="space-y-6">
           <TabsList className="bg-muted/30 border border-primary/30">
             <TabsTrigger value="active" className="data-label gap-2">
               <Lightning size={16} weight="duotone" />
@@ -552,94 +359,6 @@ function TradingStrategiesContent() {
           </TabsList>
 
         <TabsContent value="active" className="space-y-6">
-          {/* Advanced Chart Section */}
-          <div className="cyber-card">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <ChartLine size={24} weight="duotone" className="text-primary" />
-                <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">PERFORMANCE_CHART</h3>
-              </div>
-              
-              <div 
-                ref={chartContainerRef} 
-                className="w-full h-96 bg-background/80 border border-primary/20 rounded relative"
-                role="img"
-                aria-label="Trading performance chart"
-              >
-                {chartData.length === 0 ? (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <ChartLine size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4 opacity-50" />
-                      <p className="data-label">NO_CHART_DATA</p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {isConnected ? 'Waiting for real-time data...' : 'Connect WebSocket to view live charts'}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-4">
-                    <div className="data-label text-xs mb-2">
-                      SciChart Ready - {chartData.length} data points loaded
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <div className="mt-4 p-4 bg-accent/10 border border-accent/30">
-                <p className="text-xs text-muted-foreground">
-                  <strong className="text-accent">Advanced Charting:</strong> Powered by SciChart.js for high-performance visualization. Supports millions of data points with 60FPS rendering.
-                </p>
-              </div>
-            </div>
-          </div>
-    <div className="space-y-6 relative">
-      <ParticleBackground explode={explodeParticles} />
-      
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl md:text-3xl font-bold tracking-[0.25em] uppercase">
-          <span className="text-primary neon-glow-primary">TRADING_HUB</span>
-        </h2>
-        <div className="flex items-center gap-3">
-          {/* WebSocket connection indicator */}
-          <div className="flex items-center gap-2" role="status" aria-live="polite">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-primary animate-pulse' : 'bg-muted-foreground/50'}`} />
-            <span className="text-xs uppercase tracking-wider" style={{ color: isConnected ? 'var(--primary)' : 'var(--muted-foreground)' }}>
-              {isConnected ? 'LIVE' : 'OFFLINE'}
-            </span>
-          </div>
-          <button className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group">
-            <ArrowsClockwise size={18} weight="duotone" className="text-primary" />
-            <div className="hud-corner-tl" />
-            <div className="hud-corner-br" />
-          </button>
-        </div>
-      </div>
-
-      <Tabs defaultValue="active" className="space-y-6">
-        <TabsList className="bg-muted/30 border border-primary/30">
-          <TabsTrigger value="active" className="data-label gap-2">
-            <Lightning size={16} weight="duotone" />
-            ACTIVE
-          </TabsTrigger>
-          <TabsTrigger value="strategies" className="data-label gap-2">
-            <Robot size={16} weight="duotone" />
-            STRATEGIES
-          </TabsTrigger>
-          <TabsTrigger value="dca" className="data-label gap-2">
-            <Calendar size={16} weight="duotone" />
-            DCA
-          </TabsTrigger>
-          <TabsTrigger value="news" className="data-label gap-2">
-            <Newspaper size={16} weight="duotone" />
-            NEWS_FEED
-          </TabsTrigger>
-          <TabsTrigger value="ai" className="data-label gap-2">
-            <Brain size={16} weight="duotone" />
-            AI_ASSISTANT
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="active" className="space-y-6">
           {/* Advanced Trading Chart */}
           <TradingChart />
 
@@ -662,8 +381,6 @@ function TradingStrategiesContent() {
                       className="cyber-card-accent cursor-move"
                     >
                       <div className="p-6">
-                    <DraggableWidget key={strategy.id} id={`strategy-${strategy.id}`}>
-                      <div className="cyber-card-accent p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
@@ -995,75 +712,17 @@ function TradingStrategiesContent() {
             </div>
           </div>
         </TabsContent>
-
-        <TabsContent value="news" className="space-y-6">
-          <DraggableWidget id="news-feed">
-            <div className="cyber-card">
-              <div className="p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <Newspaper size={24} weight="duotone" className="text-primary" />
-                  <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">REAL-TIME_NEWS_FEED</h3>
-                  {isConnected && (
-                    <div className="ml-auto flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                      <span className="text-xs uppercase tracking-wider text-primary">LIVE</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  {reduxTrades.slice(-5).reverse().map((trade, idx) => (
-                    <div key={trade.id} className="p-4 bg-muted/30 border-l-2 border-primary hover:bg-muted/50 transition-all">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="hud-readout text-sm mb-1">
-                            Trade Executed: {trade.symbol || 'BTC/USDT'}
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(trade.timestamp).toLocaleString()}
-                          </p>
-                        </div>
-                        {trade.pnl && (
-                          <div className={`text-sm font-bold ${trade.pnl > 0 ? 'text-primary' : 'text-destructive'}`}>
-                            {trade.pnl > 0 ? '+' : ''}${trade.pnl.toFixed(2)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {reduxTrades.length === 0 && (
-                    <div className="text-center py-12">
-                      <Newspaper size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4 opacity-50" />
-                      <p className="data-label">NO_TRADES_YET</p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {isConnected ? 'Waiting for real-time updates...' : 'Connect to WebSocket to receive live updates'}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-6 p-4 bg-primary/10 border border-primary/30">
-                  <p className="text-xs text-muted-foreground">
-                    <strong className="text-primary">Real-Time Features:</strong> Live trade updates via WebSocket, instant notifications, market news integration, and automated trade logging with XP rewards.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </DraggableWidget>
-        </TabsContent>
       </Tabs>
     </div>
-    </DndProvider>
   )
 }
 
 // Main component wrapped with Redux Provider and DnD
-export default function TradingStrategies() {
+export default function TradingStrategies(props: TradingStrategiesProps = {}) {
   return (
     <Provider store={store}>
       <DndProvider backend={HTML5Backend}>
-        <TradingStrategiesContent />
+        <TradingStrategiesContent {...props} />
       </DndProvider>
     </Provider>
   )
