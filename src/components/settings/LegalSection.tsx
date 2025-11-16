@@ -576,6 +576,22 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
                         Close
                       </Button>
                     </div>
+                    <div className="text-primary opacity-50 group-hover:opacity-100 transition-opacity">→</div>
+                  </div>
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl w-[95vw] h-[85vh] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden fixed top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2">
+                <DialogHeader className="flex-shrink-0">
+                  <DialogTitle className="flex items-center gap-3 text-xl uppercase tracking-wide">
+                    <Icon size={24} weight="duotone" className="text-primary" />
+                    {doc.title}
+                  </DialogTitle>
+                </DialogHeader>
+                <ScrollArea className="flex-1 pr-4 -mx-6 px-6">
+                  <div className="space-y-4">
+                    <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+                      {doc.content}
+                    </pre>
                   </div>
                 </DialogContent>
               </Dialog>
