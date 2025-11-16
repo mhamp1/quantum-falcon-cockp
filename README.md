@@ -8,6 +8,29 @@ This template is your blank canvas. It comes with a minimal setup to help you ge
 - Pre-configured for local development
 - Ready to scale with your ideas
   
+🛠️ Getting Started
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Configure environment variables (optional):**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
 🧠 What Can You Do?
 
 Right now, this is just a starting point — the perfect place to begin building and testing your Spark applications.
