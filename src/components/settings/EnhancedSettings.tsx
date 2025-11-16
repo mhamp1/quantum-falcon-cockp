@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -64,6 +64,7 @@ interface AppSettings {
     glassEffect: boolean
     neonGlow: boolean
     themeStyle: 'default' | 'matrix' | 'synthwave'
+    highContrast: boolean
   }
   currency: string
   audio: {
@@ -125,7 +126,8 @@ export default function EnhancedSettings() {
       animations: true,
       glassEffect: true,
       neonGlow: true,
-      themeStyle: 'default'
+      themeStyle: 'default',
+      highContrast: false
     },
     currency: 'USD',
     audio: {
@@ -245,7 +247,7 @@ export default function EnhancedSettings() {
     setSettings((current) => {
       const base = current || {
         notifications: { tradeAlerts: true, priceAlerts: true, forumReplies: false, pushEnabled: true },
-        theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true, neonGlow: true, themeStyle: 'default' as const },
+        theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true, neonGlow: true, themeStyle: 'default' as const, highContrast: false },
         currency: 'USD',
         audio: { soundEffects: true, ambientMusic: false, voiceNarration: false, volume: 70 },
         trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },
@@ -1225,6 +1227,31 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
+                    <div className="flex items-center gap-3">
+                      <Palette size={18} weight="duotone" className="text-accent" />
+                      <div>
+                        <Label className="font-bold uppercase text-xs tracking-wider cursor-pointer">HIGH_CONTRAST</Label>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Accessibility mode (B&W cyberpunk)</p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={settings.theme?.highContrast ?? false}
+                      onCheckedChange={(v) => {
+                        handleUpdateSetting(['theme', 'highContrast'], v)
+                        if (v) {
+                          document.documentElement.classList.add('high-contrast')
+                        } else {
+                          document.documentElement.classList.remove('high-contrast')
+                        }
+                        toast.success(v ? 'High Contrast Mode Enabled' : 'High Contrast Mode Disabled', {
+                          description: v ? 'Enhanced readability with black & white theme' : 'Default color theme restored'
+                        })
+                      }}
+                    />
+                  </div>
+
                   <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-2 relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
                     <Label className="font-bold uppercase text-xs tracking-wider">THEME_STYLE</Label>
@@ -1378,7 +1405,7 @@ export default function EnhancedSettings() {
                   setSettings((current) => ({
                     ...current!,
                     notifications: { tradeAlerts: true, priceAlerts: true, forumReplies: false, pushEnabled: true },
-                    theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true, neonGlow: true, themeStyle: 'default' as const },
+                    theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true, neonGlow: true, themeStyle: 'default' as const, highContrast: false },
                     currency: 'USD',
                     audio: { soundEffects: true, ambientMusic: false, voiceNarration: false, volume: 70 },
                     trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },

@@ -1,10 +1,8 @@
-import { useState } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Crown, Lightning, Rocket, Star } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import ProfileUpload from '@/components/shared/ProfileUpload'
 
 interface SubscriptionTier {
   id: string

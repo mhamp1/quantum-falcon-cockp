@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKVFallback'
 import { useEffect, useState } from 'react'
 import { UserAuth } from '@/lib/auth'
 import {
@@ -129,6 +129,23 @@ export default function EnhancedDashboard() {
       action: () => {
         const event = new CustomEvent('navigate-tab', { detail: 'community' })
         window.dispatchEvent(event)
+      }
+    },
+    {
+      id: 'upgrade-tier',
+      label: 'Upgrade Tier',
+      icon: <Crown size={20} weight="fill" />,
+      color: 'accent',
+      action: () => {
+        const event = new CustomEvent('navigate-tab', { detail: 'settings' })
+        window.dispatchEvent(event)
+        // Navigate to subscription tab after a short delay
+        setTimeout(() => {
+          const subscriptionSection = document.getElementById('subscription-tiers-section')
+          if (subscriptionSection) {
+            subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }, 300)
       }
     }
   ]
@@ -372,7 +389,7 @@ export default function EnhancedDashboard() {
           <Lightning size={24} weight="fill" className="text-accent" />
           <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {quickActions.map((action, idx) => {
             const colorClasses = {
               primary: 'bg-primary/10 hover:bg-primary/20 border-primary/50 hover:border-primary text-primary hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)]',
