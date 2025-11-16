@@ -1,10 +1,9 @@
 import { useKV } from '@github/spark/hooks'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
 import { UserAuth } from '@/lib/auth'
 import {
-  TrendUp, TrendDown, Coins, Lightning, Robot, Vault, ChartLine,
-  Target, Brain, CheckCircle, ArrowsClockwise, Play, Users, Crown,
-  Cube, Hexagon, Pentagon, Polygon, Stop, Pause, Database
+  Lightning, Robot, ChartLine, Brain, CheckCircle, 
+  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -12,10 +11,17 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import LoginDialog from '@/components/shared/LoginDialog'
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
-import NewsTicker from '@/components/shared/NewsTicker'
-import BotLogs from '@/components/shared/BotLogs'
 import { toast } from 'sonner'
-import Wireframe3D from '@/components/shared/Wireframe3D'
+
+// Lazy load heavy components for better performance
+const NewsTicker = lazy(() => import('@/components/shared/NewsTicker'))
+const BotLogs = lazy(() => import('@/components/shared/BotLogs'))
+const Wireframe3D = lazy(() => import('@/components/shared/Wireframe3D'))
+const QuickStatsCard = lazy(() => import('./QuickStatsCard').then(m => ({ default: m.QuickStatsCard })))
+const QuickActionButton = lazy(() => import('./QuickActionButton').then(m => ({ default: m.QuickActionButton })))
+const AIAdvisor = lazy(() => import('./AIAdvisor').then(m => ({ default: m.AIAdvisor })))
+
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface QuickStat {
   id: string
@@ -39,6 +45,7 @@ export default function EnhancedDashboard() {
   const [showLogin, setShowLogin] = useState(false)
   const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false)
   const [paperTradingMode, setPaperTradingMode] = useKV<boolean>('paper-trading-mode', true)
+  const [isPending, startTransition] = useTransition()
   const [portfolio] = useKV<{
     solanaBalance: number
     btcBalance: number
@@ -88,6 +95,9 @@ export default function EnhancedDashboard() {
     }
   ])
 
+  // Memoize stats grid to prevent unnecessary re-renders
+  const statsGrid = useMemo(() => quickStats, [quickStats])
+
   const quickActions = [
     {
       id: 'toggle-bot',
@@ -95,9 +105,11 @@ export default function EnhancedDashboard() {
       icon: botRunning ? <Stop size={20} weight="fill" /> : <Play size={20} weight="fill" />,
       color: botRunning ? 'destructive' : 'primary',
       action: () => {
-        setBotRunning(!botRunning)
-        toast.success(botRunning ? 'Bot stopped - will persist until manually restarted' : 'Bot started - will continue running even after sign off', {
-          description: botRunning ? 'All trading activities paused' : `Running in ${paperTradingMode ? 'PAPER' : 'LIVE'} mode`
+        startTransition(() => {
+          setBotRunning(!botRunning)
+          toast.success(botRunning ? 'Bot stopped - will persist until manually restarted' : 'Bot started - will continue running even after sign off', {
+            description: botRunning ? 'All trading activities paused' : `Running in ${paperTradingMode ? 'PAPER' : 'LIVE'} mode`
+          })
         })
       }
     },
@@ -153,7 +165,9 @@ export default function EnhancedDashboard() {
           <div className="cyber-card relative overflow-hidden">
             <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
             <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
-              <Wireframe3D type="sphere" size={256} color="secondary" animated={true} />
+              <Suspense fallback={<div className="w-64 h-64 animate-pulse bg-muted/10" />}>
+                <Wireframe3D type="sphere" size={256} color="secondary" animated={true} />
+              </Suspense>
             </div>
             <div className="p-8 relative z-10 text-center space-y-6">
               <div className="inline-flex p-8 jagged-corner bg-gradient-to-br from-primary/20 to-accent/20 border-4 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]">
@@ -215,8 +229,11 @@ export default function EnhancedDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <NewsTicker />
+    <ErrorBoundary>
+      <div className="space-y-6" role="main" aria-label="Quantum Falcon Dashboard">
+        <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
+          <NewsTicker />
+        </Suspense>
       
       <div className="cyber-card relative overflow-hidden">
         <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
@@ -253,20 +270,23 @@ export default function EnhancedDashboard() {
             <Button
               variant="outline"
               onClick={() => {
-                setBotRunning(false)
-                setAuth({
-                  isAuthenticated: false,
-                  userId: null,
-                  username: null,
-                  email: null,
-                  avatar: null,
-                  license: null
+                startTransition(() => {
+                  setBotRunning(false)
+                  setAuth({
+                    isAuthenticated: false,
+                    userId: null,
+                    username: null,
+                    email: null,
+                    avatar: null,
+                    license: null
+                  })
+                  toast.info('Logged out successfully - Bot stopped')
                 })
-                toast.info('Logged out successfully - Bot stopped')
               }}
               className="border-primary/50 hover:border-primary hover:bg-primary/10 jagged-corner-small"
+              disabled={isPending}
             >
-              Logout
+              {isPending ? 'Logging out...' : 'Logout'}
             </Button>
           </div>
         </div>
@@ -308,63 +328,27 @@ export default function EnhancedDashboard() {
               id="paper-mode"
               checked={paperTradingMode}
               onCheckedChange={(checked) => {
-                setPaperTradingMode(checked)
-                toast.success(checked ? 'Switched to Paper Trading Mode' : 'Switched to Live Trading Mode', {
-                  description: checked 
-                    ? 'All trades are simulated - no real funds at risk' 
-                    : 'WARNING: Trading with real funds now!'
+                startTransition(() => {
+                  setPaperTradingMode(checked)
+                  toast.success(checked ? 'Switched to Paper Trading Mode' : 'Switched to Live Trading Mode', {
+                    description: checked 
+                      ? 'All trades are simulated - no real funds at risk' 
+                      : 'WARNING: Trading with real funds now!'
+                  })
                 })
               }}
+              disabled={isPending}
             />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {quickStats.map((stat, idx) => {
-          const isPositive = stat.change >= 0
-          const cornerClasses = ['angled-corner-tr', 'angled-corner-br', 'cut-corner-tr', 'angled-corners-dual-tr-bl']
-          return (
-            <div
-              key={stat.id}
-              className={`cyber-card group hover:scale-[1.02] transition-all duration-300 cursor-pointer relative overflow-hidden ${cornerClasses[idx % 4]}`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="p-4 relative z-10">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="data-label">{stat.label}</div>
-                  <div className={`p-2.5 border-2 angled-corner-tr relative overflow-hidden ${
-                    stat.color === 'primary' ? 'bg-primary/5 border-primary' : 
-                    stat.color === 'secondary' ? 'bg-secondary/5 border-secondary' : 
-                    'bg-accent/5 border-accent'
-                  }`}>
-                    <div className={`absolute inset-0 ${
-                      stat.color === 'primary' ? 'bg-primary' : 
-                      stat.color === 'secondary' ? 'bg-secondary' : 
-                      'bg-accent'
-                    } opacity-5`} />
-                    <div className="relative z-10">
-                      {stat.icon}
-                    </div>
-                  </div>
-                </div>
-                <div className="technical-readout text-2xl mb-2">{stat.value}</div>
-                {stat.change !== 0 && (
-                  <div className="flex items-center gap-1">
-                    {isPositive ? (
-                      <TrendUp size={14} weight="bold" className="text-primary" />
-                    ) : (
-                      <TrendDown size={14} weight="bold" className="text-destructive" />
-                    )}
-                    <span className={`text-xs font-bold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
-                      {isPositive ? '+' : ''}{stat.change.toFixed(2)}%
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )
-        })}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="grid" aria-label="Portfolio Quick Stats">
+        {statsGrid.map((stat, idx) => (
+          <Suspense key={stat.id} fallback={<div className="animate-pulse h-32 bg-muted/20 rounded border border-primary/20" />}>
+            <QuickStatsCard stat={stat} index={idx} />
+          </Suspense>
+        ))}
       </div>
 
       <div className="cyber-card p-6 angled-corners-dual-tl-br">
@@ -373,30 +357,17 @@ export default function EnhancedDashboard() {
           <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action, idx) => {
-            const colorClasses = {
-              primary: 'bg-primary/10 hover:bg-primary/20 border-primary/50 hover:border-primary text-primary hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)]',
-              accent: 'bg-accent/10 hover:bg-accent/20 border-accent/50 hover:border-accent text-accent hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
-              secondary: 'bg-secondary/10 hover:bg-secondary/20 border-secondary/50 hover:border-secondary text-secondary hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
-              destructive: 'bg-destructive/10 hover:bg-destructive/20 border-destructive/50 hover:border-destructive text-destructive hover:shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.3)]'
-            }
-            
-            return (
-              <Button
-                key={action.id}
-                onClick={action.action}
-                className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                <div className="relative z-10">
-                  {action.icon}
-                </div>
-                <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
-              </Button>
-            )
-          })}
+          {quickActions.map((action, idx) => (
+            <Suspense key={action.id} fallback={<div className="animate-pulse h-20 bg-muted/20 rounded border border-accent/20" />}>
+              <QuickActionButton action={action} index={idx} />
+            </Suspense>
+          ))}
         </div>
       </div>
+
+      <Suspense fallback={<div className="animate-pulse h-48 bg-muted/20 rounded border border-primary/20" />}>
+        <AIAdvisor />
+      </Suspense>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="cyber-card p-6 angled-corner-tl">
@@ -444,7 +415,10 @@ export default function EnhancedDashboard() {
         </div>
       </div>
 
-      <BotLogs />
-    </div>
+      <Suspense fallback={<div className="animate-pulse h-64 bg-muted/20 rounded border border-accent/20" />}>
+        <BotLogs />
+      </Suspense>
+      </div>
+    </ErrorBoundary>
   )
 }

@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from "react-error-boundary";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import "@github/spark/spark"
 
 import App from './App.tsx'
@@ -9,8 +10,20 @@ import "./main.css"
 import "./styles/theme.css"
 import "./index.css"
 
+// Create a client for TanStack Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+})
+
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
    </ErrorBoundary>
 )
