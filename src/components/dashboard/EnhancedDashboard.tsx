@@ -1,5 +1,7 @@
+// Enhanced Dashboard with React 19 performance optimizations and AI integration
 import { useKV } from '@/hooks/useKVFallback'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useTransition, lazy, Suspense } from 'react'
+import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'
 import {
   TrendUp, TrendDown, Coins, Lightning, Robot, Vault, ChartLine,
@@ -12,10 +14,16 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import LoginDialog from '@/components/shared/LoginDialog'
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
-import NewsTicker from '@/components/shared/NewsTicker'
-import BotLogs from '@/components/shared/BotLogs'
 import { toast } from 'sonner'
-import Wireframe3D from '@/components/shared/Wireframe3D'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+
+// Lazy load heavy components for better performance
+const NewsTicker = lazy(() => import('@/components/shared/NewsTicker'))
+const BotLogs = lazy(() => import('@/components/shared/BotLogs'))
+const Wireframe3D = lazy(() => import('@/components/shared/Wireframe3D'))
+const QuickStatsCard = lazy(() => import('./QuickStatsCard').then(m => ({ default: m.QuickStatsCard })))
+const QuickActionButton = lazy(() => import('./QuickActionButton').then(m => ({ default: m.QuickActionButton })))
+const AIAdvisor = lazy(() => import('./AIAdvisor').then(m => ({ default: m.AIAdvisor })))
 
 interface QuickStat {
   id: string
@@ -39,6 +47,7 @@ export default function EnhancedDashboard() {
   const [showLogin, setShowLogin] = useState(false)
   const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false)
   const [paperTradingMode, setPaperTradingMode] = useKV<boolean>('paper-trading-mode', true)
+  const [isPending, startTransition] = useTransition()
   const [portfolio] = useKV<{
     solanaBalance: number
     btcBalance: number
