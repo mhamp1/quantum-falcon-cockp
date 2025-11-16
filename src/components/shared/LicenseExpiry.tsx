@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKVFallback'
 import { UserAuth, getRemainingTime } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Clock, Warning, Crown, ArrowRight } from '@phosphor-icons/react'

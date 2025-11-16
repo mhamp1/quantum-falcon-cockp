@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKVFallback'
 import { UserAuth, LICENSE_TIERS } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity, Info } from '@phosphor-icons/react'
+import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity as InfinityIcon, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import SubscriptionUpgrade from './SubscriptionUpgrade'
 
 export default function EnhancedSubscriptionTiers() {
-  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
+  const [auth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
     username: null,
@@ -29,7 +29,7 @@ export default function EnhancedSubscriptionTiers() {
     trader: <Lightning size={32} weight="fill" className="text-primary" />,
     pro: <Crown size={32} weight="fill" className="text-accent" />,
     elite: <Star size={32} weight="fill" className="text-accent" />,
-    lifetime: <Infinity size={32} weight="fill" className="text-secondary" />
+    lifetime: <InfinityIcon size={32} weight="fill" className="text-secondary" />
   }
 
   const tierColors = {
