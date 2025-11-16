@@ -11,6 +11,7 @@
 ### Alerts Found: 0
 
 The CodeQL security scanner analyzed all changes including:
+The CodeQL security scanner analyzed the following changes:
 - `src/components/dashboard/EnhancedDashboard.tsx`
 - `src/components/dashboard/QuickStatsCard.tsx`
 - `src/components/dashboard/QuickActionButton.tsx`

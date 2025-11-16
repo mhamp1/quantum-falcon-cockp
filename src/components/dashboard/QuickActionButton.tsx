@@ -40,6 +40,11 @@ export const QuickActionButton = memo(({ action, index }: QuickActionButtonProps
           {action.icon}
         </div>
         <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+      <div className="relative z-10">
+        {action.icon}
+      </div>
+      <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
       </Button>
     </motion.div>
   )

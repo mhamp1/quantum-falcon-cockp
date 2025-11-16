@@ -1,3 +1,7 @@
+import { createRoot } from 'react-dom/client'
+import { ErrorBoundary } from "react-error-boundary";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import "@github/spark/spark"
 // Entry Point File (Main Script) - Further enhanced with React.StrictMode for development checks, performance optimizations, and better error boundaries
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -29,6 +33,15 @@ const queryClient = new QueryClient({
   },
 });
 
+})
+
+createRoot(document.getElementById('root')!).render(
+  <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+   </ErrorBoundary>
+)
 // Get the root element with proper error handling and type assertion
 const rootElement = document.getElementById('root');
 if (!rootElement) {

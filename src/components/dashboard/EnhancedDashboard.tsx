@@ -1,12 +1,14 @@
 // Enhanced Dashboard with React 19 performance optimizations and AI integration
+import { useKV } from '@github/spark/hooks'
+import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
+import { motion } from 'framer-motion'
 import { useKV } from '@/hooks/useKVFallback'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'
 import {
-  TrendUp, TrendDown, Coins, Lightning, Robot, Vault, ChartLine,
-  Target, Brain, CheckCircle, ArrowsClockwise, Play, Users, Crown,
-  Cube, Hexagon, Pentagon, Polygon, Stop, Pause, Database
+  Lightning, Robot, ChartLine, Brain, CheckCircle, 
+  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -24,6 +26,8 @@ const Wireframe3D = lazy(() => import('@/components/shared/Wireframe3D'))
 const QuickStatsCard = lazy(() => import('./QuickStatsCard').then(m => ({ default: m.QuickStatsCard })))
 const QuickActionButton = lazy(() => import('./QuickActionButton').then(m => ({ default: m.QuickActionButton })))
 const AIAdvisor = lazy(() => import('./AIAdvisor').then(m => ({ default: m.AIAdvisor })))
+
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface QuickStat {
   id: string
@@ -97,6 +101,9 @@ export default function EnhancedDashboard() {
     }
   ])
 
+  // Memoize stats grid to prevent unnecessary re-renders
+  const statsGrid = useMemo(() => quickStats, [quickStats])
+
   const quickActions = [
     {
       id: 'toggle-bot',
@@ -104,9 +111,11 @@ export default function EnhancedDashboard() {
       icon: botRunning ? <Stop size={20} weight="fill" /> : <Play size={20} weight="fill" />,
       color: botRunning ? 'destructive' : 'primary',
       action: () => {
-        setBotRunning(!botRunning)
-        toast.success(botRunning ? 'Bot stopped - will persist until manually restarted' : 'Bot started - will continue running even after sign off', {
-          description: botRunning ? 'All trading activities paused' : `Running in ${paperTradingMode ? 'PAPER' : 'LIVE'} mode`
+        startTransition(() => {
+          setBotRunning(!botRunning)
+          toast.success(botRunning ? 'Bot stopped - will persist until manually restarted' : 'Bot started - will continue running even after sign off', {
+            description: botRunning ? 'All trading activities paused' : `Running in ${paperTradingMode ? 'PAPER' : 'LIVE'} mode`
+          })
         })
       }
     },
@@ -175,11 +184,18 @@ export default function EnhancedDashboard() {
   if (!auth?.isAuthenticated) {
     return (
       <>
-        <div className="space-y-6">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-6"
+        >
           <div className="cyber-card relative overflow-hidden">
             <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
             <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
-              <Wireframe3D type="sphere" size={256} color="secondary" animated={true} />
+              <Suspense fallback={<div className="w-64 h-64 animate-pulse bg-muted/10" />}>
+                <Wireframe3D type="sphere" size={256} color="secondary" animated={true} />
+              </Suspense>
             </div>
             <div className="p-8 relative z-10 text-center space-y-6">
               <div className="inline-flex p-8 jagged-corner bg-gradient-to-br from-primary/20 to-accent/20 border-4 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]">
@@ -234,17 +250,25 @@ export default function EnhancedDashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
         <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
       </>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <NewsTicker />
+    <ErrorBoundary>
+      <div className="space-y-6" role="main" aria-label="Quantum Falcon Dashboard">
+        <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
+          <NewsTicker />
+        </Suspense>
       
-      <div className="cyber-card relative overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="cyber-card relative overflow-hidden"
+      >
         <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
         <div className="p-6 relative z-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -279,28 +303,37 @@ export default function EnhancedDashboard() {
             <Button
               variant="outline"
               onClick={() => {
-                setBotRunning(false)
-                setAuth({
-                  isAuthenticated: false,
-                  userId: null,
-                  username: null,
-                  email: null,
-                  avatar: null,
-                  license: null
+                startTransition(() => {
+                  setBotRunning(false)
+                  setAuth({
+                    isAuthenticated: false,
+                    userId: null,
+                    username: null,
+                    email: null,
+                    avatar: null,
+                    license: null
+                  })
+                  toast.info('Logged out successfully - Bot stopped')
                 })
-                toast.info('Logged out successfully - Bot stopped')
               }}
               className="border-primary/50 hover:border-primary hover:bg-primary/10 jagged-corner-small"
+              disabled={isPending}
             >
-              Logout
+              {isPending ? 'Logging out...' : 'Logout'}
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <LicenseExpiry />
 
-      <div className="glass-morph-card p-6 relative overflow-hidden hover:shadow-[0_0_40px_oklch(0.68_0.18_330_/_0.3)] transition-all">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        whileHover={{ scale: 1.01 }}
+        className="glass-morph-card p-6 relative overflow-hidden transition-all"
+      >
         <div className="absolute inset-0 grid-background opacity-5" />
         <svg className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
           <circle cx="90%" cy="20%" r="40" stroke="var(--accent)" strokeWidth="2" fill="none" strokeDasharray="5,5" className="circuit-line" />
@@ -334,63 +367,27 @@ export default function EnhancedDashboard() {
               id="paper-mode"
               checked={paperTradingMode}
               onCheckedChange={(checked) => {
-                setPaperTradingMode(checked)
-                toast.success(checked ? 'Switched to Paper Trading Mode' : 'Switched to Live Trading Mode', {
-                  description: checked 
-                    ? 'All trades are simulated - no real funds at risk' 
-                    : 'WARNING: Trading with real funds now!'
+                startTransition(() => {
+                  setPaperTradingMode(checked)
+                  toast.success(checked ? 'Switched to Paper Trading Mode' : 'Switched to Live Trading Mode', {
+                    description: checked 
+                      ? 'All trades are simulated - no real funds at risk' 
+                      : 'WARNING: Trading with real funds now!'
+                  })
                 })
               }}
+              disabled={isPending}
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {quickStats.map((stat, idx) => {
-          const isPositive = stat.change >= 0
-          const cornerClasses = ['angled-corner-tr', 'angled-corner-br', 'cut-corner-tr', 'angled-corners-dual-tr-bl']
-          return (
-            <div
-              key={stat.id}
-              className={`cyber-card group hover:scale-[1.02] transition-all duration-300 cursor-pointer relative overflow-hidden ${cornerClasses[idx % 4]}`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="p-4 relative z-10">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="data-label">{stat.label}</div>
-                  <div className={`p-2.5 border-2 angled-corner-tr relative overflow-hidden ${
-                    stat.color === 'primary' ? 'bg-primary/5 border-primary' : 
-                    stat.color === 'secondary' ? 'bg-secondary/5 border-secondary' : 
-                    'bg-accent/5 border-accent'
-                  }`}>
-                    <div className={`absolute inset-0 ${
-                      stat.color === 'primary' ? 'bg-primary' : 
-                      stat.color === 'secondary' ? 'bg-secondary' : 
-                      'bg-accent'
-                    } opacity-5`} />
-                    <div className="relative z-10">
-                      {stat.icon}
-                    </div>
-                  </div>
-                </div>
-                <div className="technical-readout text-2xl mb-2">{stat.value}</div>
-                {stat.change !== 0 && (
-                  <div className="flex items-center gap-1">
-                    {isPositive ? (
-                      <TrendUp size={14} weight="bold" className="text-primary" />
-                    ) : (
-                      <TrendDown size={14} weight="bold" className="text-destructive" />
-                    )}
-                    <span className={`text-xs font-bold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
-                      {isPositive ? '+' : ''}{stat.change.toFixed(2)}%
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )
-        })}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="grid" aria-label="Portfolio Quick Stats">
+        {statsGrid.map((stat, idx) => (
+          <Suspense key={stat.id} fallback={<div className="animate-pulse h-32 bg-muted/20 rounded border border-primary/20" />}>
+            <QuickStatsCard stat={stat} index={idx} />
+          </Suspense>
+        ))}
       </div>
 
       <div className="cyber-card p-6 angled-corners-dual-tl-br">
@@ -398,6 +395,12 @@ export default function EnhancedDashboard() {
           <Lightning size={24} weight="fill" className="text-accent" />
           <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>
         </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {quickActions.map((action, idx) => (
+            <Suspense key={action.id} fallback={<div className="animate-pulse h-20 bg-muted/20 rounded border border-accent/20" />}>
+              <QuickActionButton action={action} index={idx} />
+            </Suspense>
+          ))}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {quickActions.map((action, idx) => {
             const colorClasses = {
@@ -423,6 +426,10 @@ export default function EnhancedDashboard() {
           })}
         </div>
       </div>
+
+      <Suspense fallback={<div className="animate-pulse h-48 bg-muted/20 rounded border border-primary/20" />}>
+        <AIAdvisor />
+      </Suspense>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="cyber-card p-6 angled-corner-tl">
@@ -470,7 +477,10 @@ export default function EnhancedDashboard() {
         </div>
       </div>
 
-      <BotLogs />
-    </div>
+      <Suspense fallback={<div className="animate-pulse h-64 bg-muted/20 rounded border border-accent/20" />}>
+        <BotLogs />
+      </Suspense>
+      </div>
+    </ErrorBoundary>
   )
 }
