@@ -377,7 +377,7 @@ For questions about this disclaimer, contact: legal@quantumfalcon.ai
                   </div>
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl h-[80vh] max-h-[700px] !top-[10%] !translate-y-0 md:!top-[50%] md:!translate-y-[-50%] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden">
+              <DialogContent className="max-w-4xl h-[80vh] max-h-[700px] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden">
                 <DialogHeader className="flex-shrink-0">
                   <DialogTitle className="flex items-center gap-3 text-xl uppercase tracking-wide">
                     <Icon size={24} weight="duotone" className="text-primary" />

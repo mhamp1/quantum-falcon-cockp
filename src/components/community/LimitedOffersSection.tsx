@@ -192,7 +192,7 @@ export default function LimitedOffersSection() {
                   <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-accent">Flash Sales</h3>
                 </div>
                 <p className="text-[9px] text-muted-foreground uppercase tracking-[0.15em]">
-                  ⚡ 20% OFF • Rotates every 3 hours • Micro-transactions
+                  ⚡ 20% OFF • Strategies & AI Agents • Access Premium Features
                 </p>
               </div>
               <div className="cyber-card-accent p-2 text-center min-w-[80px]">

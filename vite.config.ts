@@ -22,4 +22,21 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src')
     }
   },
+  server: {
+    // Allow requests to GitHub API for Spark runtime KV storage and other services
+    // This prevents Vite 6's HTTP blocking from interfering with the Spark plugin's proxy
+    allowedHosts: [
+      'api.github.com',
+      '.github.com',
+      'localhost',
+    ],
+  },
+  preview: {
+    // Same allowlist for preview mode
+    allowedHosts: [
+      'api.github.com',
+      '.github.com',
+      'localhost',
+    ],
+  },
 });
