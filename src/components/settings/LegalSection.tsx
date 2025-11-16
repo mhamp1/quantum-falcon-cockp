@@ -580,7 +580,7 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
                   </div>
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl w-[95vw] h-[85vh] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden fixed top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2">
+              <DialogContent className="max-w-4xl w-[95vw] max-h-[min(500px,80vh)] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden p-0">
                 <DialogHeader className="flex-shrink-0">
                   <DialogTitle className="flex items-center gap-3 text-xl uppercase tracking-wide">
                     <Icon size={24} weight="duotone" className="text-primary" />
