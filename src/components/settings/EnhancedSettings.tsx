@@ -62,6 +62,8 @@ interface AppSettings {
     colorScheme: string
     animations: boolean
     glassEffect: boolean
+    neonGlow: boolean
+    themeStyle: 'default' | 'matrix' | 'synthwave'
   }
   currency: string
   audio: {
@@ -121,7 +123,9 @@ export default function EnhancedSettings() {
       darkMode: true,
       colorScheme: 'solana-cyber',
       animations: true,
-      glassEffect: true
+      glassEffect: true,
+      neonGlow: true,
+      themeStyle: 'default'
     },
     currency: 'USD',
     audio: {
@@ -241,7 +245,7 @@ export default function EnhancedSettings() {
     setSettings((current) => {
       const base = current || {
         notifications: { tradeAlerts: true, priceAlerts: true, forumReplies: false, pushEnabled: true },
-        theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true },
+        theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true, neonGlow: true, themeStyle: 'default' as const },
         currency: 'USD',
         audio: { soundEffects: true, ambientMusic: false, voiceNarration: false, volume: 70 },
         trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },
@@ -1195,6 +1199,95 @@ export default function EnhancedSettings() {
                     />
                   </div>
 
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
+                    <div className="flex items-center gap-3">
+                      <Lightning size={18} weight="duotone" className="text-accent" />
+                      <div>
+                        <Label className="font-bold uppercase text-xs tracking-wider cursor-pointer">NEON_GLOW</Label>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Text glow effects</p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={settings.theme?.neonGlow ?? true}
+                      onCheckedChange={(v) => {
+                        handleUpdateSetting(['theme', 'neonGlow'], v)
+                        document.documentElement.style.setProperty('--enable-neon-glow', v ? '1' : '0')
+                        const styles = document.querySelectorAll('.neon-glow, .neon-glow-primary, .neon-glow-secondary, .neon-glow-accent, .neon-glow-destructive')
+                        styles.forEach(el => {
+                          if (v) {
+                            el.classList.add('neon-active')
+                          } else {
+                            el.classList.remove('neon-active')
+                          }
+                        })
+                      }}
+                    />
+                  </div>
+
+                  <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+                    <Label className="font-bold uppercase text-xs tracking-wider">THEME_STYLE</Label>
+                    <p className="text-[10px] text-muted-foreground mb-2">Choose your cyberpunk aesthetic</p>
+                    <Select 
+                      value={settings.theme?.themeStyle ?? 'default'}
+                      onValueChange={(v) => {
+                        handleUpdateSetting(['theme', 'themeStyle'], v)
+                        toast.success(`Theme changed to ${v.toUpperCase()}`)
+                      }}
+                    >
+                      <SelectTrigger className="bg-background/60">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Default Solana</SelectItem>
+                        <SelectItem value="matrix">Matrix Code</SelectItem>
+                        <SelectItem value="synthwave">Synthwave Retro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="grid grid-cols-3 gap-2 mt-3">
+                      <div 
+                        className={`p-2 border rounded cursor-pointer transition-all ${
+                          settings.theme?.themeStyle === 'default' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-muted/30 hover:border-primary/50'
+                        }`}
+                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'default')}
+                      >
+                        <div className="w-full h-8 rounded mb-1" style={{ 
+                          background: 'linear-gradient(135deg, oklch(0.72 0.20 195), oklch(0.68 0.18 330))' 
+                        }} />
+                        <p className="text-[9px] text-center font-bold uppercase">Solana</p>
+                      </div>
+                      <div 
+                        className={`p-2 border rounded cursor-pointer transition-all ${
+                          settings.theme?.themeStyle === 'matrix' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-muted/30 hover:border-primary/50'
+                        }`}
+                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'matrix')}
+                      >
+                        <div className="w-full h-8 rounded mb-1" style={{ 
+                          background: 'linear-gradient(135deg, oklch(0.60 0.20 145), oklch(0.40 0.15 160))' 
+                        }} />
+                        <p className="text-[9px] text-center font-bold uppercase">Matrix</p>
+                      </div>
+                      <div 
+                        className={`p-2 border rounded cursor-pointer transition-all ${
+                          settings.theme?.themeStyle === 'synthwave' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-muted/30 hover:border-primary/50'
+                        }`}
+                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'synthwave')}
+                      >
+                        <div className="w-full h-8 rounded mb-1" style={{ 
+                          background: 'linear-gradient(135deg, oklch(0.70 0.25 330), oklch(0.65 0.22 280))' 
+                        }} />
+                        <p className="text-[9px] text-center font-bold uppercase">Synthwave</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="p-4 bg-background/40 backdrop-blur-sm border border-accent/20 space-y-2 relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
                     <Label className="font-bold uppercase text-xs tracking-wider">CHART_TYPE</Label>
@@ -1285,7 +1378,7 @@ export default function EnhancedSettings() {
                   setSettings((current) => ({
                     ...current!,
                     notifications: { tradeAlerts: true, priceAlerts: true, forumReplies: false, pushEnabled: true },
-                    theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true },
+                    theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true, neonGlow: true, themeStyle: 'default' as const },
                     currency: 'USD',
                     audio: { soundEffects: true, ambientMusic: false, voiceNarration: false, volume: 70 },
                     trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },
