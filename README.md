@@ -36,6 +36,7 @@ A cyberpunk-themed progressive web app for crypto trading with AI-powered tradin
 - [Features](#-features)
 - [Prerequisites](#-prerequisites)
 - [Setup Instructions](#-setup-instructions)
+- [Mobile Applications](#-mobile-applications)
 - [Firebase Push Notifications](#-firebase-push-notifications)
 - [Offline-First with LocalStorage](#-offline-first-with-localstorage)
 - [Backend API Integration](#-backend-api-integration)
@@ -46,6 +47,8 @@ A cyberpunk-themed progressive web app for crypto trading with AI-powered tradin
 - [API Integration Tutorial](#-api-integration-tutorial)
 - [Project Structure](#-project-structure)
 - [License](#-license)
+
+> **Note**: Recent merge resolution - See [MERGE_RESOLUTION_SUMMARY.md](./MERGE_RESOLUTION_SUMMARY.md) for details on resolved conflicts and mobile implementation options.
 
 ## ✨ Features
 
@@ -77,6 +80,72 @@ Before you begin, ensure you have the following installed:
 git clone https://github.com/mhamp1/quantum-falcon-cockp.git
 cd quantum-falcon-cockp
 ```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Run the Development Server
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+### 4. Build for Production
+
+```bash
+npm run build
+```
+
+## 📱 Mobile Applications
+
+This repository includes **two Flutter-based mobile implementations** with different focus areas:
+
+### Option 1: `mobile/` - Firebase Cloud Messaging
+Real-time push notifications with Firebase Cloud Messaging (FCM).
+
+**Best for**: Real-time alerts, instant updates, server-push notifications
+
+```bash
+cd mobile
+flutter pub get
+# Add your google-services.json (Android) and GoogleService-Info.plist (iOS)
+flutter run
+```
+
+**Features**:
+- Firebase Cloud Messaging for push notifications
+- Local notifications as offline fallback
+- XP awards, streak reminders, quest reset notifications
+- User preference controls
+
+📖 See [mobile/README.md](./mobile/README.md) for detailed setup
+
+### Option 2: `mobile_app/` - Offline-First
+Complete offline functionality with local Hive storage and background sync.
+
+**Best for**: Offline operation, unreliable networks, local-first data
+
+```bash
+cd mobile_app
+flutter pub get
+flutter test  # Run 40+ tests
+flutter run
+```
+
+**Features**:
+- Full offline XP/quest tracking
+- Automatic background synchronization
+- Connectivity detection
+- No Firebase required
+
+📖 See [mobile_app/QUICKSTART.md](./mobile_app/QUICKSTART.md) for quick start
+
+📋 **Choosing Between Implementations**: See [MERGE_RESOLUTION_SUMMARY.md](./MERGE_RESOLUTION_SUMMARY.md#integration-strategy) for detailed comparison and integration options.
 
 ### 2. Install Dependencies
 
