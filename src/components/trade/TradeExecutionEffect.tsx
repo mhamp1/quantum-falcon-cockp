@@ -1,32 +1,36 @@
-import { motion, AnimatePresence } from 'framer-motion'
-import { Lightning, ArrowsDownUp, CheckCircle } from '@phosphor-icons/react'
+import { motion, AnimatePresence } from "framer-motion";
+import { Lightning, ArrowsDownUp, CheckCircle } from "@phosphor-icons/react";
 
 interface TradeExecutionEffectProps {
-  isActive: boolean
-  type: 'dca' | 'snipe' | 'convert'
-  onComplete?: () => void
+  isActive: boolean;
+  type: "dca" | "snipe" | "convert";
+  onComplete?: () => void;
 }
 
-export default function TradeExecutionEffect({ isActive, type, onComplete }: TradeExecutionEffectProps) {
+export default function TradeExecutionEffect({
+  isActive,
+  type,
+  onComplete,
+}: TradeExecutionEffectProps) {
   const icons = {
     dca: ArrowsDownUp,
     snipe: Lightning,
-    convert: CheckCircle
-  }
+    convert: CheckCircle,
+  };
 
   const colors = {
-    dca: 'text-primary',
-    snipe: 'text-accent',
-    convert: 'text-[#F7931A]'
-  }
+    dca: "text-primary",
+    snipe: "text-accent",
+    convert: "text-[#F7931A]",
+  };
 
   const glows = {
-    dca: 'drop-shadow-[0_0_30px_rgba(20,241,149,0.8)]',
-    snipe: 'drop-shadow-[0_0_30px_rgba(0,229,160,0.8)]',
-    convert: 'drop-shadow-[0_0_30px_rgba(247,147,26,0.8)]'
-  }
+    dca: "drop-shadow-[0_0_30px_rgba(20,241,149,0.8)]",
+    snipe: "drop-shadow-[0_0_30px_rgba(0,229,160,0.8)]",
+    convert: "drop-shadow-[0_0_30px_rgba(247,147,26,0.8)]",
+  };
 
-  const Icon = icons[type]
+  const Icon = icons[type];
 
   return (
     <AnimatePresence onExitComplete={onComplete}>
@@ -40,16 +44,16 @@ export default function TradeExecutionEffect({ isActive, type, onComplete }: Tra
           <motion.div
             animate={{
               scale: [1, 1.2, 1],
-              rotate: [0, 180, 360]
+              rotate: [0, 180, 360],
             }}
             transition={{
               duration: 1.5,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           >
-            <Icon 
-              size={80} 
-              weight="duotone" 
+            <Icon
+              size={80}
+              weight="duotone"
               className={`${colors[type]} ${glows[type]}`}
             />
           </motion.div>
@@ -60,37 +64,39 @@ export default function TradeExecutionEffect({ isActive, type, onComplete }: Tra
             animate={{ opacity: [0, 0.3, 0] }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
           >
-            <div className={`absolute inset-0 rounded-lg border-4 ${type === 'dca' ? 'border-primary' : type === 'snipe' ? 'border-accent' : 'border-[#F7931A]'}`} />
+            <div
+              className={`absolute inset-0 rounded-lg border-4 ${type === "dca" ? "border-primary" : type === "snipe" ? "border-accent" : "border-[#F7931A]"}`}
+            />
           </motion.div>
 
           {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
-              className={`absolute w-2 h-2 rounded-full ${type === 'dca' ? 'bg-primary' : type === 'snipe' ? 'bg-accent' : 'bg-[#F7931A]'}`}
-              initial={{ 
-                x: 0, 
+              className={`absolute w-2 h-2 rounded-full ${type === "dca" ? "bg-primary" : type === "snipe" ? "bg-accent" : "bg-[#F7931A]"}`}
+              initial={{
+                x: 0,
                 y: 0,
                 scale: 0,
-                opacity: 0
+                opacity: 0,
               }}
               animate={{
                 x: Math.cos((i * Math.PI * 2) / 12) * 100,
                 y: Math.sin((i * Math.PI * 2) / 12) * 100,
                 scale: [0, 1.5, 0],
-                opacity: [0, 1, 0]
+                opacity: [0, 1, 0],
               }}
               transition={{
                 duration: 1.5,
                 ease: "easeOut",
-                delay: i * 0.05
+                delay: i * 0.05,
               }}
               style={{
-                boxShadow: `0 0 10px ${type === 'dca' ? '#14F195' : type === 'snipe' ? '#00E5A0' : '#F7931A'}`
+                boxShadow: `0 0 10px ${type === "dca" ? "#14F195" : type === "snipe" ? "#00E5A0" : "#F7931A"}`,
               }}
             />
           ))}
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }

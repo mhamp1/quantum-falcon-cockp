@@ -1,28 +1,33 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
 
-export interface NeonProgressProps extends React.HTMLAttributes<HTMLDivElement> {
-  value?: number
-  max?: number
-  variant?: "primary" | "secondary" | "accent"
-  showLabel?: boolean
-  label?: string
-  animate?: boolean
+import { cn } from "@/lib/utils";
+
+export interface NeonProgressProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  value?: number;
+  max?: number;
+  variant?: "primary" | "secondary" | "accent";
+  showLabel?: boolean;
+  label?: string;
+  animate?: boolean;
 }
 
 const NeonProgress = React.forwardRef<HTMLDivElement, NeonProgressProps>(
-  ({ 
-    className, 
-    value = 0, 
-    max = 100, 
-    variant = "primary",
-    showLabel = false,
-    label,
-    animate = true,
-    ...props 
-  }, ref) => {
-    const percentage = Math.min((value / max) * 100, 100)
-    
+  (
+    {
+      className,
+      value = 0,
+      max = 100,
+      variant = "primary",
+      showLabel = false,
+      label,
+      animate = true,
+      ...props
+    },
+    ref,
+  ) => {
+    const percentage = Math.min((value / max) * 100, 100);
+
     const variantStyles = {
       primary: {
         bar: "from-primary to-primary",
@@ -36,7 +41,7 @@ const NeonProgress = React.forwardRef<HTMLDivElement, NeonProgressProps>(
         bar: "from-primary to-secondary",
         shadow: "shadow-[0_0_10px_var(--primary),0_0_20px_var(--secondary)]",
       },
-    }
+    };
 
     return (
       <div ref={ref} className={cn("w-full", className)} {...props}>
@@ -57,7 +62,7 @@ const NeonProgress = React.forwardRef<HTMLDivElement, NeonProgressProps>(
               "bg-gradient-to-r",
               variantStyles[variant].bar,
               variantStyles[variant].shadow,
-              animate && "transition-all duration-300 ease-out"
+              animate && "transition-all duration-300 ease-out",
             )}
             style={{ width: `${percentage}%` }}
           >
@@ -67,9 +72,9 @@ const NeonProgress = React.forwardRef<HTMLDivElement, NeonProgressProps>(
           </div>
         </div>
       </div>
-    )
-  }
-)
-NeonProgress.displayName = "NeonProgress"
+    );
+  },
+);
+NeonProgress.displayName = "NeonProgress";
 
-export { NeonProgress }
+export { NeonProgress };

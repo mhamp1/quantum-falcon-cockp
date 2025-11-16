@@ -1,9 +1,4 @@
-import { useState, useEffect } from 'react'
-import { useKV } from '@/hooks/useKVFallback'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState, useEffect } from "react";
 import {
   Lightning,
   Coins,
@@ -19,322 +14,392 @@ import {
   Atom,
   Brain,
   ChartLineUp,
-  GitBranch
-} from '@phosphor-icons/react'
-import { toast } from 'sonner'
-import ProfileUpload from '@/components/shared/ProfileUpload'
-import XPPerksShop from './XPPerksShop'
+  GitBranch,
+} from "@phosphor-icons/react";
+import { toast } from "sonner";
+
+import { useKV } from "@/hooks/useKVFallback";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProfileUpload from "@/components/shared/ProfileUpload";
+
+import XPPerksShop from "./XPPerksShop";
 
 interface UserProfile {
-  username: string
-  level: number
-  xp: number
-  xpToNextLevel: number
-  badges: string[]
-  rank: number
-  wins: number
-  streak: number
+  username: string;
+  level: number;
+  xp: number;
+  xpToNextLevel: number;
+  badges: string[];
+  rank: number;
+  wins: number;
+  streak: number;
 }
 
 interface MicroTransaction {
-  id: string
-  title: string
-  description: string
-  subtitle?: string
-  price: number
-  icon: React.ReactNode
-  category: 'boost' | 'upgrade' | 'cosmetic'
-  duration?: number
-  discount?: number
-  expiresIn?: number
-  purchased: boolean
-  featured?: boolean
-  benefit1?: string
-  benefit2?: string
-  benefit3?: string
+  id: string;
+  title: string;
+  description: string;
+  subtitle?: string;
+  price: number;
+  icon: React.ReactNode;
+  category: "boost" | "upgrade" | "cosmetic";
+  duration?: number;
+  discount?: number;
+  expiresIn?: number;
+  purchased: boolean;
+  featured?: boolean;
+  benefit1?: string;
+  benefit2?: string;
+  benefit3?: string;
 }
 
 export default function EnhancedCommunity() {
-  const [profile, setProfile] = useKV<UserProfile>('user-profile', {
-    username: 'QuantumTrader',
+  const [profile, setProfile] = useKV<UserProfile>("user-profile", {
+    username: "QuantumTrader",
     level: 7,
     xp: 2340,
     xpToNextLevel: 3000,
-    badges: ['Early Adopter', 'Profit Maker', 'Bot Master'],
+    badges: ["Early Adopter", "Profit Maker", "Bot Master"],
     rank: 47,
     wins: 124,
-    streak: 5
-  })
+    streak: 5,
+  });
 
-  const [purchasedItems, setPurchasedItems] = useKV<string[]>('purchased-microtransactions', [])
-  const [timeRemaining, setTimeRemaining] = useState<{ [key: string]: number }>({})
+  const [purchasedItems, setPurchasedItems] = useKV<string[]>(
+    "purchased-microtransactions",
+    [],
+  );
+  const [timeRemaining, setTimeRemaining] = useState<{ [key: string]: number }>(
+    {},
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeRemaining((current) => {
-        const updated = { ...current }
+        const updated = { ...current };
         Object.keys(updated).forEach((key) => {
           if (updated[key] > 0) {
-            updated[key] -= 1
+            updated[key] -= 1;
           }
-        })
-        return updated
-      })
-    }, 1000)
+        });
+        return updated;
+      });
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
-    const initialTime: { [key: string]: number } = {}
+    const initialTime: { [key: string]: number } = {};
     microTransactions.forEach((item) => {
       if (item.expiresIn) {
-        initialTime[item.id] = item.expiresIn
+        initialTime[item.id] = item.expiresIn;
       }
-    })
-    setTimeRemaining(initialTime)
-  }, [])
+    });
+    setTimeRemaining(initialTime);
+  }, []);
 
-  if (!profile) return null
+  if (!profile) return null;
 
-  const xpProgress = (profile.xp / profile.xpToNextLevel) * 100
+  const xpProgress = (profile.xp / profile.xpToNextLevel) * 100;
 
   const microTransactions: MicroTransaction[] = [
     {
-      id: 'sniper-mode',
-      title: 'SNIPER MODE',
-      subtitle: 'PRECISION TOKEN HUNTER',
-      description: 'Advanced token launch detection with sub-second entry timing and slippage protection',
+      id: "sniper-mode",
+      title: "SNIPER MODE",
+      subtitle: "PRECISION TOKEN HUNTER",
+      description:
+        "Advanced token launch detection with sub-second entry timing and slippage protection",
       price: 7.99,
-      icon: <Target size={48} weight="duotone" className="text-primary neon-glow-primary" />,
-      category: 'upgrade',
+      icon: (
+        <Target
+          size={48}
+          weight="duotone"
+          className="text-primary neon-glow-primary"
+        />
+      ),
+      category: "upgrade",
       duration: 168,
       featured: true,
-      benefit1: 'Sub-second detection',
-      benefit2: 'Auto-slippage calc',
-      benefit3: '7-day access',
-      purchased: purchasedItems?.includes('sniper-mode') || false
+      benefit1: "Sub-second detection",
+      benefit2: "Auto-slippage calc",
+      benefit3: "7-day access",
+      purchased: purchasedItems?.includes("sniper-mode") || false,
     },
     {
-      id: 'market-intel',
-      title: 'MARKET INTEL PRO',
-      subtitle: 'WHALE TRACKER SYSTEM',
-      description: 'Real-time whale wallet monitoring with instant alerts on large movements and accumulation patterns',
+      id: "market-intel",
+      title: "MARKET INTEL PRO",
+      subtitle: "WHALE TRACKER SYSTEM",
+      description:
+        "Real-time whale wallet monitoring with instant alerts on large movements and accumulation patterns",
       price: 9.99,
-      icon: <Brain size={48} weight="duotone" className="text-accent neon-glow-accent" />,
-      category: 'upgrade',
+      icon: (
+        <Brain
+          size={48}
+          weight="duotone"
+          className="text-accent neon-glow-accent"
+        />
+      ),
+      category: "upgrade",
       duration: 168,
       featured: true,
-      benefit1: 'Whale alerts',
-      benefit2: 'Accumulation zones',
-      benefit3: 'Smart money flow',
-      purchased: purchasedItems?.includes('market-intel') || false
+      benefit1: "Whale alerts",
+      benefit2: "Accumulation zones",
+      benefit3: "Smart money flow",
+      purchased: purchasedItems?.includes("market-intel") || false,
     },
     {
-      id: 'dca-optimizer',
-      title: 'DCA OPTIMIZER',
-      subtitle: 'INTELLIGENT ACCUMULATION',
-      description: 'AI-powered DCA timing that buys dips automatically based on RSI and support levels',
+      id: "dca-optimizer",
+      title: "DCA OPTIMIZER",
+      subtitle: "INTELLIGENT ACCUMULATION",
+      description:
+        "AI-powered DCA timing that buys dips automatically based on RSI and support levels",
       price: 6.99,
-      icon: <GitBranch size={48} weight="duotone" className="text-secondary neon-glow-secondary" />,
-      category: 'upgrade',
+      icon: (
+        <GitBranch
+          size={48}
+          weight="duotone"
+          className="text-secondary neon-glow-secondary"
+        />
+      ),
+      category: "upgrade",
       duration: 168,
       featured: true,
-      benefit1: 'Smart dip buying',
-      benefit2: 'RSI-based timing',
-      benefit3: 'Lower avg entry',
-      purchased: purchasedItems?.includes('dca-optimizer') || false
+      benefit1: "Smart dip buying",
+      benefit2: "RSI-based timing",
+      benefit3: "Lower avg entry",
+      purchased: purchasedItems?.includes("dca-optimizer") || false,
     },
     {
-      id: 'xp-boost-small',
-      title: 'XP SURGE',
-      description: '+50% XP earnings boost for 24 hours',
+      id: "xp-boost-small",
+      title: "XP SURGE",
+      description: "+50% XP earnings boost for 24 hours",
       price: 2.99,
       icon: <Lightning size={40} weight="duotone" className="text-primary" />,
-      category: 'boost',
+      category: "boost",
       duration: 24,
       discount: 15,
       expiresIn: 3600,
-      purchased: purchasedItems?.includes('xp-boost-small') || false
+      purchased: purchasedItems?.includes("xp-boost-small") || false,
     },
     {
-      id: 'flash-execution',
-      title: 'FLASH EXECUTION',
-      description: 'Priority routing for instant trades during volatile market moves',
+      id: "flash-execution",
+      title: "FLASH EXECUTION",
+      description:
+        "Priority routing for instant trades during volatile market moves",
       price: 4.99,
       icon: <Rocket size={40} weight="duotone" className="text-accent" />,
-      category: 'boost',
+      category: "boost",
       duration: 48,
       discount: 20,
       expiresIn: 7200,
-      purchased: purchasedItems?.includes('flash-execution') || false
+      purchased: purchasedItems?.includes("flash-execution") || false,
     },
     {
-      id: 'instant-xp',
-      title: 'INSTANT 500 XP',
-      description: 'Immediate level boost with no grinding required',
+      id: "instant-xp",
+      title: "INSTANT 500 XP",
+      description: "Immediate level boost with no grinding required",
       price: 1.99,
       icon: <Star size={40} weight="fill" className="text-primary" />,
-      category: 'boost',
+      category: "boost",
       discount: 30,
       expiresIn: 5400,
-      purchased: false
+      purchased: false,
     },
     {
-      id: 'profit-multiplier',
-      title: 'PROFIT AMPLIFIER',
-      description: 'Access advanced RL agent strategies for 30 days',
+      id: "profit-multiplier",
+      title: "PROFIT AMPLIFIER",
+      description: "Access advanced RL agent strategies for 30 days",
       price: 19.99,
       icon: <ChartLineUp size={40} weight="duotone" className="text-accent" />,
-      category: 'upgrade',
+      category: "upgrade",
       duration: 720,
-      purchased: purchasedItems?.includes('profit-multiplier') || false
+      purchased: purchasedItems?.includes("profit-multiplier") || false,
     },
     {
-      id: 'elite-badge',
-      title: 'ELITE TRADER',
-      description: 'Exclusive neon badge showing your commitment',
+      id: "elite-badge",
+      title: "ELITE TRADER",
+      description: "Exclusive neon badge showing your commitment",
       price: 5.99,
-      icon: <ShieldCheck size={40} weight="duotone" className="text-secondary" />,
-      category: 'cosmetic',
-      purchased: purchasedItems?.includes('elite-badge') || false
+      icon: (
+        <ShieldCheck size={40} weight="duotone" className="text-secondary" />
+      ),
+      category: "cosmetic",
+      purchased: purchasedItems?.includes("elite-badge") || false,
     },
     {
-      id: 'sentiment-scanner',
-      title: 'SENTIMENT SCANNER',
-      description: 'AI sentiment analysis from Twitter, Reddit, and Discord in real-time',
+      id: "sentiment-scanner",
+      title: "SENTIMENT SCANNER",
+      description:
+        "AI sentiment analysis from Twitter, Reddit, and Discord in real-time",
       price: 12.99,
       icon: <Atom size={40} weight="duotone" className="text-primary" />,
-      category: 'upgrade',
+      category: "upgrade",
       duration: 336,
-      purchased: purchasedItems?.includes('sentiment-scanner') || false
-    }
-  ]
+      purchased: purchasedItems?.includes("sentiment-scanner") || false,
+    },
+  ];
 
   const purchaseItem = (item: MicroTransaction) => {
     if (item.purchased) {
-      toast.info('Already owned', {
-        description: 'You already have this enhancement'
-      })
-      return
+      toast.info("Already owned", {
+        description: "You already have this enhancement",
+      });
+      return;
     }
 
-    toast.success('Purchase Successful!', {
+    toast.success("Purchase Successful!", {
       description: `${item.title} has been activated for ${item.duration || 0} hours`,
-      icon: '✨'
-    })
+      icon: "✨",
+    });
 
-    setPurchasedItems((current) => [...(current || []), item.id])
+    setPurchasedItems((current) => [...(current || []), item.id]);
 
-    if (item.id === 'instant-xp') {
+    if (item.id === "instant-xp") {
       setProfile((current) => {
         if (!current) {
           return {
-            username: 'QuantumTrader',
+            username: "QuantumTrader",
             level: 7,
             xp: 500,
             xpToNextLevel: 3000,
-            badges: ['Early Adopter', 'Profit Maker', 'Bot Master'],
+            badges: ["Early Adopter", "Profit Maker", "Bot Master"],
             rank: 47,
             wins: 124,
-            streak: 5
-          }
+            streak: 5,
+          };
         }
-        const newXP = current.xp + 500
-        let newLevel = current.level
-        let newXPToNext = current.xpToNextLevel
+        const newXP = current.xp + 500;
+        let newLevel = current.level;
+        let newXPToNext = current.xpToNextLevel;
 
         if (newXP >= current.xpToNextLevel) {
-          newLevel += 1
-          newXPToNext = current.xpToNextLevel + 500
-          toast.success('Level Up!', {
+          newLevel += 1;
+          newXPToNext = current.xpToNextLevel + 500;
+          toast.success("Level Up!", {
             description: `You are now level ${newLevel}! Check your new perks!`,
-            icon: '🎉'
-          })
+            icon: "🎉",
+          });
         }
 
         return {
           ...current,
-          xp: newXP >= current.xpToNextLevel ? newXP - current.xpToNextLevel : newXP,
+          xp:
+            newXP >= current.xpToNextLevel
+              ? newXP - current.xpToNextLevel
+              : newXP,
           level: newLevel,
-          xpToNextLevel: newXPToNext
-        }
-      })
+          xpToNextLevel: newXPToNext,
+        };
+      });
     }
-  }
+  };
 
   const levelRewards = [
-    { level: 5, perk: 'FLASH EXECUTION', duration: '24h', description: 'Priority trade routing unlocked' },
-    { level: 10, perk: 'SNIPER MODE', duration: '48h', description: 'Token launch detection active' },
-    { level: 15, perk: 'MARKET INTEL PRO', duration: '72h', description: 'Whale tracker enabled' },
-    { level: 20, perk: 'PROFIT AMPLIFIER', duration: '7 days', description: 'Advanced RL agents unlocked' },
-    { level: 25, perk: 'SENTIMENT SCANNER', duration: '14 days', description: 'Social sentiment analysis active' },
-  ]
+    {
+      level: 5,
+      perk: "FLASH EXECUTION",
+      duration: "24h",
+      description: "Priority trade routing unlocked",
+    },
+    {
+      level: 10,
+      perk: "SNIPER MODE",
+      duration: "48h",
+      description: "Token launch detection active",
+    },
+    {
+      level: 15,
+      perk: "MARKET INTEL PRO",
+      duration: "72h",
+      description: "Whale tracker enabled",
+    },
+    {
+      level: 20,
+      perk: "PROFIT AMPLIFIER",
+      duration: "7 days",
+      description: "Advanced RL agents unlocked",
+    },
+    {
+      level: 25,
+      perk: "SENTIMENT SCANNER",
+      duration: "14 days",
+      description: "Social sentiment analysis active",
+    },
+  ];
 
-  const nextReward = levelRewards.find((r) => r.level > profile.level)
+  const nextReward = levelRewards.find((r) => r.level > profile.level);
 
   const earnXP = (actionType: string, xpAmount: number) => {
     setProfile((current) => {
       if (!current) {
         return {
-          username: 'QuantumTrader',
+          username: "QuantumTrader",
           level: 1,
           xp: xpAmount,
           xpToNextLevel: 1000,
           badges: [],
           rank: 999,
           wins: 0,
-          streak: 0
-        }
+          streak: 0,
+        };
       }
 
-      const newXP = current.xp + xpAmount
-      let newLevel = current.level
-      let newXPToNext = current.xpToNextLevel
+      const newXP = current.xp + xpAmount;
+      let newLevel = current.level;
+      let newXPToNext = current.xpToNextLevel;
 
       if (newXP >= current.xpToNextLevel) {
-        newLevel += 1
-        newXPToNext = current.xpToNextLevel + 500
-        
-        const reward = levelRewards.find((r) => r.level === newLevel)
+        newLevel += 1;
+        newXPToNext = current.xpToNextLevel + 500;
+
+        const reward = levelRewards.find((r) => r.level === newLevel);
         if (reward) {
           toast.success(`Level ${newLevel} Unlocked!`, {
             description: `🎁 ${reward.perk} active for ${reward.duration}`,
             duration: 5000,
-            icon: '🎉'
-          })
+            icon: "🎉",
+          });
         }
       }
 
       return {
         ...current,
-        xp: newXP >= current.xpToNextLevel ? newXP - current.xpToNextLevel : newXP,
+        xp:
+          newXP >= current.xpToNextLevel
+            ? newXP - current.xpToNextLevel
+            : newXP,
         level: newLevel,
-        xpToNextLevel: newXPToNext
-      }
-    })
+        xpToNextLevel: newXPToNext,
+      };
+    });
 
     toast.success(`+${xpAmount} XP`, {
       description: actionType,
-      duration: 2000
-    })
-  }
+      duration: 2000,
+    });
+  };
 
   const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
 
     if (hours > 0) {
-      return `${hours}h ${minutes}m`
+      return `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
-      return `${minutes}m ${secs}s`
+      return `${minutes}m ${secs}s`;
     } else {
-      return `${secs}s`
+      return `${secs}s`;
     }
-  }
+  };
 
-  const activeBoosts = microTransactions.filter((item) => item.purchased && item.category === 'boost')
+  const activeBoosts = microTransactions.filter(
+    (item) => item.purchased && item.category === "boost",
+  );
 
   return (
     <div className="space-y-6">
@@ -342,12 +407,25 @@ export default function EnhancedCommunity() {
         <div className="absolute inset-0 technical-grid opacity-10" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/10 blur-3xl" />
-        
+
         <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none">
           <line x1="0" y1="20%" x2="100%" y2="20%" className="circuit-line" />
           <line x1="0" y1="80%" x2="100%" y2="80%" className="circuit-line" />
-          <circle cx="10%" cy="20%" r="4" fill="var(--primary)" className="animate-pulse" />
-          <circle cx="90%" cy="80%" r="4" fill="var(--accent)" className="animate-pulse" style={{ animationDelay: '0.5s' }} />
+          <circle
+            cx="10%"
+            cy="20%"
+            r="4"
+            fill="var(--primary)"
+            className="animate-pulse"
+          />
+          <circle
+            cx="90%"
+            cy="80%"
+            r="4"
+            fill="var(--accent)"
+            className="animate-pulse"
+            style={{ animationDelay: "0.5s" }}
+          />
         </svg>
 
         <div className="relative z-10 p-8">
@@ -355,7 +433,9 @@ export default function EnhancedCommunity() {
             <div className="relative">
               <ProfileUpload size="xl" showUploadButton={true} />
               <div className="absolute -top-2 -right-2 bg-primary border-2 border-background px-3 py-1 jagged-corner-small">
-                <span className="text-xs font-black text-primary-foreground uppercase tracking-wider">LVL {profile.level}</span>
+                <span className="text-xs font-black text-primary-foreground uppercase tracking-wider">
+                  LVL {profile.level}
+                </span>
               </div>
             </div>
 
@@ -393,7 +473,10 @@ export default function EnhancedCommunity() {
                   </span>
                 </div>
                 <div className="relative">
-                  <Progress value={xpProgress} className="h-3 border border-primary/30" />
+                  <Progress
+                    value={xpProgress}
+                    className="h-3 border border-primary/30"
+                  />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-[9px] font-bold text-foreground drop-shadow-lg uppercase tracking-wider">
                       {Math.round(xpProgress)}% TO NEXT LEVEL
@@ -401,18 +484,28 @@ export default function EnhancedCommunity() {
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground text-center uppercase tracking-wide">
-                  <span className="text-accent font-bold">{profile.xpToNextLevel - profile.xp} XP</span> NEEDED FOR LEVEL {profile.level + 1}
+                  <span className="text-accent font-bold">
+                    {profile.xpToNextLevel - profile.xp} XP
+                  </span>{" "}
+                  NEEDED FOR LEVEL {profile.level + 1}
                 </div>
               </div>
 
               {activeBoosts.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-2 border-t border-primary/20">
                   <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold flex items-center gap-1">
-                    <Lightning size={12} weight="fill" className="text-primary" />
+                    <Lightning
+                      size={12}
+                      weight="fill"
+                      className="text-primary"
+                    />
                     ACTIVE_BOOSTS:
                   </span>
                   {activeBoosts.map((boost) => (
-                    <Badge key={boost.id} className="bg-accent/20 text-accent border border-accent/50 uppercase text-[10px] tracking-wider font-bold jagged-corner-small animate-pulse-glow">
+                    <Badge
+                      key={boost.id}
+                      className="bg-accent/20 text-accent border border-accent/50 uppercase text-[10px] tracking-wider font-bold jagged-corner-small animate-pulse-glow"
+                    >
                       {boost.title}
                     </Badge>
                   ))}
@@ -430,11 +523,19 @@ export default function EnhancedCommunity() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-accent/20 rounded-full border-2 border-accent/50">
-                  <Star size={24} weight="fill" className="text-accent neon-glow-accent" />
+                  <Star
+                    size={24}
+                    weight="fill"
+                    className="text-accent neon-glow-accent"
+                  />
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold uppercase tracking-wider text-accent hud-text">Next Reward</h4>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Level {nextReward.level} unlock</p>
+                  <h4 className="text-lg font-bold uppercase tracking-wider text-accent hud-text">
+                    Next Reward
+                  </h4>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Level {nextReward.level} unlock
+                  </p>
                 </div>
               </div>
               <Badge className="bg-accent/20 text-accent border-2 border-accent/50 uppercase tracking-wider font-black px-3 py-1.5 jagged-corner-small">
@@ -443,12 +544,18 @@ export default function EnhancedCommunity() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold uppercase tracking-wider text-foreground">{nextReward.perk}</span>
-                <span className="text-sm text-accent font-black hud-value">{nextReward.duration}</span>
+                <span className="text-sm font-bold uppercase tracking-wider text-foreground">
+                  {nextReward.perk}
+                </span>
+                <span className="text-sm text-accent font-black hud-value">
+                  {nextReward.duration}
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground">{nextReward.description}</p>
-              <Button 
-                onClick={() => earnXP('Daily Challenge Complete', 250)}
+              <p className="text-xs text-muted-foreground">
+                {nextReward.description}
+              </p>
+              <Button
+                onClick={() => earnXP("Daily Challenge Complete", 250)}
                 size="sm"
                 className="w-full mt-3 jagged-corner-small bg-accent hover:bg-accent/90"
               >
@@ -462,29 +569,29 @@ export default function EnhancedCommunity() {
 
       <Tabs defaultValue="marketplace" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
-          <TabsTrigger 
-            value="marketplace" 
+          <TabsTrigger
+            value="marketplace"
             className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
           >
             <Sparkle size={16} weight="duotone" className="mr-2" />
             OFFERS
           </TabsTrigger>
-          <TabsTrigger 
-            value="perks" 
+          <TabsTrigger
+            value="perks"
             className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-accent/20 data-[state=active]:text-accent data-[state=active]:border-2 data-[state=active]:border-accent jagged-corner-small transition-all"
           >
             <Star size={16} weight="fill" className="mr-2" />
             XP PERKS
           </TabsTrigger>
-          <TabsTrigger 
-            value="boosts" 
+          <TabsTrigger
+            value="boosts"
             className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-accent/20 data-[state=active]:text-accent data-[state=active]:border-2 data-[state=active]:border-accent jagged-corner-small transition-all"
           >
             <Lightning size={16} weight="duotone" className="mr-2" />
             BOOSTS
           </TabsTrigger>
-          <TabsTrigger 
-            value="leaderboard" 
+          <TabsTrigger
+            value="leaderboard"
             className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-secondary/20 data-[state=active]:text-secondary data-[state=active]:border-2 data-[state=active]:border-secondary jagged-corner-small transition-all"
           >
             <Trophy size={16} weight="duotone" className="mr-2" />
@@ -497,21 +604,24 @@ export default function EnhancedCommunity() {
             <div className="absolute inset-0 technical-grid opacity-10" />
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 blur-3xl rounded-full" />
-            
+
             <div className="relative z-10">
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h3 className="text-3xl md:text-4xl font-black uppercase tracking-[0.2em] mb-2">
-                    <span className="text-primary neon-glow-primary">SPECIAL</span>
+                    <span className="text-primary neon-glow-primary">
+                      SPECIAL
+                    </span>
                   </h3>
                   <h3 className="text-3xl md:text-4xl font-black uppercase tracking-[0.2em]">
                     <span className="text-foreground">OFFERS</span>
                   </h3>
                   <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] mt-4 max-w-md leading-relaxed">
-                    A high-speed, neon-drenched shooter where reflexes rule and legends are forged.
+                    A high-speed, neon-drenched shooter where reflexes rule and
+                    legends are forged.
                   </p>
-                  <Button 
-                    variant="link" 
+                  <Button
+                    variant="link"
                     className="text-primary uppercase tracking-wider text-xs mt-2 p-0 h-auto underline hover:no-underline"
                   >
                     VIEW MORE →
@@ -520,69 +630,98 @@ export default function EnhancedCommunity() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {microTransactions.filter(item => item.featured).map((item, index) => {
-                  const colors = [
-                    { bg: 'bg-gradient-to-br from-primary/30 to-primary/10', border: 'border-primary', glow: 'shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)]', text: 'text-primary' },
-                    { bg: 'bg-gradient-to-br from-accent/30 to-accent/10', border: 'border-accent', glow: 'shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]', text: 'text-accent' },
-                    { bg: 'bg-gradient-to-br from-secondary/30 to-secondary/10', border: 'border-secondary', glow: 'shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]', text: 'text-secondary' }
-                  ]
-                  const color = colors[index]
+                {microTransactions
+                  .filter((item) => item.featured)
+                  .map((item, index) => {
+                    const colors = [
+                      {
+                        bg: "bg-gradient-to-br from-primary/30 to-primary/10",
+                        border: "border-primary",
+                        glow: "shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)]",
+                        text: "text-primary",
+                      },
+                      {
+                        bg: "bg-gradient-to-br from-accent/30 to-accent/10",
+                        border: "border-accent",
+                        glow: "shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]",
+                        text: "text-accent",
+                      },
+                      {
+                        bg: "bg-gradient-to-br from-secondary/30 to-secondary/10",
+                        border: "border-secondary",
+                        glow: "shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]",
+                        text: "text-secondary",
+                      },
+                    ];
+                    const color = colors[index];
 
-                  return (
-                    <div
-                      key={item.id}
-                      className={`${color.bg} ${color.border} border-2 p-6 relative overflow-hidden jagged-corner group hover:${color.glow} transition-all duration-300 cursor-pointer`}
-                    >
-                      <div className="absolute inset-0 diagonal-stripes opacity-5" />
-                      
-                      <div className="relative z-10 space-y-4">
-                        <div className="flex justify-center mb-4">
-                          <div className="relative">
-                            {item.icon}
-                            <div className={`absolute inset-0 ${color.bg} blur-xl opacity-50 group-hover:opacity-80 transition-opacity`} />
+                    return (
+                      <div
+                        key={item.id}
+                        className={`${color.bg} ${color.border} border-2 p-6 relative overflow-hidden jagged-corner group hover:${color.glow} transition-all duration-300 cursor-pointer`}
+                      >
+                        <div className="absolute inset-0 diagonal-stripes opacity-5" />
+
+                        <div className="relative z-10 space-y-4">
+                          <div className="flex justify-center mb-4">
+                            <div className="relative">
+                              {item.icon}
+                              <div
+                                className={`absolute inset-0 ${color.bg} blur-xl opacity-50 group-hover:opacity-80 transition-opacity`}
+                              />
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="text-center space-y-2">
-                          <h4 className={`text-xl font-black uppercase tracking-[0.15em] ${color.text} hud-text`}>
-                            {item.title}
-                          </h4>
-                          {item.subtitle && (
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold">
-                              {item.subtitle}
-                            </p>
+                          <div className="text-center space-y-2">
+                            <h4
+                              className={`text-xl font-black uppercase tracking-[0.15em] ${color.text} hud-text`}
+                            >
+                              {item.title}
+                            </h4>
+                            {item.subtitle && (
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold">
+                                {item.subtitle}
+                              </p>
+                            )}
+                          </div>
+
+                          <p className="text-xs text-foreground/80 text-center leading-relaxed min-h-[3rem]">
+                            {item.description}
+                          </p>
+
+                          {item.benefit1 && (
+                            <div className="space-y-1 pt-2 border-t border-current/20">
+                              <div className="flex items-center justify-between text-[10px]">
+                                <span className="text-muted-foreground uppercase tracking-wider">
+                                  {item.benefit1}:
+                                </span>
+                                <span
+                                  className={`${color.text} font-bold uppercase tracking-wider`}
+                                >
+                                  {item.benefit2}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-center text-muted-foreground italic">
+                                {item.benefit3}
+                              </div>
+                            </div>
                           )}
+
+                          <Button
+                            onClick={() => purchaseItem(item)}
+                            disabled={item.purchased}
+                            className={`w-full uppercase tracking-[0.15em] font-bold text-xs jagged-corner-small ${color.border} border-2 hover:bg-current/10 transition-all`}
+                            variant="outline"
+                            size="sm"
+                          >
+                            {item.purchased
+                              ? "OWNED"
+                              : `EARN NOW - $${item.price.toFixed(2)}`}
+                          </Button>
                         </div>
-
-                        <p className="text-xs text-foreground/80 text-center leading-relaxed min-h-[3rem]">
-                          {item.description}
-                        </p>
-
-                        {item.benefit1 && (
-                          <div className="space-y-1 pt-2 border-t border-current/20">
-                            <div className="flex items-center justify-between text-[10px]">
-                              <span className="text-muted-foreground uppercase tracking-wider">{item.benefit1}:</span>
-                              <span className={`${color.text} font-bold uppercase tracking-wider`}>{item.benefit2}</span>
-                            </div>
-                            <div className="text-[10px] text-center text-muted-foreground italic">
-                              {item.benefit3}
-                            </div>
-                          </div>
-                        )}
-
-                        <Button
-                          onClick={() => purchaseItem(item)}
-                          disabled={item.purchased}
-                          className={`w-full uppercase tracking-[0.15em] font-bold text-xs jagged-corner-small ${color.border} border-2 hover:bg-current/10 transition-all`}
-                          variant="outline"
-                          size="sm"
-                        >
-                          {item.purchased ? 'OWNED' : `EARN NOW - $${item.price.toFixed(2)}`}
-                        </Button>
                       </div>
-                    </div>
-                  )
-                })}
+                    );
+                  })}
               </div>
             </div>
           </div>
@@ -599,113 +738,134 @@ export default function EnhancedCommunity() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {microTransactions.filter(item => !item.featured).map((item) => {
-                const isLimited = item.expiresIn && timeRemaining[item.id]
-                const hasDiscount = item.discount && item.discount > 0
+              {microTransactions
+                .filter((item) => !item.featured)
+                .map((item) => {
+                  const isLimited = item.expiresIn && timeRemaining[item.id];
+                  const hasDiscount = item.discount && item.discount > 0;
 
-                return (
-                  <div
-                    key={item.id}
-                    className={`glass-morph-card p-5 space-y-4 relative overflow-hidden group hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)] transition-all duration-300 ${
-                      isLimited ? 'border-2 border-accent' : ''
-                    }`}
-                  >
-                    <div className="absolute inset-0 grid-background opacity-5" />
-                    
-                    {hasDiscount && (
-                      <div className="absolute top-0 right-0 bg-destructive text-destructive-foreground px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] jagged-corner-small z-20">
-                        -{item.discount}% OFF
-                      </div>
-                    )}
+                  return (
+                    <div
+                      key={item.id}
+                      className={`glass-morph-card p-5 space-y-4 relative overflow-hidden group hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)] transition-all duration-300 ${
+                        isLimited ? "border-2 border-accent" : ""
+                      }`}
+                    >
+                      <div className="absolute inset-0 grid-background opacity-5" />
 
-                    {isLimited && (
-                      <div className="absolute top-0 left-0">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-accent/20 blur-lg" />
-                          <div className="relative bg-accent/90 text-accent-foreground px-3 py-1 text-[10px] font-black uppercase tracking-wider backdrop-blur-sm">
-                            <Lightning size={10} weight="fill" className="inline mr-1" />
-                            FLASH_SALE
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="relative z-10 pt-8">
-                      <div className="flex items-center justify-center mb-4">
-                        <div className="p-4 bg-primary/10 border border-primary/30 jagged-corner-small">
-                          {item.icon}
-                        </div>
-                      </div>
-
-                      <div className="text-center space-y-2 mb-4">
-                        <h4 className="font-bold uppercase tracking-[0.12em] text-sm text-primary">
-                          {item.title}
-                        </h4>
-                        <Badge variant="outline" className="text-[9px] uppercase tracking-wider">
-                          {item.category}
-                        </Badge>
-                      </div>
-
-                      <p className="text-xs text-muted-foreground text-center leading-relaxed min-h-[2.5rem]">
-                        {item.description}
-                      </p>
-
-                      {item.duration && (
-                        <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground uppercase tracking-wide py-2">
-                          <Clock size={12} weight="duotone" />
-                          <span>ACTIVE_{item.duration}H</span>
+                      {hasDiscount && (
+                        <div className="absolute top-0 right-0 bg-destructive text-destructive-foreground px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] jagged-corner-small z-20">
+                          -{item.discount}% OFF
                         </div>
                       )}
 
-                      {isLimited && timeRemaining[item.id] > 0 && (
-                        <div className="bg-accent/10 border border-accent/30 p-2 text-center jagged-corner-small animate-pulse-glow">
-                          <div className="text-[10px] text-accent uppercase tracking-[0.15em] font-bold">
-                            ⚡ {formatTime(timeRemaining[item.id])} REMAINING
+                      {isLimited && (
+                        <div className="absolute top-0 left-0">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-accent/20 blur-lg" />
+                            <div className="relative bg-accent/90 text-accent-foreground px-3 py-1 text-[10px] font-black uppercase tracking-wider backdrop-blur-sm">
+                              <Lightning
+                                size={10}
+                                weight="fill"
+                                className="inline mr-1"
+                              />
+                              FLASH_SALE
+                            </div>
                           </div>
                         </div>
                       )}
 
-                      <div className="pt-4 mt-4 border-t border-primary/20 space-y-3">
-                        <div className="flex items-center justify-center gap-3">
-                          {hasDiscount ? (
-                            <>
-                              <span className="text-sm font-bold text-muted-foreground line-through">
+                      <div className="relative z-10 pt-8">
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="p-4 bg-primary/10 border border-primary/30 jagged-corner-small">
+                            {item.icon}
+                          </div>
+                        </div>
+
+                        <div className="text-center space-y-2 mb-4">
+                          <h4 className="font-bold uppercase tracking-[0.12em] text-sm text-primary">
+                            {item.title}
+                          </h4>
+                          <Badge
+                            variant="outline"
+                            className="text-[9px] uppercase tracking-wider"
+                          >
+                            {item.category}
+                          </Badge>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground text-center leading-relaxed min-h-[2.5rem]">
+                          {item.description}
+                        </p>
+
+                        {item.duration && (
+                          <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground uppercase tracking-wide py-2">
+                            <Clock size={12} weight="duotone" />
+                            <span>ACTIVE_{item.duration}H</span>
+                          </div>
+                        )}
+
+                        {isLimited && timeRemaining[item.id] > 0 && (
+                          <div className="bg-accent/10 border border-accent/30 p-2 text-center jagged-corner-small animate-pulse-glow">
+                            <div className="text-[10px] text-accent uppercase tracking-[0.15em] font-bold">
+                              ⚡ {formatTime(timeRemaining[item.id])} REMAINING
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="pt-4 mt-4 border-t border-primary/20 space-y-3">
+                          <div className="flex items-center justify-center gap-3">
+                            {hasDiscount ? (
+                              <>
+                                <span className="text-sm font-bold text-muted-foreground line-through">
+                                  ${item.price.toFixed(2)}
+                                </span>
+                                <span className="text-2xl font-black text-primary hud-value">
+                                  $
+                                  {(
+                                    item.price *
+                                    (1 - (item.discount || 0) / 100)
+                                  ).toFixed(2)}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-2xl font-black text-primary hud-value">
                                 ${item.price.toFixed(2)}
                               </span>
-                              <span className="text-2xl font-black text-primary hud-value">
-                                ${(item.price * (1 - (item.discount || 0) / 100)).toFixed(2)}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-2xl font-black text-primary hud-value">
-                              ${item.price.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
+                            )}
+                          </div>
 
-                        <Button
-                          onClick={() => purchaseItem(item)}
-                          disabled={item.purchased}
-                          className="w-full jagged-corner-small uppercase tracking-[0.12em] font-bold text-xs group/btn"
-                          size="sm"
-                        >
-                          {item.purchased ? (
-                            <>
-                              <ShieldCheck size={14} weight="fill" className="mr-1" />
-                              OWNED
-                            </>
-                          ) : (
-                            <>
-                              <Lightning size={14} weight="fill" className="mr-1 group-hover/btn:animate-pulse" />
-                              BUY_NOW
-                            </>
-                          )}
-                        </Button>
+                          <Button
+                            onClick={() => purchaseItem(item)}
+                            disabled={item.purchased}
+                            className="w-full jagged-corner-small uppercase tracking-[0.12em] font-bold text-xs group/btn"
+                            size="sm"
+                          >
+                            {item.purchased ? (
+                              <>
+                                <ShieldCheck
+                                  size={14}
+                                  weight="fill"
+                                  className="mr-1"
+                                />
+                                OWNED
+                              </>
+                            ) : (
+                              <>
+                                <Lightning
+                                  size={14}
+                                  weight="fill"
+                                  className="mr-1 group-hover/btn:animate-pulse"
+                                />
+                                BUY_NOW
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
+                  );
+                })}
             </div>
           </div>
         </TabsContent>
@@ -718,18 +878,25 @@ export default function EnhancedCommunity() {
           {activeBoosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeBoosts.map((boost) => (
-                <div key={boost.id} className="glass-morph-card p-6 space-y-4 border-2 border-accent/50 relative overflow-hidden group">
+                <div
+                  key={boost.id}
+                  className="glass-morph-card p-6 space-y-4 border-2 border-accent/50 relative overflow-hidden group"
+                >
                   <div className="absolute inset-0 grid-background opacity-5" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-3xl" />
-                  
+
                   <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="p-4 bg-accent/20 border-2 border-accent/40 jagged-corner-small">
                         {boost.icon}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-bold uppercase tracking-[0.12em] text-accent mb-1">{boost.title}</h4>
-                        <p className="text-xs text-muted-foreground">{boost.description}</p>
+                        <h4 className="font-bold uppercase tracking-[0.12em] text-accent mb-1">
+                          {boost.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          {boost.description}
+                        </p>
                       </div>
                     </div>
 
@@ -755,17 +922,25 @@ export default function EnhancedCommunity() {
             <div className="glass-morph-card p-16 text-center relative overflow-hidden">
               <div className="absolute inset-0 technical-grid opacity-5" />
               <div className="relative z-10">
-                <Fire size={64} weight="duotone" className="text-muted-foreground mx-auto mb-4 opacity-50" />
+                <Fire
+                  size={64}
+                  weight="duotone"
+                  className="text-muted-foreground mx-auto mb-4 opacity-50"
+                />
                 <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-foreground mb-2">
                   NO_ACTIVE_BOOSTS
                 </h3>
                 <p className="text-sm text-muted-foreground mb-6 uppercase tracking-wide">
                   PURCHASE ENHANCEMENTS TO GAIN COMPETITIVE EDGE
                 </p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="border-2 border-primary text-primary hover:bg-primary/10 uppercase tracking-[0.15em] font-bold jagged-corner-small"
-                  onClick={() => document.querySelector<HTMLButtonElement>('[value="marketplace"]')?.click()}
+                  onClick={() =>
+                    document
+                      .querySelector<HTMLButtonElement>('[value="marketplace"]')
+                      ?.click()
+                  }
                 >
                   <Lightning size={16} weight="fill" className="mr-2" />
                   BROWSE_OFFERS
@@ -790,29 +965,66 @@ export default function EnhancedCommunity() {
 
           <div className="space-y-3">
             {[
-              { rank: 1, user: 'DiamondHands', profit: '+$12,847', wins: 247, level: 15, avatar: '💎' },
-              { rank: 2, user: 'SolanaWhale', profit: '+$9,134', wins: 198, level: 13, avatar: '🐋' },
-              { rank: 3, user: 'BotMaster3000', profit: '+$7,923', wins: 176, level: 14, avatar: '🤖' },
-              { rank: 4, user: 'CryptoNinja', profit: '+$5,421', wins: 164, level: 12, avatar: '🥷' },
-              { rank: 5, user: profile.username, profit: '+$3,836', wins: profile.wins, level: profile.level, avatar: '⚡' },
+              {
+                rank: 1,
+                user: "DiamondHands",
+                profit: "+$12,847",
+                wins: 247,
+                level: 15,
+                avatar: "💎",
+              },
+              {
+                rank: 2,
+                user: "SolanaWhale",
+                profit: "+$9,134",
+                wins: 198,
+                level: 13,
+                avatar: "🐋",
+              },
+              {
+                rank: 3,
+                user: "BotMaster3000",
+                profit: "+$7,923",
+                wins: 176,
+                level: 14,
+                avatar: "🤖",
+              },
+              {
+                rank: 4,
+                user: "CryptoNinja",
+                profit: "+$5,421",
+                wins: 164,
+                level: 12,
+                avatar: "🥷",
+              },
+              {
+                rank: 5,
+                user: profile.username,
+                profit: "+$3,836",
+                wins: profile.wins,
+                level: profile.level,
+                avatar: "⚡",
+              },
             ].map((entry) => {
-              const isCurrentUser = entry.user === profile.username
-              const isTopThree = entry.rank <= 3
+              const isCurrentUser = entry.user === profile.username;
+              const isTopThree = entry.rank <= 3;
               const rankColors = [
-                'text-accent border-accent/50 bg-accent/10',
-                'text-primary border-primary/50 bg-primary/10',
-                'text-secondary border-secondary/50 bg-secondary/10'
-              ]
+                "text-accent border-accent/50 bg-accent/10",
+                "text-primary border-primary/50 bg-primary/10",
+                "text-secondary border-secondary/50 bg-secondary/10",
+              ];
 
               return (
                 <div
                   key={entry.rank}
                   className={`glass-morph-card p-5 flex items-center gap-4 relative overflow-hidden group hover:scale-[1.02] transition-all ${
-                    isCurrentUser ? 'border-3 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)]' : ''
+                    isCurrentUser
+                      ? "border-3 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)]"
+                      : ""
                   }`}
                 >
                   <div className="absolute inset-0 grid-background opacity-5" />
-                  
+
                   {isCurrentUser && (
                     <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-[10px] font-black uppercase tracking-wider jagged-corner-small">
                       YOU
@@ -820,42 +1032,75 @@ export default function EnhancedCommunity() {
                   )}
 
                   <div className="relative z-10 flex items-center gap-4 flex-1">
-                    <div className={`text-3xl font-black hud-value min-w-[4rem] text-center ${
-                      isTopThree ? rankColors[entry.rank - 1] : 'text-muted-foreground'
-                    } p-3 border-2 ${isTopThree ? rankColors[entry.rank - 1].split(' ')[1] : 'border-muted/30'} jagged-corner-small`}>
+                    <div
+                      className={`text-3xl font-black hud-value min-w-[4rem] text-center ${
+                        isTopThree
+                          ? rankColors[entry.rank - 1]
+                          : "text-muted-foreground"
+                      } p-3 border-2 ${isTopThree ? rankColors[entry.rank - 1].split(" ")[1] : "border-muted/30"} jagged-corner-small`}
+                    >
                       #{entry.rank}
                     </div>
 
                     <div className="text-3xl">{entry.avatar}</div>
 
-                    {entry.rank === 1 && <Crown size={32} weight="fill" className="text-accent neon-glow-accent" />}
-                    {entry.rank === 2 && <Trophy size={32} weight="fill" className="text-primary neon-glow-primary" />}
-                    {entry.rank === 3 && <Star size={32} weight="fill" className="text-secondary neon-glow-secondary" />}
+                    {entry.rank === 1 && (
+                      <Crown
+                        size={32}
+                        weight="fill"
+                        className="text-accent neon-glow-accent"
+                      />
+                    )}
+                    {entry.rank === 2 && (
+                      <Trophy
+                        size={32}
+                        weight="fill"
+                        className="text-primary neon-glow-primary"
+                      />
+                    )}
+                    {entry.rank === 3 && (
+                      <Star
+                        size={32}
+                        weight="fill"
+                        className="text-secondary neon-glow-secondary"
+                      />
+                    )}
 
                     <div className="flex-1">
-                      <div className="font-black uppercase tracking-[0.15em] text-lg mb-1">{entry.user}</div>
+                      <div className="font-black uppercase tracking-[0.15em] text-lg mb-1">
+                        {entry.user}
+                      </div>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
-                          <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] uppercase tracking-wider"
+                          >
                             LVL {entry.level}
                           </Badge>
                         </div>
                         <span>•</span>
-                        <span className="uppercase tracking-wider">{entry.wins} VICTORIES</span>
+                        <span className="uppercase tracking-wider">
+                          {entry.wins} VICTORIES
+                        </span>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-2xl font-black text-primary hud-value">{entry.profit}</div>
-                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">TOTAL_PROFIT</div>
+                      <div className="text-2xl font-black text-primary hud-value">
+                        {entry.profit}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                        TOTAL_PROFIT
+                      </div>
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

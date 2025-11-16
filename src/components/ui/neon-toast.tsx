@@ -1,14 +1,15 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { CheckCircle, Warning, Info, XCircle } from "@phosphor-icons/react"
+import * as React from "react";
+import { CheckCircle, Warning, Info, XCircle } from "@phosphor-icons/react";
 
-export type ToastVariant = "success" | "warning" | "info" | "error"
+import { cn } from "@/lib/utils";
+
+export type ToastVariant = "success" | "warning" | "info" | "error";
 
 export interface NeonToastProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: ToastVariant
-  title?: string
-  description?: string
-  icon?: React.ReactNode
+  variant?: ToastVariant;
+  title?: string;
+  description?: string;
+  icon?: React.ReactNode;
 }
 
 const variantConfig = {
@@ -40,12 +41,15 @@ const variantConfig = {
     shadowColor: "shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.3)]",
     glowClass: "neon-glow-destructive",
   },
-}
+};
 
 const NeonToast = React.forwardRef<HTMLDivElement, NeonToastProps>(
-  ({ className, variant = "info", title, description, icon, ...props }, ref) => {
-    const config = variantConfig[variant]
-    const Icon = icon ? () => icon : config.icon
+  (
+    { className, variant = "info", title, description, icon, ...props },
+    ref,
+  ) => {
+    const config = variantConfig[variant];
+    const Icon = icon ? () => icon : config.icon;
 
     return (
       <div
@@ -68,16 +72,22 @@ const NeonToast = React.forwardRef<HTMLDivElement, NeonToastProps>(
           "clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,6px_100%,0_calc(100%-6px))]",
           // Animation
           "animate-in slide-in-from-right-full",
-          className
+          className,
         )}
         {...props}
       >
         {/* Top gradient line */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-primary via-transparent to-transparent opacity-60" />
-        
+
         {/* Content */}
         <div className="relative z-10 flex items-start gap-3">
-          <div className={cn("flex-shrink-0 mt-0.5", config.iconColor, config.glowClass)}>
+          <div
+            className={cn(
+              "flex-shrink-0 mt-0.5",
+              config.iconColor,
+              config.glowClass,
+            )}
+          >
             <Icon size={20} weight="duotone" />
           </div>
           <div className="flex-1 min-w-0">
@@ -94,9 +104,9 @@ const NeonToast = React.forwardRef<HTMLDivElement, NeonToastProps>(
           </div>
         </div>
       </div>
-    )
-  }
-)
-NeonToast.displayName = "NeonToast"
+    );
+  },
+);
+NeonToast.displayName = "NeonToast";
 
-export { NeonToast }
+export { NeonToast };

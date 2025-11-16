@@ -1,20 +1,34 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
 
 export interface HolographicCardProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "primary" | "secondary" | "accent"
-  glow?: boolean
-  pulse?: boolean
+  variant?: "primary" | "secondary" | "accent";
+  glow?: boolean;
+  pulse?: boolean;
 }
 
 const HolographicCard = React.forwardRef<HTMLDivElement, HolographicCardProps>(
-  ({ className, variant = "primary", glow = true, pulse = false, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant = "primary",
+      glow = true,
+      pulse = false,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
     const variantStyles = {
-      primary: "border-l-[3px] border-l-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)]",
-      secondary: "border-l-[3px] border-l-secondary shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]",
-      accent: "border-l-[3px] border-l-solana-green shadow-[0_0_20px_#14F195_/_0.3]",
-    }
+      primary:
+        "border-l-[3px] border-l-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)]",
+      secondary:
+        "border-l-[3px] border-l-secondary shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]",
+      accent:
+        "border-l-[3px] border-l-solana-green shadow-[0_0_20px_#14F195_/_0.3]",
+    };
 
     return (
       <div
@@ -35,28 +49,26 @@ const HolographicCard = React.forwardRef<HTMLDivElement, HolographicCardProps>(
           glow && "holographic-glow",
           // Pulse animation
           pulse && "animate-pulse-glow",
-          className
+          className,
         )}
         {...props}
       >
         {/* Top gradient line */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-primary via-transparent to-transparent opacity-60" />
-        
+
         {/* Right gradient line */}
         <div className="absolute top-0 right-0 w-[1px] h-10 bg-gradient-to-b from-primary to-transparent opacity-40" />
-        
+
         {/* Inner glow */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
-        
+
         {/* Content */}
-        <div className="relative z-10">
-          {children}
-        </div>
+        <div className="relative z-10">{children}</div>
       </div>
-    )
-  }
-)
-HolographicCard.displayName = "HolographicCard"
+    );
+  },
+);
+HolographicCard.displayName = "HolographicCard";
 
 const HolographicCardHeader = React.forwardRef<
   HTMLDivElement,
@@ -67,8 +79,8 @@ const HolographicCardHeader = React.forwardRef<
     className={cn("flex flex-col space-y-1.5 p-6", className)}
     {...props}
   />
-))
-HolographicCardHeader.displayName = "HolographicCardHeader"
+));
+HolographicCardHeader.displayName = "HolographicCardHeader";
 
 const HolographicCardTitle = React.forwardRef<
   HTMLParagraphElement,
@@ -79,12 +91,12 @@ const HolographicCardTitle = React.forwardRef<
     className={cn(
       "font-display text-2xl font-bold leading-none tracking-[0.1em] uppercase",
       "text-primary neon-glow-primary",
-      className
+      className,
     )}
     {...props}
   />
-))
-HolographicCardTitle.displayName = "HolographicCardTitle"
+));
+HolographicCardTitle.displayName = "HolographicCardTitle";
 
 const HolographicCardDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -92,19 +104,22 @@ const HolographicCardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground uppercase tracking-wide", className)}
+    className={cn(
+      "text-sm text-muted-foreground uppercase tracking-wide",
+      className,
+    )}
     {...props}
   />
-))
-HolographicCardDescription.displayName = "HolographicCardDescription"
+));
+HolographicCardDescription.displayName = "HolographicCardDescription";
 
 const HolographicCardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
-))
-HolographicCardContent.displayName = "HolographicCardContent"
+));
+HolographicCardContent.displayName = "HolographicCardContent";
 
 const HolographicCardFooter = React.forwardRef<
   HTMLDivElement,
@@ -115,8 +130,8 @@ const HolographicCardFooter = React.forwardRef<
     className={cn("flex items-center p-6 pt-0", className)}
     {...props}
   />
-))
-HolographicCardFooter.displayName = "HolographicCardFooter"
+));
+HolographicCardFooter.displayName = "HolographicCardFooter";
 
 export {
   HolographicCard,
@@ -125,4 +140,4 @@ export {
   HolographicCardTitle,
   HolographicCardDescription,
   HolographicCardContent,
-}
+};

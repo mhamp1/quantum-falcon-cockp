@@ -1,76 +1,96 @@
-import { useState, useEffect } from 'react'
-import { useKV } from '@/hooks/useKVFallback'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { User, At, Envelope, MapPin, LinkSimple, FloppyDisk, X } from '@phosphor-icons/react'
-import { toast } from 'sonner'
+import { useState, useEffect } from "react";
+import {
+  User,
+  At,
+  Envelope,
+  MapPin,
+  LinkSimple,
+  FloppyDisk,
+  X,
+} from "@phosphor-icons/react";
+import { toast } from "sonner";
+
+import { useKV } from "@/hooks/useKVFallback";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface UserProfile {
-  username: string
-  email: string
-  bio?: string
-  location?: string
-  website?: string
-  twitter?: string
-  level: number
-  xp: number
-  xpToNextLevel: number
-  totalTrades: number
-  winRate: number
-  memberSince: string
+  username: string;
+  email: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  twitter?: string;
+  level: number;
+  xp: number;
+  xpToNextLevel: number;
+  totalTrades: number;
+  winRate: number;
+  memberSince: string;
 }
 
 interface EditProfileDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export default function EditProfileDialog({ open, onOpenChange }: EditProfileDialogProps) {
-  const [profile, setProfile] = useKV<UserProfile>('user-profile-full', {
-    username: 'QuantumTrader',
-    email: 'trader@quantum.ai',
+export default function EditProfileDialog({
+  open,
+  onOpenChange,
+}: EditProfileDialogProps) {
+  const [profile, setProfile] = useKV<UserProfile>("user-profile-full", {
+    username: "QuantumTrader",
+    email: "trader@quantum.ai",
     level: 15,
     xp: 8450,
     xpToNextLevel: 10000,
     totalTrades: 247,
     winRate: 68.5,
-    memberSince: '2024-01-15'
-  })
+    memberSince: "2024-01-15",
+  });
 
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    bio: '',
-    location: '',
-    website: '',
-    twitter: ''
-  })
+    username: "",
+    email: "",
+    bio: "",
+    location: "",
+    website: "",
+    twitter: "",
+  });
 
   useEffect(() => {
     if (profile && open) {
       setFormData({
-        username: profile.username || '',
-        email: profile.email || '',
-        bio: profile.bio || '',
-        location: profile.location || '',
-        website: profile.website || '',
-        twitter: profile.twitter || ''
-      })
+        username: profile.username || "",
+        email: profile.email || "",
+        bio: profile.bio || "",
+        location: profile.location || "",
+        website: profile.website || "",
+        twitter: profile.twitter || "",
+      });
     }
-  }, [profile, open])
+  }, [profile, open]);
 
   const handleSave = () => {
     if (!formData.username.trim()) {
-      toast.error('Username is required')
-      return
+      toast.error("Username is required");
+      return;
     }
 
-    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      toast.error('Valid email is required')
-      return
+    if (
+      !formData.email.trim() ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+    ) {
+      toast.error("Valid email is required");
+      return;
     }
 
     setProfile((current) => ({
@@ -86,22 +106,23 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
       xpToNextLevel: current?.xpToNextLevel ?? 1000,
       totalTrades: current?.totalTrades ?? 0,
       winRate: current?.winRate ?? 0,
-      memberSince: current?.memberSince ?? new Date().toISOString().split('T')[0]
-    }))
+      memberSince:
+        current?.memberSince ?? new Date().toISOString().split("T")[0],
+    }));
 
-    toast.success('Profile updated successfully!', {
-      description: 'Your changes have been saved'
-    })
-    
-    onOpenChange(false)
-  }
+    toast.success("Profile updated successfully!", {
+      description: "Your changes have been saved",
+    });
+
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] cyber-card border-2 border-primary/30 p-0 gap-0 overflow-hidden">
         <div className="absolute inset-0 technical-grid opacity-5 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none" />
-        
+
         <DialogHeader className="p-6 pb-4 border-b border-primary/30 relative z-10">
           <div className="flex items-center gap-3">
             <div className="p-3 jagged-corner-small bg-primary/20 border border-primary/50">
@@ -115,21 +136,29 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
 
         <div className="p-6 space-y-4 relative z-10 max-h-[60vh] overflow-y-auto scrollbar-thin">
           <div className="space-y-2">
-            <Label htmlFor="username" className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2">
+            <Label
+              htmlFor="username"
+              className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2"
+            >
               <At size={14} weight="duotone" className="text-primary" />
               Username *
             </Label>
             <Input
               id="username"
               value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, username: e.target.value })
+              }
               className="jagged-corner-small border-primary/30 focus:border-primary bg-background/50"
               placeholder="Enter username"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2">
+            <Label
+              htmlFor="email"
+              className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2"
+            >
               <Envelope size={14} weight="duotone" className="text-primary" />
               Email *
             </Label>
@@ -137,21 +166,28 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               className="jagged-corner-small border-primary/30 focus:border-primary bg-background/50"
               placeholder="Enter email"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bio" className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2">
+            <Label
+              htmlFor="bio"
+              className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2"
+            >
               <User size={14} weight="duotone" className="text-accent" />
               Bio
             </Label>
             <Textarea
               id="bio"
               value={formData.bio}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, bio: e.target.value })
+              }
               className="jagged-corner-small border-primary/30 focus:border-primary bg-background/50 min-h-[80px]"
               placeholder="Tell us about yourself..."
             />
@@ -159,28 +195,38 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="location" className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2">
+              <Label
+                htmlFor="location"
+                className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2"
+              >
                 <MapPin size={14} weight="duotone" className="text-accent" />
                 Location
               </Label>
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, location: e.target.value })
+                }
                 className="jagged-corner-small border-primary/30 focus:border-primary bg-background/50"
                 placeholder="City, Country"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="twitter" className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2">
+              <Label
+                htmlFor="twitter"
+                className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2"
+              >
                 <At size={14} weight="duotone" className="text-accent" />
                 Twitter
               </Label>
               <Input
                 id="twitter"
                 value={formData.twitter}
-                onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, twitter: e.target.value })
+                }
                 className="jagged-corner-small border-primary/30 focus:border-primary bg-background/50"
                 placeholder="@username"
               />
@@ -188,14 +234,19 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="website" className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2">
+            <Label
+              htmlFor="website"
+              className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2"
+            >
               <LinkSimple size={14} weight="duotone" className="text-accent" />
               Website
             </Label>
             <Input
               id="website"
               value={formData.website}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, website: e.target.value })
+              }
               className="jagged-corner-small border-primary/30 focus:border-primary bg-background/50"
               placeholder="https://your-website.com"
             />
@@ -204,7 +255,8 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
           <div className="p-4 jagged-corner-small bg-accent/10 border border-accent/30 relative overflow-hidden">
             <div className="absolute inset-0 diagonal-stripes opacity-10" />
             <p className="text-xs text-muted-foreground relative z-10">
-              * Required fields. Your profile information will be visible to other community members.
+              * Required fields. Your profile information will be visible to
+              other community members.
             </p>
           </div>
         </div>
@@ -230,5 +282,5 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

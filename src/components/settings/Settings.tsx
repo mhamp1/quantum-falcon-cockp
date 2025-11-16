@@ -1,74 +1,84 @@
-import { useKV } from '@/hooks/useKVFallback'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Bell, Lock, Palette, ArrowsClockwise } from '@phosphor-icons/react'
-import { toast } from 'sonner'
+import { Bell, Lock, Palette, ArrowsClockwise } from "@phosphor-icons/react";
+import { toast } from "sonner";
+
+import { useKV } from "@/hooks/useKVFallback";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 interface Settings {
   notifications: {
-    trades: boolean
-    agentAlerts: boolean
-    profitMilestones: boolean
-  }
+    trades: boolean;
+    agentAlerts: boolean;
+    profitMilestones: boolean;
+  };
   trading: {
-    maxSlippage: number
-    autoConvert: boolean
-    riskLevel: 'low' | 'medium' | 'high'
-  }
+    maxSlippage: number;
+    autoConvert: boolean;
+    riskLevel: "low" | "medium" | "high";
+  };
   security: {
-    biometricsEnabled: boolean
-  }
+    biometricsEnabled: boolean;
+  };
 }
 
 export default function Settings() {
-  const [settings, setSettings] = useKV<Settings>('app-settings', {
+  const [settings, setSettings] = useKV<Settings>("app-settings", {
     notifications: {
       trades: true,
       agentAlerts: true,
-      profitMilestones: true
+      profitMilestones: true,
     },
     trading: {
       maxSlippage: 1.5,
       autoConvert: true,
-      riskLevel: 'medium'
+      riskLevel: "medium",
     },
     security: {
-      biometricsEnabled: false
-    }
-  })
+      biometricsEnabled: false,
+    },
+  });
 
   const updateSetting = (category: keyof Settings, key: string, value: any) => {
     setSettings((current) => {
-      if (!current) return {
-        notifications: {
-          trades: true,
-          agentAlerts: true,
-          profitMilestones: true
-        },
-        trading: {
-          maxSlippage: 1.5,
-          autoConvert: true,
-          riskLevel: 'medium' as const
-        },
-        security: {
-          biometricsEnabled: false
-        }
-      }
+      if (!current)
+        return {
+          notifications: {
+            trades: true,
+            agentAlerts: true,
+            profitMilestones: true,
+          },
+          trading: {
+            maxSlippage: 1.5,
+            autoConvert: true,
+            riskLevel: "medium" as const,
+          },
+          security: {
+            biometricsEnabled: false,
+          },
+        };
       return {
         ...current,
         [category]: {
           ...current[category],
-          [key]: value
-        }
-      }
-    })
-    toast.success('Setting updated', { description: 'Your changes have been saved' })
-  }
+          [key]: value,
+        },
+      };
+    });
+    toast.success("Setting updated", {
+      description: "Your changes have been saved",
+    });
+  };
 
-  if (!settings) return null
+  if (!settings) return null;
 
   return (
     <div className="space-y-6">
@@ -94,35 +104,53 @@ export default function Settings() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="notify-trades" className="text-base">Trade Executions</Label>
-              <p className="text-sm text-muted-foreground">Get notified when trades execute</p>
+              <Label htmlFor="notify-trades" className="text-base">
+                Trade Executions
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Get notified when trades execute
+              </p>
             </div>
             <Switch
               id="notify-trades"
               checked={settings.notifications.trades}
-              onCheckedChange={(checked) => updateSetting('notifications', 'trades', checked)}
+              onCheckedChange={(checked) =>
+                updateSetting("notifications", "trades", checked)
+              }
             />
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="notify-agents" className="text-base">Agent Alerts</Label>
-              <p className="text-sm text-muted-foreground">Alerts for agent status changes</p>
+              <Label htmlFor="notify-agents" className="text-base">
+                Agent Alerts
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Alerts for agent status changes
+              </p>
             </div>
             <Switch
               id="notify-agents"
               checked={settings.notifications.agentAlerts}
-              onCheckedChange={(checked) => updateSetting('notifications', 'agentAlerts', checked)}
+              onCheckedChange={(checked) =>
+                updateSetting("notifications", "agentAlerts", checked)
+              }
             />
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="notify-profits" className="text-base">Profit Milestones</Label>
-              <p className="text-sm text-muted-foreground">Celebrate profit achievements</p>
+              <Label htmlFor="notify-profits" className="text-base">
+                Profit Milestones
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Celebrate profit achievements
+              </p>
             </div>
             <Switch
               id="notify-profits"
               checked={settings.notifications.profitMilestones}
-              onCheckedChange={(checked) => updateSetting('notifications', 'profitMilestones', checked)}
+              onCheckedChange={(checked) =>
+                updateSetting("notifications", "profitMilestones", checked)
+              }
             />
           </div>
         </CardContent>
@@ -131,7 +159,11 @@ export default function Settings() {
       <Card className="backdrop-blur-md bg-card/50 border-primary/30">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ArrowsClockwise size={24} weight="duotone" className="text-accent" />
+            <ArrowsClockwise
+              size={24}
+              weight="duotone"
+              className="text-accent"
+            />
             Trading Parameters
           </CardTitle>
           <CardDescription>
@@ -146,34 +178,48 @@ export default function Settings() {
               type="number"
               step="0.1"
               value={settings.trading.maxSlippage}
-              onChange={(e) => updateSetting('trading', 'maxSlippage', parseFloat(e.target.value))}
+              onChange={(e) =>
+                updateSetting(
+                  "trading",
+                  "maxSlippage",
+                  parseFloat(e.target.value),
+                )
+              }
               className="bg-muted/50 border-border focus:border-primary"
             />
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="auto-convert" className="text-base">Auto-convert to BTC</Label>
-              <p className="text-sm text-muted-foreground">Automatically send profits to vault</p>
+              <Label htmlFor="auto-convert" className="text-base">
+                Auto-convert to BTC
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Automatically send profits to vault
+              </p>
             </div>
             <Switch
               id="auto-convert"
               checked={settings.trading.autoConvert}
-              onCheckedChange={(checked) => updateSetting('trading', 'autoConvert', checked)}
+              onCheckedChange={(checked) =>
+                updateSetting("trading", "autoConvert", checked)
+              }
             />
           </div>
           <div>
             <Label className="text-base mb-3 block">Risk Level</Label>
             <div className="flex gap-2">
-              {(['low', 'medium', 'high'] as const).map((level) => (
+              {(["low", "medium", "high"] as const).map((level) => (
                 <Badge
                   key={level}
-                  variant={settings.trading.riskLevel === level ? 'default' : 'outline'}
+                  variant={
+                    settings.trading.riskLevel === level ? "default" : "outline"
+                  }
                   className={`cursor-pointer capitalize ${
                     settings.trading.riskLevel === level
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-primary/20'
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-primary/20"
                   }`}
-                  onClick={() => updateSetting('trading', 'riskLevel', level)}
+                  onClick={() => updateSetting("trading", "riskLevel", level)}
                 >
                   {level}
                 </Badge>
@@ -196,13 +242,19 @@ export default function Settings() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="biometrics" className="text-base">Biometric Authentication</Label>
-              <p className="text-sm text-muted-foreground">Use fingerprint or face unlock</p>
+              <Label htmlFor="biometrics" className="text-base">
+                Biometric Authentication
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Use fingerprint or face unlock
+              </p>
             </div>
             <Switch
               id="biometrics"
               checked={settings.security.biometricsEnabled}
-              onCheckedChange={(checked) => updateSetting('security', 'biometricsEnabled', checked)}
+              onCheckedChange={(checked) =>
+                updateSetting("security", "biometricsEnabled", checked)
+              }
             />
           </div>
           <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
@@ -210,7 +262,10 @@ export default function Settings() {
             <p className="text-xs text-muted-foreground mb-3">
               Configure API keys to connect live trading
             </p>
-            <Badge variant="outline" className="bg-accent/20 border-accent/30 text-accent">
+            <Badge
+              variant="outline"
+              className="bg-accent/20 border-accent/30 text-accent"
+            >
               Demo Mode Active
             </Badge>
           </div>
@@ -223,16 +278,15 @@ export default function Settings() {
             <Palette size={24} weight="duotone" className="text-secondary" />
             Appearance
           </CardTitle>
-          <CardDescription>
-            Customize the cyberpunk aesthetic
-          </CardDescription>
+          <CardDescription>Customize the cyberpunk aesthetic</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Neon theme with holographic elements active. Additional themes coming soon!
+            Neon theme with holographic elements active. Additional themes
+            coming soon!
           </p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

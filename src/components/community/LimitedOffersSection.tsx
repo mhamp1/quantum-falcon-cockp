@@ -1,51 +1,60 @@
-import { useState, useEffect } from 'react'
-import { useKV } from '@/hooks/useKVFallback'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Clock, Lightning, Star, Coin } from '@phosphor-icons/react'
-import { toast } from 'sonner'
-import CheckoutDialog from '@/components/shared/CheckoutDialog'
-import { CheckoutItem } from '@/lib/checkout'
+import { useState, useEffect } from "react";
+import { Clock, Lightning, Star, Coin } from "@phosphor-icons/react";
+import { toast } from "sonner";
+
+import { useKV } from "@/hooks/useKVFallback";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import CheckoutDialog from "@/components/shared/CheckoutDialog";
+import { CheckoutItem } from "@/lib/checkout";
 import {
   getLimitedOffers,
   getFlashSales,
   getTimeUntilNextDailyRotation,
   getTimeUntilNextFlashSale,
-  type LimitedOffer
-} from '@/lib/limitedOffers'
+  type LimitedOffer,
+} from "@/lib/limitedOffers";
 
 export default function LimitedOffersSection() {
-  const [limitedOffers, setLimitedOffers] = useState<LimitedOffer[]>([])
-  const [flashSales, setFlashSales] = useState<LimitedOffer[]>([])
-  const [dailyTimer, setDailyTimer] = useState({ hours: 0, minutes: 0 })
-  const [flashTimer, setFlashTimer] = useState({ hours: 0, minutes: 0 })
-  const [purchasedOffers, setPurchasedOffers] = useKV<string[]>('purchased-limited-offers', [])
-  
-  const [checkoutOpen, setCheckoutOpen] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<CheckoutItem | null>(null)
+  const [limitedOffers, setLimitedOffers] = useState<LimitedOffer[]>([]);
+  const [flashSales, setFlashSales] = useState<LimitedOffer[]>([]);
+  const [dailyTimer, setDailyTimer] = useState({ hours: 0, minutes: 0 });
+  const [flashTimer, setFlashTimer] = useState({ hours: 0, minutes: 0 });
+  const [purchasedOffers, setPurchasedOffers] = useKV<string[]>(
+    "purchased-limited-offers",
+    [],
+  );
+
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<CheckoutItem | null>(null);
 
   useEffect(() => {
-    setLimitedOffers(getLimitedOffers(5))
-    setFlashSales(getFlashSales(3))
+    setLimitedOffers(getLimitedOffers(5));
+    setFlashSales(getFlashSales(3));
 
     const updateTimers = () => {
-      setDailyTimer(getTimeUntilNextDailyRotation())
-      setFlashTimer(getTimeUntilNextFlashSale())
-    }
+      setDailyTimer(getTimeUntilNextDailyRotation());
+      setFlashTimer(getTimeUntilNextFlashSale());
+    };
 
-    updateTimers()
-    const interval = setInterval(updateTimers, 60000)
+    updateTimers();
+    const interval = setInterval(updateTimers, 60000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   const purchaseOffer = (offer: LimitedOffer) => {
     if (purchasedOffers?.includes(offer.id)) {
-      toast.info('Already Purchased', {
-        description: 'You already own this enhancement'
-      })
-      return
+      toast.info("Already Purchased", {
+        description: "You already own this enhancement",
+      });
+      return;
     }
 
     const checkoutItem: CheckoutItem = {
@@ -53,45 +62,76 @@ export default function LimitedOffersSection() {
       name: offer.title,
       description: offer.description,
       price: offer.price,
-      type: 'offer',
-      duration: offer.duration
-    }
+      type: "offer",
+      duration: offer.duration,
+    };
 
-    setSelectedItem(checkoutItem)
-    setCheckoutOpen(true)
-  }
+    setSelectedItem(checkoutItem);
+    setCheckoutOpen(true);
+  };
 
   const handleCheckoutSuccess = () => {
     if (selectedItem) {
-      setPurchasedOffers((current) => [...(current || []), selectedItem.id])
-      
-      toast.success('Purchase Complete!', {
+      setPurchasedOffers((current) => [...(current || []), selectedItem.id]);
+
+      toast.success("Purchase Complete!", {
         description: `${selectedItem.name} activated for ${selectedItem.duration}h`,
-        icon: '⚡'
-      })
+        icon: "⚡",
+      });
     }
-  }
+  };
 
   const colorByCategory = {
-    execution: { bg: 'bg-primary/20', border: 'border-primary', text: 'text-primary', glow: 'shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]' },
-    limits: { bg: 'bg-accent/20', border: 'border-accent', text: 'text-accent', glow: 'shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)]' },
-    analytics: { bg: 'bg-secondary/20', border: 'border-secondary', text: 'text-secondary', glow: 'shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)]' },
-    risk: { bg: 'bg-destructive/20', border: 'border-destructive', text: 'text-destructive', glow: 'shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.4)]' },
-    gamified: { bg: 'bg-accent/20', border: 'border-accent', text: 'text-accent', glow: 'shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)]' }
-  }
+    execution: {
+      bg: "bg-primary/20",
+      border: "border-primary",
+      text: "text-primary",
+      glow: "shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]",
+    },
+    limits: {
+      bg: "bg-accent/20",
+      border: "border-accent",
+      text: "text-accent",
+      glow: "shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)]",
+    },
+    analytics: {
+      bg: "bg-secondary/20",
+      border: "border-secondary",
+      text: "text-secondary",
+      glow: "shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)]",
+    },
+    risk: {
+      bg: "bg-destructive/20",
+      border: "border-destructive",
+      text: "text-destructive",
+      glow: "shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.4)]",
+    },
+    gamified: {
+      bg: "bg-accent/20",
+      border: "border-accent",
+      text: "text-accent",
+      glow: "shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)]",
+    },
+  };
 
-  const OfferCard = ({ offer, isFlashSale = false }: { offer: LimitedOffer; isFlashSale?: boolean }) => {
-    const Icon = offer.icon
-    const colors = colorByCategory[offer.category]
-    const isPurchased = purchasedOffers?.includes(offer.id)
+  const OfferCard = ({
+    offer,
+    isFlashSale = false,
+  }: {
+    offer: LimitedOffer;
+    isFlashSale?: boolean;
+  }) => {
+    const Icon = offer.icon;
+    const colors = colorByCategory[offer.category];
+    const isPurchased = purchasedOffers?.includes(offer.id);
 
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <div
             className={`cyber-card p-4 space-y-3 relative overflow-hidden group cursor-help hover:${colors.glow} transition-all duration-300 ${
-              isPurchased ? 'ring-2 ring-primary' : ''
-            } ${isFlashSale ? 'border-2 border-accent animate-pulse-glow' : ''}`}
+              isPurchased ? "ring-2 ring-primary" : ""
+            } ${isFlashSale ? "border-2 border-accent animate-pulse-glow" : ""}`}
           >
             {isPurchased && (
               <div className="absolute top-2 right-2 z-20">
@@ -112,19 +152,26 @@ export default function LimitedOffersSection() {
 
             <div className="relative z-10">
               <div className="flex items-center justify-center mb-3">
-                <div className={`p-3 ${colors.bg} border ${colors.border} jagged-corner-small`}>
+                <div
+                  className={`p-3 ${colors.bg} border ${colors.border} jagged-corner-small`}
+                >
                   <Icon size={32} weight="duotone" className={colors.text} />
                 </div>
               </div>
 
               <div className="text-center space-y-1 mb-3">
-                <h4 className={`font-bold uppercase tracking-[0.12em] text-xs ${colors.text}`}>
+                <h4
+                  className={`font-bold uppercase tracking-[0.12em] text-xs ${colors.text}`}
+                >
                   {offer.title}
                 </h4>
                 <p className="text-[9px] text-muted-foreground uppercase tracking-[0.2em] font-bold">
                   {offer.subtitle}
                 </p>
-                <Badge variant="outline" className="text-[8px] uppercase tracking-wider mt-1">
+                <Badge
+                  variant="outline"
+                  className="text-[8px] uppercase tracking-wider mt-1"
+                >
                   {offer.category}
                 </Badge>
               </div>
@@ -150,10 +197,10 @@ export default function LimitedOffersSection() {
                   onClick={() => purchaseOffer(offer)}
                   disabled={isPurchased}
                   className={`jagged-corner-small h-7 text-[9px] uppercase tracking-wider font-bold ${
-                    isPurchased ? 'opacity-50' : ''
+                    isPurchased ? "opacity-50" : ""
                   }`}
                 >
-                  {isPurchased ? 'Owned' : 'Claim'}
+                  {isPurchased ? "Owned" : "Claim"}
                 </Button>
               </div>
             </div>
@@ -161,7 +208,9 @@ export default function LimitedOffersSection() {
         </TooltipTrigger>
         <TooltipContent side="top" className="cyber-card p-3 max-w-xs">
           <div className="space-y-2">
-            <p className="text-xs font-bold text-primary uppercase tracking-wider">{offer.title}</p>
+            <p className="text-xs font-bold text-primary uppercase tracking-wider">
+              {offer.title}
+            </p>
             <p className="text-[10px] text-muted-foreground leading-relaxed">
               {offer.description}
             </p>
@@ -173,8 +222,8 @@ export default function LimitedOffersSection() {
           </div>
         </TooltipContent>
       </Tooltip>
-    )
-  }
+    );
+  };
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -188,15 +237,23 @@ export default function LimitedOffersSection() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Lightning size={28} weight="fill" className="text-accent neon-glow-accent animate-pulse" />
-                  <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-accent">Flash Sales</h3>
+                  <Lightning
+                    size={28}
+                    weight="fill"
+                    className="text-accent neon-glow-accent animate-pulse"
+                  />
+                  <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-accent">
+                    Flash Sales
+                  </h3>
                 </div>
                 <p className="text-[9px] text-muted-foreground uppercase tracking-[0.15em]">
                   ⚡ 20% OFF • Strategies & AI Agents • Access Premium Features
                 </p>
               </div>
               <div className="cyber-card-accent p-2 text-center min-w-[80px]">
-                <div className="text-[8px] text-muted-foreground uppercase tracking-wider mb-0.5">Next Sale</div>
+                <div className="text-[8px] text-muted-foreground uppercase tracking-wider mb-0.5">
+                  Next Sale
+                </div>
                 <div className="text-sm font-bold text-accent hud-value">
                   {flashTimer.hours}h {flashTimer.minutes}m
                 </div>
@@ -220,15 +277,23 @@ export default function LimitedOffersSection() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Star size={28} weight="fill" className="text-primary neon-glow-primary" />
-                  <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-primary">Limited Offers</h3>
+                  <Star
+                    size={28}
+                    weight="fill"
+                    className="text-primary neon-glow-primary"
+                  />
+                  <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-primary">
+                    Limited Offers
+                  </h3>
                 </div>
                 <p className="text-[9px] text-muted-foreground uppercase tracking-[0.15em]">
                   Bot-function micro-transactions • $0.99–$4.99 • Rotates daily
                 </p>
               </div>
               <div className="cyber-card p-2 text-center min-w-[80px]">
-                <div className="text-[8px] text-muted-foreground uppercase tracking-wider mb-0.5">Next Rotation</div>
+                <div className="text-[8px] text-muted-foreground uppercase tracking-wider mb-0.5">
+                  Next Rotation
+                </div>
                 <div className="text-sm font-bold text-primary hud-value">
                   {dailyTimer.hours}h {dailyTimer.minutes}m
                 </div>
@@ -243,7 +308,8 @@ export default function LimitedOffersSection() {
 
             <div className="mt-4 pt-4 border-t border-border/30">
               <p className="text-[9px] text-center text-muted-foreground uppercase tracking-[0.15em]">
-                💡 Tip: These micro-transactions are designed for impulse buys – quick, affordable bot enhancements
+                💡 Tip: These micro-transactions are designed for impulse buys –
+                quick, affordable bot enhancements
               </p>
             </div>
           </div>
@@ -257,5 +323,5 @@ export default function LimitedOffersSection() {
         onSuccess={handleCheckoutSuccess}
       />
     </TooltipProvider>
-  )
+  );
 }
