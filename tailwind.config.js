@@ -24,6 +24,14 @@ const defaultTheme = {
       pwa: { raw: "(display-mode: standalone)" },
     },
     colors: {
+      solana: {
+        green: "#14F195",
+        purple: "#9945FF",
+      },
+      cyberpunk: {
+        dark: "#0A0E27",
+        darker: "#1A1F3A",
+      },
       neutral: {
         1: "var(--color-neutral-1)",
         2: "var(--color-neutral-2)",
@@ -99,6 +107,32 @@ const defaultTheme = {
       xl: "var(--radius-xl)",
       "2xl": "var(--radius-2xl)",
       full: "var(--radius-full)",
+    },
+    animation: {
+      "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+      "pulse-slow": "pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      "shimmer": "shimmer 2s linear infinite",
+      "neon-flicker": "neon-flicker 1.5s infinite",
+    },
+    keyframes: {
+      "pulse-glow": {
+        "0%, 100%": { opacity: "1", filter: "brightness(1)" },
+        "50%": { opacity: "0.7", filter: "brightness(1.5)" },
+      },
+      "pulse-slow": {
+        "0%, 100%": { opacity: "1" },
+        "50%": { opacity: "0.5" },
+      },
+      shimmer: {
+        "0%": { backgroundPosition: "-200% 0" },
+        "100%": { backgroundPosition: "200% 0" },
+      },
+      "neon-flicker": {
+        "0%, 100%": { opacity: "1" },
+        "50%": { opacity: "0.8" },
+        "75%": { opacity: "1" },
+        "80%": { opacity: "0.9" },
+      },
     },
   },
   spacing: {
