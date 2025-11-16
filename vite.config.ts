@@ -31,4 +31,12 @@ export default defineConfig({
       'localhost',
     ],
   },
+  preview: {
+    // Same allowlist for preview mode
+    allowedHosts: [
+      'api.github.com',
+      '.github.com',
+      'localhost',
+    ],
+  },
 });
