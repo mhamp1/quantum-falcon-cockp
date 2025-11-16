@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { motion } from 'framer-motion'
 import { TrendUp, TrendDown } from '@phosphor-icons/react'
 
 interface QuickStat {
@@ -20,8 +21,12 @@ export const QuickStatsCard = memo(({ stat, index }: QuickStatsCardProps) => {
   const cornerClasses = ['angled-corner-tr', 'angled-corner-br', 'cut-corner-tr', 'angled-corners-dual-tr-bl']
   
   return (
-    <div
-      className={`cyber-card group hover:scale-[1.02] transition-all duration-300 cursor-pointer relative overflow-hidden ${cornerClasses[index % 4]}`}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileHover={{ scale: 1.02 }}
+      className={`cyber-card group cursor-pointer relative overflow-hidden ${cornerClasses[index % 4]}`}
       role="gridcell"
       aria-label={`${stat.label}: ${stat.value}, ${stat.change >= 0 ? 'up' : 'down'} ${Math.abs(stat.change).toFixed(2)}%`}
     >
@@ -58,7 +63,7 @@ export const QuickStatsCard = memo(({ stat, index }: QuickStatsCardProps) => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 })
 

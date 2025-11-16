@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Brain, TrendUp, TrendDown } from '@phosphor-icons/react'
 
 interface AISentiment {
@@ -66,7 +67,12 @@ export function AIAdvisor() {
   const borderColor = isBullish ? 'border-primary/30' : isBearish ? 'border-destructive/30' : 'border-accent/30'
 
   return (
-    <div className={`cyber-card p-6 angled-corner-tl relative overflow-hidden ${borderColor}`}>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className={`cyber-card p-6 angled-corner-tl relative overflow-hidden ${borderColor}`}
+    >
       <div className={`absolute inset-0 ${bgColor} opacity-50`} />
       <svg className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
         <circle cx="85%" cy="50%" r="60" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="5,5" className={`${trendColor} circuit-line`} />
@@ -126,6 +132,6 @@ export function AIAdvisor() {
           AI forecast updated: {data!.prediction} sentiment with {data!.confidence.toFixed(0)}% confidence
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

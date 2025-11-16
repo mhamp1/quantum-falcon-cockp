@@ -1,5 +1,6 @@
 import { useKV } from '@github/spark/hooks'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
+import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
@@ -161,7 +162,12 @@ export default function EnhancedDashboard() {
   if (!auth?.isAuthenticated) {
     return (
       <>
-        <div className="space-y-6">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-6"
+        >
           <div className="cyber-card relative overflow-hidden">
             <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
             <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
@@ -222,7 +228,7 @@ export default function EnhancedDashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
         <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
       </>
     )
@@ -235,7 +241,12 @@ export default function EnhancedDashboard() {
           <NewsTicker />
         </Suspense>
       
-      <div className="cyber-card relative overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="cyber-card relative overflow-hidden"
+      >
         <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
         <div className="p-6 relative z-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -290,11 +301,17 @@ export default function EnhancedDashboard() {
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <LicenseExpiry />
 
-      <div className="glass-morph-card p-6 relative overflow-hidden hover:shadow-[0_0_40px_oklch(0.68_0.18_330_/_0.3)] transition-all">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        whileHover={{ scale: 1.01 }}
+        className="glass-morph-card p-6 relative overflow-hidden transition-all"
+      >
         <div className="absolute inset-0 grid-background opacity-5" />
         <svg className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
           <circle cx="90%" cy="20%" r="40" stroke="var(--accent)" strokeWidth="2" fill="none" strokeDasharray="5,5" className="circuit-line" />
@@ -341,7 +358,7 @@ export default function EnhancedDashboard() {
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="grid" aria-label="Portfolio Quick Stats">
         {statsGrid.map((stat, idx) => (

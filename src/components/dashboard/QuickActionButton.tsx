@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 
 interface QuickAction {
@@ -23,16 +24,24 @@ export const QuickActionButton = memo(({ action, index }: QuickActionButtonProps
   }
   
   return (
-    <Button
-      onClick={action.action}
-      className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${index % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2, delay: index * 0.05 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
     >
+      <Button
+        onClick={action.action}
+        className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${index % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
+      >
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
       <div className="relative z-10">
         {action.icon}
       </div>
       <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
-    </Button>
+      </Button>
+    </motion.div>
   )
 })
 
