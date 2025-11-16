@@ -27,8 +27,6 @@ import { HolographicCard, NeonProgress, NeonBadge } from '@/components/ui'
 </HolographicCard>
 ```
 
-## 🧪 Testing
-
 A cyberpunk-themed progressive web app for crypto trading with AI-powered trading agents, advanced analytics, gamification, and community features. Built with React, TypeScript, and Vite, designed with a Cyberpunk Neon HUD aesthetic.
 
 ## 📋 Table of Contents
@@ -1642,11 +1640,16 @@ flutter build ios  # iOS
 
 ## 🤝 Contributing
 
-1. Create a feature branch
-2. Make your changes
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+Contributions are welcome! Please follow these guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
 
 ## 📄 License
 
@@ -1660,16 +1663,6 @@ The Spark Template files and resources from GitHub are licensed under the terms 
 - [Implementation Plan](./IMPLEMENTATION_PLAN.md) - Feature development roadmap
 - [PRD](./PRD.md) - Complete product requirements
 - [Security](./SECURITY.md) - Security guidelines
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## 📞 Support
 

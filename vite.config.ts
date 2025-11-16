@@ -8,6 +8,11 @@ import { resolve } from 'path'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
+// Set SPARK_DIR to the current project root to avoid hardcoded /workspaces/spark-template path
+if (!process.env.SPARK_DIR) {
+  process.env.SPARK_DIR = projectRoot
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
