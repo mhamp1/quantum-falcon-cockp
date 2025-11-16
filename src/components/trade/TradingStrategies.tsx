@@ -18,6 +18,7 @@ import { store, Strategy, Trade, TradingState } from '@/store/tradingStore'
 import { useSocket } from '@/hooks/useSocket'
 import { ParticleBackground } from '@/components/shared/ParticleBackground'
 import { DraggableWidget } from '@/components/trade/DraggableWidget'
+import { TradingChart } from '@/components/trade/TradingChart'
 
 interface ActiveStrategy {
   id: string
@@ -131,6 +132,25 @@ function TradingStrategiesContent() {
       socket.off('newsUpdate')
     }
   }, [socket, dispatch])
+
+  // Keyboard shortcuts for accessibility
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Alt+1-5 for quick tab navigation
+      if (e.altKey && e.key >= '1' && e.key <= '5') {
+        const tabs = ['active', 'strategies', 'dca', 'news', 'ai']
+        const tabIndex = parseInt(e.key) - 1
+        if (tabs[tabIndex]) {
+          const tabElement = document.querySelector(`[value="${tabs[tabIndex]}"]`) as HTMLElement
+          tabElement?.click()
+          e.preventDefault()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [])
 
   const builtInStrategies = [
     { id: 'baseline', name: 'Baseline (Buy & Hold)', type: 'Buy & Hold', risk: 'Low' },
@@ -271,6 +291,9 @@ function TradingStrategiesContent() {
         </TabsList>
 
         <TabsContent value="active" className="space-y-6">
+          {/* Advanced Trading Chart */}
+          <TradingChart />
+
           <div className="cyber-card">
             <div className="p-6">
               <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout mb-6">ACTIVE_STRATEGIES</h3>
@@ -327,7 +350,7 @@ function TradingStrategiesContent() {
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" role="group" aria-label="Strategy controls">
                           {strategy.status === 'running' && (
                             <>
                               <Button 
@@ -335,8 +358,9 @@ function TradingStrategiesContent() {
                                 variant="outline"
                                 className="border-accent text-accent hover:bg-accent/10"
                                 onClick={() => handleStrategyToggle(strategy.id, 'pause')}
+                                aria-label={`Pause ${strategy.name} strategy`}
                               >
-                                <Pause size={14} weight="fill" className="mr-2" />
+                                <Pause size={14} weight="fill" className="mr-2" aria-hidden="true" />
                                 PAUSE
                               </Button>
                               <Button 
@@ -344,8 +368,9 @@ function TradingStrategiesContent() {
                                 variant="outline"
                                 className="border-destructive text-destructive hover:bg-destructive/10"
                                 onClick={() => handleStrategyToggle(strategy.id, 'stop')}
+                                aria-label={`Stop ${strategy.name} strategy`}
                               >
-                                <Stop size={14} weight="fill" className="mr-2" />
+                                <Stop size={14} weight="fill" className="mr-2" aria-hidden="true" />
                                 STOP
                               </Button>
                             </>
@@ -356,8 +381,9 @@ function TradingStrategiesContent() {
                               variant="outline"
                               className="border-primary text-primary hover:bg-primary/10"
                               onClick={() => handleStrategyToggle(strategy.id, 'resume')}
+                              aria-label={`Resume ${strategy.name} strategy`}
                             >
-                              <Play size={14} weight="fill" className="mr-2" />
+                              <Play size={14} weight="fill" className="mr-2" aria-hidden="true" />
                               RESUME
                             </Button>
                           )}
@@ -365,8 +391,9 @@ function TradingStrategiesContent() {
                             size="sm"
                             variant="outline"
                             className="border-primary/30 text-primary hover:bg-primary/10"
+                            aria-label={`Open settings for ${strategy.name} strategy`}
                           >
-                            <Gear size={14} weight="duotone" className="mr-2" />
+                            <Gear size={14} weight="duotone" className="mr-2" aria-hidden="true" />
                             SETTINGS
                           </Button>
                         </div>
