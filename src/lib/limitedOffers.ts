@@ -367,7 +367,7 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     title: '+1 AI Agent (24h)',
     subtitle: 'TEMPORARY AGENT ACCESS',
     description: 'Unlock an additional AI agent slot for 24 hours - access higher tier agent outside your subscription level',
-    price: 3.99,
+    price: 1.99,
     icon: Robot,
     category: 'limits',
     duration: 24,
@@ -379,7 +379,7 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     title: '+1 AI Agent (72h)',
     subtitle: '3-DAY AGENT ACCESS',
     description: 'Unlock an additional AI agent slot for 72 hours - extended access to premium agents',
-    price: 8.99,
+    price: 4.99,
     icon: Robot,
     category: 'limits',
     duration: 72,
@@ -391,7 +391,7 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     title: 'MACD Strategy (48h)',
     subtitle: 'ADVANCED STRATEGY',
     description: 'Temporarily unlock MACD trading strategy for 48 hours - usually requires Trader tier or higher',
-    price: 2.99,
+    price: 1.49,
     icon: TrendUp,
     category: 'analytics',
     duration: 48,
@@ -403,7 +403,7 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     title: 'Bollinger Bands (48h)',
     subtitle: 'PRO STRATEGY',
     description: 'Temporarily unlock Bollinger Bands strategy for 48 hours - usually requires Pro tier',
-    price: 3.99,
+    price: 1.99,
     icon: ChartLineUp,
     category: 'analytics',
     duration: 48,
@@ -415,7 +415,7 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     title: 'Token Sniping (24h)',
     subtitle: 'ELITE STRATEGY',
     description: 'Temporarily unlock Token Sniping strategy for 24 hours - usually requires Pro tier or higher',
-    price: 4.99,
+    price: 2.49,
     icon: Crosshair,
     category: 'execution',
     duration: 24,
@@ -427,7 +427,7 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     title: 'Arbitrage Scanner (24h)',
     subtitle: 'ELITE STRATEGY',
     description: 'Temporarily unlock Arbitrage Scanner for 24 hours - usually requires Elite tier',
-    price: 4.99,
+    price: 2.49,
     icon: ArrowsOutSimple,
     category: 'analytics',
     duration: 24,
@@ -439,11 +439,71 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     title: 'Premium Signals (12h)',
     subtitle: 'ELITE FEATURE',
     description: 'Access premium market signals for 12 hours - elite-tier exclusive feature',
-    price: 2.49,
+    price: 1.49,
     icon: Lightning,
     category: 'analytics',
     duration: 12,
     benefit: 'Premium signals for 12h',
+    tier: 'micro'
+  },
+  {
+    id: 'strategy-unlock-grid-48h',
+    title: 'Grid Trading Strategy (48h)',
+    subtitle: 'ADVANCED STRATEGY',
+    description: 'Temporarily unlock Grid Trading strategy for 48 hours - usually requires Trader tier or higher',
+    price: 1.99,
+    icon: ChartBar,
+    category: 'analytics',
+    duration: 48,
+    benefit: 'Grid trading for 48h',
+    tier: 'micro'
+  },
+  {
+    id: 'strategy-unlock-dca-48h',
+    title: 'DCA Bot Strategy (48h)',
+    subtitle: 'PRO STRATEGY',
+    description: 'Temporarily unlock Dollar Cost Averaging bot for 48 hours - usually requires Pro tier',
+    price: 1.99,
+    icon: TrendUp,
+    category: 'analytics',
+    duration: 48,
+    benefit: 'DCA bot for 48h',
+    tier: 'micro'
+  },
+  {
+    id: 'extra-ai-agent-7d',
+    title: '+1 AI Agent (7 days)',
+    subtitle: 'WEEKLY AGENT ACCESS',
+    description: 'Unlock an additional AI agent slot for 7 days - extended premium agent access',
+    price: 9.99,
+    icon: Robot,
+    category: 'limits',
+    duration: 168,
+    benefit: '+1 AI agent slot for 7 days',
+    tier: 'micro'
+  },
+  {
+    id: 'strategy-unlock-scalping-24h',
+    title: 'Scalping Strategy (24h)',
+    subtitle: 'PRO STRATEGY',
+    description: 'Temporarily unlock Scalping strategy for 24 hours - high-frequency trading approach',
+    price: 2.49,
+    icon: Lightning,
+    category: 'execution',
+    duration: 24,
+    benefit: 'Scalping strategy for 24h',
+    tier: 'micro'
+  },
+  {
+    id: 'advanced-ai-signals-24h',
+    title: 'Advanced AI Signals (24h)',
+    subtitle: 'ELITE AI FEATURE',
+    description: 'Access advanced AI-powered trading signals for 24 hours - usually requires Elite tier',
+    price: 2.99,
+    icon: Brain,
+    category: 'analytics',
+    duration: 24,
+    benefit: 'AI signals for 24h',
     tier: 'micro'
   },
 
@@ -527,6 +587,19 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
 ]
 
 /**
+ * Flash Sale eligible items - Strategies and AI Agents only
+ * These give limited access to features above the user's current tier
+ */
+export const FLASH_SALE_ITEMS: LimitedOffer[] = ALL_LIMITED_OFFERS.filter(
+  offer => 
+    // Include items that unlock strategies or AI agents
+    offer.id.includes('strategy-unlock') || 
+    offer.id.includes('extra-ai-agent') ||
+    offer.id.includes('premium-signals') ||
+    offer.id.includes('advanced-ai-signals')
+)
+
+/**
  * Get Limited Offers that rotate DAILY (every 24 hours)
  * Returns 3-5 offers from the micro-transaction pool
  */
@@ -545,13 +618,15 @@ export function getLimitedOffers(count: number = 5): LimitedOffer[] {
 
 /**
  * Get Flash Sales that rotate every 3 HOURS
- * Returns 3 high-urgency offers
+ * Returns 3 high-urgency offers focused on STRATEGIES and AI AGENTS
+ * These items give temporary access to premium features above current tier
  */
 export function getFlashSales(count: number = 3): LimitedOffer[] {
   // 3-hour rotation seed
   const rotationSeed = Math.floor(Date.now() / (3 * 60 * 60 * 1000))
   
-  const shuffled = [...ALL_LIMITED_OFFERS].sort((a, b) => {
+  // Only use strategy and AI agent items for flash sales
+  const shuffled = [...FLASH_SALE_ITEMS].sort((a, b) => {
     const hashA = simpleHash(a.id + rotationSeed + 'flash')
     const hashB = simpleHash(b.id + rotationSeed + 'flash')
     return hashA - hashB
