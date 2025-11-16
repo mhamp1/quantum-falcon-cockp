@@ -47,6 +47,8 @@ A cyberpunk-themed progressive web app for crypto trading with AI-powered tradin
 - [License](#-license)
 
 > **Note**: Recent merge resolution - See [MERGE_RESOLUTION_SUMMARY.md](./MERGE_RESOLUTION_SUMMARY.md) for details on resolved conflicts and mobile implementation options.
+> 
+> **Code Quality**: See [CODE_QUALITY_IMPROVEMENTS.md](./CODE_QUALITY_IMPROVEMENTS.md) for details on recent code quality improvements and linting setup.
 
 ## ✨ Features
 
