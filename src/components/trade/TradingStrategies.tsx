@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect } from 'react'
 import { Provider, useSelector, useDispatch } from 'react-redux'
 import { DndProvider } from 'react-dnd'

@@ -2,7 +2,14 @@
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { StrictMode } from 'react';
-import '@github/spark/spark';
+
+// Conditionally import Spark runtime only if running in Spark environment
+// This prevents 401/403 errors in local development
+if (import.meta.env.MODE === 'production' || window.location.hostname.includes('github')) {
+  import('@github/spark/spark').catch(() => {
+    console.info('[Spark] Running in local development mode - using localStorage fallback');
+  });
+}
 
 // Import components and styles
 import App from './App.tsx';

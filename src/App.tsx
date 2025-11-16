@@ -1,5 +1,5 @@
 // Core Application File - Further enhanced with lazy loading for performance, improved error boundaries, accessibility, and state management
-import { useKV } from '@github/spark/hooks';
+import { useKV } from '@/hooks/useKVFallback';
 import { useEffect, useMemo, Suspense, lazy } from 'react';
 import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Flask, Lightning } from '@phosphor-icons/react';
 
