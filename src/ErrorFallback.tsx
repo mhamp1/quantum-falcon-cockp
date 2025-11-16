@@ -1,8 +1,14 @@
 // Error Handling Component (Error Boundary Fallback) - Further enhanced with error reporting, retry logic, and improved accessibility
-import { useEffect, useState } from 'react';
-import { Alert, AlertTitle, AlertDescription } from './components/ui/alert';
-import { Button } from './components/ui/button';
-import { AlertTriangleIcon, RefreshCwIcon, CopyIcon, SendIcon } from 'lucide-react';
+import { useEffect, useState } from "react";
+import {
+  AlertTriangleIcon,
+  RefreshCwIcon,
+  CopyIcon,
+  SendIcon,
+} from "lucide-react";
+
+import { Alert, AlertTitle, AlertDescription } from "./components/ui/alert";
+import { Button } from "./components/ui/button";
 
 interface ErrorFallbackProps {
   error: Error;
@@ -14,9 +20,9 @@ const copyErrorToClipboard = async (errorMessage: string) => {
   try {
     await navigator.clipboard.writeText(errorMessage);
     // Optional: Show a toast notification instead of alert
-    console.log('Error details copied to clipboard');
+    console.log("Error details copied to clipboard");
   } catch (err) {
-    console.error('Failed to copy error to clipboard:', err);
+    console.error("Failed to copy error to clipboard:", err);
   }
 };
 
@@ -24,14 +30,17 @@ const copyErrorToClipboard = async (errorMessage: string) => {
 const reportError = async (error: Error) => {
   try {
     // Example: Send to error tracking service
-    console.log('Reporting error:', error.message);
+    console.log("Reporting error:", error.message);
     // await fetch('/api/report-error', { method: 'POST', body: JSON.stringify({ error: error.message, stack: error.stack }) });
   } catch (err) {
-    console.error('Failed to report error:', err);
+    console.error("Failed to report error:", err);
   }
 };
 
-export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps) => {
+export const ErrorFallback = ({
+  error,
+  resetErrorBoundary,
+}: ErrorFallbackProps) => {
   const [isReporting, setIsReporting] = useState(false);
   const [hasReported, setHasReported] = useState(false);
 
@@ -42,7 +51,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
 
   // Log error and report automatically on mount
   useEffect(() => {
-    console.error('Application error:', error);
+    console.error("Application error:", error);
     // Automatically report error (uncomment in production)
     // reportError(error);
   }, [error]);
@@ -55,23 +64,33 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4" role="alert">
+    <div
+      className="min-h-screen bg-background flex items-center justify-center p-4"
+      role="alert"
+    >
       <div className="w-full max-w-md space-y-6">
         <Alert variant="destructive">
           <AlertTriangleIcon aria-hidden="true" />
           <AlertTitle>Something went wrong</AlertTitle>
           <AlertDescription>
-            An unexpected error occurred. We've logged this for review. You can try refreshing or contact support.
+            An unexpected error occurred. We've logged this for review. You can
+            try refreshing or contact support.
           </AlertDescription>
         </Alert>
 
         <div className="bg-card border rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-sm text-muted-foreground">Error Details:</h3>
+            <h3 className="font-semibold text-sm text-muted-foreground">
+              Error Details:
+            </h3>
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => copyErrorToClipboard(`${error.message}\n\nStack Trace:\n${error.stack || 'N/A'}`)}
+              onClick={() =>
+                copyErrorToClipboard(
+                  `${error.message}\n\nStack Trace:\n${error.stack || "N/A"}`,
+                )
+              }
               aria-label="Copy error details to clipboard"
             >
               <CopyIcon size={16} />
@@ -82,7 +101,9 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
           </pre>
           {error.stack && (
             <details className="mt-2">
-              <summary className="text-xs text-muted-foreground cursor-pointer">Show full stack trace</summary>
+              <summary className="text-xs text-muted-foreground cursor-pointer">
+                Show full stack trace
+              </summary>
               <pre className="text-xs text-muted-foreground mt-2 bg-muted/50 p-3 rounded border overflow-auto max-h-48">
                 {error.stack}
               </pre>
@@ -107,7 +128,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
             aria-label="Report this error"
           >
             <SendIcon aria-hidden="true" className="mr-2" />
-            {isReporting ? 'Reporting...' : hasReported ? 'Reported' : 'Report'}
+            {isReporting ? "Reporting..." : hasReported ? "Reported" : "Report"}
           </Button>
         </div>
       </div>

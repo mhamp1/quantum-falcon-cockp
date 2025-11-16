@@ -1,5 +1,5 @@
-import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary'
-import { Brain } from '@phosphor-icons/react'
+import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
+import { Brain } from "@phosphor-icons/react";
 
 function ErrorFallback({ error }: { error: Error }) {
   return (
@@ -31,7 +31,7 @@ function ErrorFallback({ error }: { error: Error }) {
         Reinitialize System
       </button>
     </div>
-  )
+  );
 }
 
 export function ErrorBoundary({ children }: { children: React.ReactNode }) {
@@ -39,5 +39,5 @@ export function ErrorBoundary({ children }: { children: React.ReactNode }) {
     <ReactErrorBoundary FallbackComponent={ErrorFallback}>
       {children}
     </ReactErrorBoundary>
-  )
+  );
 }

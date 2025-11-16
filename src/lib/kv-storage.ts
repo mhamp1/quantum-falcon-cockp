@@ -1,14 +1,14 @@
 /**
  * KV Storage Fallback for Local Development
- * 
+ *
  * This module provides a localStorage-based fallback for the Spark KV storage system
  * when running outside the GitHub Spark environment (e.g., local development).
- * 
+ *
  * It intercepts failed KV requests and falls back to localStorage seamlessly.
  */
 
-const KV_PREFIX = 'spark_kv_';
-const KV_AVAILABLE_KEY = '__spark_kv_available__';
+const KV_PREFIX = "spark_kv_";
+const KV_AVAILABLE_KEY = "__spark_kv_available__";
 
 // Check if Spark KV is available by trying a simple request
 let sparkKVAvailable: boolean | null = null;
@@ -22,15 +22,15 @@ export async function isSparkKVAvailable(): Promise<boolean> {
   // Check sessionStorage cache
   const cached = sessionStorage.getItem(KV_AVAILABLE_KEY);
   if (cached !== null) {
-    sparkKVAvailable = cached === 'true';
+    sparkKVAvailable = cached === "true";
     return sparkKVAvailable;
   }
 
   // Try to connect to Spark KV
   try {
-    const response = await fetch('/_spark/kv', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/_spark/kv", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
     });
     // 200 = available, anything else (401, 403, 404, etc) = unavailable
     sparkKVAvailable = response.status === 200;
@@ -40,11 +40,13 @@ export async function isSparkKVAvailable(): Promise<boolean> {
 
   // Cache the result in sessionStorage for this session
   sessionStorage.setItem(KV_AVAILABLE_KEY, String(sparkKVAvailable));
-  
+
   if (!sparkKVAvailable) {
-    console.info('[KV Storage] Spark KV unavailable - using localStorage fallback');
+    console.info(
+      "[KV Storage] Spark KV unavailable - using localStorage fallback",
+    );
   }
-  
+
   return sparkKVAvailable;
 }
 
@@ -53,7 +55,7 @@ export async function isSparkKVAvailable(): Promise<boolean> {
  */
 export async function getKVValue<T>(key: string): Promise<T | undefined> {
   const useLocalStorage = !(await isSparkKVAvailable());
-  
+
   if (useLocalStorage) {
     return getFromLocalStorage<T>(key);
   }
@@ -61,12 +63,12 @@ export async function getKVValue<T>(key: string): Promise<T | undefined> {
   // Try Spark KV first, fall back to localStorage on error
   try {
     const response = await fetch(`/_spark/kv/${encodeURIComponent(key)}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
     });
 
     if (!response.ok) {
-      throw new Error('KV fetch failed');
+      throw new Error("KV fetch failed");
     }
 
     const data = await response.json();
@@ -83,7 +85,7 @@ export async function getKVValue<T>(key: string): Promise<T | undefined> {
  */
 export async function setKVValue<T>(key: string, value: T): Promise<void> {
   const useLocalStorage = !(await isSparkKVAvailable());
-  
+
   if (useLocalStorage) {
     setInLocalStorage(key, value);
     return;
@@ -92,13 +94,13 @@ export async function setKVValue<T>(key: string, value: T): Promise<void> {
   // Try Spark KV first, fall back to localStorage on error
   try {
     const response = await fetch(`/_spark/kv/${encodeURIComponent(key)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ value }),
     });
 
     if (!response.ok) {
-      throw new Error('KV set failed');
+      throw new Error("KV set failed");
     }
   } catch {
     // Fall back to localStorage
@@ -112,7 +114,7 @@ export async function setKVValue<T>(key: string, value: T): Promise<void> {
  */
 export async function deleteKVValue(key: string): Promise<void> {
   const useLocalStorage = !(await isSparkKVAvailable());
-  
+
   if (useLocalStorage) {
     deleteFromLocalStorage(key);
     return;
@@ -121,12 +123,12 @@ export async function deleteKVValue(key: string): Promise<void> {
   // Try Spark KV first, fall back to localStorage on error
   try {
     const response = await fetch(`/_spark/kv/${encodeURIComponent(key)}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
     });
 
     if (!response.ok) {
-      throw new Error('KV delete failed');
+      throw new Error("KV delete failed");
     }
   } catch {
     // Fall back to localStorage
@@ -140,27 +142,27 @@ export async function deleteKVValue(key: string): Promise<void> {
  */
 export async function getKVKeys(): Promise<string[]> {
   const useLocalStorage = !(await isSparkKVAvailable());
-  
+
   if (useLocalStorage) {
     return getKeysFromLocalStorage();
   }
 
   // Try Spark KV first, fall back to localStorage on error
   try {
-    const response = await fetch('/_spark/kv', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/_spark/kv", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
     });
 
     if (!response.ok) {
-      throw new Error('KV keys fetch failed');
+      throw new Error("KV keys fetch failed");
     }
 
     const data = await response.json();
     return data.keys || [];
   } catch {
     // Fall back to localStorage
-    console.warn('[KV Fallback] Using localStorage for keys list');
+    console.warn("[KV Fallback] Using localStorage for keys list");
     return getKeysFromLocalStorage();
   }
 }
