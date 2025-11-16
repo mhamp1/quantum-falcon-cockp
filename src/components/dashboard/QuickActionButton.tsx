@@ -35,6 +35,11 @@ export const QuickActionButton = memo(({ action, index }: QuickActionButtonProps
         onClick={action.action}
         className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${index % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
       >
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+        <div className="relative z-10">
+          {action.icon}
+        </div>
+        <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
       <div className="relative z-10">
         {action.icon}

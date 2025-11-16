@@ -3,7 +3,8 @@ import { useKV } from '@github/spark/hooks'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
 import { motion } from 'framer-motion'
 import { useKV } from '@/hooks/useKVFallback'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useTransition, lazy, Suspense } from 'react'
+import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
@@ -16,6 +17,7 @@ import { Label } from '@/components/ui/label'
 import LoginDialog from '@/components/shared/LoginDialog'
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
 import { toast } from 'sonner'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 // Lazy load heavy components for better performance
 const NewsTicker = lazy(() => import('@/components/shared/NewsTicker'))

@@ -10,6 +10,7 @@
 
 ### Alerts Found: 0
 
+The CodeQL security scanner analyzed all changes including:
 The CodeQL security scanner analyzed the following changes:
 - `src/components/dashboard/EnhancedDashboard.tsx`
 - `src/components/dashboard/QuickStatsCard.tsx`
@@ -17,6 +18,8 @@ The CodeQL security scanner analyzed the following changes:
 - `src/components/dashboard/AIAdvisor.tsx`
 - `src/components/ErrorBoundary.tsx`
 - `src/main.tsx`
+- `eslint.config.js`
+- `tsconfig.json`
 
 ### Security Best Practices Implemented
 
