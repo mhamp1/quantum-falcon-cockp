@@ -2,6 +2,8 @@
 import { useKV } from '@github/spark/hooks'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
 import { motion } from 'framer-motion'
+import { useKV } from '@/hooks/useKVFallback'
+import { useEffect, useState } from 'react'
 import { UserAuth } from '@/lib/auth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
@@ -143,6 +145,23 @@ export default function EnhancedDashboard() {
       action: () => {
         const event = new CustomEvent('navigate-tab', { detail: 'community' })
         window.dispatchEvent(event)
+      }
+    },
+    {
+      id: 'upgrade-tier',
+      label: 'Upgrade Tier',
+      icon: <Crown size={20} weight="fill" />,
+      color: 'accent',
+      action: () => {
+        const event = new CustomEvent('navigate-tab', { detail: 'settings' })
+        window.dispatchEvent(event)
+        // Navigate to subscription tab after a short delay
+        setTimeout(() => {
+          const subscriptionSection = document.getElementById('subscription-tiers-section')
+          if (subscriptionSection) {
+            subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }, 300)
       }
     }
   ]
@@ -380,6 +399,29 @@ export default function EnhancedDashboard() {
               <QuickActionButton action={action} index={idx} />
             </Suspense>
           ))}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {quickActions.map((action, idx) => {
+            const colorClasses = {
+              primary: 'bg-primary/10 hover:bg-primary/20 border-primary/50 hover:border-primary text-primary hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)]',
+              accent: 'bg-accent/10 hover:bg-accent/20 border-accent/50 hover:border-accent text-accent hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
+              secondary: 'bg-secondary/10 hover:bg-secondary/20 border-secondary/50 hover:border-secondary text-secondary hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
+              destructive: 'bg-destructive/10 hover:bg-destructive/20 border-destructive/50 hover:border-destructive text-destructive hover:shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.3)]'
+            }
+            
+            return (
+              <Button
+                key={action.id}
+                onClick={action.action}
+                className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  {action.icon}
+                </div>
+                <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
+              </Button>
+            )
+          })}
         </div>
       </div>
 

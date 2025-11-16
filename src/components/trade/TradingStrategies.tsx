@@ -1,16 +1,23 @@
-import { useKV } from '@github/spark/hooks'
-import { useState } from 'react'
+import { useKV } from '@/hooks/useKVFallback'
+import { useState, useEffect } from 'react'
+import { Provider, useSelector, useDispatch } from 'react-redux'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { 
-  Robot, Brain, Lightning, Target, TrendUp, ArrowsClockwise, 
-  Play, Pause, Stop, Gear, ChartLine, Calendar, ChatCircle 
+  Robot, Brain, Lightning, 
+  Play, Pause, Stop, Gear, Calendar, ChatCircle, Newspaper 
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+import { store, Strategy, Trade, TradingState } from '@/store/tradingStore'
+import { useSocket } from '@/hooks/useSocket'
+import { ParticleBackground } from '@/components/shared/ParticleBackground'
+import { DraggableWidget } from '@/components/trade/DraggableWidget'
+import { TradingChart } from '@/components/trade/TradingChart'
 
 interface ActiveStrategy {
   id: string
@@ -40,7 +47,28 @@ interface ChatMessage {
   timestamp: number
 }
 
-export default function TradingStrategies() {
+interface NewsItem {
+  id: string
+  title: string
+  source: string
+  timestamp: number
+  sentiment: 'positive' | 'negative' | 'neutral'
+}
+
+
+
+interface TradingStrategiesProps {
+  apiUrl?: string
+  wsUrl?: string
+}
+
+// WebSocket URL - can be configured via props or environment variable
+const DEFAULT_WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
+
+function TradingStrategiesContent({ wsUrl = DEFAULT_WS_URL }: TradingStrategiesProps) {
+  const dispatch = useDispatch()
+  
+  // Use KV storage for active strategies (UI-specific state)
   const [activeStrategies, setActiveStrategies] = useKV<ActiveStrategy[]>('active-strategies', [
     {
       id: '1',
@@ -53,6 +81,9 @@ export default function TradingStrategies() {
       startedAt: Date.now() - 86400000
     }
   ])
+
+  const [showParticles, setShowParticles] = useState(false)
+  const { socket, isConnected } = useSocket(wsUrl)
 
   const [recurringBuys, setRecurringBuys] = useKV<RecurringBuy[]>('recurring-buys', [
     {
@@ -71,6 +102,112 @@ export default function TradingStrategies() {
     { role: 'assistant', content: 'Hello! I\'m your AI trading assistant. Ask me anything about market conditions, strategies, or risk management.', timestamp: Date.now() }
   ])
   const [userInput, setUserInput] = useState('')
+  
+  // News feed state
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([
+    {
+      id: '1',
+      title: 'Bitcoin surges past $50,000 as institutional adoption grows',
+      source: 'CryptoNews',
+      timestamp: Date.now() - 3600000,
+      sentiment: 'positive'
+    },
+    {
+      id: '2',
+      title: 'Ethereum upgrade shows promising scalability improvements',
+      source: 'BlockchainDaily',
+      timestamp: Date.now() - 7200000,
+      sentiment: 'positive'
+    }
+  ])
+  
+  // WebSocket connection status update
+  useEffect(() => {
+    dispatch({ type: 'SET_CONNECTION_STATUS', payload: isConnected })
+  }, [isConnected, dispatch])
+
+  // WebSocket event listeners for real-time updates
+  useEffect(() => {
+    if (!socket) return
+
+    // Listen for strategy updates
+    socket.on('strategyUpdate', (data: Strategy[]) => {
+      dispatch({ type: 'UPDATE_STRATEGIES', payload: data })
+      // Update KV storage for active strategies UI
+      setActiveStrategies(data.map(s => ({
+        id: s.id,
+        name: s.name,
+        symbol: s.symbol,
+        status: s.status,
+        trades: s.trades,
+        pnl: s.pnl,
+        pnlPercent: s.pnlPercent,
+        startedAt: s.startedAt
+      })))
+    })
+
+    // Listen for new trades with particle explosion
+    socket.on('newTrade', (trade: Trade) => {
+      dispatch({ type: 'ADD_TRADE', payload: trade })
+      setShowParticles(true)
+      setTimeout(() => setShowParticles(false), 2000)
+      
+      // Update active strategies with new trade data
+      setActiveStrategies((current) => {
+        if (!current) return []
+        return current.map((s) => {
+          // Match by symbol if strategy name not provided
+          if (trade.symbol && s.symbol === trade.symbol) {
+            return { 
+              ...s, 
+              trades: s.trades + 1, 
+              pnl: trade.pnl ? s.pnl + trade.pnl : s.pnl 
+            }
+          }
+          return s
+        })
+      })
+      
+      // Award XP for profitable trades
+      if (trade.pnl && trade.pnl > 0) {
+        window.dispatchEvent(new CustomEvent('tradeCompleted', { 
+          detail: { pnl: trade.pnl, symbol: trade.symbol } 
+        }))
+        toast.success(`Trade completed! PnL: $${trade.pnl.toFixed(2)}`)
+      }
+    })
+
+    // Listen for real-time news updates
+    socket.on('newsUpdate', (news: NewsItem) => {
+      setNewsItems((prev) => [news, ...prev].slice(0, 20))
+      toast.info(`News: ${news.title}`, { duration: 5000 })
+    })
+
+    return () => {
+      socket.off('strategyUpdate')
+      socket.off('newTrade')
+      socket.off('newsUpdate')
+    }
+  }, [socket, dispatch, setActiveStrategies])
+
+  // Keyboard shortcuts for accessibility
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Alt+1-5 for quick tab navigation
+      if (e.altKey && e.key >= '1' && e.key <= '5') {
+        const tabs = ['active', 'strategies', 'dca', 'news', 'ai']
+        const tabIndex = parseInt(e.key) - 1
+        if (tabs[tabIndex]) {
+          const tabElement = document.querySelector(`[value="${tabs[tabIndex]}"]`) as HTMLElement
+          tabElement?.click()
+          e.preventDefault()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [])
 
   const builtInStrategies = [
     { id: 'baseline', name: 'Baseline (Buy & Hold)', type: 'Buy & Hold', risk: 'Low' },
@@ -163,39 +300,59 @@ export default function TradingStrategies() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      <ParticleBackground explode={showParticles} />
+      
       <div className="flex items-center justify-between">
         <h2 className="text-2xl md:text-3xl font-bold tracking-[0.25em] uppercase">
           <span className="text-primary neon-glow-primary">TRADING_HUB</span>
         </h2>
-        <button className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group">
-          <ArrowsClockwise size={18} weight="duotone" className="text-primary" />
-          <div className="hud-corner-tl" />
-          <div className="hud-corner-br" />
-        </button>
+        <div className="flex items-center gap-3">
+          {isConnected && (
+            <div className="flex items-center gap-2" role="status" aria-live="polite">
+              <div className="status-indicator" />
+              <span className="hud-readout text-xs text-primary">WS_CONNECTED</span>
+            </div>
+          )}
+          <button 
+            className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group"
+            aria-label="Refresh data"
+          >
+            <ArrowsClockwise size={18} weight="duotone" className="text-primary" />
+            <div className="hud-corner-tl" />
+            <div className="hud-corner-br" />
+          </button>
+        </div>
       </div>
 
       <Tabs defaultValue="active" className="space-y-6">
-        <TabsList className="bg-muted/30 border border-primary/30">
-          <TabsTrigger value="active" className="data-label gap-2">
-            <Lightning size={16} weight="duotone" />
-            ACTIVE
-          </TabsTrigger>
-          <TabsTrigger value="strategies" className="data-label gap-2">
-            <Robot size={16} weight="duotone" />
-            STRATEGIES
-          </TabsTrigger>
-          <TabsTrigger value="dca" className="data-label gap-2">
-            <Calendar size={16} weight="duotone" />
-            DCA
-          </TabsTrigger>
-          <TabsTrigger value="ai" className="data-label gap-2">
-            <Brain size={16} weight="duotone" />
-            AI_ASSISTANT
-          </TabsTrigger>
-        </TabsList>
+          <TabsList className="bg-muted/30 border border-primary/30">
+            <TabsTrigger value="active" className="data-label gap-2">
+              <Lightning size={16} weight="duotone" />
+              ACTIVE
+            </TabsTrigger>
+            <TabsTrigger value="strategies" className="data-label gap-2">
+              <Robot size={16} weight="duotone" />
+              STRATEGIES
+            </TabsTrigger>
+            <TabsTrigger value="dca" className="data-label gap-2">
+              <Calendar size={16} weight="duotone" />
+              DCA
+            </TabsTrigger>
+            <TabsTrigger value="news" className="data-label gap-2">
+              <Newspaper size={16} weight="duotone" />
+              NEWS
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="data-label gap-2">
+              <Brain size={16} weight="duotone" />
+              AI_ASSISTANT
+            </TabsTrigger>
+          </TabsList>
 
         <TabsContent value="active" className="space-y-6">
+          {/* Advanced Trading Chart */}
+          <TradingChart />
+
           <div className="cyber-card">
             <div className="p-6">
               <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout mb-6">ACTIVE_STRATEGIES</h3>
@@ -209,7 +366,11 @@ export default function TradingStrategies() {
               ) : (
                 <div className="space-y-4">
                   {activeStrategies.map((strategy) => (
-                    <div key={strategy.id} className="cyber-card-accent">
+                    <DraggableWidget 
+                      key={strategy.id} 
+                      id={`strategy-${strategy.id}`}
+                      className="cyber-card-accent cursor-move"
+                    >
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
@@ -252,7 +413,7 @@ export default function TradingStrategies() {
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" role="group" aria-label="Strategy controls">
                           {strategy.status === 'running' && (
                             <>
                               <Button 
@@ -260,8 +421,9 @@ export default function TradingStrategies() {
                                 variant="outline"
                                 className="border-accent text-accent hover:bg-accent/10"
                                 onClick={() => handleStrategyToggle(strategy.id, 'pause')}
+                                aria-label={`Pause ${strategy.name} strategy`}
                               >
-                                <Pause size={14} weight="fill" className="mr-2" />
+                                <Pause size={14} weight="fill" className="mr-2" aria-hidden="true" />
                                 PAUSE
                               </Button>
                               <Button 
@@ -269,8 +431,9 @@ export default function TradingStrategies() {
                                 variant="outline"
                                 className="border-destructive text-destructive hover:bg-destructive/10"
                                 onClick={() => handleStrategyToggle(strategy.id, 'stop')}
+                                aria-label={`Stop ${strategy.name} strategy`}
                               >
-                                <Stop size={14} weight="fill" className="mr-2" />
+                                <Stop size={14} weight="fill" className="mr-2" aria-hidden="true" />
                                 STOP
                               </Button>
                             </>
@@ -281,8 +444,9 @@ export default function TradingStrategies() {
                               variant="outline"
                               className="border-primary text-primary hover:bg-primary/10"
                               onClick={() => handleStrategyToggle(strategy.id, 'resume')}
+                              aria-label={`Resume ${strategy.name} strategy`}
                             >
-                              <Play size={14} weight="fill" className="mr-2" />
+                              <Play size={14} weight="fill" className="mr-2" aria-hidden="true" />
                               RESUME
                             </Button>
                           )}
@@ -290,13 +454,14 @@ export default function TradingStrategies() {
                             size="sm"
                             variant="outline"
                             className="border-primary/30 text-primary hover:bg-primary/10"
+                            aria-label={`Open settings for ${strategy.name} strategy`}
                           >
-                            <Gear size={14} weight="duotone" className="mr-2" />
+                            <Gear size={14} weight="duotone" className="mr-2" aria-hidden="true" />
                             SETTINGS
                           </Button>
                         </div>
                       </div>
-                    </div>
+                    </DraggableWidget>
                   ))}
                 </div>
               )}
@@ -423,6 +588,69 @@ export default function TradingStrategies() {
           </div>
         </TabsContent>
 
+        <TabsContent value="news" className="space-y-6">
+          <div className="cyber-card">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <Newspaper size={24} weight="duotone" className="text-primary" />
+                <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">REAL-TIME_NEWS</h3>
+              </div>
+
+              <div className="space-y-3">
+                {newsItems.map((item) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="p-4 bg-muted/30 border-l-2 hover:bg-muted/50 transition-all"
+                    style={{
+                      borderLeftColor: 
+                        item.sentiment === 'positive' ? 'var(--primary)' :
+                        item.sentiment === 'negative' ? 'var(--destructive)' :
+                        'var(--muted-foreground)'
+                    }}
+                    role="article"
+                    aria-label={item.title}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm mb-1">{item.title}</h4>
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="data-label">{item.source}</span>
+                          <span className="text-muted-foreground">
+                            {new Date(item.timestamp).toLocaleTimeString()}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                            item.sentiment === 'positive' ? 'bg-primary/20 text-primary' :
+                            item.sentiment === 'negative' ? 'bg-destructive/20 text-destructive' :
+                            'bg-muted text-muted-foreground'
+                          }`}>
+                            {item.sentiment.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {newsItems.length === 0 && (
+                <div className="text-center py-12">
+                  <Newspaper size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="data-label">NO_NEWS_AVAILABLE</p>
+                  <p className="text-sm text-muted-foreground mt-2">Waiting for real-time updates...</p>
+                </div>
+              )}
+
+              <div className="mt-4 p-4 bg-accent/10 border border-accent/30">
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-accent">Real-Time News:</strong> Powered by WebSocket connection. News updates appear automatically with sentiment analysis.
+                </p>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
         <TabsContent value="ai" className="space-y-6">
           <div className="cyber-card">
             <div className="p-6">
@@ -477,5 +705,16 @@ export default function TradingStrategies() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+// Main component wrapped with Redux Provider and DnD
+export default function TradingStrategies(props: TradingStrategiesProps = {}) {
+  return (
+    <Provider store={store}>
+      <DndProvider backend={HTML5Backend}>
+        <TradingStrategiesContent {...props} />
+      </DndProvider>
+    </Provider>
   )
 }

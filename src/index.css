@@ -18,6 +18,12 @@
 }
 
 :root {
+  /* Solana-inspired Cyberpunk Theme Colors */
+  --solana-green: #14F195;
+  --solana-purple: #9945FF;
+  --cyberpunk-dark: #0A0E27;
+  --cyberpunk-darker: #1A1F3A;
+  
   --background: oklch(0.08 0.02 280);
   --foreground: oklch(0.85 0.12 195);
   
@@ -27,9 +33,11 @@
   --popover: oklch(0.12 0.03 280);
   --popover-foreground: oklch(0.85 0.12 195);
   
+  /* Primary: Solana Green */
   --primary: oklch(0.72 0.20 195);
   --primary-foreground: oklch(0.08 0.02 280);
   
+  /* Secondary: Solana Purple */
   --secondary: oklch(0.68 0.18 330);
   --secondary-foreground: oklch(0.08 0.02 280);
   
@@ -130,6 +138,13 @@
   -webkit-text-stroke: 0.5px currentColor;
   text-stroke: 0.5px currentColor;
   paint-order: stroke fill;
+}
+
+.holographic-glow {
+  box-shadow: 
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.15),
+    0 0 20px oklch(0.72 0.20 195 / 0.2),
+    0 0 40px oklch(0.72 0.20 195 / 0.1);
 }
 
 .holographic-border {
@@ -480,6 +495,39 @@
   }
 }
 
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes neon-flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  75% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.9;
+  }
+}
+
 @keyframes border-flow {
   0% {
     background-position: 0% 50%;
@@ -511,6 +559,84 @@
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+
+.animate-neon-flicker {
+  animation: neon-flicker 1.5s infinite;
+}
+
+/* Neon Button Styles */
+.neon-button {
+  position: relative;
+  background: linear-gradient(135deg, 
+    oklch(0.12 0.03 280 / 0.9) 0%,
+    oklch(0.10 0.02 280 / 0.95) 100%
+  );
+  border: 1px solid var(--primary);
+  box-shadow: 
+    0 0 10px oklch(0.72 0.20 195 / 0.4),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neon-button:hover {
+  box-shadow: 
+    0 0 20px oklch(0.72 0.20 195 / 0.6),
+    0 0 40px oklch(0.72 0.20 195 / 0.3),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.3);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.neon-button:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 0 10px oklch(0.72 0.20 195 / 0.4),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.2);
+}
+
+/* Neon Progress Bar */
+.neon-progress-bar {
+  position: relative;
+  background: oklch(0.12 0.03 280);
+  border: 1px solid oklch(0.35 0.12 195 / 0.3);
+  overflow: hidden;
+}
+
+.neon-progress-fill {
+  background: linear-gradient(90deg, 
+    var(--primary) 0%,
+    var(--secondary) 100%
+  );
+  box-shadow: 
+    0 0 10px var(--primary),
+    0 0 20px var(--primary);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neon-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    oklch(1 0 0 / 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
 }
 
 .scan-line-effect {
@@ -830,4 +956,121 @@
     transparent 100%
   );
   opacity: 0.3;
+}
+
+/* HIGH CONTRAST ACCESSIBILITY THEME */
+/* Black & White cyberpunk aesthetic for better readability */
+.high-contrast {
+  --background: oklch(0.05 0 0);
+  --foreground: oklch(0.98 0 0);
+  
+  --card: oklch(0.10 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  
+  --popover: oklch(0.10 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  
+  --primary: oklch(0.95 0 0);
+  --primary-foreground: oklch(0.05 0 0);
+  
+  --secondary: oklch(0.85 0 0);
+  --secondary-foreground: oklch(0.05 0 0);
+  
+  --muted: oklch(0.20 0 0);
+  --muted-foreground: oklch(0.70 0 0);
+  
+  --accent: oklch(0.90 0 0);
+  --accent-foreground: oklch(0.05 0 0);
+  
+  --destructive: oklch(0.85 0 0);
+  --destructive-foreground: oklch(0.05 0 0);
+  
+  --border: oklch(0.50 0 0);
+  --input: oklch(0.50 0 0);
+  --ring: oklch(0.95 0 0);
+}
+
+.high-contrast .cyber-card {
+  background: linear-gradient(135deg, 
+    oklch(0.08 0 0 / 0.95) 0%,
+    oklch(0.12 0 0 / 0.85) 100%
+  );
+  border-left: 3px solid oklch(0.95 0 0);
+  border-top: 1px solid oklch(0.50 0 0 / 0.5);
+  border-right: 1px solid oklch(0.50 0 0 / 0.3);
+  border-bottom: 1px solid oklch(0.50 0 0 / 0.3);
+  box-shadow: 
+    -3px 0 12px oklch(0.95 0 0 / 0.3),
+    inset 0 1px 0 oklch(0.95 0 0 / 0.1);
+}
+
+.high-contrast .cyber-card::before {
+  background: linear-gradient(90deg, 
+    oklch(0.95 0 0) 0%,
+    transparent 50%
+  );
+}
+
+.high-contrast .cyber-card-accent {
+  background: linear-gradient(135deg, 
+    oklch(0.08 0 0 / 0.95) 0%,
+    oklch(0.15 0 0 / 0.85) 100%
+  );
+  border-left: 3px solid oklch(0.90 0 0);
+  box-shadow: 
+    -3px 0 12px oklch(0.90 0 0 / 0.3),
+    inset 0 1px 0 oklch(0.90 0 0 / 0.1);
+}
+
+.high-contrast .glass-morph-card {
+  background: linear-gradient(135deg, 
+    oklch(0.10 0 0 / 0.7) 0%,
+    oklch(0.15 0 0 / 0.5) 100%
+  );
+  border: 1px solid oklch(0.50 0 0 / 0.5);
+}
+
+.high-contrast .neon-glow,
+.high-contrast .neon-glow-primary {
+  text-shadow: 
+    0 0 2px oklch(0.98 0 0),
+    0 0 4px oklch(0.98 0 0),
+    0 0 8px oklch(0.98 0 0);
+}
+
+.high-contrast .neon-glow-accent,
+.high-contrast .neon-glow-secondary {
+  text-shadow: 
+    0 0 2px oklch(0.90 0 0),
+    0 0 4px oklch(0.90 0 0),
+    0 0 8px oklch(0.90 0 0);
+}
+
+.high-contrast .neon-glow-destructive {
+  box-shadow: 
+    0 0 5px oklch(0.85 0 0),
+    0 0 10px oklch(0.85 0 0),
+    0 0 20px oklch(0.85 0 0);
+}
+
+/* Maintain geometric shapes and technical aesthetic */
+.high-contrast .technical-grid,
+.high-contrast .diagonal-stripes,
+.high-contrast .grid-background {
+  opacity: 0.15 !important;
+}
+
+/* Keep borders sharp and visible */
+.high-contrast .jagged-corner,
+.high-contrast .angled-corner-tr,
+.high-contrast .angled-corner-br,
+.high-contrast .angled-corner-tl,
+.high-contrast .angled-corner-bl {
+  border-color: oklch(0.70 0 0);
+}
+
+/* Ensure status indicators remain visible */
+.high-contrast .status-indicator {
+  background: oklch(0.95 0 0);
+  box-shadow: 0 0 8px oklch(0.95 0 0);
 }
