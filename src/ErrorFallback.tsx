@@ -35,16 +35,8 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
   const [isReporting, setIsReporting] = useState(false);
   const [hasReported, setHasReported] = useState(false);
 
-  // In development, re-throw to show in console/dev tools
-  if (import.meta.env.DEV) {
-    throw error;
-  }
-
-  // Log error and report automatically on mount
   useEffect(() => {
     console.error('Application error:', error);
-    // Automatically report error (uncomment in production)
-    // reportError(error);
   }, [error]);
 
   const handleReport = async () => {
