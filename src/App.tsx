@@ -1,28 +1,24 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import {
   House,
-  House,
-  Users,
+  Lightning,
   ChartLine,
   Vault,
   Users,
   Gear,
-import { Bu
-import Dashb
-import 
-impo
-import AdvancedTradingHub from 
-
-interface Tab {
-  label: string;
+  List,
+  X,
+  Robot,
+} from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
 
 import Dashboard from "@/components/dashboard/Dashboard";
-import BotOverview from "@/components/dashboard/BotOverview";
+import AdvancedTradingHub from "@/components/trade/AdvancedTradingHub";
 import Analytics from "@/components/dashboard/Analytics";
 import Agents from "@/components/agents/Agents";
 import VaultView from "@/components/vault/VaultView";
 import SocialCommunity from "@/components/community/SocialCommunity";
-import AdvancedTradingHub from "@/components/trade/AdvancedTradingHub";
 import EnhancedSettings from "@/components/settings/EnhancedSettings";
 import AIAssistant from "@/components/shared/AIAssistant";
 
@@ -30,102 +26,81 @@ interface Tab {
   id: string;
   label: string;
   icon: any;
-  { id: "agents", label: "AI Agen
+  component: any;
 }
 
 const TABS: Tab[] = [
-  }
-    id: "dashboard",
-    label: "Trading",
-    icon: House,
-  },
-  },
-   
-    id: "bot-overview",
-    component: SocialCommu
-    icon: Terminal,
-    id: "settings",
-  },
-    component: EnhancedSettings,
   {
-
-    label: "Analytics",
-  const [sidebarOpen
-    component: Analytics,
-    
-   
+    id: "dashboard",
+    label: "Dashboard",
+    icon: House,
+    component: Dashboard,
+  },
+  {
     id: "trading",
     label: "Trading",
     icon: Lightning,
     component: AdvancedTradingHub,
   },
-  { id: "vault", label: "Vault", icon: Vault, component: VaultView },
+  {
+    id: "analytics",
+    label: "Analytics",
+    icon: ChartLine,
+    component: Analytics,
+  },
+  {
+    id: "agents",
+    label: "AI Agents",
+    icon: Robot,
+    component: Agents,
+  },
+  {
+    id: "vault",
+    label: "Vault",
+    icon: Vault,
+    component: VaultView,
+  },
   {
     id: "community",
-            <X size={24
-        </div>
-        <nav className="flex-1 
-    
-   
-                key
-                  setA
-               
-                  w-full flex it
-    
-  
+    label: "Community",
+    icon: Users,
+    component: SocialCommunity,
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: Gear,
+    component: EnhancedSettings,
+  },
+];
 
-              >
-                <span>{tab.label}</span>
-            );
+export default function App() {
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-        <div classN
-            <div className="flex items-center justify-betwe
-              <span className=
-            <div className="flex items-center just
-              <span className
-          </div>
-      <
-      
+  const currentTab = TABS.find((tab) => tab.id === activeTab) || TABS[0];
+  const Component = currentTab.component;
 
-              variant="ghost"
-              on
-              <List size={24} />
-            <h2 class
-
-          </div>
-
-
-      </di
-      <AIAssistant />
-      <Toaster />
-  );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50 w-64 
+          flex flex-col bg-card border-r-2 border-primary/30
+          transition-transform duration-300
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+      >
+        <div className="flex items-center justify-between p-4 border-b-2 border-primary/30">
+          <h1 className="text-xl font-bold text-secondary neon-glow-accent uppercase tracking-wider">
+            Quantum Falcon
+          </h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
             <X size={24} />
           </Button>
         </div>
@@ -166,7 +141,7 @@ const TABS: Tab[] = [
             </div>
             <div className="flex items-center justify-between">
               <span>Build</span>
-              <span className="text-primary">v2.0.4</span>
+              <span className="text-primary">v2.0.5</span>
             </div>
           </div>
         </div>
