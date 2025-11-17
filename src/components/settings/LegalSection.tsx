@@ -525,7 +525,7 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
                   </button>
                 </DialogTrigger>
                 <DialogContent 
-                  className="max-w-4xl h-[85vh] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden"
+                  className="max-w-4xl max-h-[85vh] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden"
                   role="dialog"
                   aria-labelledby={`${doc.id}-title`}
                 >
