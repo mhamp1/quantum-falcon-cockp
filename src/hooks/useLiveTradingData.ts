@@ -50,10 +50,6 @@ export function useLiveTradingData() {
     addBotLog();
     addActivity();
 
-    const metricsInterval = setInterval(updateMetrics, 8000);
-    const logsInterval = setInterval(addBotLog, 5000);
-    const activityInterval = setInterval(addActivity, 7000);
-
     return () => {
       clearInterval(metricsInterval);
       clearInterval(logsInterval);
