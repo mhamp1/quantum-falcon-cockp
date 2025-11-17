@@ -1,29 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Play,
   ChartLine,
   Users,
-  SpeakerHigh,
-  SpeakerX,
+  Crosshair,
   Robot,
-  CheckCircle,
+  Lightning,
+  TrendUp,
+  CircleWavyWarning,
 } from "@phosphor-icons/react";
 import { useKV } from "@github/spark/hooks";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 interface PortfolioData {
   totalValue: number;
   todayGain: number;
   activeAgents: string;
-  confidence: number;
+  winRate: number;
 }
 
 interface Agent {
   id: string;
   name: string;
-  status: "Active" | "Idle" | "Error";
+  status: "ACTIVE" | "IDLE" | "ERROR";
 }
 
 interface ActivityItem {
@@ -35,6 +35,7 @@ interface ActivityItem {
 interface LogEntry {
   id: string;
   timestamp: string;
+  agent: string;
   message: string;
   type: "info" | "success" | "warning" | "error";
 }
@@ -42,33 +43,56 @@ interface LogEntry {
 export default function Dashboard() {
   const [username] = useKV<string>("username", "MHAMPTITRADING");
   const [portfolio] = useKV<PortfolioData>("portfolio-metrics", {
-    totalValue: 9843.21,
-    todayGain: 342.56,
+    totalValue: 8943.21,
+    todayGain: 342.5,
     activeAgents: "3/3",
-    confidence: 88.6,
+    winRate: 68.5,
   });
 
-  const [tradingMode] = useKV<"PAPER" | "LIVE">("trading-mode", "PAPER");
-  const [muted, setMuted] = useKV<boolean>("audio-muted", false);
+  const [paperMode, setPaperMode] = useKV<boolean>("paper-mode", true);
   
   const [agents] = useKV<Agent[]>("ai-agents", [
-    { id: "1", name: "Market Analyst", status: "Active" },
-    { id: "2", name: "Strategy Execution", status: "Active" },
-    { id: "3", name: "RL Optimizer", status: "Active" },
+    { id: "1", name: "MARKET ANALYZER", status: "ACTIVE" },
+    { id: "2", name: "STRATEGY EXECUTION", status: "ACTIVE" },
+    { id: "3", name: "RL OPTIMIZER", status: "ACTIVE" },
   ]);
 
   const [recentActivity] = useKV<ActivityItem[]>("recent-activity", [
-    { id: "1", text: "Token eval complete", timestamp: Date.now() - 120000 },
-    { id: "2", text: "Market order placed", timestamp: Date.now() - 240000 },
-    { id: "3", text: "DCA order activated", timestamp: Date.now() - 360000 },
+    { id: "1", text: "Trade executed - $4,520 profit", timestamp: Date.now() - 120000 },
+    { id: "2", text: "Market analysis completed", timestamp: Date.now() - 240000 },
+    { id: "3", text: "DCA order filled successfully", timestamp: Date.now() - 360000 },
     { id: "4", text: "Portfolio rebalanced", timestamp: Date.now() - 480000 },
   ]);
 
-  const [logs, setLogs] = useKV<LogEntry[]>("bot-logs", [
-    { id: "1", timestamp: "01:37:02", message: "Strategy optimizing position sizes...", type: "info" },
-    { id: "2", timestamp: "01:37:15", message: "Risk threshold adjusted to 2.5%", type: "success" },
-    { id: "3", timestamp: "01:37:28", message: "Stop loss triggered at $0.28, Loss: $0.50", type: "warning" },
-    { id: "4", timestamp: "01:37:41", message: "Analyzing SOL market conditions", type: "info" },
+  const [logs] = useKV<LogEntry[]>("bot-logs", [
+    { 
+      id: "1", 
+      timestamp: "01:49:54", 
+      agent: "RL OPTIMIZER",
+      message: "Risk threshold exceeded - reducing exposure", 
+      type: "warning" 
+    },
+    { 
+      id: "2", 
+      timestamp: "01:52:13", 
+      agent: "MARKET ANALYZER",
+      message: "High volatility detected in ETH market", 
+      type: "info" 
+    },
+    { 
+      id: "3", 
+      timestamp: "01:55:28", 
+      agent: "MARKET ANALYZER",
+      message: "High volatility detected in BTC market\nAnalyzing potential entry points. Current indicators suggest waiting for consolidation above $42,850", 
+      type: "info" 
+    },
+    { 
+      id: "4", 
+      timestamp: "01:58:39", 
+      agent: "MARKET ANALYZER",
+      message: "Analyzing SOL/USDT market conditions", 
+      type: "info" 
+    },
   ]);
 
   const formatCurrency = (value: number) => {
@@ -80,97 +104,161 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col items-center text-center space-y-4">
-        <h1 className="text-4xl font-bold uppercase tracking-[0.2em] text-foreground">
-          Welcome Back, {username}
-        </h1>
-        
-        <div className="flex items-center gap-4">
+    <div className="space-y-6">
+      <div className="cyber-card p-6">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold uppercase tracking-[0.15em] mb-2">
+              <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                WELCOME BACK,
+              </span>{" "}
+              <span className="text-foreground">{username}</span>
+            </h1>
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border border-primary/50 bg-primary/10 text-primary hover:bg-primary/20 rounded-sm px-4 py-1 text-xs font-bold uppercase tracking-wider"
+              >
+                Free Tier
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border border-accent/50 bg-accent/10 text-accent hover:bg-accent/20 rounded-sm px-4 py-1 text-xs font-bold uppercase tracking-wider"
+              >
+                Bot Insights
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border border-secondary/50 bg-secondary/10 text-secondary hover:bg-secondary/20 rounded-sm px-4 py-1 text-xs font-bold uppercase tracking-wider"
+              >
+                Paper Mode
+              </Button>
+            </div>
+          </div>
           <Button 
             variant="outline" 
-            className="border-2 border-primary bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-6 py-2 font-bold uppercase tracking-wider"
+            size="sm"
+            className="border border-primary/50 bg-transparent text-primary hover:bg-primary/10 rounded-sm px-6 py-2 text-xs font-bold uppercase tracking-wider"
           >
-            Free Tier
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="text-secondary font-bold uppercase tracking-wider hover:bg-transparent"
-          >
-            Paper Mode
+            Logout
           </Button>
         </div>
+      </div>
 
-        <Badge className="bg-destructive/20 text-destructive border-2 border-destructive rounded-full px-6 py-2 text-sm font-bold uppercase tracking-wider">
-          Trading Mode: {tradingMode} MODE
-        </Badge>
+      <div className="cyber-card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Lightning size={20} className="text-destructive" weight="fill" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
+              TRADING MODE
+            </h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              PAPER MODE
+            </span>
+            <Switch 
+              checked={paperMode} 
+              onCheckedChange={(checked) => setPaperMode(checked)}
+              className="data-[state=checked]:bg-secondary"
+            />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Use paper trading to test strategies without risking real funds
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="cyber-card p-6 relative overflow-hidden group cursor-pointer"
-        >
-          <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-2">
-            Total Portfolio
+        <div className="cyber-card p-5 relative overflow-hidden">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+              Total Portfolio
+            </div>
+            <Crosshair size={18} className="text-primary" />
           </div>
-          <div className="text-3xl font-bold text-secondary neon-glow mb-1">
+          <div className="text-2xl font-bold text-primary mb-1">
             {formatCurrency(portfolio?.totalValue ?? 0)}
           </div>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="cyber-card p-6 relative overflow-hidden group cursor-pointer"
-        >
-          <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-2">
-            24h Gain
+          <div className="text-xs text-accent flex items-center gap-1">
+            <TrendUp size={12} weight="bold" />
+            <span>+4.1%</span>
           </div>
-          <div className="text-3xl font-bold text-secondary neon-glow mb-1">
+        </div>
+
+        <div className="cyber-card p-5 relative overflow-hidden">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+              Today's Gain
+            </div>
+            <Crosshair size={18} className="text-accent" />
+          </div>
+          <div className="text-2xl font-bold text-accent mb-1">
             +{formatCurrency(portfolio?.todayGain ?? 0)}
           </div>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="cyber-card p-6 relative overflow-hidden group cursor-pointer"
-        >
-          <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-2">
-            Agents Active
+          <div className="text-xs text-accent flex items-center gap-1">
+            <TrendUp size={12} weight="bold" />
+            <span>+12.5%</span>
           </div>
-          <div className="text-3xl font-bold text-foreground mb-1">
+        </div>
+
+        <div className="cyber-card p-5 relative overflow-hidden">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+              Active Agents
+            </div>
+            <Crosshair size={18} className="text-secondary" />
+          </div>
+          <div className="text-2xl font-bold text-foreground mb-1">
             {portfolio?.activeAgents ?? "0/0"}
           </div>
-        </motion.div>
+          <div className="text-xs text-muted-foreground">
+            <span>All systems operational</span>
+          </div>
+        </div>
 
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="cyber-card p-6 relative overflow-hidden group cursor-pointer"
-        >
-          <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-2">
-            Confidence
+        <div className="cyber-card p-5 relative overflow-hidden">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+              Win Rate
+            </div>
+            <Crosshair size={18} className="text-primary" />
           </div>
-          <div className="text-3xl font-bold text-primary neon-glow-primary mb-1">
-            {portfolio?.confidence?.toFixed(1) ?? "0.0"}%
+          <div className="text-2xl font-bold text-primary mb-1">
+            {portfolio?.winRate?.toFixed(1) ?? "0.0"}%
           </div>
-        </motion.div>
+          <div className="text-xs text-accent flex items-center gap-1">
+            <TrendUp size={12} weight="bold" />
+            <span>+1.1%</span>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-lg font-bold uppercase tracking-[0.15em] text-secondary neon-glow">
-          + Quick Actions
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Button className="h-16 border-2 border-secondary bg-secondary/10 hover:bg-secondary/20 text-secondary jagged-corner-small text-base font-bold uppercase tracking-wider">
+        <div className="flex items-center gap-2">
+          <Lightning size={16} className="text-secondary" weight="fill" />
+          <h3 className="text-sm font-bold uppercase tracking-wider text-secondary">
+            QUICK ACTIONS
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Button className="h-12 border border-primary bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
+            <Play size={16} weight="fill" className="mr-2" />
             Start Bot
           </Button>
-          <Button className="h-16 border-2 border-secondary bg-transparent hover:bg-secondary/10 text-secondary jagged-corner-small text-base font-bold uppercase tracking-wider">
-            View Stats
+          <Button className="h-12 border border-secondary/30 bg-transparent hover:bg-secondary/10 text-secondary text-xs font-bold uppercase tracking-wider">
+            <ChartLine size={16} className="mr-2" />
+            View Analytics
           </Button>
-          <Button className="h-16 border-2 border-secondary bg-transparent hover:bg-secondary/10 text-secondary jagged-corner-small text-base font-bold uppercase tracking-wider">
-            Check Chart
+          <Button className="h-12 border border-secondary/30 bg-transparent hover:bg-secondary/10 text-secondary text-xs font-bold uppercase tracking-wider">
+            <Crosshair size={16} className="mr-2" />
+            Check Vault
           </Button>
-          <Button className="h-16 border-2 border-secondary bg-transparent hover:bg-secondary/10 text-secondary jagged-corner-small text-base font-bold uppercase tracking-wider">
+          <Button className="h-12 border border-secondary/30 bg-transparent hover:bg-secondary/10 text-secondary text-xs font-bold uppercase tracking-wider">
+            <Users size={16} className="mr-2" />
             Community
           </Button>
         </div>
@@ -178,41 +266,49 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="cyber-card p-6">
-          <h2 className="text-lg font-bold uppercase tracking-wider text-primary neon-glow-primary mb-6">
-            AI Agent Status
-          </h2>
+          <div className="flex items-center gap-2 mb-6">
+            <Robot size={18} className="text-primary" weight="fill" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-primary">
+              AI AGENT STATUS
+            </h2>
+          </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             {(agents ?? []).map((agent) => (
-              <div key={agent.id} className="flex items-center justify-between p-3 bg-muted/10 border border-primary/20 jagged-corner-small">
+              <div 
+                key={agent.id} 
+                className="flex items-center justify-between p-4 bg-background/50 border border-primary/20 hover:border-primary/40 transition-all"
+              >
                 <div className="flex items-center gap-3">
-                  <Robot size={20} className="text-secondary" />
-                  <span className="text-base font-semibold text-foreground">{agent.name}</span>
+                  <Robot size={16} className="text-secondary" />
+                  <span className="text-xs font-bold uppercase tracking-wide text-foreground">
+                    {agent.name}
+                  </span>
                 </div>
-                <Badge 
-                  className={`${
-                    agent.status === 'Active' 
-                      ? 'bg-secondary/20 text-secondary border-secondary' 
-                      : 'bg-muted text-muted-foreground border-muted-foreground'
-                  } border rounded-full px-3 py-1 text-xs font-bold uppercase`}
-                >
+                <span className="text-[10px] font-bold uppercase tracking-widest text-secondary px-3 py-1 bg-secondary/10 border border-secondary/30">
                   {agent.status}
-                </Badge>
+                </span>
               </div>
             ))}
           </div>
         </div>
 
         <div className="cyber-card p-6">
-          <h2 className="text-lg font-bold uppercase tracking-wider text-primary neon-glow-primary mb-6">
-            Recent Activity
-          </h2>
+          <div className="flex items-center gap-2 mb-6">
+            <CircleWavyWarning size={18} className="text-primary" weight="fill" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-primary">
+              RECENT ACTIVITY
+            </h2>
+          </div>
           
-          <div className="space-y-3 max-h-[240px] overflow-y-auto scrollbar-thin">
+          <div className="space-y-2 max-h-[240px] overflow-y-auto scrollbar-thin">
             {(recentActivity ?? []).map((item) => (
-              <div key={item.id} className="flex items-start gap-3 p-3 bg-muted/10 border-l-2 border-secondary hover:bg-muted/20 transition-all">
-                <CheckCircle size={16} className="text-secondary mt-1 flex-shrink-0" />
-                <span className="text-sm text-foreground">{item.text}</span>
+              <div 
+                key={item.id} 
+                className="flex items-start gap-2 p-3 bg-background/30 border-l-2 border-secondary hover:bg-background/50 transition-all"
+              >
+                <div className="w-1.5 h-1.5 bg-secondary rounded-full mt-1.5 flex-shrink-0" />
+                <span className="text-xs text-foreground">{item.text}</span>
               </div>
             ))}
           </div>
@@ -221,33 +317,56 @@ export default function Dashboard() {
 
       <div className="cyber-card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold uppercase tracking-wider text-secondary neon-glow">
-            Bot Log Stream
-          </h2>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Robot size={18} className="text-secondary" weight="fill" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-secondary">
+              BOT LOGIC STREAM
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
-              size="icon"
-              onClick={() => setMuted(!muted)}
-              className="w-8 h-8 text-muted-foreground hover:text-foreground"
+              size="sm"
+              className="h-7 px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground border border-border"
             >
-              {muted ? <SpeakerX size={20} /> : <SpeakerHigh size={20} />}
+              Clear
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground border border-border"
+            >
+              Export
             </Button>
           </div>
         </div>
 
-        <div className="bg-background/50 border border-primary/30 p-4 rounded-md max-h-[200px] overflow-y-auto scrollbar-thin font-mono text-xs space-y-2">
+        <div className="bg-background/50 border border-primary/30 p-4 max-h-[300px] overflow-y-auto scrollbar-thin font-mono text-xs space-y-3">
           {(logs ?? []).map((log) => (
-            <div key={log.id} className="flex items-start gap-3">
-              <span className="text-muted-foreground flex-shrink-0">Δ {log.timestamp}</span>
-              <span className={`${
-                log.type === 'success' ? 'text-secondary' :
+            <div key={log.id} className="space-y-1">
+              <div className="flex items-center gap-3">
+                <CircleWavyWarning 
+                  size={14} 
+                  className={`flex-shrink-0 ${
+                    log.type === 'warning' ? 'text-destructive' : 'text-primary'
+                  }`}
+                  weight="fill"
+                />
+                <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                  Δ {log.timestamp}
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-secondary px-2 py-0.5 bg-secondary/10 border border-secondary/30">
+                  {log.agent}
+                </span>
+              </div>
+              <p className={`text-xs ml-8 ${
+                log.type === 'success' ? 'text-accent' :
                 log.type === 'warning' ? 'text-destructive' :
                 log.type === 'error' ? 'text-destructive' :
-                'text-secondary'
+                'text-foreground/70'
               }`}>
                 {log.message}
-              </span>
+              </p>
             </div>
           ))}
         </div>
