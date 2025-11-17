@@ -76,7 +76,7 @@ export default function App() {
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-72
+          fixed lg:static inset-y-0 left-0 z-50 w-80
           flex flex-col bg-card backdrop-blur-xl border-r-2 border-primary
           transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -117,7 +117,7 @@ export default function App() {
                   setSidebarOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold uppercase tracking-[0.1em]
+                  w-full flex items-center gap-4 px-6 py-4 text-base font-semibold uppercase tracking-[0.1em]
                   transition-all duration-200 border-2 relative group
                   ${
                     isActive
@@ -129,7 +129,7 @@ export default function App() {
                   clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))'
                 }}
               >
-                <Icon size={20} weight={isActive ? "fill" : "regular"} />
+                <Icon size={28} weight={isActive ? "fill" : "regular"} />
                 <span className="flex-1 text-left">{tab.label}</span>
                 {isActive && (
                   <div className="w-2 h-2 bg-secondary rounded-full animate-pulse neon-glow" />

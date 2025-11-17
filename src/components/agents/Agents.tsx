@@ -291,159 +291,151 @@ export default function Agents() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="cyber-card angled-corners-dual-tr-bl">
-            <div className="p-6 relative z-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 angled-corner-br border-2 bg-secondary/20 border-secondary neon-glow-accent">
-                  <Gauge
-                    size={32}
-                    weight="duotone"
-                    className="text-secondary"
-                  />
+      <div className="glass-morph-card p-10 mb-8 relative overflow-hidden">
+        <div className="absolute inset-0 grid-background opacity-5" />
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-5">
+              <div className="p-5 bg-secondary/20 border-3 border-secondary jagged-corner neon-glow-accent">
+                <Gauge size={48} weight="duotone" className="text-secondary" />
+              </div>
+              <div>
+                <h2 className="text-4xl font-bold uppercase tracking-wider neon-glow mb-2">
+                  Bot Aggression Level
+                </h2>
+                <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                  Control trading intensity and risk tolerance
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-7xl font-bold neon-glow technical-readout">{agentAggression ?? 50}</div>
+              <div className={`text-lg uppercase tracking-wider font-bold mt-2 ${getAggressionColor(agentAggression ?? 50)}`}>
+                {getAggressionLabel(agentAggression ?? 50)}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="relative py-4">
+              <Slider
+                value={[agentAggression ?? 50]}
+                onValueChange={(value) => setAgentAggression(value[0])}
+                max={100}
+                min={0}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex justify-between mt-5 text-sm uppercase tracking-wider font-bold">
+                <span className="text-primary">SAFE</span>
+                <span className="text-muted-foreground">|</span>
+                <span className="text-accent">BALANCED</span>
+                <span className="text-muted-foreground">|</span>
+                <span className="text-destructive">RISKY</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-5">
+              <div className="p-5 bg-muted/20 border-2 border-primary/30 angled-corner-tl hover:border-primary transition-all">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-semibold">Trade Frequency</div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-3 bg-muted relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary neon-glow" style={{ width: `${agentAggression ?? 50}%` }} />
+                  </div>
+                  <span className="text-lg font-bold text-primary">{Math.round((agentAggression ?? 50) / 10)}/10</span>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold uppercase tracking-[0.15em] text-secondary hud-text">
-                    AGENT AGGRESSION
-                  </h3>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
-                    CONTROL TRADING INTENSITY AND RISK TOLERANCE
-                  </p>
+              </div>
+              <div className="p-5 bg-muted/20 border-2 border-accent/30 angled-corner-tr hover:border-accent transition-all">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-semibold">Position Size</div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-3 bg-muted relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-accent to-destructive neon-glow-accent" style={{ width: `${agentAggression ?? 50}%` }} />
+                  </div>
+                  <span className="text-lg font-bold text-accent">{agentAggression ?? 50}%</span>
                 </div>
-                <div className="px-4 py-2 angled-corner-tr bg-secondary/20 border-2 border-secondary">
-                  <span
-                    className={`text-2xl font-bold uppercase tracking-wider neon-glow-secondary ${getAggressionColor(agentAggression ?? 50)}`}
-                  >
-                    {getAggressionLabel(agentAggression ?? 50)}
+              </div>
+              <div className="p-5 bg-muted/20 border-2 border-secondary/30 angled-corner-br hover:border-secondary transition-all">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-semibold">Risk Level</div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-3 bg-muted relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-secondary to-destructive neon-glow" style={{ width: `${agentAggression ?? 50}%` }} />
+                  </div>
+                  <span className={`text-lg font-bold ${getAggressionColor(agentAggression ?? 50)}`}>
+                    {Math.round((agentAggression ?? 50) / 2.5)}/40
                   </span>
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <div className="relative">
-                  <Slider
-                    value={[agentAggression ?? 50]}
-                    onValueChange={(value) => setAgentAggression(value[0])}
-                    max={100}
-                    min={0}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between mt-3 text-xs uppercase tracking-wider font-bold">
-                    <span className="text-primary">SAFE</span>
-                    <span className="text-muted-foreground">|</span>
-                    <span className="text-accent">BALANCED</span>
-                    <span className="text-muted-foreground">|</span>
-                    <span className="text-destructive">RISKY</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 mt-4">
-                  <div className="p-3 angled-corner-tl bg-muted/30 border border-primary/30 relative overflow-hidden">
-                    <div className="relative z-10">
-                      <p className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] font-semibold">
-                        Trade Frequency
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 bg-muted relative overflow-hidden">
-                          <div
-                            className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"
-                            style={{
-                              width: `${agentAggression ?? 50}%`,
-                            }}
-                          />
-                        </div>
-                        <span className="text-sm font-bold text-primary">
-                          {Math.round((agentAggression ?? 50) / 10)}/10
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 angled-corner-tr bg-muted/30 border border-primary/30 relative overflow-hidden">
-                    <div className="relative z-10">
-                      <p className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] font-semibold">
-                        Position Size
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 bg-muted relative overflow-hidden">
-                          <div
-                            className="absolute inset-0 bg-gradient-to-r from-accent to-destructive"
-                            style={{
-                              width: `${agentAggression ?? 50}%`,
-                            }}
-                          />
-                        </div>
-                        <span className="text-sm font-bold text-accent">
-                          {agentAggression ?? 50}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 angled-corner-br bg-muted/30 border border-primary/30 relative overflow-hidden">
-                    <div className="relative z-10">
-                      <p className="text-xs text-muted-foreground mb-1 uppercase tracking-[0.15em] font-semibold">
-                        Risk Level
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 bg-muted relative overflow-hidden">
-                          <div
-                            className="absolute inset-0 bg-gradient-to-r from-secondary to-destructive"
-                            style={{
-                              width: `${agentAggression ?? 50}%`,
-                            }}
-                          />
-                        </div>
-                        <span
-                          className={`text-sm font-bold ${getAggressionColor(agentAggression ?? 50)}`}
-                        >
-                          {Math.round((agentAggression ?? 50) / 2.5)}/40
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 p-4 bg-primary/5 border border-primary/30 relative overflow-hidden">
-                  <div className="absolute inset-0 grid-background opacity-10" />
-                  <div className="relative z-10">
-                    <div className="flex items-start gap-3">
-                      <Lightning
-                        size={20}
-                        weight="duotone"
-                        className="text-primary flex-shrink-0 mt-0.5"
-                      />
-                      <div>
-                        <h4 className="font-bold uppercase tracking-wide text-sm mb-2 text-primary">
-                          AGGRESSION_IMPACT
-                        </h4>
-                        <ul className="space-y-2 text-xs text-muted-foreground">
-                          <li className="flex items-center gap-2">
-                            <div className="w-1 h-1 bg-primary rounded-full" />
-                            Higher aggression = More frequent trades
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <div className="w-1 h-1 bg-primary rounded-full" />
-                            Larger position sizes with higher risk tolerance
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <div className="w-1 h-1 bg-primary rounded-full" />
-                            Faster reaction to market opportunities
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <div className="w-1 h-1 bg-primary rounded-full" />
-                            Lower aggression prioritizes capital preservation
-                          </li>
-                        </ul>
-                      </div>
+            <div className="p-6 bg-muted/30 border-2 border-primary/30 jagged-corner relative overflow-hidden">
+              <div className="absolute inset-0 diagonal-stripes opacity-30" />
+              <div className="relative z-10">
+                <div className="flex items-start gap-4">
+                  <Lightning size={32} weight="duotone" className="text-primary flex-shrink-0 mt-1 neon-glow-primary" />
+                  <div>
+                    <h4 className="font-bold uppercase tracking-wide text-lg mb-4 text-primary">
+                      Mode Description
+                    </h4>
+                    <div className="space-y-3 text-sm text-muted-foreground">
+                      {(agentAggression ?? 50) <= 40 && (
+                        <>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-primary rounded-full" />
+                            <strong className="text-primary">Conservative trading</strong> with minimal risk exposure
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-primary rounded-full" />
+                            Lower frequency trades with smaller position sizes
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-primary rounded-full" />
+                            Focus on capital preservation and steady growth
+                          </p>
+                        </>
+                      )}
+                      {(agentAggression ?? 50) > 40 && (agentAggression ?? 50) <= 70 && (
+                        <>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-accent rounded-full" />
+                            <strong className="text-accent">Balanced approach</strong> with moderate risk tolerance
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-accent rounded-full" />
+                            Regular trading activity with controlled position sizing
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-accent rounded-full" />
+                            Optimized risk/reward ratio for consistent returns
+                          </p>
+                        </>
+                      )}
+                      {(agentAggression ?? 50) > 70 && (
+                        <>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-destructive rounded-full" />
+                            <strong className="text-destructive">Aggressive strategy</strong> with maximum profit potential
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-destructive rounded-full" />
+                            High-frequency trades with larger position sizes
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-destructive rounded-full" />
+                            Faster reaction to market opportunities, higher volatility
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-4">
 
           {agents.map((agent) => {
             const Icon = getIcon(agent.id);
