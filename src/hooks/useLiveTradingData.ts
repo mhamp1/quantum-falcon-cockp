@@ -18,15 +18,11 @@ export function useLiveTradingData() {
 
   useEffect(() => {
     const updateMetrics = () => {
-      const metrics = tradingDataGenerator.updatePortfolioMetrics(
-        metricsRef.current.portfolioValue || 9843.21,
-        metricsRef.current.dailyPnL || 342.56,
-        metricsRef.current.activeTrades || 3
-      );
-      setPortfolioValue(() => metrics.portfolioValue);
-      setDailyPnL(() => metrics.dailyPnL);
-      setWinRate(() => metrics.winRate);
-      setActiveTrades(() => metrics.activeTrades);
+      const metrics = tradingDataGenerator.updatePortfolioMetrics();
+      setPortfolioValue(metrics.portfolioValue);
+      setDailyPnL(metrics.dailyPnL);
+      setWinRate(metrics.winRate);
+      setActiveTrades(metrics.activeTrades);
     };
 
     const addBotLog = () => {
@@ -53,6 +49,10 @@ export function useLiveTradingData() {
 
     addBotLog();
     addActivity();
+
+    const metricsInterval = setInterval(updateMetrics, 8000);
+    const logsInterval = setInterval(addBotLog, 5000);
+    const activityInterval = setInterval(addActivity, 7000);
 
     return () => {
       clearInterval(metricsInterval);

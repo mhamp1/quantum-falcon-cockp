@@ -40,22 +40,21 @@ export function useLiveAnalytics() {
       });
       
       setWinRate((current) => {
-        const trades = totalTrades || 439;
-        const winningTrades = Math.floor(((current || 68.5) / 100) * trades);
-        return parseFloat(((winningTrades / (trades + 1)) * 100).toFixed(1));
+        const winningTrades = newTrade.pnl > 0 ? 1 : 0;
+        const currentWinRate = current || 68.5;
+        return parseFloat(((currentWinRate * 0.99 + winningTrades * 0.01 * 100)).toFixed(1));
       });
       
-      setAvgTrade(() => {
-        const pnl = totalPnL || 4563.79;
-        const trades = totalTrades || 439;
-        return parseFloat((pnl / trades).toFixed(2));
+      setAvgTrade((current) => {
+        const currentAvg = current || 10.39;
+        return parseFloat((currentAvg * 0.95 + newTrade.pnl * 0.05).toFixed(2));
       });
     };
 
     const interval = setInterval(updateAnalytics, 15000);
 
     return () => clearInterval(interval);
-  }, [setTotalPnL, setTotalTrades, setTradeHistory, setWinRate, setAvgTrade, totalTrades, totalPnL]);
+  }, [setTotalPnL, setTotalTrades, setTradeHistory, setWinRate, setAvgTrade]);
 
   return {
     totalPnL,
