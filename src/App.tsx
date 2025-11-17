@@ -85,27 +85,43 @@ export default function App() {
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-64 
-          flex flex-col bg-card border-r-2 border-primary/30
+          fixed lg:static inset-y-0 left-0 z-50 w-80 
+          flex flex-col cyber-card border-r-4 border-primary/40
           transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="flex items-center justify-between p-4 border-b-2 border-primary/30">
-          <h1 className="text-xl font-bold text-secondary neon-glow-accent uppercase tracking-wider">
-            Quantum Falcon
-          </h1>
+        <div className="flex items-center justify-between p-6 border-b-4 border-primary/40 relative">
+          <div className="absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none">
+            <svg width="128" height="128" viewBox="0 0 128 128">
+              <circle cx="64" cy="64" r="40" fill="none" stroke="currentColor" strokeWidth="1" className="text-primary" opacity="0.3" />
+              <circle cx="64" cy="64" r="30" fill="none" stroke="currentColor" strokeWidth="1" className="text-primary" opacity="0.5" />
+              <circle cx="64" cy="64" r="20" fill="none" stroke="currentColor" strokeWidth="1" className="text-primary" opacity="0.7" />
+            </svg>
+          </div>
+          <div className="relative z-10">
+            <h1 className="text-2xl font-bold uppercase tracking-[0.25em] mb-1">
+              <span className="text-primary neon-glow-primary">QUANTUM</span>
+            </h1>
+            <h1 className="text-2xl font-bold uppercase tracking-[0.25em]">
+              <span className="text-secondary neon-glow-secondary">FALCON</span>
+            </h1>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="status-indicator" />
+              <span className="hud-readout text-[9px]">ONLINE</span>
+            </div>
+          </div>
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="lg:hidden relative z-10 border border-primary/30 hover:bg-primary/10"
             onClick={() => setSidebarOpen(false)}
           >
-            <X size={24} />
+            <X size={24} className="text-primary" />
           </Button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
+        <nav className="flex-1 p-6 space-y-3 overflow-y-auto scrollbar-thin">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -117,54 +133,82 @@ export default function App() {
                   setSidebarOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-3 px-4 py-3 text-sm font-bold uppercase tracking-wider
-                  transition-all border-l-4
+                  w-full flex items-center gap-4 px-6 py-4 text-base font-bold uppercase tracking-[0.15em]
+                  transition-all border-l-4 relative group
                   ${
                     isActive
-                      ? "bg-primary/10 text-secondary border-secondary neon-glow-accent"
-                      : "text-muted-foreground border-transparent hover:text-primary hover:bg-muted/20 hover:border-primary/50"
+                      ? "bg-primary/20 text-secondary border-secondary neon-glow-accent shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)]"
+                      : "text-muted-foreground border-transparent hover:text-primary hover:bg-muted/30 hover:border-primary/50"
                   }
                 `}
               >
-                <Icon size={20} weight={isActive ? "fill" : "regular"} />
-                <span>{tab.label}</span>
+                <div className={`p-2 ${isActive ? 'bg-secondary/20 border border-secondary/40' : 'bg-muted/30 border border-primary/20'} transition-all relative`}>
+                  <Icon size={24} weight={isActive ? "duotone" : "regular"} />
+                  {isActive && (
+                    <>
+                      <div className="hud-corner-tl" style={{ borderColor: 'var(--secondary)' }} />
+                      <div className="hud-corner-br" style={{ borderColor: 'var(--secondary)' }} />
+                    </>
+                  )}
+                </div>
+                <span className="flex-1 text-left">{tab.label}</span>
+                {isActive && (
+                  <div className="w-2 h-2 bg-secondary animate-pulse-glow" />
+                )}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t-2 border-primary/30">
-          <div className="text-xs text-muted-foreground uppercase tracking-wider">
-            <div className="flex items-center justify-between mb-1">
-              <span>System Status</span>
-              <span className="text-primary">ONLINE</span>
+        <div className="p-6 border-t-4 border-primary/40 bg-muted/20 relative">
+          <div className="absolute inset-0 technical-grid opacity-20 pointer-events-none" />
+          <div className="relative z-10">
+            <div className="hud-readout text-xs mb-4">SYSTEM_STATUS</div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="data-label text-xs">CONNECTION</span>
+                <div className="flex items-center gap-2">
+                  <div className="status-indicator" />
+                  <span className="text-primary text-xs font-bold">ONLINE</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="data-label text-xs">BUILD</span>
+                <span className="text-primary text-xs font-bold tracking-wider">v2.4.1</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="data-label text-xs">UPTIME</span>
+                <span className="text-accent text-xs font-bold tracking-wider">24:07:32</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span>Build</span>
-              <span className="text-primary">v2.0.5</span>
+            <div className="mt-4 h-1 bg-primary/20 relative overflow-hidden">
+              <div className="h-full bg-primary animate-pulse" style={{ width: '85%' }} />
             </div>
           </div>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden sticky top-0 z-30 bg-card/95 backdrop-blur-sm border-b-2 border-primary/30">
+        <header className="lg:hidden sticky top-0 z-30 cyber-card border-b-4 border-primary/40">
           <div className="flex items-center justify-between p-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(true)}
+              className="border border-primary/30 hover:bg-primary/10"
             >
-              <List size={24} />
+              <List size={24} className="text-primary" />
             </Button>
-            <h2 className="text-lg font-bold text-secondary uppercase tracking-wider">
-              {currentTab.label}
-            </h2>
+            <div className="text-center">
+              <h2 className="text-lg font-bold text-secondary uppercase tracking-[0.2em] neon-glow-accent">
+                {currentTab.label}
+              </h2>
+            </div>
             <div className="w-10" />
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
           <Component key={activeTab} />
         </main>
       </div>
