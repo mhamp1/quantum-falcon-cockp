@@ -139,7 +139,7 @@ export default function BotLogs() {
     }
 
     return () => clearInterval(interval);
-  }, []);
+  }, [setLogs]);
 
   useEffect(() => {
     if (autoScroll && scrollRef.current) {

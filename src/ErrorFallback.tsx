@@ -44,9 +44,9 @@ export default function ErrorFallback({
   const [isReporting, setIsReporting] = useState(false);
   const [hasReported, setHasReported] = useState(false);
 
-  // In development, re-throw to show in console/dev tools
+  // Log error in development
   if (import.meta.env.DEV) {
-    throw error;
+    console.error("ErrorFallback caught:", error);
   }
 
   // Log error and report automatically on mount

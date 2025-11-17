@@ -31,9 +31,12 @@ export function useKVFallback<T>(
 ): [T, (value: SetStateAction<T>) => void, () => void] {
   const [value, setValue] = useState<T>(initialValue);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   // Load initial value from storage
   useEffect(() => {
+    if (hasLoadedOnce) return;
+    
     let isMounted = true;
 
     async function loadValue() {
@@ -48,6 +51,7 @@ export function useKVFallback<T>(
             await setKVValue(key, initialValue);
           }
           setIsLoading(false);
+          setHasLoadedOnce(true);
         }
       } catch (error) {
         console.error(
@@ -57,6 +61,7 @@ export function useKVFallback<T>(
         if (isMounted) {
           setValue(initialValue);
           setIsLoading(false);
+          setHasLoadedOnce(true);
         }
       }
     }
@@ -66,7 +71,7 @@ export function useKVFallback<T>(
     return () => {
       isMounted = false;
     };
-  }, [key]); // Note: We intentionally don't include initialValue to avoid re-fetching
+  }, [key, initialValue, hasLoadedOnce]);
 
   // Setter function
   const setStoredValue = useCallback(

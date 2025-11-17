@@ -1,5 +1,3 @@
-import { useKV } from "@/hooks/useKVFallback";
-
 export interface LicenseTier {
   id: string;
   name: string;
