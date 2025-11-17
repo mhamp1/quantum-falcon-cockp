@@ -34,17 +34,10 @@ const HolographicCard = React.forwardRef<HTMLDivElement, HolographicCardProps>(
       <div
         ref={ref}
         className={cn(
-          // Base styles
-          "relative overflow-hidden",
-          "bg-gradient-to-br from-cyberpunk-dark/95 to-cyberpunk-darker/85",
-          "backdrop-blur-md",
-          // Borders
-          "border-t border-t-primary/50",
-          "border-r border-r-primary/30",
-          "border-b border-b-primary/30",
+          // Base cyber-card style with jagged corners
+          "cyber-card jagged-corner",
+          // Variant specific styles
           variantStyles[variant],
-          // Clip path for jagged corners
-          "clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,8px_100%,0_calc(100%-8px))]",
           // Glow effect
           glow && "holographic-glow",
           // Pulse animation
@@ -53,14 +46,11 @@ const HolographicCard = React.forwardRef<HTMLDivElement, HolographicCardProps>(
         )}
         {...props}
       >
-        {/* Top gradient line */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-primary via-transparent to-transparent opacity-60" />
-
-        {/* Right gradient line */}
-        <div className="absolute top-0 right-0 w-[1px] h-10 bg-gradient-to-b from-primary to-transparent opacity-40" />
-
-        {/* Inner glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+        {/* HUD Corner brackets */}
+        <div className="hud-corner-tl"></div>
+        <div className="hud-corner-tr"></div>
+        <div className="hud-corner-bl"></div>
+        <div className="hud-corner-br"></div>
 
         {/* Content */}
         <div className="relative z-10">{children}</div>

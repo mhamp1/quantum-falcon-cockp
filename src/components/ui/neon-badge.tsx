@@ -68,7 +68,7 @@ const NeonBadge = React.forwardRef<HTMLDivElement, NeonBadgeProps>(
         className={cn(
           // Base styles
           "inline-flex items-center gap-1.5 px-2.5 py-1",
-          "border",
+          "border jagged-corner-small",
           "font-bold text-xs uppercase tracking-wider",
           "transition-all duration-300",
           // Variant styles
@@ -77,8 +77,6 @@ const NeonBadge = React.forwardRef<HTMLDivElement, NeonBadgeProps>(
           style.text,
           style.shadow,
           glow && style.glow,
-          // Clip path for jagged corners
-          "clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,4px_100%,0_calc(100%-4px))]",
           // Pulse animation
           pulse && "animate-pulse-slow",
           className,
