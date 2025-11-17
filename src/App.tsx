@@ -1,4 +1,3 @@
-// Core Application File - Further enhanced with lazy loading for performance, improved error boundaries, accessibility, and state management
 import { useEffect, useMemo, Suspense, lazy } from "react";
 import {
   House,
@@ -8,24 +7,21 @@ import {
   Users,
   Gear,
   Terminal,
-  Flask,
   Lightning,
 } from "@phosphor-icons/react";
 
 import { useKV } from "@/hooks/useKVFallback";
+import { Toaster } from "@/components/ui/sonner";
 
-// Lazy load components for better performance and code splitting
 const EnhancedDashboard = lazy(
   () => import("@/components/dashboard/EnhancedDashboard"),
 );
 const BotOverview = lazy(() => import("@/components/dashboard/BotOverview"));
-const Analytics = lazy(() => import("@/components/dashboard/Analytics"));
 const EnhancedAnalytics = lazy(
   () => import("@/components/dashboard/EnhancedAnalytics"),
 );
 const Agents = lazy(() => import("@/components/agents/Agents"));
 const VaultView = lazy(() => import("@/components/vault/VaultView"));
-const Community = lazy(() => import("@/components/community/Community"));
 const SocialCommunity = lazy(
   () => import("@/components/community/SocialCommunity"),
 );
@@ -37,21 +33,17 @@ const EnhancedSettings = lazy(
 );
 const AIAssistant = lazy(() => import("@/components/shared/AIAssistant"));
 
-import { useIsMobile } from "@/hooks/use-mobile";
-
-// Loading component for Suspense
 function LoadingFallback() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center space-y-4">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground text-sm uppercase tracking-wider">Loading...</p>
       </div>
     </div>
   );
 }
 
-// Define types for better type safety
 interface Tab {
   id: string;
   label: string;
@@ -59,55 +51,9 @@ interface Tab {
   component: React.ComponentType;
 }
 
-// ComingSoon component - moved outside for reusability and enhanced with animation
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <div
-      className="cyber-card flex items-center justify-center min-h-[400px]"
-      role="status"
-      aria-label={`${title} coming soon`}
-    >
-      <div className="text-center space-y-4 p-8">
-        <div className="inline-flex p-6 jagged-corner bg-primary/20 border-3 border-primary animate-pulse">
-          <Flask
-            size={64}
-            weight="duotone"
-            className="text-primary"
-            aria-hidden="true"
-          />
-        </div>
-        <h2 className="text-3xl font-bold uppercase tracking-[0.15em] text-primary hud-text">
-          {title}
-        </h2>
-        <p className="text-muted-foreground uppercase tracking-wide text-sm">
-          MODULE_UNDER_DEVELOPMENT
-        </p>
-        <div className="flex items-center justify-center gap-2 pt-4">
-          <div
-            className="w-2 h-2 bg-primary animate-pulse"
-            aria-hidden="true"
-          />
-          <div
-            className="w-2 h-2 bg-primary animate-pulse"
-            style={{ animationDelay: "0.2s" }}
-            aria-hidden="true"
-          />
-          <div
-            className="w-2 h-2 bg-primary animate-pulse"
-            style={{ animationDelay: "0.4s" }}
-            aria-hidden="true"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
-  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useKV<string>("active-tab", "dashboard");
 
-  // Memoize tabs to avoid unnecessary re-renders
   const tabs: Tab[] = useMemo(
     () => [
       {
@@ -160,26 +106,49 @@ export default function App() {
       }
     };
 
-    window.addEventListener("navigate-tab", handleNavigateTab);
-    return () => window.removeEventListener("navigate-tab", handleNavigateTab);
+    window.addEventListener("navigate-tab", handleNavigateTab as EventListener);
+    return () => window.removeEventListener("navigate-tab", handleNavigateTab as EventListener);
   }, [setActiveTab, tabs]);
 
-  // Find the active component, default to EnhancedDashboard
   const Component =
     tabs.find((tab) => tab.id === activeTab)?.component || EnhancedDashboard;
 
   return (
-    <div>
-      {isMobile ? (
+    <div className="min-h-screen bg-background">
+      <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b-2 border-primary/30">
+        <div className="flex items-center overflow-x-auto scrollbar-thin">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${
+                  isActive
+                    ? "bg-primary/10 text-primary border-primary"
+                    : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/20"
+                }`}
+              >
+                <Icon size={18} weight={isActive ? "fill" : "regular"} />
+                <span className="hidden sm:inline">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      <main className="container mx-auto p-4 md:p-6">
         <Suspense fallback={<LoadingFallback />}>
-          <AIAssistant />
-        </Suspense>
-      ) : (
-        <Suspense fallback={<LoadingFallback />}>
-          {/* Add key to force remount if tab changes for better isolation */}
           <Component key={activeTab} />
         </Suspense>
-      )}
+      </main>
+
+      <Suspense fallback={null}>
+        <AIAssistant />
+      </Suspense>
+
+      <Toaster />
     </div>
   );
 }
