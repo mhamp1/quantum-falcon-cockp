@@ -1,0 +1,73 @@
+import { useEffect, useRef } from 'react';
+import { useKV } from '@github/spark/hooks';
+import { tradingDataGenerator, BotLog, Activity } from '@/lib/tradingDataGenerator';
+
+export function useLiveTradingData() {
+  const [portfolioValue, setPortfolioValue] = useKV<number>('portfolio-value', 9843.21);
+  const [dailyPnL, setDailyPnL] = useKV<number>('daily-pnl', 342.56);
+  const [winRate, setWinRate] = useKV<number>('win-rate', 68.5);
+  const [activeTrades, setActiveTrades] = useKV<number>('active-trades', 3);
+  const [botLogs, setBotLogs] = useKV<BotLog[]>('bot-logs', []);
+  const [recentActivity, setRecentActivity] = useKV<Activity[]>('recent-activity', []);
+
+  const metricsRef = useRef({ portfolioValue, dailyPnL, activeTrades });
+
+  useEffect(() => {
+    metricsRef.current = { portfolioValue, dailyPnL, activeTrades };
+  }, [portfolioValue, dailyPnL, activeTrades]);
+
+  useEffect(() => {
+    const updateMetrics = () => {
+      const current = metricsRef.current;
+      const metrics = tradingDataGenerator.updatePortfolioMetrics(
+        current.portfolioValue ?? 9843.21,
+        current.dailyPnL ?? 342.56,
+        current.activeTrades ?? 3
+      );
+      setPortfolioValue(metrics.portfolioValue);
+      setDailyPnL(metrics.dailyPnL);
+      setWinRate(metrics.winRate);
+      setActiveTrades(metrics.activeTrades);
+    };
+
+    const addBotLog = () => {
+      const newLog = tradingDataGenerator.generateBotLog();
+      setBotLogs((currentLogs) => {
+        const logs = currentLogs || [];
+        const updated = [newLog, ...logs].slice(0, 50);
+        return updated;
+      });
+    };
+
+    const addActivity = () => {
+      const newActivity = tradingDataGenerator.generateActivity();
+      setRecentActivity((currentActivity) => {
+        const activities = currentActivity || [];
+        const updated = [newActivity, ...activities].slice(0, 20);
+        return updated;
+      });
+    };
+
+    const metricsInterval = setInterval(updateMetrics, 8000);
+    const logsInterval = setInterval(addBotLog, 5000);
+    const activityInterval = setInterval(addActivity, 7000);
+
+    addBotLog();
+    addActivity();
+
+    return () => {
+      clearInterval(metricsInterval);
+      clearInterval(logsInterval);
+      clearInterval(activityInterval);
+    };
+  }, [setPortfolioValue, setDailyPnL, setWinRate, setActiveTrades, setBotLogs, setRecentActivity]);
+
+  return {
+    portfolioValue,
+    dailyPnL,
+    winRate,
+    activeTrades,
+    botLogs,
+    recentActivity,
+  };
+}
