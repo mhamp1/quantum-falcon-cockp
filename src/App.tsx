@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { useKV } from "@github/spark/hooks";
 import Dashboard from "@/components/dashboard/Dashboard";
 import Agents from "@/components/agents/Agents";
 import Trade from "@/components/trade/Trade";
@@ -18,6 +19,8 @@ import VaultView from "@/components/vault/VaultView";
 import SocialCommunity from "@/components/community/SocialCommunity";
 import EnhancedSettings from "@/components/settings/EnhancedSettings";
 import AIAssistant from "@/components/shared/AIAssistant";
+import WelcomeScreen from "@/components/auth/WelcomeScreen";
+import LicenseAuth from "@/components/auth/LicenseAuth";
 
 interface Tab {
   id: string;
@@ -69,10 +72,28 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newsText] = useState("BTC remains supportive low levels - Market stabilizing - SOL testing resistance");
+  const [hasSeenWelcome, setHasSeenWelcome] = useKV("has-seen-welcome", "false");
+  const [isAuthenticated, setIsAuthenticated] = useKV("is-authenticated", "false");
 
   useEffect(() => {
     document.documentElement.classList.remove("high-contrast");
   }, []);
+
+  const handleWelcomeContinue = () => {
+    setHasSeenWelcome("true");
+  };
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated("true");
+  };
+
+  if (hasSeenWelcome !== "true") {
+    return <WelcomeScreen onAuthenticate={handleWelcomeContinue} />;
+  }
+
+  if (isAuthenticated !== "true") {
+    return <LicenseAuth onSuccess={handleAuthSuccess} />;
+  }
 
   const currentTab = TABS.find((tab) => tab.id === activeTab) || TABS[0];
   const Component = currentTab.component;

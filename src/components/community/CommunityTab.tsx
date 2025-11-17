@@ -1,7 +1,7 @@
 import {
   Star,
   Shield,
-  Grid,
+  GridFour,
   Spiral,
   ListBullets,
   Brain,
@@ -66,7 +66,7 @@ const flashSales: Offer[] = [
     title: "ASSET CORRELATION MATRIX",
     description: "24h correlation data",
     price: "$1.43",
-    icon: Grid,
+    icon: GridFour,
     iconColor: "text-[#FF00FF]",
   },
 ];
@@ -121,7 +121,7 @@ const specialOffers: Offer[] = [
     title: "VAULT EXPANSION SLOT",
     description: "Extra slot for multi-strategy vault",
     price: "$4.99",
-    icon: Grid,
+    icon: GridFour,
     iconColor: "text-[#FF00FF]",
   },
   {
