@@ -37,10 +37,10 @@ const reportError = async (error: Error) => {
   }
 };
 
-export const ErrorFallback = ({
+export default function ErrorFallback({
   error,
   resetErrorBoundary,
-}: ErrorFallbackProps) => {
+}: ErrorFallbackProps) {
   const [isReporting, setIsReporting] = useState(false);
   const [hasReported, setHasReported] = useState(false);
 
@@ -134,4 +134,4 @@ export const ErrorFallback = ({
       </div>
     </div>
   );
-};
+}

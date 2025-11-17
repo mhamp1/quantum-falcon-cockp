@@ -1,3 +1,4 @@
+/// <reference path="../../vite-end.d.ts" />
 import { useState, useRef, useEffect } from "react";
 import {
   Robot,

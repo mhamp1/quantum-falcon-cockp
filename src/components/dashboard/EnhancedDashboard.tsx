@@ -1,6 +1,7 @@
 // Enhanced Dashboard with React 19 performance optimizations and AI integration
 import { useKV } from '@/hooks/useKVFallback'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'
 import {
@@ -311,7 +312,11 @@ export default function EnhancedDashboard() {
   }
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallbackRender={({ error }) => (
+      <div className="p-8 text-center">
+        <p className="text-destructive">Error loading dashboard: {error.message}</p>
+      </div>
+    )}>
       <div
         className="space-y-6"
         role="main"
@@ -508,7 +513,7 @@ export default function EnhancedDashboard() {
             }
             
             return (
-              <Button
+              <Suspense
                 key={action.id}
                 fallback={
                   <div className="animate-pulse h-20 bg-muted/20 rounded border border-accent/20" />
@@ -516,7 +521,8 @@ export default function EnhancedDashboard() {
               >
                 <QuickActionButton action={action} index={idx} />
               </Suspense>
-            ))}
+            );
+          })}
           </div>
         </div>
 

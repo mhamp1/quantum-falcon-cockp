@@ -1,32 +1,22 @@
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from 'react-error-boundary';
-import { StrictMode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import "@github/spark/spark";
-
-import App from './App.tsx';
-import { ErrorFallback } from './ErrorFallback.tsx';
 import './main.css';
-import './styles/theme.css';
-import './index.css';
+import App from './App';
+import ErrorFallback from './ErrorFallback';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
       retry: 1,
+      refetchOnWindowFocus: false,
     },
   },
 });
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error(
-    'Failed to find the root element. Ensure there is a div with id="root" in your HTML.',
-  );
-}
+const root = createRoot(document.getElementById('root')!);
 
-const root = createRoot(rootElement);
 root.render(
   <StrictMode>
     <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -34,5 +24,5 @@ root.render(
         <App />
       </QueryClientProvider>
     </ErrorBoundary>
-  </StrictMode>,
+  </StrictMode>
 );

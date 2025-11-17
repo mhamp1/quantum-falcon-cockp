@@ -13,12 +13,6 @@ import {
 import { toast } from 'sonner'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useKV } from "@/hooks/useKVFallback";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { store, Strategy, Trade, TradingState } from "@/store/tradingStore";
 import { useSocket } from "@/hooks/useSocket";
 import { ParticleBackground } from "@/components/shared/ParticleBackground";
