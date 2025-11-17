@@ -80,23 +80,23 @@ export default function App() {
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-80
-          flex flex-col bg-card backdrop-blur-xl border-r-2 border-primary
+          fixed lg:static inset-y-0 left-0 z-50 w-96
+          flex flex-col bg-card backdrop-blur-xl border-r-2 border-primary shadow-[0_0_30px_oklch(0.62_0.25_290_/_0.4)]
           transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="flex items-center justify-between p-6 border-b-2 border-primary/30 relative">
+        <div className="flex items-center justify-between p-8 border-b-2 border-primary/30 relative">
           <div className="relative z-10">
-            <h1 className="text-2xl font-bold uppercase tracking-[0.15em] neon-glow-primary">
+            <h1 className="text-3xl font-bold uppercase tracking-[0.2em] neon-glow-primary mb-1">
               QUANTUM
             </h1>
-            <h1 className="text-2xl font-bold uppercase tracking-[0.15em] neon-glow">
+            <h1 className="text-3xl font-bold uppercase tracking-[0.2em] neon-glow mb-1">
               FALCON
             </h1>
-            <div className="flex items-center gap-2 mt-3">
-              <div className="w-2 h-2 bg-secondary rounded-full animate-pulse neon-glow" />
-              <span className="text-[10px] font-semibold tracking-widest text-secondary">ONLINE</span>
+            <div className="flex items-center gap-2 mt-4">
+              <div className="w-3 h-3 bg-secondary rounded-full animate-pulse neon-glow" />
+              <span className="text-[11px] font-semibold tracking-widest text-secondary uppercase">ONLINE</span>
             </div>
           </div>
           <Button
@@ -105,11 +105,11 @@ export default function App() {
             className="lg:hidden relative z-10 border-2 border-primary hover:bg-primary/10"
             onClick={() => setSidebarOpen(false)}
           >
-            <X size={20} className="text-primary" />
+            <X size={24} className="text-primary" />
           </Button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
+        <nav className="flex-1 p-5 space-y-3 overflow-y-auto scrollbar-thin">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -121,43 +121,40 @@ export default function App() {
                   setSidebarOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-4 px-6 py-4 text-base font-semibold uppercase tracking-[0.1em]
-                  transition-all duration-200 border-2 relative group
+                  w-full flex items-center gap-5 px-8 py-5 text-lg font-semibold uppercase tracking-[0.12em]
+                  transition-all duration-200 border-2 relative group rounded-lg
                   ${
                     isActive
-                      ? "bg-primary/10 text-secondary border-secondary neon-glow-accent"
-                      : "text-muted-foreground border-primary/20 hover:text-secondary hover:bg-primary/5 hover:border-primary/50"
+                      ? "bg-primary/15 text-secondary border-primary shadow-[0_0_25px_oklch(0.62_0.25_290_/_0.4)]"
+                      : "text-muted-foreground border-primary/20 hover:text-secondary hover:bg-primary/10 hover:border-primary/50"
                   }
                 `}
-                style={{
-                  clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))'
-                }}
               >
-                <Icon size={28} weight={isActive ? "fill" : "regular"} />
+                <Icon size={32} weight={isActive ? "fill" : "regular"} />
                 <span className="flex-1 text-left">{tab.label}</span>
                 {isActive && (
-                  <div className="w-2 h-2 bg-secondary rounded-full animate-pulse neon-glow" />
+                  <div className="w-3 h-3 bg-secondary rounded-full animate-pulse neon-glow" />
                 )}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t-2 border-primary/30 bg-primary/5">
-          <div className="text-[10px] font-bold tracking-widest text-secondary mb-3 uppercase">System Status</div>
-          <div className="space-y-2">
+        <div className="p-5 border-t-2 border-primary/30 bg-primary/5">
+          <div className="text-[11px] font-bold tracking-widest text-secondary mb-4 uppercase">System Status</div>
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Connection</span>
-              <span className="text-secondary text-[10px] font-bold neon-glow">ACTIVE</span>
+              <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Connection</span>
+              <span className="text-secondary text-[11px] font-bold neon-glow">ACTIVE</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Build</span>
-              <span className="text-primary text-[10px] font-bold tracking-wider">v2.4.1</span>
+              <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Build</span>
+              <span className="text-primary text-[11px] font-bold tracking-wider">v2.4.1</span>
             </div>
           </div>
-          <div className="mt-3 h-1 bg-muted relative overflow-hidden">
+          <div className="mt-4 h-2 bg-muted relative overflow-hidden rounded-full">
             <div 
-              className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 neon-glow-accent" 
+              className="h-full bg-gradient-to-r from-primary via-accent to-secondary transition-all duration-500 neon-glow-accent rounded-full" 
               style={{ width: '85%' }} 
             />
           </div>
@@ -165,24 +162,24 @@ export default function App() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden sticky top-0 z-30 bg-card backdrop-blur-xl border-b-2 border-primary">
-          <div className="flex items-center justify-between p-4">
+        <header className="lg:hidden sticky top-0 z-30 bg-card backdrop-blur-xl border-b-2 border-primary shadow-[0_0_20px_oklch(0.62_0.25_290_/_0.3)]">
+          <div className="flex items-center justify-between p-5">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(true)}
               className="border-2 border-primary hover:bg-primary/10"
             >
-              <List size={24} className="text-primary" />
+              <List size={28} className="text-primary" />
             </Button>
-            <h2 className="text-lg font-bold text-secondary uppercase tracking-[0.15em] neon-glow">
+            <h2 className="text-xl font-bold text-secondary uppercase tracking-[0.15em] neon-glow">
               {currentTab.label}
             </h2>
-            <div className="w-10" />
+            <div className="w-12" />
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-6 overflow-auto scrollbar-thin">
+        <main className="flex-1 p-6 md:p-10 overflow-auto scrollbar-thin">
           <Component key={activeTab} />
         </main>
       </div>
