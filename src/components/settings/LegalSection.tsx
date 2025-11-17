@@ -525,24 +525,24 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
                   </button>
                 </DialogTrigger>
                 <DialogContent 
-                  className="max-w-4xl max-h-[85vh] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden"
+                  className="max-w-4xl h-[85vh] cyber-card border-2 border-primary/50 flex flex-col p-0 overflow-hidden"
                   role="dialog"
                   aria-labelledby={`${doc.id}-title`}
                 >
-                  <DialogHeader className="flex-shrink-0">
+                  <DialogHeader className="flex-shrink-0 p-6 pb-4">
                     <DialogTitle id={`${doc.id}-title`} className="flex items-center gap-3 text-xl uppercase tracking-wide">
                       <Icon size={24} weight="duotone" className="text-primary" />
                       {doc.title}
                     </DialogTitle>
                   </DialogHeader>
-                  <ScrollArea className="flex-1 pr-4 -mx-6 px-6">
-                    <div className="space-y-4">
+                  <ScrollArea className="flex-1 px-6">
+                    <div className="space-y-4 pb-4">
                       <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                         {filterContent(doc.content) ? doc.content : 'No matching content found. Try a different search.'}
                       </pre>
                     </div>
                   </ScrollArea>
-                  <div className="pt-4 border-t-2 border-primary/30 flex justify-between items-center flex-shrink-0 gap-2">
+                  <div className="p-6 pt-4 border-t-2 border-primary/30 flex justify-between items-center flex-shrink-0 gap-2">
                     <Button 
                       variant="outline" 
                       size="sm"

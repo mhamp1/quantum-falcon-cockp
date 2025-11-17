@@ -138,7 +138,7 @@ export default function SubscriptionUpgrade({ open, onOpenChange, tier }: Subscr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] h-[85vh] cyber-card border-2 p-0 gap-0 overflow-hidden" style={{ borderColor: details.color }}>
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] cyber-card border-2 p-0 gap-0 flex flex-col overflow-hidden" style={{ borderColor: details.color }}>
         <div className="absolute inset-0 technical-grid opacity-5 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/10 to-transparent pointer-events-none" style={{ color: details.color }} />
         
@@ -150,7 +150,7 @@ export default function SubscriptionUpgrade({ open, onOpenChange, tier }: Subscr
           transition={{ duration: 0.5 }}
         />
 
-        <DialogHeader className="p-6 pb-4 border-b relative z-10" style={{ borderColor: `${details.color}40` }}>
+        <DialogHeader className="p-6 pb-4 border-b relative z-10 flex-shrink-0" style={{ borderColor: `${details.color}40` }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 jagged-corner-small border-2 relative overflow-hidden" style={{ 
@@ -185,7 +185,7 @@ export default function SubscriptionUpgrade({ open, onOpenChange, tier }: Subscr
           </div>
         </DialogHeader>
 
-        <div className="p-6 space-y-6 relative z-10 max-h-[60vh] overflow-y-auto scrollbar-thin">
+        <div className="p-6 space-y-6 relative z-10 flex-1 overflow-y-auto scrollbar-thin">
           <div className="text-center p-6 jagged-corner relative overflow-hidden" style={{
             backgroundColor: `${details.color}10`,
             border: `2px solid ${details.color}40`
@@ -251,7 +251,7 @@ export default function SubscriptionUpgrade({ open, onOpenChange, tier }: Subscr
           )}
         </div>
 
-        <div className="p-6 pt-4 border-t relative z-10" style={{ borderColor: `${details.color}40` }}>
+        <div className="p-6 pt-4 border-t relative z-10 flex-shrink-0" style={{ borderColor: `${details.color}40` }}>
           {details.upgradeUrl ? (
             <Button
               onClick={handleUpgrade}
