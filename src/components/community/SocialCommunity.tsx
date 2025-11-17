@@ -296,60 +296,6 @@ export default function SocialCommunity() {
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-6">
-        <div className="cyber-card p-6 relative overflow-hidden">
-          <div className="absolute inset-0 technical-grid opacity-10" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <Users
-                  size={32}
-                  weight="duotone"
-                  className="text-primary neon-glow-primary"
-                />
-                <div>
-                  <h2 className="text-2xl font-bold uppercase tracking-[0.2em] text-primary">
-                    Community Hub
-                  </h2>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    Share, learn, and grow together
-                  </p>
-                </div>
-              </div>
-              <Button className="jagged-corner-small border-2 border-primary">
-                <PaperPlaneRight size={16} weight="bold" className="mr-2" />
-                Share Strategy
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <Tabs defaultValue="strategies" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
-            <TabsTrigger
-              value="strategies"
-              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
-            >
-              <Code size={16} weight="duotone" className="mr-2" />
-              Strategies
-            </TabsTrigger>
-            <TabsTrigger
-              value="forum"
-              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-accent/20 data-[state=active]:text-accent data-[state=active]:border-2 data-[state=active]:border-accent jagged-corner-small transition-all"
-            >
-              <ChatCircle size={16} weight="duotone" className="mr-2" />
-              Forum
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="strategies" className="space-y-4">
-            {strategies.map((strategy) => (
-              <div
-                key={strategy.id}
-                className="glass-morph-card p-6 relative overflow-hidden group hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)] transition-all"
-              >
-                <div className="absolute inset-0 technical-grid opacity-5" />
-
-                <div className="relative z-10">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4 flex-1">
                       <div className="text-4xl">{strategy.authorAvatar}</div>
