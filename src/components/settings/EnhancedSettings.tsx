@@ -558,7 +558,7 @@ export default function EnhancedSettings() {
                       <SelectTrigger className="bg-background/60">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="item-aligned">
                         <SelectItem value="5">5 minutes</SelectItem>
                         <SelectItem value="15">15 minutes</SelectItem>
                         <SelectItem value="30">30 minutes</SelectItem>
@@ -584,7 +584,7 @@ export default function EnhancedSettings() {
                       <SelectTrigger className="bg-background/60">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="item-aligned">
                         <SelectItem value="15">15 minutes</SelectItem>
                         <SelectItem value="30">30 minutes</SelectItem>
                         <SelectItem value="60">1 hour</SelectItem>
@@ -1026,7 +1026,7 @@ export default function EnhancedSettings() {
                       <SelectTrigger className="bg-background/60">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="item-aligned">
                         <SelectItem value="5">5 minutes</SelectItem>
                         <SelectItem value="15">15 minutes</SelectItem>
                         <SelectItem value="30">30 minutes</SelectItem>
@@ -1045,7 +1045,7 @@ export default function EnhancedSettings() {
                       <SelectTrigger className="bg-background/60">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="item-aligned">
                         <SelectItem value="15">15 minutes</SelectItem>
                         <SelectItem value="30">30 minutes</SelectItem>
                         <SelectItem value="60">1 hour</SelectItem>
@@ -1095,7 +1095,7 @@ export default function EnhancedSettings() {
                       <SelectTrigger className="bg-background/60">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="item-aligned">
                         <SelectItem value="mainnet">Mainnet Beta</SelectItem>
                         <SelectItem value="devnet">Devnet</SelectItem>
                         <SelectItem value="testnet">Testnet</SelectItem>
@@ -1300,7 +1300,7 @@ export default function EnhancedSettings() {
                       <SelectTrigger className="bg-background/60">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="item-aligned">
                         <SelectItem value="default">Default Solana</SelectItem>
                         <SelectItem value="matrix">Matrix Code</SelectItem>
                         <SelectItem value="synthwave">Synthwave Retro</SelectItem>
@@ -1359,7 +1359,7 @@ export default function EnhancedSettings() {
                       <SelectTrigger className="bg-background/60">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="item-aligned">
                         <SelectItem value="candlestick">Candlestick</SelectItem>
                         <SelectItem value="line">Line Chart</SelectItem>
                         <SelectItem value="area">Area Chart</SelectItem>
@@ -1378,7 +1378,7 @@ export default function EnhancedSettings() {
                       <SelectTrigger className="bg-background/60">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="item-aligned">
                         <SelectItem value="1">1 second</SelectItem>
                         <SelectItem value="5">5 seconds</SelectItem>
                         <SelectItem value="10">10 seconds</SelectItem>
