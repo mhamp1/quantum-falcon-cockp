@@ -1,4 +1,4 @@
-import { useEffect, useMemo, Suspense, lazy } from "react";
+import { useEffect, useMemo } from "react";
 import {
   House,
   Robot,
@@ -13,36 +13,15 @@ import {
 import { useKV } from "@github/spark/hooks";
 import { Toaster } from "@/components/ui/sonner";
 
-const EnhancedDashboard = lazy(
-  () => import("@/components/dashboard/EnhancedDashboard"),
-);
-const BotOverview = lazy(() => import("@/components/dashboard/BotOverview"));
-const EnhancedAnalytics = lazy(
-  () => import("@/components/dashboard/EnhancedAnalytics"),
-);
-const Agents = lazy(() => import("@/components/agents/Agents"));
-const VaultView = lazy(() => import("@/components/vault/VaultView"));
-const SocialCommunity = lazy(
-  () => import("@/components/community/SocialCommunity"),
-);
-const AdvancedTradingHub = lazy(
-  () => import("@/components/trade/AdvancedTradingHub"),
-);
-const EnhancedSettings = lazy(
-  () => import("@/components/settings/EnhancedSettings"),
-);
-const AIAssistant = lazy(() => import("@/components/shared/AIAssistant"));
-
-function LoadingFallback() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center space-y-4">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-muted-foreground text-sm uppercase tracking-wider">Loading...</p>
-      </div>
-    </div>
-  );
-}
+import Dashboard from "@/components/dashboard/Dashboard";
+import BotOverview from "@/components/dashboard/BotOverview";
+import Analytics from "@/components/dashboard/Analytics";
+import Agents from "@/components/agents/Agents";
+import VaultView from "@/components/vault/VaultView";
+import SocialCommunity from "@/components/community/SocialCommunity";
+import AdvancedTradingHub from "@/components/trade/AdvancedTradingHub";
+import EnhancedSettings from "@/components/settings/EnhancedSettings";
+import AIAssistant from "@/components/shared/AIAssistant";
 
 interface Tab {
   id: string;
@@ -60,7 +39,7 @@ export default function App() {
         id: "dashboard",
         label: "Dashboard",
         icon: House,
-        component: EnhancedDashboard,
+        component: Dashboard,
       },
       {
         id: "bot-overview",
@@ -73,7 +52,7 @@ export default function App() {
         id: "analytics",
         label: "Analytics",
         icon: ChartLine,
-        component: EnhancedAnalytics,
+        component: Analytics,
       },
       {
         id: "trading",
@@ -111,7 +90,7 @@ export default function App() {
   }, [setActiveTab, tabs]);
 
   const Component =
-    tabs.find((tab) => tab.id === activeTab)?.component || EnhancedDashboard;
+    tabs.find((tab) => tab.id === activeTab)?.component || Dashboard;
 
   return (
     <div className="min-h-screen bg-background">
@@ -139,14 +118,10 @@ export default function App() {
       </nav>
 
       <main className="container mx-auto p-4 md:p-6">
-        <Suspense fallback={<LoadingFallback />}>
-          <Component key={activeTab} />
-        </Suspense>
+        <Component key={activeTab} />
       </main>
 
-      <Suspense fallback={null}>
-        <AIAssistant />
-      </Suspense>
+      <AIAssistant />
 
       <Toaster />
     </div>
