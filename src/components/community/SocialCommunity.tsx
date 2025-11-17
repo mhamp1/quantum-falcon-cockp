@@ -296,6 +296,22 @@ export default function SocialCommunity() {
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-6">
+        <Tabs defaultValue="strategies" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 bg-card border border-border">
+            <TabsTrigger value="strategies" className="uppercase tracking-wider">
+              <Star size={16} className="mr-2" />
+              Strategies
+            </TabsTrigger>
+            <TabsTrigger value="forum" className="uppercase tracking-wider">
+              <ChatCircle size={16} className="mr-2" />
+              Forum
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="strategies" className="space-y-6">
+            {strategies.map((strategy) => (
+              <div key={strategy.id} className="cyber-card p-6">
+                <div className="relative">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4 flex-1">
                       <div className="text-4xl">{strategy.authorAvatar}</div>
