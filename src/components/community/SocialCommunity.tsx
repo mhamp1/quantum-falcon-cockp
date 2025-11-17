@@ -323,6 +323,146 @@ export default function SocialCommunity() {
           </div>
         </div>
 
+        <Tabs defaultValue="strategies" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
+            <TabsTrigger
+              value="strategies"
+              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
+            >
+              <Code size={16} weight="duotone" className="mr-2" />
+              Strategies
+            </TabsTrigger>
+            <TabsTrigger
+              value="forum"
+              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-accent/20 data-[state=active]:text-accent data-[state=active]:border-2 data-[state=active]:border-accent jagged-corner-small transition-all"
+            >
+              <ChatCircle size={16} weight="duotone" className="mr-2" />
+              Forum
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="strategies" className="space-y-4">
+            {strategies.map((strategy) => (
+              <div
+                key={strategy.id}
+                className="glass-morph-card p-6 relative overflow-hidden group hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)] transition-all"
+              >
+                <div className="absolute inset-0 technical-grid opacity-5" />
+
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className="text-4xl">{strategy.authorAvatar}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-bold uppercase tracking-wider">
+                            {strategy.title}
+                          </h3>
+                          <Badge className="bg-primary/20 text-primary border border-primary/50">
+                            <Fire size={12} weight="fill" className="mr-1" />
+                            HOT
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                          <span className="font-semibold">
+                            {strategy.author}
+                          </span>
+                          <span>•</span>
+                          <span>{formatTimeAgo(strategy.timestamp)}</span>
+                        </div>
+                        <p className="text-sm text-foreground mb-4">
+                          {strategy.description}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {strategy.tags.map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="text-[10px]"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        <div className="grid grid-cols-4 gap-4 mb-4">
+                          <div className="text-center p-3 bg-primary/10 border border-primary/30">
+                            <div className="text-2xl font-bold text-primary">
+                              {strategy.winRate}%
+                            </div>
+                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                              Win Rate
+                            </div>
+                          </div>
+                          <div className="text-center p-3 bg-muted/30 border border-muted/50">
+                            <div className="text-2xl font-bold">
+                              {strategy.totalTrades}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                              Trades
+                            </div>
+                          </div>
+                          <div className="text-center p-3 bg-accent/10 border border-accent/30">
+                            <div className="text-2xl font-bold text-accent">
+                              +{strategy.roi}%
+                            </div>
+                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                              ROI
+                            </div>
+                          </div>
+                          <div className="text-center p-3 bg-muted/30 border border-muted/50">
+                            <div className="text-2xl font-bold">
+                              {strategy.views}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                              Views
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-primary text-primary hover:bg-primary/10"
+                          >
+                            <ThumbsUp size={14} className="mr-1" />
+                            {strategy.likes}
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <ChatCircle size={14} className="mr-1" />
+                            {strategy.comments}
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <Share size={14} className="mr-1" />
+                            Share
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="ml-auto jagged-corner-small bg-primary"
+                          >
+                            <BookmarkSimple
+                              size={14}
+                              weight="fill"
+                              className="mr-1"
+                            />
+                            Use Strategy
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </TabsContent>
+
+          <TabsContent value="forum">
+            <Forum />
+          </TabsContent>
+        </Tabs>
+
         <LimitedOffersSection />
 
         <div className="relative overflow-hidden bg-gradient-to-br from-background via-card to-background border-3 border-accent/40 p-6 jagged-corner">
@@ -501,146 +641,6 @@ export default function SocialCommunity() {
             </div>
           </div>
         </div>
-
-        <Tabs defaultValue="strategies" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
-            <TabsTrigger
-              value="strategies"
-              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
-            >
-              <Code size={16} weight="duotone" className="mr-2" />
-              Strategies
-            </TabsTrigger>
-            <TabsTrigger
-              value="forum"
-              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-accent/20 data-[state=active]:text-accent data-[state=active]:border-2 data-[state=active]:border-accent jagged-corner-small transition-all"
-            >
-              <ChatCircle size={16} weight="duotone" className="mr-2" />
-              Forum
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="strategies" className="space-y-4">
-            {strategies.map((strategy) => (
-              <div
-                key={strategy.id}
-                className="glass-morph-card p-6 relative overflow-hidden group hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)] transition-all"
-              >
-                <div className="absolute inset-0 technical-grid opacity-5" />
-
-                <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className="text-4xl">{strategy.authorAvatar}</div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold uppercase tracking-wider">
-                            {strategy.title}
-                          </h3>
-                          <Badge className="bg-primary/20 text-primary border border-primary/50">
-                            <Fire size={12} weight="fill" className="mr-1" />
-                            HOT
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                          <span className="font-semibold">
-                            {strategy.author}
-                          </span>
-                          <span>•</span>
-                          <span>{formatTimeAgo(strategy.timestamp)}</span>
-                        </div>
-                        <p className="text-sm text-foreground mb-4">
-                          {strategy.description}
-                        </p>
-
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {strategy.tags.map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="outline"
-                              className="text-[10px]"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-
-                        <div className="grid grid-cols-4 gap-4 mb-4">
-                          <div className="text-center p-3 bg-primary/10 border border-primary/30">
-                            <div className="text-2xl font-bold text-primary">
-                              {strategy.winRate}%
-                            </div>
-                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                              Win Rate
-                            </div>
-                          </div>
-                          <div className="text-center p-3 bg-muted/30 border border-muted/50">
-                            <div className="text-2xl font-bold">
-                              {strategy.totalTrades}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                              Trades
-                            </div>
-                          </div>
-                          <div className="text-center p-3 bg-accent/10 border border-accent/30">
-                            <div className="text-2xl font-bold text-accent">
-                              +{strategy.roi}%
-                            </div>
-                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                              ROI
-                            </div>
-                          </div>
-                          <div className="text-center p-3 bg-muted/30 border border-muted/50">
-                            <div className="text-2xl font-bold">
-                              {strategy.views}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                              Views
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-primary text-primary hover:bg-primary/10"
-                          >
-                            <ThumbsUp size={14} className="mr-1" />
-                            {strategy.likes}
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <ChatCircle size={14} className="mr-1" />
-                            {strategy.comments}
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Share size={14} className="mr-1" />
-                            Share
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="ml-auto jagged-corner-small bg-primary"
-                          >
-                            <BookmarkSimple
-                              size={14}
-                              weight="fill"
-                              className="mr-1"
-                            />
-                            Use Strategy
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="forum">
-            <Forum />
-          </TabsContent>
-        </Tabs>
       </div>
 
       <CheckoutDialog
