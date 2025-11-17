@@ -162,7 +162,7 @@ export default function CheckoutDialog({
   if (!session) {
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="cyber-card border-2 border-primary max-w-md">
+        <DialogContent className="cyber-card border-2 border-primary max-w-md h-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold uppercase tracking-wider text-primary flex items-center gap-2">
               <Lightning size={24} weight="fill" />
@@ -216,7 +216,7 @@ export default function CheckoutDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="cyber-card border-2 border-primary max-w-lg fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="cyber-card border-2 border-primary max-w-lg h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold uppercase tracking-wider text-primary flex items-center gap-2">
             <CreditCard size={24} weight="fill" />
@@ -227,7 +227,7 @@ export default function CheckoutDialog({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           <div className="cyber-card p-3 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground uppercase tracking-wide">Subtotal</span>
