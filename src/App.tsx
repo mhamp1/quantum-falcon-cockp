@@ -11,13 +11,13 @@ import {
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
-
 import Dashboard from "@/components/dashboard/Dashboard";
 import Agents from "@/components/agents/Agents";
 import Trade from "@/components/trade/Trade";
 import VaultView from "@/components/vault/VaultView";
 import SocialCommunity from "@/components/community/SocialCommunity";
 import EnhancedSettings from "@/components/settings/EnhancedSettings";
+import AIAssistant from "@/components/shared/AIAssistant";
 
 interface Tab {
   id: string;
@@ -35,13 +35,19 @@ const TABS: Tab[] = [
   },
   {
     id: "agents",
-    label: "AI Agents",
+    label: "Agents",
     icon: Robot,
     component: Agents,
   },
   {
+    id: "settings",
+    label: "Settings",
+    icon: Gear,
+    component: EnhancedSettings,
+  },
+  {
     id: "trade",
-    label: "Trade",
+    label: "Trading",
     icon: Lightning,
     component: Trade,
   },
@@ -57,17 +63,12 @@ const TABS: Tab[] = [
     icon: Users,
     component: SocialCommunity,
   },
-  {
-    id: "settings",
-    label: "Settings",
-    icon: Gear,
-    component: EnhancedSettings,
-  },
 ];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [newsText] = useState("BTC remains supportive low levels - Market stabilizing - SOL testing resistance");
 
   useEffect(() => {
     document.documentElement.classList.remove("high-contrast");
@@ -80,36 +81,35 @@ export default function App() {
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F14] text-foreground">
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-[200px]
-          flex flex-col bg-black border-r border-primary/30
+          fixed lg:static inset-y-0 left-0 z-50 w-64
+          flex flex-col bg-background border-r-2 border-secondary/30
           transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="p-6 border-b border-primary/30">
-          <div className="relative">
-            <h1 className="text-2xl font-bold uppercase tracking-[0.15em] mb-2 bg-gradient-to-r from-secondary via-purple-400 to-primary bg-clip-text text-transparent" style={{ transform: 'rotate(-2deg)', display: 'inline-block' }}>
+        <div className="flex items-center justify-between p-6 border-b border-secondary/30 relative">
+          <div className="relative z-10">
+            <h1 className="text-xl font-bold uppercase tracking-[0.15em] bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1" style={{ transform: 'skewY(-2deg)' }}>
               QUANTUM
             </h1>
-            <h1 className="text-2xl font-bold uppercase tracking-[0.15em] bg-gradient-to-r from-secondary via-purple-400 to-primary bg-clip-text text-transparent" style={{ transform: 'rotate(-2deg)', display: 'inline-block' }}>
+            <h1 className="text-xl font-bold uppercase tracking-[0.15em] bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent" style={{ transform: 'skewY(-2deg)' }}>
               FALCON
             </h1>
             <div className="flex items-center gap-2 mt-3">
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span className="text-[10px] font-semibold tracking-wider text-primary uppercase">System: Online</span>
+              <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
+              <span className="text-[10px] font-semibold tracking-widest text-secondary uppercase">System: Online</span>
             </div>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden absolute top-2 right-2 text-primary hover:bg-primary/10"
+            className="lg:hidden absolute top-2 right-2 text-secondary hover:bg-secondary/10"
             onClick={() => setSidebarOpen(false)}
           >
-            <X size={20} className="text-primary" />
+            <X size={20} />
           </Button>
         </div>
-
-        <nav className="flex-1 py-4 overflow-y-auto scrollbar-thin">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -121,52 +121,73 @@ export default function App() {
                   setSidebarOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-3 px-6 py-3 text-sm font-medium uppercase tracking-wider
-                  transition-all duration-200 relative group
+                  w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold uppercase tracking-[0.08em]
+                  transition-all duration-200 rounded-sm
                   ${
                     isActive
-                      ? "text-primary border-l-2 border-primary bg-primary/5"
-                      : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                      ? "bg-secondary/10 text-secondary border-l-4 border-secondary"
+                      : "text-muted-foreground hover:text-secondary hover:bg-secondary/5"
                   }
                 `}
               >
-                <Icon size={16} weight={isActive ? "fill" : "regular"} />
+                <Icon size={20} weight={isActive ? "fill" : "regular"} />
                 <span className="flex-1 text-left">{tab.label}</span>
-                {isActive && (
-                  <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary shadow-[0_0_8px_currentColor]" />
-                )}
               </button>
             );
           })}
         </nav>
-      </aside>
-
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header with Live News Ticker */}
-        <header className="h-10 bg-black/90 border-b border-primary/20 flex items-center justify-between px-4">
-          <div className="flex-1" />
-          <div className="flex-1 overflow-hidden">
-            <div className="animate-marquee whitespace-nowrap">
-              <span className="text-xs text-destructive/80 tracking-wide">
-                🔴 Live News: BTC remains supportive at low levels - Market stabilizing
-              </span>
+        <div className="p-4 border-t border-secondary/30 bg-background/50">
+          <div className="text-[10px] font-bold tracking-widest text-secondary mb-3 uppercase">System Status</div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Connection</span>
+              <span className="text-secondary text-[10px] font-bold">ACTIVE</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Build</span>
+              <span className="text-primary text-[10px] font-bold tracking-wider">v2.4.1</span>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden text-primary hover:bg-primary/10 h-8 w-8"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <List size={20} className="text-primary" />
-          </Button>
+        </div>
+      </aside>
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-secondary/30">
+          <div className="flex items-center justify-between h-10 px-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden text-secondary hover:bg-secondary/10"
+            >
+              <List size={20} />
+            </Button>
+           
+            <div className="flex-1 flex items-center justify-end gap-4">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <span className="text-xs font-bold text-destructive uppercase tracking-wide">Live News</span>
+                <div className="overflow-hidden max-w-md">
+                  <div className="animate-marquee whitespace-nowrap text-xs text-destructive/70">
+                    {newsText}
+                  </div>
+                </div>
+              </div>
+             
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          </div>
         </header>
-
-        <main className="flex-1 p-6 md:p-10 overflow-auto scrollbar-thin">
+        <main className="flex-1 p-8 overflow-auto scrollbar-thin">
           <Component key={activeTab} />
         </main>
       </div>
-
+      <AIAssistant />
       <Toaster />
     </div>
   );

@@ -774,6 +774,19 @@
   }
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
 .technical-readout {
   font-family: 'Orbitron', monospace;
   font-size: 1.75rem;
