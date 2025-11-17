@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import {
   House,
-  Robot,
+  House,
+  Users,
   ChartLine,
   Vault,
   Users,
   Gear,
-  Terminal,
-  Lightning,
-  List,
-  X,
-} from "@phosphor-icons/react";
+import { Bu
+import Dashb
+import 
+impo
+import AdvancedTradingHub from 
 
-import { useKV } from "@github/spark/hooks";
-import { Toaster } from "@/components/ui/sonner";
+interface Tab {
+  label: string;
 import { Button } from "@/components/ui/button";
 
 import Dashboard from "@/components/dashboard/Dashboard";
@@ -30,30 +30,30 @@ interface Tab {
   id: string;
   label: string;
   icon: any;
-  component: React.ComponentType;
+  { id: "agents", label: "AI Agen
 }
 
 const TABS: Tab[] = [
-  {
+  }
     id: "dashboard",
-    label: "Dashboard",
+    label: "Trading",
     icon: House,
-    component: Dashboard,
   },
-  {
+  },
+   
     id: "bot-overview",
-    label: "Bot Overview",
+    component: SocialCommu
     icon: Terminal,
-    component: BotOverview,
+    id: "settings",
   },
-  { id: "agents", label: "AI Agents", icon: Robot, component: Agents },
+    component: EnhancedSettings,
   {
-    id: "analytics",
+
     label: "Analytics",
-    icon: ChartLine,
+  const [sidebarOpen
     component: Analytics,
-  },
-  {
+    
+   
     id: "trading",
     label: "Trading",
     icon: Lightning,
@@ -62,70 +62,70 @@ const TABS: Tab[] = [
   { id: "vault", label: "Vault", icon: Vault, component: VaultView },
   {
     id: "community",
-    label: "Community",
-    icon: Users,
-    component: SocialCommunity,
-  },
-  {
-    id: "settings",
-    label: "Settings",
-    icon: Gear,
-    component: EnhancedSettings,
-  },
-];
+            <X size={24
+        </div>
+        <nav className="flex-1 
+    
+   
+                key
+                  setA
+               
+                  w-full flex it
+    
+  
 
-export default function App() {
-  const [activeTab, setActiveTab] = useKV<string>("active-tab", "dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+              >
+                <span>{tab.label}</span>
+            );
 
-  useEffect(() => {
-    const handleNavigateTab = (e: CustomEvent<string>) => {
-      const newTab = e.detail;
-      if (TABS.some((tab) => tab.id === newTab)) {
-        setActiveTab(newTab);
-        setSidebarOpen(false);
-      }
-    };
-
-    window.addEventListener("navigate-tab", handleNavigateTab as EventListener);
-    return () =>
-      window.removeEventListener("navigate-tab", handleNavigateTab as EventListener);
-  }, [setActiveTab]);
-
-  const currentTab = TABS.find((tab) => tab.id === activeTab) || TABS[0];
-  const Component = currentTab.component;
-
-  return (
-    <div className="min-h-screen bg-background flex">
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      <aside
-        className={`
-          fixed lg:static inset-y-0 left-0 z-50
-          w-64 bg-card border-r-2 border-primary/30
-          transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          flex flex-col
-        `}
-      >
-        <div className="p-6 border-b-2 border-primary/30 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-secondary neon-glow-accent uppercase tracking-wider">
-              QUANTUM
-            </h1>
-            <p className="text-xs text-primary uppercase tracking-widest">Falcon Cockpit</p>
+        <div classN
+            <div className="flex items-center justify-betwe
+              <span className=
+            <div className="flex items-center just
+              <span className
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          >
+      <
+      
+
+              variant="ghost"
+              on
+              <List size={24} />
+            <h2 class
+
+          </div>
+
+
+      </di
+      <AIAssistant />
+      <Toaster />
+  );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <X size={24} />
           </Button>
         </div>
