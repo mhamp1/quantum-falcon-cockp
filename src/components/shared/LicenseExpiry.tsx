@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Clock, Warning, Crown, ArrowRight } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import { UserAuth, getRemainingTime } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 

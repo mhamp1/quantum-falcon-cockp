@@ -10,7 +10,7 @@ import {
   Lightning,
 } from "@phosphor-icons/react";
 
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import { Toaster } from "@/components/ui/sonner";
 
 const EnhancedDashboard = lazy(

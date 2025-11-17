@@ -23,7 +23,7 @@ import {
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";

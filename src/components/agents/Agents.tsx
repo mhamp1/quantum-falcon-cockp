@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useState, useEffect } from "react";
 
 import { Switch } from "@/components/ui/switch";
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import { Progress } from "@/components/ui/progress";
 
 interface Agent {

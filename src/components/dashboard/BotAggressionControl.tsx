@@ -3,7 +3,7 @@ import { Shield, Lightning, Target, Atom, Cube } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Slider } from "@/components/ui/slider";
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 
 interface AggressionLevel {
   value: number;

@@ -36,7 +36,7 @@ import {
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";

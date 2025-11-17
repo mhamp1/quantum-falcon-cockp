@@ -15,7 +15,7 @@ import {
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

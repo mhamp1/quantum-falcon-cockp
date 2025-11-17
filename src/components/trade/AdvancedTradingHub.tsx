@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Lightning, ChartLine, Target, Brain } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import { UserAuth } from "@/lib/auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 

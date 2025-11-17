@@ -1,4 +1,4 @@
-import { useKV } from '@/hooks/useKVFallback'
+import { useKV } from '@github/spark/hooks'
 import { useEffect, useState, useMemo, useTransition } from 'react'
 import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'

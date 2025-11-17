@@ -10,7 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import {
   Dialog,
   DialogContent,
