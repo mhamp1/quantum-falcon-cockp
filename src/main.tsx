@@ -21,7 +21,9 @@ const queryClient = new QueryClient({
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  throw new Error('Failed to find the root element. Ensure there is a div with id="root" in your HTML.');
+  throw new Error(
+    'Failed to find the root element. Ensure there is a div with id="root" in your HTML.',
+  );
 }
 
 const root = createRoot(rootElement);
@@ -32,5 +34,5 @@ root.render(
         <App />
       </QueryClientProvider>
     </ErrorBoundary>
-  </StrictMode>
+  </StrictMode>,
 );

@@ -1,13 +1,27 @@
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Scales, FileText, Shield, WarningCircle, Download, MagnifyingGlass } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import jsPDF from 'jspdf'
-import { hashStringSync } from '@/lib/hash'
+import { useState, useEffect } from "react";
+import {
+  Scales,
+  FileText,
+  Shield,
+  WarningCircle,
+  Download,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
+import { motion } from "framer-motion";
+import jsPDF from "jspdf";
+
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { hashStringSync } from "@/lib/hash";
 
 /* LEGAL REVIEW NOTE: This component implements industry-standard legal terms for a crypto trading platform.
  * Key areas requiring lawyer review:
@@ -21,79 +35,88 @@ import { hashStringSync } from '@/lib/hash'
 
 // Props for dynamic content configuration
 interface LegalSectionProps {
-  version?: string
-  lastUpdated?: string
-  jurisdiction?: string
-  arbitrationBody?: string
-  arbitrationLocation?: string
-  companyEmail?: string
+  version?: string;
+  lastUpdated?: string;
+  jurisdiction?: string;
+  arbitrationBody?: string;
+  arbitrationLocation?: string;
+  companyEmail?: string;
   retentionPeriods?: {
-    apiKeys: string
-    usageData: string
-    accountData: string
-  }
+    apiKeys: string;
+    usageData: string;
+    accountData: string;
+  };
 }
 
 export default function LegalSection({
-  version = '2.4.2',
-  lastUpdated = new Date().toISOString().split('T')[0],
-  jurisdiction = 'Delaware, USA',
-  arbitrationBody = 'American Arbitration Association (AAA)',
-  arbitrationLocation = 'Wilmington, Delaware',
-  companyEmail = 'legal@quantumfalcon.ai',
+  version = "2.4.2",
+  lastUpdated = new Date().toISOString().split("T")[0],
+  jurisdiction = "Delaware, USA",
+  arbitrationBody = "American Arbitration Association (AAA)",
+  arbitrationLocation = "Wilmington, Delaware",
+  companyEmail = "legal@quantumfalcon.ai",
   retentionPeriods = {
-    apiKeys: '7 years or until account deletion',
-    usageData: '3 years after account deletion',
-    accountData: '7 years (regulatory requirement) or until account deletion'
-  }
+    apiKeys: "7 years or until account deletion",
+    usageData: "3 years after account deletion",
+    accountData: "7 years (regulatory requirement) or until account deletion",
+  },
 }: LegalSectionProps = {}) {
-  const [openDialog, setOpenDialog] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Load acceptance state from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('quantum_falcon_terms_accepted')
-    const savedVersion = localStorage.getItem('quantum_falcon_terms_version')
+    const saved = localStorage.getItem("quantum_falcon_terms_accepted");
+    const savedVersion = localStorage.getItem("quantum_falcon_terms_version");
     // Check if accepted and version matches
-    setAcceptedTerms(saved === 'true' && savedVersion === hashStringSync(version))
-  }, [version])
+    setAcceptedTerms(
+      saved === "true" && savedVersion === hashStringSync(version),
+    );
+  }, [version]);
 
   // Handle terms acceptance
   const handleAccept = () => {
-    localStorage.setItem('quantum_falcon_terms_accepted', 'true')
-    localStorage.setItem('quantum_falcon_terms_version', hashStringSync(version))
-    setAcceptedTerms(true)
+    localStorage.setItem("quantum_falcon_terms_accepted", "true");
+    localStorage.setItem(
+      "quantum_falcon_terms_version",
+      hashStringSync(version),
+    );
+    setAcceptedTerms(true);
     // Emit event for potential XP reward or other integrations
-    if (typeof window !== 'undefined' && window.dispatchEvent) {
-      window.dispatchEvent(new CustomEvent('termsAccepted', { detail: { version } }))
+    if (typeof window !== "undefined" && window.dispatchEvent) {
+      window.dispatchEvent(
+        new CustomEvent("termsAccepted", { detail: { version } }),
+      );
     }
-  }
+  };
 
   // Filter content by search term
-  const filterContent = (content: string) => 
-    searchTerm ? content.toLowerCase().includes(searchTerm.toLowerCase()) : true
+  const filterContent = (content: string) =>
+    searchTerm
+      ? content.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
 
   // Export document to PDF
   const exportToPDF = (title: string, content: string) => {
     try {
-      const doc = new jsPDF()
-      doc.setFontSize(16)
-      doc.text(title, 20, 20)
-      doc.setFontSize(10)
-      const lines = doc.splitTextToSize(content, 170)
-      doc.text(lines, 20, 30)
-      doc.save(`${title.replace(/\s+/g, '_')}.pdf`)
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text(title, 20, 20);
+      doc.setFontSize(10);
+      const lines = doc.splitTextToSize(content, 170);
+      doc.text(lines, 20, 30);
+      doc.save(`${title.replace(/\s+/g, "_")}.pdf`);
     } catch (error) {
-      console.error('PDF export failed:', error)
-      alert('PDF export failed. Please try again.')
+      console.error("PDF export failed:", error);
+      alert("PDF export failed. Please try again.");
     }
-  }
+  };
 
   const legalDocuments = [
     {
-      id: 'terms',
-      title: 'Terms of Service',
+      id: "terms",
+      title: "Terms of Service",
       icon: FileText,
       content: `QUANTUM FALCON - TERMS OF SERVICE
 
@@ -175,11 +198,11 @@ We reserve the right to modify these terms at any time. Continued use of the Pla
 14. CONTACT INFORMATION
 For questions about these terms, contact: ${companyEmail}
 
-Version Hash: ${hashStringSync(version)} (for proof of viewing)`
+Version Hash: ${hashStringSync(version)} (for proof of viewing)`,
     },
     {
-      id: 'privacy',
-      title: 'Privacy Policy',
+      id: "privacy",
+      title: "Privacy Policy",
       icon: Shield,
       content: `QUANTUM FALCON - PRIVACY POLICY
 
@@ -314,11 +337,11 @@ We will notify you of significant changes via email or Platform notification at 
 
 For privacy questions or data requests, contact: ${companyEmail}
 
-Version Hash: ${hashStringSync(version)} (for proof of viewing)`
+Version Hash: ${hashStringSync(version)} (for proof of viewing)`,
     },
     {
-      id: 'disclaimer',
-      title: 'Risk Disclaimer',
+      id: "disclaimer",
+      title: "Risk Disclaimer",
       icon: WarningCircle,
       content: `QUANTUM FALCON - RISK DISCLAIMER
 
@@ -457,18 +480,19 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
 
 ═══════════════════════════════════════════════════════════════
 ⚠️ TRADE RESPONSIBLY - NEVER INVEST MORE THAN YOU CAN AFFORD TO LOSE
-═══════════════════════════════════════════════════════════════`
-    }
-  ]
+═══════════════════════════════════════════════════════════════`,
+    },
+  ];
 
   // Filter documents by search term
-  const filteredDocs = legalDocuments.filter(doc => 
-    doc.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    filterContent(doc.content)
-  )
+  const filteredDocs = legalDocuments.filter(
+    (doc) =>
+      doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      filterContent(doc.content),
+  );
 
   // Check if viewing terms for acceptance prompt
-  const showAcceptance = !acceptedTerms && openDialog === 'terms'
+  const showAcceptance = !acceptedTerms && openDialog === "terms";
 
   return (
     <div className="space-y-4">
@@ -477,16 +501,20 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
           <Scales size={24} weight="duotone" className="text-primary" />
         </div>
         <div>
-          <h2 className="text-xl font-bold uppercase tracking-wide">Legal & Compliance</h2>
-          <p className="text-sm text-muted-foreground">Review our terms, privacy policy, and disclaimers</p>
+          <h2 className="text-xl font-bold uppercase tracking-wide">
+            Legal & Compliance
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Review our terms, privacy policy, and disclaimers
+          </p>
         </div>
       </div>
 
       {/* Global Search Bar */}
       <div className="relative">
         <MagnifyingGlass className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-        <Input 
-          placeholder="Search documents..." 
+        <Input
+          placeholder="Search documents..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-10"
@@ -501,44 +529,72 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
           </div>
         )}
         {filteredDocs.map((doc) => {
-          const Icon = doc.icon
+          const Icon = doc.icon;
           return (
-            <motion.div 
+            <motion.div
               key={doc.id}
-              whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(20, 241, 149, 0.5)' }}
+              whileHover={{
+                scale: 1.02,
+                boxShadow: "0 0 20px rgba(20, 241, 149, 0.5)",
+              }}
               transition={{ duration: 0.2 }}
               className="cyber-card p-4 text-left hover:bg-primary/10 transition-all group w-full"
             >
-              <Dialog open={openDialog === doc.id} onOpenChange={(open) => setOpenDialog(open ? doc.id : null)}>
+              <Dialog
+                open={openDialog === doc.id}
+                onOpenChange={(open) => setOpenDialog(open ? doc.id : null)}
+              >
                 <DialogTrigger asChild>
-                  <button className="w-full text-left" aria-label={`Open ${doc.title}`}>
+                  <button
+                    className="w-full text-left"
+                    aria-label={`Open ${doc.title}`}
+                  >
                     <div className="flex items-center gap-3">
                       <div className="p-2 jagged-corner-small bg-primary/20 border border-primary/50 group-hover:bg-primary/30 transition-colors">
-                        <Icon size={20} weight="duotone" className="text-primary" />
+                        <Icon
+                          size={20}
+                          weight="duotone"
+                          className="text-primary"
+                        />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-sm font-bold uppercase tracking-wide">{doc.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Click to read full document</p>
+                        <h3 className="text-sm font-bold uppercase tracking-wide">
+                          {doc.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Click to read full document
+                        </p>
                       </div>
-                      <div className="text-primary opacity-50 group-hover:opacity-100 transition-opacity">→</div>
+                      <div className="text-primary opacity-50 group-hover:opacity-100 transition-opacity">
+                        →
+                      </div>
                     </div>
                   </button>
                 </DialogTrigger>
-                <DialogContent 
+                <DialogContent
                   className="max-w-4xl h-[80vh] max-h-[700px] cyber-card border-2 border-primary/50 flex flex-col overflow-hidden"
                   role="dialog"
                   aria-labelledby={`${doc.id}-title`}
                 >
                   <DialogHeader className="flex-shrink-0">
-                    <DialogTitle id={`${doc.id}-title`} className="flex items-center gap-3 text-xl uppercase tracking-wide">
-                      <Icon size={24} weight="duotone" className="text-primary" />
+                    <DialogTitle
+                      id={`${doc.id}-title`}
+                      className="flex items-center gap-3 text-xl uppercase tracking-wide"
+                    >
+                      <Icon
+                        size={24}
+                        weight="duotone"
+                        className="text-primary"
+                      />
                       {doc.title}
                     </DialogTitle>
                   </DialogHeader>
                   <ScrollArea className="flex-1 pr-4 -mx-6 px-6">
                     <div className="space-y-4">
                       <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                        {filterContent(doc.content) ? doc.content : 'No matching content found. Try a different search.'}
+                        {filterContent(doc.content)
+                          ? doc.content
+                          : "No matching content found. Try a different search."}
                       </pre>
                     </div>
                   </ScrollArea>
@@ -552,25 +608,28 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
                       <Download size={16} className="mr-2" />
                       Export PDF
                     </Button>
-                    
+
                     <div className="flex items-center gap-2">
                       {showAcceptance && (
                         <div className="flex items-center gap-2 p-2 bg-primary/10 rounded-md">
-                          <Checkbox 
-                            id="accept-terms" 
+                          <Checkbox
+                            id="accept-terms"
                             checked={acceptedTerms}
                             onCheckedChange={handleAccept}
                             aria-label="Accept terms of service"
                           />
-                          <label 
-                            htmlFor="accept-terms" 
+                          <label
+                            htmlFor="accept-terms"
                             className="text-sm cursor-pointer"
                           >
                             I accept the Terms of Service (Version: {version})
                           </label>
                         </div>
                       )}
-                      <Button onClick={() => setOpenDialog(null)} className="jagged-corner">
+                      <Button
+                        onClick={() => setOpenDialog(null)}
+                        className="jagged-corner"
+                      >
                         Close
                       </Button>
                     </div>
@@ -578,32 +637,42 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
                 </DialogContent>
               </Dialog>
             </motion.div>
-          )
+          );
         })}
       </div>
 
       <div className="cyber-card-accent p-4 mt-6">
         <div className="flex gap-3">
-          <WarningCircle size={24} weight="duotone" className="text-accent flex-shrink-0" />
+          <WarningCircle
+            size={24}
+            weight="duotone"
+            className="text-accent flex-shrink-0"
+          />
           <div className="space-y-2 text-xs">
-            <p className="font-bold uppercase tracking-wide">Important Notice</p>
+            <p className="font-bold uppercase tracking-wide">
+              Important Notice
+            </p>
             <p className="text-muted-foreground leading-relaxed">
-              By using Quantum Falcon, you acknowledge that you have read, understood, and agree to these legal terms. 
-              Cryptocurrency trading involves substantial risk of loss. Only invest what you can afford to lose. 
-              We are not a licensed financial advisor.
+              By using Quantum Falcon, you acknowledge that you have read,
+              understood, and agree to these legal terms. Cryptocurrency trading
+              involves substantial risk of loss. Only invest what you can afford
+              to lose. We are not a licensed financial advisor.
             </p>
           </div>
         </div>
       </div>
 
       <div className="text-center pt-4 text-xs text-muted-foreground space-y-1">
-        <p>© {new Date().getFullYear()} Quantum Falcon. All Rights Reserved.</p>
+        <p>
+          © {new Date().getFullYear()} Quantum Falcon. All Rights Reserved.
+        </p>
         <p>Version {version} • Built with 💚 by the Quantum Falcon Team</p>
         {/* LEGAL REVIEW NOTE: Consult a fintech lawyer for jurisdiction-specific compliance */}
         <p className="text-xs opacity-70 pt-2">
-          Governed by the laws of {jurisdiction} • Arbitration via {arbitrationBody}
+          Governed by the laws of {jurisdiction} • Arbitration via{" "}
+          {arbitrationBody}
         </p>
       </div>
     </div>
-  )
+  );
 }

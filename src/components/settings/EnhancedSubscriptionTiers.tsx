@@ -1,27 +1,44 @@
-import { useState } from 'react'
-import { useKV } from '@/hooks/useKVFallback'
-import { UserAuth, LICENSE_TIERS } from '@/lib/auth'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity as InfinityIcon, Info } from '@phosphor-icons/react'
-import { toast } from 'sonner'
-import SubscriptionUpgrade from './SubscriptionUpgrade'
+import { useState } from "react";
+import {
+  CheckCircle,
+  Crown,
+  Star,
+  Lightning,
+  Sparkle,
+  Infinity as InfinityIcon,
+  Info,
+} from "@phosphor-icons/react";
+import { toast } from "sonner";
+
+import { useKV } from "@/hooks/useKVFallback";
+import { UserAuth, LICENSE_TIERS } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import SubscriptionUpgrade from "./SubscriptionUpgrade";
 
 export default function EnhancedSubscriptionTiers() {
-  const [auth] = useKV<UserAuth>('user-auth', {
+  const [auth] = useKV<UserAuth>("user-auth", {
     isAuthenticated: false,
     userId: null,
     username: null,
     email: null,
     avatar: null,
-    license: null
-  })
+    license: null,
+  });
 
-  const [checkoutOpen, setCheckoutOpen] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime'>('free')
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<
+    "free" | "starter" | "trader" | "pro" | "elite" | "lifetime"
+  >("free");
 
-  const currentTier = auth?.license?.tier || 'free'
+  const currentTier = auth?.license?.tier || "free";
 
   const tierIcons = {
     free: <Star size={32} weight="duotone" className="text-muted-foreground" />,
@@ -29,42 +46,51 @@ export default function EnhancedSubscriptionTiers() {
     trader: <Lightning size={32} weight="fill" className="text-primary" />,
     pro: <Crown size={32} weight="fill" className="text-accent" />,
     elite: <Star size={32} weight="fill" className="text-accent" />,
-    lifetime: <InfinityIcon size={32} weight="fill" className="text-secondary" />
-  }
+    lifetime: (
+      <InfinityIcon size={32} weight="fill" className="text-secondary" />
+    ),
+  };
 
   const tierColors = {
-    free: 'border-muted text-muted-foreground',
-    starter: 'border-primary/70 text-primary/70 shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.2)]',
-    trader: 'border-primary text-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)]',
-    pro: 'border-accent text-accent shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]',
-    elite: 'border-accent text-accent shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.5)]',
-    lifetime: 'border-secondary text-secondary shadow-[0_0_40px_oklch(0.68_0.18_330_/_0.6)]'
-  }
+    free: "border-muted text-muted-foreground",
+    starter:
+      "border-primary/70 text-primary/70 shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.2)]",
+    trader:
+      "border-primary text-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)]",
+    pro: "border-accent text-accent shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]",
+    elite:
+      "border-accent text-accent shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.5)]",
+    lifetime:
+      "border-secondary text-secondary shadow-[0_0_40px_oklch(0.68_0.18_330_/_0.6)]",
+  };
 
   const tierBadges = {
-    free: '',
-    starter: 'GET STARTED',
-    trader: 'POPULAR',
-    pro: 'BEST VALUE',
-    elite: 'MOST POWERFUL',
-    lifetime: 'UNLIMITED'
-  }
+    free: "",
+    starter: "GET STARTED",
+    trader: "POPULAR",
+    pro: "BEST VALUE",
+    elite: "MOST POWERFUL",
+    lifetime: "UNLIMITED",
+  };
 
-  const handleUpgrade = (tierId: string, tier: typeof LICENSE_TIERS[keyof typeof LICENSE_TIERS]) => {
+  const handleUpgrade = (
+    tierId: string,
+    tier: (typeof LICENSE_TIERS)[keyof typeof LICENSE_TIERS],
+  ) => {
     if (currentTier === tierId) {
-      toast.info('Already Active', {
-        description: 'This is your current subscription tier'
-      })
-      return
+      toast.info("Already Active", {
+        description: "This is your current subscription tier",
+      });
+      return;
     }
 
     if (tier.price === 0) {
-      return
+      return;
     }
 
-    setSelectedTier(tierId as any)
-    setCheckoutOpen(true)
-  }
+    setSelectedTier(tierId as any);
+    setCheckoutOpen(true);
+  };
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -88,14 +114,16 @@ export default function EnhancedSubscriptionTiers() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(LICENSE_TIERS).map(([tierId, tier]) => {
-            const isCurrentTier = currentTier === tierId
-            const Icon = tierIcons[tierId as keyof typeof tierIcons]
+            const isCurrentTier = currentTier === tierId;
+            const Icon = tierIcons[tierId as keyof typeof tierIcons];
 
             return (
               <div
                 key={tierId}
                 className={`cyber-card relative overflow-hidden transition-all duration-300 ${
-                  isCurrentTier ? 'ring-2 ring-accent scale-[1.02]' : 'hover:scale-[1.01]'
+                  isCurrentTier
+                    ? "ring-2 ring-accent scale-[1.02]"
+                    : "hover:scale-[1.01]"
                 }`}
               >
                 {tierBadges[tierId as keyof typeof tierBadges] && (
@@ -116,24 +144,36 @@ export default function EnhancedSubscriptionTiers() {
 
                 <div className="absolute inset-0 diagonal-stripes opacity-5 pointer-events-none" />
 
-                <div className={`p-6 relative border-2 ${tierColors[tierId as keyof typeof tierColors]}`}>
+                <div
+                  className={`p-6 relative border-2 ${tierColors[tierId as keyof typeof tierColors]}`}
+                >
                   <div className="flex flex-col items-center text-center mb-4">
                     <div className="p-4 bg-card/50 border-2 border-current jagged-corner mb-3">
                       {Icon}
                     </div>
-                    <h3 className="text-xl font-bold uppercase tracking-wider mb-1">{tier.name}</h3>
+                    <h3 className="text-xl font-bold uppercase tracking-wider mb-1">
+                      {tier.name}
+                    </h3>
                     <div className="flex items-baseline gap-1">
                       {tier.price === 0 ? (
                         <span className="text-3xl font-bold">FREE</span>
-                      ) : tierId === 'lifetime' ? (
+                      ) : tierId === "lifetime" ? (
                         <>
-                          <span className="text-2xl font-bold">${tier.price}</span>
-                          <span className="text-xs text-muted-foreground uppercase">once</span>
+                          <span className="text-2xl font-bold">
+                            ${tier.price}
+                          </span>
+                          <span className="text-xs text-muted-foreground uppercase">
+                            once
+                          </span>
                         </>
                       ) : (
                         <>
-                          <span className="text-2xl font-bold">${tier.price}</span>
-                          <span className="text-xs text-muted-foreground uppercase">/month</span>
+                          <span className="text-2xl font-bold">
+                            ${tier.price}
+                          </span>
+                          <span className="text-xs text-muted-foreground uppercase">
+                            /month
+                          </span>
                         </>
                       )}
                     </div>
@@ -142,7 +182,11 @@ export default function EnhancedSubscriptionTiers() {
                   <div className="space-y-2 mb-4 max-h-48 overflow-y-auto scrollbar-thin">
                     {tier.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-xs">
-                        <CheckCircle size={14} weight="fill" className="text-primary flex-shrink-0 mt-0.5" />
+                        <CheckCircle
+                          size={14}
+                          weight="fill"
+                          className="text-primary flex-shrink-0 mt-0.5"
+                        />
                         <span className="text-foreground">{feature}</span>
                       </div>
                     ))}
@@ -153,17 +197,27 @@ export default function EnhancedSubscriptionTiers() {
                       <TooltipTrigger asChild>
                         <div className="flex items-center justify-between text-xs p-2 bg-muted/20 hover:bg-muted/30 transition-colors cursor-help">
                           <div className="flex items-center gap-2">
-                            <Sparkle size={14} className="text-accent" weight="fill" />
+                            <Sparkle
+                              size={14}
+                              className="text-accent"
+                              weight="fill"
+                            />
                             <span className="font-semibold">XP Multiplier</span>
                           </div>
-                          <span className="font-bold text-accent">{tier.xpMultiplier}x</span>
+                          <span className="font-bold text-accent">
+                            {tier.xpMultiplier}x
+                          </span>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent className="cyber-card-accent border-2 border-accent max-w-xs p-3">
                         <div className="text-xs space-y-1">
-                          <div className="font-bold uppercase tracking-wider text-accent">XP Multiplier Explained</div>
+                          <div className="font-bold uppercase tracking-wider text-accent">
+                            XP Multiplier Explained
+                          </div>
                           <p className="text-foreground">
-                            Earn {tier.xpMultiplier}x more XP from all activities. Level up faster to unlock exclusive perks and temporary access to higher-tier features!
+                            Earn {tier.xpMultiplier}x more XP from all
+                            activities. Level up faster to unlock exclusive
+                            perks and temporary access to higher-tier features!
                           </p>
                         </div>
                       </TooltipContent>
@@ -173,17 +227,30 @@ export default function EnhancedSubscriptionTiers() {
                       <TooltipTrigger asChild>
                         <div className="flex items-center justify-between text-xs p-2 bg-muted/20 hover:bg-muted/30 transition-colors cursor-help">
                           <div className="flex items-center gap-2">
-                            <Lightning size={14} className="text-primary" weight="fill" />
+                            <Lightning
+                              size={14}
+                              className="text-primary"
+                              weight="fill"
+                            />
                             <span className="font-semibold">AI Agents</span>
                           </div>
-                          <span className="font-bold text-primary">{tier.maxAgents === 999 ? '∞' : tier.maxAgents}</span>
+                          <span className="font-bold text-primary">
+                            {tier.maxAgents === 999 ? "∞" : tier.maxAgents}
+                          </span>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent className="cyber-card-accent border-2 border-accent max-w-xs p-3">
                         <div className="text-xs space-y-1">
-                          <div className="font-bold uppercase tracking-wider text-accent">AI Agents</div>
+                          <div className="font-bold uppercase tracking-wider text-accent">
+                            AI Agents
+                          </div>
                           <p className="text-foreground">
-                            Access up to {tier.maxAgents === 999 ? 'unlimited' : tier.maxAgents} AI trading agents running simultaneously for maximum market coverage.
+                            Access up to{" "}
+                            {tier.maxAgents === 999
+                              ? "unlimited"
+                              : tier.maxAgents}{" "}
+                            AI trading agents running simultaneously for maximum
+                            market coverage.
                           </p>
                         </div>
                       </TooltipContent>
@@ -193,23 +260,37 @@ export default function EnhancedSubscriptionTiers() {
                       <TooltipTrigger asChild>
                         <div className="flex items-center justify-between text-xs p-2 bg-muted/20 hover:bg-muted/30 transition-colors cursor-help">
                           <div className="flex items-center gap-2">
-                            <Info size={14} className="text-secondary" weight="fill" />
+                            <Info
+                              size={14}
+                              className="text-secondary"
+                              weight="fill"
+                            />
                             <span className="font-semibold">Strategies</span>
                           </div>
                           <span className="font-bold text-secondary">
-                            {tier.strategiesUnlocked[0] === 'ALL' ? '∞' : tier.strategiesUnlocked.length}
+                            {tier.strategiesUnlocked[0] === "ALL"
+                              ? "∞"
+                              : tier.strategiesUnlocked.length}
                           </span>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent className="cyber-card-accent border-2 border-accent max-w-xs p-3">
                         <div className="text-xs space-y-2">
-                          <div className="font-bold uppercase tracking-wider text-accent">Unlocked Strategies</div>
-                          {tier.strategiesUnlocked[0] === 'ALL' ? (
-                            <p className="text-foreground">Access to all current and future trading strategies!</p>
+                          <div className="font-bold uppercase tracking-wider text-accent">
+                            Unlocked Strategies
+                          </div>
+                          {tier.strategiesUnlocked[0] === "ALL" ? (
+                            <p className="text-foreground">
+                              Access to all current and future trading
+                              strategies!
+                            </p>
                           ) : (
                             <div className="space-y-1 max-h-32 overflow-y-auto scrollbar-thin">
                               {tier.strategiesUnlocked.map((strategy, idx) => (
-                                <div key={idx} className="flex items-center gap-1 text-foreground">
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-1 text-foreground"
+                                >
                                   <span className="text-primary">•</span>
                                   <span>{strategy}</span>
                                 </div>
@@ -229,7 +310,10 @@ export default function EnhancedSubscriptionTiers() {
                       </div>
                       <div className="space-y-1 max-h-24 overflow-y-auto scrollbar-thin">
                         {tier.specialPerks.map((perk, idx) => (
-                          <div key={idx} className="text-[10px] text-muted-foreground flex items-start gap-1">
+                          <div
+                            key={idx}
+                            className="text-[10px] text-muted-foreground flex items-start gap-1"
+                          >
                             <span className="text-accent">•</span>
                             <span>{perk}</span>
                           </div>
@@ -243,70 +327,91 @@ export default function EnhancedSubscriptionTiers() {
                     disabled={isCurrentTier}
                     className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner transition-all ${
                       isCurrentTier
-                        ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                        : tierId === 'starter'
-                          ? 'bg-primary/15 hover:bg-primary/25 border-2 border-primary/70 text-primary shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.3)] hover:shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.5)]'
-                          : tierId === 'trader'
-                            ? 'bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]'
-                            : tierId === 'pro'
-                              ? 'bg-accent/20 hover:bg-accent/30 border-2 border-accent text-accent shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]'
-                              : tierId === 'elite'
-                                ? 'bg-accent/20 hover:bg-accent/30 border-2 border-accent text-accent shadow-[0_0_25px_oklch(0.68_0.18_330_/_0.5)] hover:shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.7)]'
-                                : tierId === 'lifetime'
-                                  ? 'bg-secondary/20 hover:bg-secondary/30 border-2 border-secondary text-secondary shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]'
-                                  : 'bg-muted/20 hover:bg-muted/30 border-2 border-muted text-foreground'
+                        ? "bg-muted text-muted-foreground cursor-not-allowed"
+                        : tierId === "starter"
+                          ? "bg-primary/15 hover:bg-primary/25 border-2 border-primary/70 text-primary shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.3)] hover:shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.5)]"
+                          : tierId === "trader"
+                            ? "bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)] hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]"
+                            : tierId === "pro"
+                              ? "bg-accent/20 hover:bg-accent/30 border-2 border-accent text-accent shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]"
+                              : tierId === "elite"
+                                ? "bg-accent/20 hover:bg-accent/30 border-2 border-accent text-accent shadow-[0_0_25px_oklch(0.68_0.18_330_/_0.5)] hover:shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.7)]"
+                                : tierId === "lifetime"
+                                  ? "bg-secondary/20 hover:bg-secondary/30 border-2 border-secondary text-secondary shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.4)] hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]"
+                                  : "bg-muted/20 hover:bg-muted/30 border-2 border-muted text-foreground"
                     }`}
                   >
-                    {isCurrentTier ? 'Current Tier' : tier.price === 0 ? 'Active' : 'Upgrade Now'}
+                    {isCurrentTier
+                      ? "Current Tier"
+                      : tier.price === 0
+                        ? "Active"
+                        : "Upgrade Now"}
                   </Button>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
         <div className="cyber-card-accent p-6">
           <div className="flex items-center gap-3 mb-4">
             <Sparkle size={24} weight="fill" className="text-accent" />
-            <h3 className="text-lg font-bold uppercase tracking-wider text-accent">XP Perks System</h3>
+            <h3 className="text-lg font-bold uppercase tracking-wider text-accent">
+              XP Perks System
+            </h3>
           </div>
           <p className="text-sm text-foreground mb-4">
-            Earn XP through trading, completing challenges, and community engagement. Use XP to unlock temporary access to premium features:
+            Earn XP through trading, completing challenges, and community
+            engagement. Use XP to unlock temporary access to premium features:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="p-3 bg-muted/20 border-l-2 border-primary">
               <div className="flex items-center gap-2 mb-2">
                 <Lightning size={16} weight="fill" className="text-primary" />
-                <span className="text-xs font-bold uppercase tracking-wider text-primary">Speed Boost</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                  Speed Boost
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground mb-2">Priority trade execution for 24 hours</p>
+              <p className="text-xs text-muted-foreground mb-2">
+                Priority trade execution for 24 hours
+              </p>
               <div className="text-xs font-bold text-primary">Cost: 500 XP</div>
             </div>
             <div className="p-3 bg-muted/20 border-l-2 border-accent">
               <div className="flex items-center gap-2 mb-2">
                 <Star size={16} weight="fill" className="text-accent" />
-                <span className="text-xs font-bold uppercase tracking-wider text-accent">Premium Signals</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-accent">
+                  Premium Signals
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground mb-2">Access elite market signals for 7 days</p>
+              <p className="text-xs text-muted-foreground mb-2">
+                Access elite market signals for 7 days
+              </p>
               <div className="text-xs font-bold text-accent">Cost: 750 XP</div>
             </div>
             <div className="p-3 bg-muted/20 border-l-2 border-secondary">
               <div className="flex items-center gap-2 mb-2">
                 <Crown size={16} weight="fill" className="text-secondary" />
-                <span className="text-xs font-bold uppercase tracking-wider text-secondary">Profit Multiplier</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-secondary">
+                  Profit Multiplier
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground mb-2">1.5x profits on winning trades for 3 days</p>
-              <div className="text-xs font-bold text-secondary">Cost: 1000 XP</div>
+              <p className="text-xs text-muted-foreground mb-2">
+                1.5x profits on winning trades for 3 days
+              </p>
+              <div className="text-xs font-bold text-secondary">
+                Cost: 1000 XP
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <SubscriptionUpgrade 
+      <SubscriptionUpgrade
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}
         tier={selectedTier}
       />
     </TooltipProvider>
-  )
+  );
 }

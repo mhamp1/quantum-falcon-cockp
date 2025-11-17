@@ -1,14 +1,25 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
 
 export interface NeonBadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "primary" | "secondary" | "accent" | "success" | "warning"
-  glow?: boolean
-  pulse?: boolean
+  variant?: "primary" | "secondary" | "accent" | "success" | "warning";
+  glow?: boolean;
+  pulse?: boolean;
 }
 
 const NeonBadge = React.forwardRef<HTMLDivElement, NeonBadgeProps>(
-  ({ className, variant = "primary", glow = true, pulse = false, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant = "primary",
+      glow = true,
+      pulse = false,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
     const variantStyles = {
       primary: {
         bg: "bg-primary/10",
@@ -28,7 +39,9 @@ const NeonBadge = React.forwardRef<HTMLDivElement, NeonBadgeProps>(
         bg: "bg-gradient-to-r from-primary/10 to-secondary/10",
         border: "border-primary",
         text: "text-primary",
-        shadow: glow ? "shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.4),0_0_15px_oklch(0.68_0.18_330_/_0.3)]" : "",
+        shadow: glow
+          ? "shadow-[0_0_10px_oklch(0.72_0.20_195_/_0.4),0_0_15px_oklch(0.68_0.18_330_/_0.3)]"
+          : "",
         glow: "neon-glow-primary",
       },
       success: {
@@ -45,9 +58,9 @@ const NeonBadge = React.forwardRef<HTMLDivElement, NeonBadgeProps>(
         shadow: glow ? "shadow-[0_0_10px_#fbbf24_/_0.4]" : "",
         glow: "",
       },
-    }
+    };
 
-    const style = variantStyles[variant]
+    const style = variantStyles[variant];
 
     return (
       <div
@@ -68,15 +81,15 @@ const NeonBadge = React.forwardRef<HTMLDivElement, NeonBadgeProps>(
           "clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,4px_100%,0_calc(100%-4px))]",
           // Pulse animation
           pulse && "animate-pulse-slow",
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
-    )
-  }
-)
-NeonBadge.displayName = "NeonBadge"
+    );
+  },
+);
+NeonBadge.displayName = "NeonBadge";
 
-export { NeonBadge }
+export { NeonBadge };

@@ -40,5 +40,5 @@ export const DraggableWidget = ({ children, id, type = 'widget', className = '' 
     >
       {children}
     </motion.div>
-  )
-}
+  );
+};
