@@ -11,7 +11,6 @@ import {
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
-
 import Dashboard from "@/components/dashboard/Dashboard";
 import Agents from "@/components/agents/Agents";
 import Trade from "@/components/trade/Trade";
@@ -79,7 +78,7 @@ export default function App() {
   const Component = currentTab.component;
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F14] text-foreground">
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50 w-64
@@ -104,13 +103,12 @@ export default function App() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden relative z-10 border-2 border-primary hover:bg-primary/10"
+            className="lg:hidden absolute top-2 right-2 text-secondary hover:bg-secondary/10"
             onClick={() => setSidebarOpen(false)}
           >
-            <X size={24} className="text-primary" />
+            <X size={20} />
           </Button>
         </div>
-
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
           {TABS.map((tab) => {
             const Icon = tab.icon;
@@ -138,7 +136,6 @@ export default function App() {
             );
           })}
         </nav>
-
         <div className="p-4 border-t border-secondary/30 bg-background/50">
           <div className="text-[10px] font-bold tracking-widest text-secondary mb-3 uppercase">System Status</div>
           <div className="space-y-2">
@@ -153,7 +150,6 @@ export default function App() {
           </div>
         </div>
       </aside>
-
       <div className="flex-1 flex flex-col min-w-0">
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-secondary/30">
           <div className="flex items-center justify-between h-10 px-4">
@@ -165,7 +161,7 @@ export default function App() {
             >
               <List size={20} />
             </Button>
-            
+           
             <div className="flex-1 flex items-center justify-end gap-4">
               <div className="flex items-center gap-2 overflow-hidden">
                 <span className="text-xs font-bold text-destructive uppercase tracking-wide">Live News</span>
@@ -175,7 +171,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              
+             
               <Button
                 variant="ghost"
                 size="icon"
@@ -187,12 +183,10 @@ export default function App() {
             </div>
           </div>
         </header>
-
         <main className="flex-1 p-8 overflow-auto scrollbar-thin">
           <Component key={activeTab} />
         </main>
       </div>
-
       <AIAssistant />
       <Toaster />
     </div>

@@ -27,10 +27,10 @@
   --popover: oklch(0.08 0.06 280);
   --popover-foreground: oklch(0.95 0.08 180);
   
-  --primary: oklch(0.62 0.25 290);
+  --primary: oklch(0.72 0.20 195);
   --primary-foreground: oklch(0.98 0.02 180);
   
-  --secondary: oklch(0.70 0.22 165);
+  --secondary: oklch(0.68 0.18 330);
   --secondary-foreground: oklch(0.05 0.05 280);
   
   --muted: oklch(0.15 0.05 280);
@@ -874,6 +874,19 @@
   to {
     stroke-dashoffset: -10;
   }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
