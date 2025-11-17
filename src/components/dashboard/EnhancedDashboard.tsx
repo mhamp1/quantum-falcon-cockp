@@ -1,13 +1,11 @@
 // Enhanced Dashboard with React 19 performance optimizations and AI integration
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKVFallback'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
 import { motion } from 'framer-motion'
-import { useKV } from '@/hooks/useKVFallback'
-import { useEffect, useState } from 'react'
 import { UserAuth } from '@/lib/auth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
-  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database
+  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database, Vault
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -393,12 +391,6 @@ export default function EnhancedDashboard() {
           <Lightning size={24} weight="fill" className="text-accent" />
           <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action, idx) => (
-            <Suspense key={action.id} fallback={<div className="animate-pulse h-20 bg-muted/20 rounded border border-accent/20" />}>
-              <QuickActionButton action={action} index={idx} />
-            </Suspense>
-          ))}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {quickActions.map((action, idx) => {
             const colorClasses = {

@@ -1,12 +1,13 @@
 import { useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { Provider, useSelector, useDispatch } from 'react-redux'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
-  Robot, Brain, Lightning, 
+  Robot, Brain, Lightning, ArrowsClockwise,
   Play, Pause, Stop, Gear, Calendar, ChatCircle, Newspaper 
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'

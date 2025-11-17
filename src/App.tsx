@@ -34,7 +34,7 @@ function LoadingFallback() {
 interface Tab {
   id: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; weight?: string; className?: string }>;
+  icon: any;
   component: React.ComponentType;
 }
 
