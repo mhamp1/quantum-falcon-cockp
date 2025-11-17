@@ -86,29 +86,23 @@ export default function App() {
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50 w-72
-          flex flex-col cyber-card border-r-4 border-primary/60
+          flex flex-col bg-card/95 backdrop-blur-xl border-r border-primary/20
           transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
+        style={{boxShadow: 'inset -1px 0 0 rgba(147,51,234,0.2)'}}
       >
-        <div className="flex items-center justify-between p-6 border-b-4 border-primary/60 relative">
-          <div className="absolute top-0 right-0 w-24 h-24 opacity-10 pointer-events-none">
-            <svg width="96" height="96" viewBox="0 0 96 96">
-              <circle cx="48" cy="48" r="30" fill="none" stroke="currentColor" strokeWidth="1" className="text-primary" opacity="0.3" />
-              <circle cx="48" cy="48" r="22" fill="none" stroke="currentColor" strokeWidth="1" className="text-primary" opacity="0.5" />
-              <circle cx="48" cy="48" r="14" fill="none" stroke="currentColor" strokeWidth="1" className="text-primary" opacity="0.7" />
-            </svg>
-          </div>
+        <div className="flex items-center justify-between p-6 border-b border-primary/30 relative bg-gradient-to-br from-primary/5 to-transparent">
           <div className="relative z-10">
-            <h1 className="text-2xl font-bold uppercase tracking-[0.25em] mb-0.5">
-              <span className="text-primary neon-glow-primary">QUANTUM</span>
+            <h1 className="text-2xl font-bold uppercase tracking-[0.2em] mb-1">
+              <span className="text-primary" style={{textShadow: '0 0 20px rgba(147,51,234,0.8)'}}>QUANTUM</span>
             </h1>
-            <h1 className="text-2xl font-bold uppercase tracking-[0.25em]">
-              <span className="text-secondary neon-glow-secondary">FALCON</span>
+            <h1 className="text-2xl font-bold uppercase tracking-[0.2em]">
+              <span className="text-secondary" style={{textShadow: '0 0 20px rgba(34,197,94,0.8)'}}>FALCON</span>
             </h1>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="status-indicator" style={{ width: '6px', height: '6px' }} />
-              <span className="hud-readout text-[9px]">ONLINE</span>
+            <div className="flex items-center gap-2 mt-3">
+              <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" style={{boxShadow: '0 0 10px rgba(34,197,94,0.8)'}} />
+              <span className="text-[10px] font-semibold tracking-widest text-secondary/80">ONLINE</span>
             </div>
           </div>
           <Button
@@ -121,7 +115,7 @@ export default function App() {
           </Button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
+        <nav className="flex-1 p-6 space-y-3 overflow-y-auto scrollbar-thin">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -133,63 +127,56 @@ export default function App() {
                   setSidebarOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-3 px-4 py-3 text-sm font-bold uppercase tracking-[0.15em]
-                  transition-all border-l-3 relative group
+                  w-full flex items-center gap-4 px-5 py-4 text-sm font-semibold uppercase tracking-[0.12em]
+                  transition-all duration-200 border-l-4 relative group rounded-md
                   ${
                     isActive
-                      ? "bg-primary/20 text-secondary border-secondary neon-glow-accent shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.5)]"
-                      : "text-muted-foreground border-transparent hover:text-primary hover:bg-muted/30 hover:border-primary/50"
+                      ? "bg-primary/15 text-primary border-primary shadow-[0_0_25px_rgba(147,51,234,0.3)] backdrop-blur-sm"
+                      : "text-muted-foreground border-transparent hover:text-primary hover:bg-primary/5 hover:border-primary/30"
                   }
                 `}
               >
-                <div className={`p-2 ${isActive ? 'bg-secondary/20 border border-secondary/40' : 'bg-muted/30 border border-primary/20'} transition-all relative`}>
-                  <Icon size={20} weight={isActive ? "duotone" : "regular"} />
-                  {isActive && (
-                    <>
-                      <div className="hud-corner-tl" style={{ borderColor: 'var(--secondary)', width: '10px', height: '10px' }} />
-                      <div className="hud-corner-br" style={{ borderColor: 'var(--secondary)', width: '10px', height: '10px' }} />
-                    </>
-                  )}
+                <div className={`p-2.5 rounded ${isActive ? 'bg-primary/20' : 'bg-muted/20'} transition-all`}>
+                  <Icon size={22} weight={isActive ? "fill" : "regular"} />
                 </div>
-                <span className="flex-1 text-left">{tab.label}</span>
+                <span className="flex-1 text-left text-base">{tab.label}</span>
                 {isActive && (
-                  <div className="w-1.5 h-1.5 bg-secondary animate-pulse-glow" />
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                 )}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-6 border-t-4 border-primary/60 bg-muted/20 relative">
-          <div className="absolute inset-0 technical-grid opacity-20 pointer-events-none" />
+        <div className="p-6 border-t border-primary/20 bg-primary/5 relative">
           <div className="relative z-10">
-            <div className="hud-readout text-xs mb-4">SYSTEM_STATUS</div>
+            <div className="text-xs font-bold tracking-widest text-primary/70 mb-4 uppercase">System Status</div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="data-label text-xs">CONNECTION</span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wide">Connection</span>
                 <div className="flex items-center gap-2">
-                  <div className="status-indicator" style={{ width: '6px', height: '6px' }} />
-                  <span className="text-primary text-xs font-bold">ONLINE</span>
+                  <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" style={{boxShadow: '0 0 8px rgba(34,197,94,0.6)'}} />
+                  <span className="text-secondary text-xs font-bold">ONLINE</span>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="data-label text-xs">BUILD</span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wide">Build</span>
                 <span className="text-primary text-xs font-bold tracking-wider">v2.4.1</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="data-label text-xs">UPTIME</span>
-                <span className="text-accent text-xs font-bold tracking-wider">24:07:32</span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wide">Uptime</span>
+                <span className="text-secondary text-xs font-bold tracking-wider">24:07:32</span>
               </div>
             </div>
-            <div className="mt-4 h-1 bg-primary/20 relative overflow-hidden">
-              <div className="h-full bg-primary animate-pulse" style={{ width: '85%' }} />
+            <div className="mt-4 h-1.5 bg-muted/30 rounded-full relative overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500" style={{ width: '85%' }} />
             </div>
           </div>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden sticky top-0 z-30 cyber-card border-b-4 border-primary/60">
+        <header className="lg:hidden sticky top-0 z-30 bg-card/95 backdrop-blur-xl border-b border-primary/20">
           <div className="flex items-center justify-between p-4">
             <Button
               variant="ghost"
@@ -200,7 +187,7 @@ export default function App() {
               <List size={24} className="text-primary" />
             </Button>
             <div className="text-center">
-              <h2 className="text-lg font-bold text-secondary uppercase tracking-[0.2em] neon-glow-accent">
+              <h2 className="text-lg font-bold text-primary uppercase tracking-[0.15em]">
                 {currentTab.label}
               </h2>
             </div>
