@@ -1,26 +1,29 @@
 import { useKV } from '@/hooks/useKVFallback';
-import { useEffect, useMemo, Suspense, lazy } from 'react';
-import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Flask, Lightning } from '@phosphor-icons/react';
+import { useEffect, useMemo, Suspense, lazy, useState } from 'react';
+import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning } from '@phosphor-icons/react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { UserAuth } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
-const Analytics = lazy(() => import('@/components/dashboard/Analytics'));
 const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
 const Agents = lazy(() => import('@/components/agents/Agents'));
 const VaultView = lazy(() => import('@/components/vault/VaultView'));
-const Community = lazy(() => import('@/components/community/Community'));
 const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
 const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTradingHub'));
 const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
 const AIAssistant = lazy(() => import('@/components/shared/AIAssistant'));
+const LicenseAuth = lazy(() => import('@/components/auth/LicenseAuth'));
 
 function LoadingFallback() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="text-center space-y-4">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-muted-foreground">Loading...</p>
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-muted-foreground uppercase tracking-wider text-sm">Loading System...</p>
       </div>
     </div>
   );
@@ -36,6 +39,14 @@ interface Tab {
 export default function App() {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
+  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
+    isAuthenticated: false,
+    userId: null,
+    username: null,
+    email: null,
+    avatar: null,
+    license: null
+  });
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -61,19 +72,90 @@ export default function App() {
     return () => window.removeEventListener('navigate-tab', handleNavigateTab);
   }, [setActiveTab, tabs]);
 
+  const handleLicenseSuccess = (tier: string, expiresAt: number) => {
+    setAuth({
+      isAuthenticated: true,
+      userId: `user_${Date.now()}`,
+      username: `${tier.toUpperCase()}_User`,
+      email: null,
+      avatar: null,
+      license: {
+        userId: `user_${Date.now()}`,
+        tier: tier as any,
+        expiresAt: expiresAt,
+        purchasedAt: Date.now(),
+        isActive: true
+      }
+    });
+  };
+
+  if (!auth?.isAuthenticated && !isMobile) {
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <LicenseAuth onSuccess={handleLicenseSuccess} />
+      </Suspense>
+    );
+  }
+
   const Component = tabs.find(tab => tab.id === activeTab)?.component || EnhancedDashboard;
 
   return (
-    <div>
-      {isMobile ? (
-        <Suspense fallback={<LoadingFallback />}>
-          <AIAssistant />
-        </Suspense>
-      ) : (
-        <Suspense fallback={<LoadingFallback />}>
-          <Component key={activeTab} />
-        </Suspense>
+    <div className="min-h-screen bg-background">
+      {!isMobile && (
+        <motion.nav 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="sticky top-0 z-40 border-b-2 border-primary/30 bg-card/95 backdrop-blur-md"
+        >
+          <div className="container mx-auto px-4">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-thin py-2">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <Button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    variant="ghost"
+                    className={cn(
+                      "relative flex items-center gap-2 px-4 py-2 transition-all jagged-corner-small whitespace-nowrap",
+                      isActive
+                        ? "bg-primary/20 text-primary border-2 border-primary shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.3)]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/20 border-2 border-transparent hover:border-primary/30"
+                    )}
+                  >
+                    <Icon size={18} weight={isActive ? "fill" : "duotone"} />
+                    <span className="text-xs font-bold uppercase tracking-wider">
+                      {tab.label}
+                    </span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTab"
+                        className="absolute inset-0 -z-10 bg-primary/10"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </motion.nav>
       )}
+
+      <div className={cn("container mx-auto", isMobile ? "p-0" : "p-6")}>
+        <Suspense fallback={<LoadingFallback />}>
+          {isMobile ? (
+            <EnhancedDashboard key="mobile-dashboard" />
+          ) : (
+            <Component key={activeTab} />
+          )}
+        </Suspense>
+      </div>
+
+      <Suspense fallback={null}>
+        <AIAssistant />
+      </Suspense>
     </div>
   );
 }
