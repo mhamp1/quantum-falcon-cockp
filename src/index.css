@@ -83,52 +83,57 @@
 
 .neon-glow {
   text-shadow: 
-    0 0 2px var(--primary),
     0 0 4px var(--primary),
-    0 0 6px var(--primary);
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
+    0 0 8px var(--primary),
+    0 0 12px var(--primary),
+    0 0 16px var(--primary);
+  -webkit-text-stroke: 0.6px currentColor;
+  text-stroke: 0.6px currentColor;
   paint-order: stroke fill;
 }
 
 .neon-glow-accent {
   box-shadow: 
-    0 0 8px var(--accent),
-    0 0 16px var(--accent),
-    inset 0 0 8px oklch(0.68 0.18 330 / 0.2);
+    0 0 12px var(--accent),
+    0 0 24px var(--accent),
+    0 0 36px var(--accent),
+    inset 0 0 12px oklch(0.68 0.18 330 / 0.3);
   text-shadow: 
-    0 0 2px var(--accent),
     0 0 4px var(--accent),
-    0 0 6px var(--accent);
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
+    0 0 8px var(--accent),
+    0 0 12px var(--accent),
+    0 0 16px var(--accent);
+  -webkit-text-stroke: 0.6px currentColor;
+  text-stroke: 0.6px currentColor;
   paint-order: stroke fill;
 }
 
 .neon-glow-destructive {
   box-shadow: 
-    0 0 5px var(--destructive),
-    0 0 10px var(--destructive),
-    0 0 20px var(--destructive);
+    0 0 8px var(--destructive),
+    0 0 16px var(--destructive),
+    0 0 32px var(--destructive);
 }
 
 .neon-glow-secondary {
   text-shadow: 
-    0 0 2px var(--secondary),
     0 0 4px var(--secondary),
-    0 0 6px var(--secondary);
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
+    0 0 8px var(--secondary),
+    0 0 12px var(--secondary),
+    0 0 16px var(--secondary);
+  -webkit-text-stroke: 0.6px currentColor;
+  text-stroke: 0.6px currentColor;
   paint-order: stroke fill;
 }
 
 .neon-glow-primary {
   text-shadow: 
-    0 0 2px var(--primary),
     0 0 4px var(--primary),
-    0 0 6px var(--primary);
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
+    0 0 8px var(--primary),
+    0 0 12px var(--primary),
+    0 0 16px var(--primary);
+  -webkit-text-stroke: 0.6px currentColor;
+  text-stroke: 0.6px currentColor;
   paint-order: stroke fill;
 }
 
@@ -170,22 +175,22 @@
     oklch(0.10 0.02 280 / 0.95) 0%,
     oklch(0.12 0.03 280 / 0.85) 100%
   );
-  backdrop-filter: blur(8px);
-  border-left: 3px solid var(--primary);
-  border-top: 1px solid oklch(0.35 0.12 195 / 0.5);
-  border-right: 1px solid oklch(0.35 0.12 195 / 0.3);
-  border-bottom: 1px solid oklch(0.35 0.12 195 / 0.3);
+  backdrop-filter: blur(10px);
+  border-left: 4px solid var(--primary);
+  border-top: 2px solid oklch(0.35 0.12 195 / 0.6);
+  border-right: 2px solid oklch(0.35 0.12 195 / 0.4);
+  border-bottom: 2px solid oklch(0.35 0.12 195 / 0.4);
   box-shadow: 
-    -3px 0 12px oklch(0.72 0.20 195 / 0.3),
-    inset 0 1px 0 oklch(0.72 0.20 195 / 0.1);
+    -4px 0 20px oklch(0.72 0.20 195 / 0.4),
+    inset 0 2px 0 oklch(0.72 0.20 195 / 0.15);
   position: relative;
   clip-path: polygon(
     0 0,
-    calc(100% - 8px) 0,
-    100% 8px,
+    calc(100% - 10px) 0,
+    100% 10px,
     100% 100%,
-    8px 100%,
-    0 calc(100% - 8px)
+    10px 100%,
+    0 calc(100% - 10px)
   );
 }
 
@@ -195,12 +200,12 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: 2px;
   background: linear-gradient(90deg, 
     var(--primary) 0%,
     transparent 50%
   );
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .cyber-card::after {
@@ -208,13 +213,13 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 1px;
-  height: 40px;
+  width: 2px;
+  height: 50px;
   background: linear-gradient(180deg, 
     var(--primary) 0%,
     transparent 100%
   );
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .cyber-card-accent {
@@ -222,22 +227,22 @@
     oklch(0.10 0.02 280 / 0.95) 0%,
     oklch(0.12 0.03 280 / 0.85) 100%
   );
-  backdrop-filter: blur(8px);
-  border-left: 3px solid var(--accent);
-  border-top: 1px solid oklch(0.68 0.18 330 / 0.5);
-  border-right: 1px solid oklch(0.68 0.18 330 / 0.3);
-  border-bottom: 1px solid oklch(0.68 0.18 330 / 0.3);
+  backdrop-filter: blur(10px);
+  border-left: 4px solid var(--accent);
+  border-top: 2px solid oklch(0.68 0.18 330 / 0.6);
+  border-right: 2px solid oklch(0.68 0.18 330 / 0.4);
+  border-bottom: 2px solid oklch(0.68 0.18 330 / 0.4);
   box-shadow: 
-    -3px 0 12px oklch(0.68 0.18 330 / 0.3),
-    inset 0 1px 0 oklch(0.68 0.18 330 / 0.1);
+    -4px 0 20px oklch(0.68 0.18 330 / 0.4),
+    inset 0 2px 0 oklch(0.68 0.18 330 / 0.15);
   position: relative;
   clip-path: polygon(
     0 0,
-    calc(100% - 8px) 0,
-    100% 8px,
+    calc(100% - 10px) 0,
+    100% 10px,
     100% 100%,
-    8px 100%,
-    0 calc(100% - 8px)
+    10px 100%,
+    0 calc(100% - 10px)
   );
 }
 
@@ -247,12 +252,12 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: 2px;
   background: linear-gradient(90deg, 
     var(--accent) 0%,
     transparent 50%
   );
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 
@@ -336,27 +341,28 @@
 
 .hud-readout {
   font-family: 'Orbitron', monospace;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   font-weight: 700;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   color: var(--primary);
   text-shadow: 
-    0 0 3px var(--primary),
-    0 0 1px oklch(0 0 0 / 0.8);
-  -webkit-text-stroke: 0.3px currentColor;
-  text-stroke: 0.3px currentColor;
+    0 0 4px var(--primary),
+    0 0 8px var(--primary),
+    0 0 2px oklch(0 0 0 / 0.9);
+  -webkit-text-stroke: 0.4px currentColor;
+  text-stroke: 0.4px currentColor;
   paint-order: stroke fill;
 }
 
 .data-label {
   font-family: 'Rajdhani', sans-serif;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--muted-foreground);
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .jagged-corner {
@@ -570,30 +576,30 @@
 .neon-button {
   position: relative;
   background: linear-gradient(135deg, 
-    oklch(0.12 0.03 280 / 0.9) 0%,
-    oklch(0.10 0.02 280 / 0.95) 100%
+    oklch(0.12 0.03 280 / 0.95) 0%,
+    oklch(0.10 0.02 280 / 1) 100%
   );
-  border: 1px solid var(--primary);
+  border: 2px solid var(--primary);
   box-shadow: 
-    0 0 10px oklch(0.72 0.20 195 / 0.4),
-    inset 0 1px 0 oklch(0.72 0.20 195 / 0.2);
+    0 0 15px oklch(0.72 0.20 195 / 0.5),
+    inset 0 2px 0 oklch(0.72 0.20 195 / 0.25);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .neon-button:hover {
   box-shadow: 
-    0 0 20px oklch(0.72 0.20 195 / 0.6),
-    0 0 40px oklch(0.72 0.20 195 / 0.3),
-    inset 0 1px 0 oklch(0.72 0.20 195 / 0.3);
+    0 0 30px oklch(0.72 0.20 195 / 0.7),
+    0 0 50px oklch(0.72 0.20 195 / 0.4),
+    inset 0 2px 0 oklch(0.72 0.20 195 / 0.35);
   border-color: var(--primary);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .neon-button:active {
   transform: translateY(0);
   box-shadow: 
-    0 0 10px oklch(0.72 0.20 195 / 0.4),
-    inset 0 1px 0 oklch(0.72 0.20 195 / 0.2);
+    0 0 15px oklch(0.72 0.20 195 / 0.5),
+    inset 0 2px 0 oklch(0.72 0.20 195 / 0.25);
 }
 
 /* Neon Progress Bar */
@@ -761,20 +767,20 @@
 
 .status-indicator {
   position: relative;
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   background: var(--primary);
   box-shadow: 
-    0 0 8px var(--primary),
-    0 0 16px var(--primary);
+    0 0 12px var(--primary),
+    0 0 24px var(--primary);
 }
 
 .status-indicator::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: -3px;
   background: var(--primary);
-  opacity: 0.4;
+  opacity: 0.5;
   animation: pulse-ring 2s ease-out infinite;
 }
 
@@ -791,16 +797,16 @@
 
 .technical-readout {
   font-family: 'Orbitron', monospace;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 900;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 4px oklch(0.72 0.20 195 / 0.5)) drop-shadow(0 0 1px oklch(0 0 0));
-  -webkit-text-stroke: 0.3px oklch(0.72 0.20 195);
-  text-stroke: 0.3px oklch(0.72 0.20 195);
+  filter: drop-shadow(0 0 6px oklch(0.72 0.20 195 / 0.6)) drop-shadow(0 0 2px oklch(0 0 0));
+  -webkit-text-stroke: 0.4px oklch(0.72 0.20 195);
+  text-stroke: 0.4px oklch(0.72 0.20 195);
   paint-order: stroke fill;
 }
 
@@ -897,24 +903,24 @@
 
 .glass-morph-card {
   background: linear-gradient(135deg, 
-    oklch(0.10 0.02 280 / 0.75) 0%,
-    oklch(0.12 0.03 280 / 0.65) 100%
+    oklch(0.10 0.02 280 / 0.8) 0%,
+    oklch(0.12 0.03 280 / 0.7) 100%
   );
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid oklch(0.35 0.12 195 / 0.3);
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  border: 2px solid oklch(0.35 0.12 195 / 0.4);
   box-shadow: 
-    0 8px 32px 0 oklch(0 0 0 / 0.37),
-    inset 0 1px 0 oklch(0.72 0.20 195 / 0.1),
-    0 0 0 1px oklch(0.72 0.20 195 / 0.05);
+    0 12px 40px 0 oklch(0 0 0 / 0.45),
+    inset 0 2px 0 oklch(0.72 0.20 195 / 0.15),
+    0 0 0 2px oklch(0.72 0.20 195 / 0.08);
   position: relative;
   clip-path: polygon(
     0 0,
-    calc(100% - 12px) 0,
-    100% 12px,
+    calc(100% - 14px) 0,
+    100% 14px,
     100% 100%,
-    12px 100%,
-    0 calc(100% - 12px)
+    14px 100%,
+    0 calc(100% - 14px)
   );
   transition: all 0.3s ease;
 }
@@ -925,14 +931,14 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 3px;
   background: linear-gradient(90deg, 
     transparent 0%,
     var(--primary) 30%,
     var(--accent) 70%,
     transparent 100%
   );
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .glass-morph-card::after {
@@ -940,14 +946,14 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 2px;
-  height: 60px;
+  width: 3px;
+  height: 70px;
   background: linear-gradient(180deg, 
     var(--primary) 0%,
     var(--accent) 50%,
     transparent 100%
   );
-  opacity: 0.3;
+  opacity: 0.4;
 }
 
 /* HIGH CONTRAST ACCESSIBILITY THEME */

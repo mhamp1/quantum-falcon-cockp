@@ -176,21 +176,21 @@ export default function Dashboard() {
   const getLogIcon = (type: LogEntry["type"]) => {
     switch (type) {
       case "thinking":
-        return <Brain size={14} weight="duotone" className="text-primary" />;
+        return <Brain size={16} weight="duotone" className="text-primary" />;
       case "analysis":
-        return <ChartLine size={14} weight="duotone" className="text-accent" />;
+        return <ChartLine size={16} weight="duotone" className="text-accent" />;
       case "execution":
         return (
-          <ArrowRight size={14} weight="bold" className="text-secondary" />
+          <ArrowRight size={16} weight="bold" className="text-secondary" />
         );
       case "success":
         return (
-          <CheckCircle size={14} weight="duotone" className="text-primary" />
+          <CheckCircle size={16} weight="duotone" className="text-primary" />
         );
       case "info":
         return (
           <Terminal
-            size={14}
+            size={16}
             weight="duotone"
             className="text-muted-foreground"
           />
@@ -217,44 +217,44 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div className="cyber-card relative overflow-hidden">
         <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
+        <div className="absolute top-0 right-0 w-80 h-80 opacity-10">
           <Wireframe3D
             type="sphere"
-            size={256}
+            size={320}
             color="secondary"
             animated={true}
           />
         </div>
-        <div className="p-6 md:p-8 relative z-10">
-          <div className="flex flex-col md:flex-row items-start gap-6">
+        <div className="p-8 md:p-10 relative z-10">
+          <div className="flex flex-col md:flex-row items-start gap-8">
             <div className="flex-shrink-0">
-              <div className="p-6 jagged-corner bg-gradient-to-br from-primary/20 to-accent/20 border-4 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]">
-                <Brain size={64} weight="duotone" className="text-primary" />
+              <div className="p-8 jagged-corner bg-gradient-to-br from-primary/20 to-accent/20 border-4 border-primary shadow-[0_0_40px_oklch(0.72_0.20_195_/_0.7)]">
+                <Brain size={80} weight="duotone" className="text-primary" />
               </div>
             </div>
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-5">
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-3xl md:text-4xl font-bold tracking-[0.2em] uppercase">
+                <div className="flex items-center gap-4 mb-3">
+                  <h2 className="text-4xl md:text-5xl font-bold tracking-[0.25em] uppercase">
                     <span className="text-primary neon-glow-primary">
                       QUANTUM
                     </span>
-                    <span className="text-secondary neon-glow-secondary ml-2">
+                    <span className="text-secondary neon-glow-secondary ml-3">
                       FALCON
                     </span>
                   </h2>
-                  <div className="px-3 py-1 jagged-corner-small bg-secondary/20 border border-secondary">
-                    <span className="text-xs font-bold text-secondary uppercase tracking-[0.15em]">
+                  <div className="px-4 py-2 jagged-corner-small bg-secondary/20 border-2 border-secondary">
+                    <span className="text-sm font-bold text-secondary uppercase tracking-[0.2em]">
                       V2.4.1
                     </span>
                   </div>
                 </div>
-                <p className="text-sm uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+                <p className="text-base uppercase tracking-[0.18em] text-muted-foreground font-semibold">
                   ADVANCED AI-POWERED AUTONOMOUS TRADING SYSTEM
                 </p>
               </div>
 
-              <p className="text-base leading-relaxed text-foreground">
+              <p className="text-lg leading-relaxed text-foreground">
                 <span className="text-accent font-bold">Quantum Falcon</span> is
                 an advanced AI-powered mobile assistant designed to cater to a
                 futuristic, fully integrated user experience. It leverages
@@ -273,45 +273,45 @@ export default function Dashboard() {
                 .
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-                <div className="p-3 bg-muted/30 border-l-2 border-primary hover:border-accent transition-all">
-                  <div className="flex items-center gap-2 mb-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="p-4 bg-muted/30 border-l-3 border-primary hover:border-accent transition-all">
+                  <div className="flex items-center gap-2 mb-2">
                     <Lightning
-                      size={16}
+                      size={18}
                       weight="fill"
                       className="text-primary"
                     />
-                    <p className="text-xs uppercase tracking-wide font-bold text-primary">
+                    <p className="text-sm uppercase tracking-wide font-bold text-primary">
                       Autonomous Trading
                     </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Multi-agent AI system for 24/7 market analysis
                   </p>
                 </div>
-                <div className="p-3 bg-muted/30 border-l-2 border-accent hover:border-secondary transition-all">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Target size={16} weight="fill" className="text-accent" />
-                    <p className="text-xs uppercase tracking-wide font-bold text-accent">
+                <div className="p-4 bg-muted/30 border-l-3 border-accent hover:border-secondary transition-all">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Target size={18} weight="fill" className="text-accent" />
+                    <p className="text-sm uppercase tracking-wide font-bold text-accent">
                       Quantum Analytics
                     </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Real-time insights powered by quantum computing
                   </p>
                 </div>
-                <div className="p-3 bg-muted/30 border-l-2 border-secondary hover:border-primary transition-all">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="p-4 bg-muted/30 border-l-3 border-secondary hover:border-primary transition-all">
+                  <div className="flex items-center gap-2 mb-2">
                     <ShieldCheck
-                      size={16}
+                      size={18}
                       weight="fill"
                       className="text-secondary"
                     />
-                    <p className="text-xs uppercase tracking-wide font-bold text-secondary">
+                    <p className="text-sm uppercase tracking-wide font-bold text-secondary">
                       Secure Vault
                     </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Automated profit conversion and protection
                   </p>
                 </div>
@@ -323,18 +323,18 @@ export default function Dashboard() {
 
       <div className="flex items-center justify-between relative">
         <div className="flex items-center gap-4">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-[0.25em] uppercase">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-[0.3em] uppercase">
             <span className="text-primary neon-glow-primary">
               COMMAND_CENTER
             </span>
           </h2>
           <div className="hidden md:flex items-center gap-2">
             <div className="status-indicator" />
-            <span className="hud-readout">ONLINE</span>
+            <span className="hud-readout text-sm">ONLINE</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="hidden md:block hud-readout">
+          <div className="hidden md:block hud-readout text-sm">
             {new Date().toLocaleTimeString("en-US", {
               hour12: false,
               hour: "2-digit",
@@ -342,9 +342,9 @@ export default function Dashboard() {
               second: "2-digit",
             })}
           </div>
-          <button className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group">
+          <button className="p-3 bg-card border-2 border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group">
             <ArrowsClockwise
-              size={18}
+              size={20}
               weight="duotone"
               className="text-primary"
             />
@@ -354,51 +354,51 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="cyber-card group hover:scale-[1.01] transition-transform duration-300 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="cyber-card group hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 opacity-10">
             <Wireframe3D
               type="dome"
-              size={128}
+              size={160}
               color="primary"
               animated={false}
             />
           </div>
-          <div className="p-6 relative z-10">
-            <div className="flex items-start justify-between mb-4">
-              <div className="space-y-1">
-                <div className="hud-readout">TOTAL_PORTFOLIO</div>
-                <div className="h-px w-24 bg-primary/40" />
+          <div className="p-8 relative z-10">
+            <div className="flex items-start justify-between mb-6">
+              <div className="space-y-2">
+                <div className="hud-readout text-sm">TOTAL_PORTFOLIO</div>
+                <div className="h-0.5 w-32 bg-primary/50" />
               </div>
-              <div className="p-2 bg-primary/10 border border-primary/30 relative">
-                <Coins size={20} weight="duotone" className="text-primary" />
+              <div className="p-3 bg-primary/10 border-2 border-primary/30 relative">
+                <Coins size={24} weight="duotone" className="text-primary" />
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="technical-readout text-4xl md:text-5xl">
+            <div className="space-y-4">
+              <div className="technical-readout text-5xl md:text-6xl">
                 ${portfolio.totalValue.toFixed(2)}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {isPositive ? (
-                  <TrendUp size={18} weight="bold" className="text-primary" />
+                  <TrendUp size={22} weight="bold" className="text-primary" />
                 ) : (
                   <TrendDown
-                    size={18}
+                    size={22}
                     weight="bold"
                     className="text-destructive"
                   />
                 )}
                 <span
-                  className={`text-lg font-bold hud-value ${isPositive ? "text-primary neon-glow-primary" : "text-destructive neon-glow-destructive"}`}
+                  className={`text-xl font-bold hud-value ${isPositive ? "text-primary neon-glow-primary" : "text-destructive neon-glow-destructive"}`}
                 >
                   {isPositive ? "+" : ""}
                   {portfolio.change24h.toFixed(2)}%
                 </span>
-                <span className="data-label">24H_CHG</span>
+                <span className="data-label text-sm">24H_CHG</span>
               </div>
             </div>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20">
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-primary/20">
             <div
               className="h-full bg-primary"
               style={{ width: `${Math.abs(portfolio.change24h) * 10}%` }}
@@ -406,17 +406,17 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="cyber-card group hover:scale-[1.01] transition-transform duration-300 relative">
-          <div className="absolute -right-4 -top-4 diagonal-stripes w-32 h-32 pointer-events-none opacity-40" />
-          <div className="p-6 relative z-10">
-            <div className="flex items-start justify-between mb-4">
-              <div className="space-y-1">
-                <div className="hud-readout">SOLANA_BAL</div>
-                <div className="h-px w-24 bg-primary/40" />
+        <div className="cyber-card group hover:scale-[1.02] transition-transform duration-300 relative">
+          <div className="absolute -right-4 -top-4 diagonal-stripes w-40 h-40 pointer-events-none opacity-40" />
+          <div className="p-8 relative z-10">
+            <div className="flex items-start justify-between mb-6">
+              <div className="space-y-2">
+                <div className="hud-readout text-sm">SOLANA_BAL</div>
+                <div className="h-0.5 w-32 bg-primary/50" />
               </div>
-              <div className="p-2 bg-primary/10 border border-primary/30 relative">
+              <div className="p-3 bg-primary/10 border-2 border-primary/30 relative">
                 <Lightning
-                  size={20}
+                  size={24}
                   weight="duotone"
                   className="text-primary"
                 />
@@ -424,53 +424,53 @@ export default function Dashboard() {
                 <div className="hud-corner-br" />
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="technical-readout text-4xl md:text-5xl">
+            <div className="space-y-4">
+              <div className="technical-readout text-5xl md:text-6xl">
                 {portfolio.solanaBalance.toFixed(2)}
               </div>
               <div className="flex items-center justify-between">
-                <span className="data-label">SOL</span>
+                <span className="data-label text-sm">SOL</span>
                 <div
-                  className="w-16 h-9 border border-primary/40 relative flex items-center justify-center"
+                  className="w-20 h-11 border-2 border-primary/40 relative flex items-center justify-center"
                   style={{
                     clipPath:
                       "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
                   }}
                 >
-                  <ChartLine size={16} weight="bold" className="text-primary" />
+                  <ChartLine size={20} weight="bold" className="text-primary" />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="cyber-card-accent group hover:scale-[1.01] transition-transform duration-300 relative">
-          <div className="absolute bottom-0 left-0 right-0 technical-grid h-24 pointer-events-none opacity-30" />
-          <div className="p-6 relative z-10">
-            <div className="flex items-start justify-between mb-4">
-              <div className="space-y-1">
-                <div className="hud-readout text-accent">BTC_VAULT</div>
-                <div className="h-px w-24 bg-accent/40" />
+        <div className="cyber-card-accent group hover:scale-[1.02] transition-transform duration-300 relative">
+          <div className="absolute bottom-0 left-0 right-0 technical-grid h-28 pointer-events-none opacity-30" />
+          <div className="p-8 relative z-10">
+            <div className="flex items-start justify-between mb-6">
+              <div className="space-y-2">
+                <div className="hud-readout text-accent text-sm">BTC_VAULT</div>
+                <div className="h-0.5 w-32 bg-accent/50" />
               </div>
-              <div className="p-2 bg-accent/10 border border-accent/30 relative">
-                <Target size={20} weight="duotone" className="text-accent" />
+              <div className="p-3 bg-accent/10 border-2 border-accent/30 relative">
+                <Target size={24} weight="duotone" className="text-accent" />
               </div>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div
-                className="text-4xl md:text-4xl font-bold"
+                className="text-5xl md:text-5xl font-bold"
                 style={{
                   background:
                     "linear-gradient(180deg, var(--accent) 0%, var(--primary) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
-                  filter: "drop-shadow(0 0 8px oklch(0.68 0.18 330 / 0.5))",
+                  filter: "drop-shadow(0 0 10px oklch(0.68 0.18 330 / 0.6))",
                 }}
               >
                 {portfolio.btcBalance.toFixed(6)}
               </div>
-              <div className="data-label">BTC</div>
+              <div className="data-label text-sm">BTC</div>
             </div>
           </div>
         </div>
@@ -478,13 +478,13 @@ export default function Dashboard() {
 
       <div className="cyber-card scan-line-effect relative">
         <div className="absolute inset-0 technical-grid pointer-events-none opacity-20" />
-        <div className="p-6 relative z-10">
-          <div className="flex items-center gap-3 mb-6">
-            <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">
+        <div className="p-8 relative z-10">
+          <div className="flex items-center gap-4 mb-8">
+            <h3 className="text-2xl font-bold uppercase tracking-[0.25em] hud-readout text-base">
               AGENT_STATUS
             </h3>
-            <div className="px-3 py-1 bg-primary/20 border border-primary/40">
-              <span className="text-sm font-bold text-primary uppercase tracking-[0.15em]">
+            <div className="px-4 py-2 bg-primary/20 border-2 border-primary/40">
+              <span className="text-base font-bold text-primary uppercase tracking-[0.2em]">
                 {portfolio.activeAgents}_ONLINE
               </span>
             </div>
@@ -492,54 +492,54 @@ export default function Dashboard() {
             <div className="hidden lg:block">
               <Wireframe3D
                 type="sphere"
-                size={60}
+                size={70}
                 color="primary"
                 animated={true}
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-muted/50 border-l-2 border-primary hover:bg-muted/70 transition-all group/agent relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 bg-muted/50 border-l-3 border-primary hover:bg-muted/70 transition-all group/agent relative">
               <div className="hud-corner-tl" />
               <div className="hud-corner-br" />
-              <div className="flex items-center justify-between mb-3">
-                <span className="hud-readout text-xs">A1_MARKET</span>
+              <div className="flex items-center justify-between mb-4">
+                <span className="hud-readout text-sm">A1_MARKET</span>
                 <div className="status-indicator" />
               </div>
-              <p className="data-label">SCANNING_247_TOKENS</p>
-              <div className="mt-3 flex gap-1">
+              <p className="data-label text-sm">SCANNING_247_TOKENS</p>
+              <div className="mt-4 flex gap-1.5">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <div
                     key={i}
-                    className="flex-1 h-8 bg-primary/20"
-                    style={{ height: `${Math.random() * 32}px` }}
+                    className="flex-1 h-10 bg-primary/20"
+                    style={{ height: `${Math.random() * 40}px` }}
                   />
                 ))}
               </div>
             </div>
-            <div className="p-4 bg-muted/50 border-l-2 border-primary hover:bg-muted/70 transition-all group/agent relative">
+            <div className="p-6 bg-muted/50 border-l-3 border-primary hover:bg-muted/70 transition-all group/agent relative">
               <div className="hud-corner-tl" />
               <div className="hud-corner-br" />
-              <div className="flex items-center justify-between mb-3">
-                <span className="hud-readout text-xs">A2_STRATEGY</span>
+              <div className="flex items-center justify-between mb-4">
+                <span className="hud-readout text-sm">A2_STRATEGY</span>
                 <div className="status-indicator" />
               </div>
-              <p className="data-label">3_ACTIVE_TRADES</p>
-              <div className="mt-3">
-                <div className="space-y-1">
-                  <div className="h-1 bg-primary/20 relative overflow-hidden">
+              <p className="data-label text-sm">3_ACTIVE_TRADES</p>
+              <div className="mt-4">
+                <div className="space-y-2">
+                  <div className="h-1.5 bg-primary/20 relative overflow-hidden">
                     <div
                       className="h-full bg-primary animate-pulse"
                       style={{ width: "75%" }}
                     />
                   </div>
-                  <div className="h-1 bg-primary/20 relative overflow-hidden">
+                  <div className="h-1.5 bg-primary/20 relative overflow-hidden">
                     <div
                       className="h-full bg-primary animate-pulse"
                       style={{ width: "45%", animationDelay: "0.5s" }}
                     />
                   </div>
-                  <div className="h-1 bg-primary/20 relative overflow-hidden">
+                  <div className="h-1.5 bg-primary/20 relative overflow-hidden">
                     <div
                       className="h-full bg-primary animate-pulse"
                       style={{ width: "90%", animationDelay: "1s" }}
@@ -548,7 +548,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            <div className="p-4 bg-muted/50 border-l-2 border-accent hover:bg-muted/70 transition-all group/agent relative">
+            <div className="p-6 bg-muted/50 border-l-3 border-accent hover:bg-muted/70 transition-all group/agent relative">
               <div
                 className="hud-corner-tl"
                 style={{ borderColor: "var(--accent)" }}
@@ -557,20 +557,20 @@ export default function Dashboard() {
                 className="hud-corner-br"
                 style={{ borderColor: "var(--accent)" }}
               />
-              <div className="flex items-center justify-between mb-3">
-                <span className="hud-readout text-xs text-accent">
+              <div className="flex items-center justify-between mb-4">
+                <span className="hud-readout text-sm text-accent">
                   A3_RL_OPT
                 </span>
                 <div
                   className="status-indicator"
                   style={{
                     background: "var(--accent)",
-                    boxShadow: "0 0 8px var(--accent), 0 0 16px var(--accent)",
+                    boxShadow: "0 0 12px var(--accent), 0 0 24px var(--accent)",
                   }}
                 />
               </div>
-              <p className="data-label">LEARNING_CYCLE_47</p>
-              <div className="mt-3 relative h-8">
+              <p className="data-label text-sm">LEARNING_CYCLE_47</p>
+              <div className="mt-4 relative h-10">
                 <svg width="100%" height="100%" className="absolute inset-0">
                   <polyline
                     points={Array.from({ length: 20 })
@@ -597,18 +597,18 @@ export default function Dashboard() {
             animated={false}
           />
         </div>
-        <div className="p-6 relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">
+        <div className="p-8 relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-bold uppercase tracking-[0.25em] hud-readout text-base">
               RECENT_ACTIVITY
             </h3>
             <div className="hidden md:flex gap-2">
-              <div className="w-2 h-2 bg-primary" />
-              <div className="w-2 h-2 bg-primary" />
-              <div className="w-2 h-2 bg-primary/30" />
+              <div className="w-2.5 h-2.5 bg-primary" />
+              <div className="w-2.5 h-2.5 bg-primary" />
+              <div className="w-2.5 h-2.5 bg-primary/30" />
             </div>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               {
                 action: "DCA_BUY",
@@ -637,29 +637,29 @@ export default function Dashboard() {
             ].map((activity, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-4 bg-muted/30 border-l-2 border-primary hover:bg-muted/50 hover:border-accent transition-all group/activity relative"
+                className="flex items-center justify-between p-5 bg-muted/30 border-l-3 border-primary hover:bg-muted/50 hover:border-accent transition-all group/activity relative"
               >
-                <div className="absolute top-0 left-0 w-8 h-px bg-primary" />
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center relative">
+                <div className="absolute top-0 left-0 w-10 h-0.5 bg-primary" />
+                <div className="flex items-center gap-5">
+                  <div className="w-12 h-12 bg-primary/10 border-2 border-primary/30 flex items-center justify-center relative">
                     <Lightning
-                      size={18}
+                      size={22}
                       weight="duotone"
                       className="text-primary"
                     />
                   </div>
                   <div>
-                    <p className="hud-readout text-xs">{activity.action}</p>
-                    <p className="data-label text-xs mt-1">{activity.amount}</p>
+                    <p className="hud-readout text-sm">{activity.action}</p>
+                    <p className="data-label text-sm mt-1">{activity.amount}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   {activity.profit && (
-                    <p className="text-sm font-bold text-primary hud-value mb-1">
+                    <p className="text-base font-bold text-primary hud-value mb-1">
                       {activity.profit}
                     </p>
                   )}
-                  <p className="data-label text-xs">{activity.time}</p>
+                  <p className="data-label text-sm">{activity.time}</p>
                 </div>
               </div>
             ))}
@@ -670,23 +670,23 @@ export default function Dashboard() {
       <div className="cyber-card relative overflow-hidden">
         <div className="absolute inset-0 technical-grid pointer-events-none opacity-10" />
         <div className="scan-line-effect absolute inset-0 pointer-events-none" />
-        <div className="p-6 relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">
+        <div className="p-8 relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <h3 className="text-2xl font-bold uppercase tracking-[0.25em] hud-readout text-base">
                 BOT_LOGS
               </h3>
-              <div className="px-3 py-1 bg-primary/20 border border-primary/40 flex items-center gap-2">
-                <Terminal size={14} weight="duotone" className="text-primary" />
-                <span className="text-xs font-bold text-primary uppercase tracking-[0.15em]">
+              <div className="px-4 py-2 bg-primary/20 border-2 border-primary/40 flex items-center gap-2">
+                <Terminal size={16} weight="duotone" className="text-primary" />
+                <span className="text-sm font-bold text-primary uppercase tracking-[0.2em]">
                   LIVE
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setAutoScroll(!autoScroll)}
-                className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all border ${
+                className={`px-4 py-2 text-sm font-bold uppercase tracking-wider transition-all border-2 ${
                   autoScroll
                     ? "bg-primary/20 border-primary/40 text-primary"
                     : "bg-muted/30 border-muted-foreground/30 text-muted-foreground"
@@ -696,44 +696,44 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => setLogs([])}
-                className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-muted/30 border border-muted-foreground/30 text-muted-foreground hover:bg-destructive/20 hover:border-destructive hover:text-destructive transition-all"
+                className="px-4 py-2 text-sm font-bold uppercase tracking-wider bg-muted/30 border-2 border-muted-foreground/30 text-muted-foreground hover:bg-destructive/20 hover:border-destructive hover:text-destructive transition-all"
               >
                 CLEAR
               </button>
             </div>
           </div>
 
-          <div className="bg-background/80 border border-primary/20 h-[400px] overflow-y-auto scrollbar-thin relative">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
-            <div className="p-4 space-y-2 font-mono text-xs">
+          <div className="bg-background/80 border-2 border-primary/20 h-[450px] overflow-y-auto scrollbar-thin relative">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <div className="p-5 space-y-2.5 font-mono text-sm">
               {logs.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                  <div className="text-center space-y-2">
+                  <div className="text-center space-y-3">
                     <Terminal
-                      size={32}
+                      size={40}
                       weight="duotone"
                       className="mx-auto opacity-50"
                     />
-                    <p className="data-label">WAITING_FOR_LOGS</p>
+                    <p className="data-label text-base">WAITING_FOR_LOGS</p>
                   </div>
                 </div>
               ) : (
                 logs.map((log) => (
                   <div
                     key={log.id}
-                    className="flex items-start gap-3 p-2 hover:bg-primary/5 transition-colors border-l-2 border-transparent hover:border-primary/30 group"
+                    className="flex items-start gap-4 p-3 hover:bg-primary/5 transition-colors border-l-2 border-transparent hover:border-primary/30 group"
                   >
-                    <span className="text-muted-foreground/60 font-bold shrink-0 w-16">
+                    <span className="text-muted-foreground/60 font-bold shrink-0 w-20 text-xs">
                       {log.timestamp}
                     </span>
-                    <span className="px-2 py-0.5 bg-primary/10 text-primary font-bold shrink-0 text-[10px] tracking-wider">
+                    <span className="px-3 py-1 bg-primary/10 text-primary font-bold shrink-0 text-[11px] tracking-wider">
                       {log.agent}
                     </span>
-                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                    <div className="flex items-start gap-2.5 flex-1 min-w-0">
                       <div className="shrink-0 mt-0.5">
                         {getLogIcon(log.type)}
                       </div>
-                      <span className={`${getLogColor(log.type)} break-words`}>
+                      <span className={`${getLogColor(log.type)} break-words text-sm`}>
                         {log.message}
                       </span>
                     </div>
