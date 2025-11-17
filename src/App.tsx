@@ -36,13 +36,19 @@ const TABS: Tab[] = [
   },
   {
     id: "agents",
-    label: "AI Agents",
+    label: "Agents",
     icon: Robot,
     component: Agents,
   },
   {
+    id: "settings",
+    label: "Settings",
+    icon: Gear,
+    component: EnhancedSettings,
+  },
+  {
     id: "trade",
-    label: "Trade",
+    label: "Trading",
     icon: Lightning,
     component: Trade,
   },
@@ -58,17 +64,12 @@ const TABS: Tab[] = [
     icon: Users,
     component: SocialCommunity,
   },
-  {
-    id: "settings",
-    label: "Settings",
-    icon: Gear,
-    component: EnhancedSettings,
-  },
 ];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [newsText] = useState("BTC remains supportive low levels - Market stabilizing - SOL testing resistance");
 
   useEffect(() => {
     document.documentElement.classList.remove("high-contrast");
@@ -81,23 +82,23 @@ export default function App() {
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-96
-          flex flex-col bg-card backdrop-blur-xl border-r-2 border-primary shadow-[0_0_30px_oklch(0.62_0.25_290_/_0.4)]
+          fixed lg:static inset-y-0 left-0 z-50 w-64
+          flex flex-col bg-background border-r-2 border-secondary/30
           transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="flex items-center justify-between p-8 border-b-2 border-primary/30 relative">
+        <div className="flex items-center justify-between p-6 border-b border-secondary/30 relative">
           <div className="relative z-10">
-            <h1 className="text-3xl font-bold uppercase tracking-[0.2em] neon-glow-primary mb-1">
+            <h1 className="text-xl font-bold uppercase tracking-[0.15em] bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1" style={{ transform: 'skewY(-2deg)' }}>
               QUANTUM
             </h1>
-            <h1 className="text-3xl font-bold uppercase tracking-[0.2em] neon-glow mb-1">
+            <h1 className="text-xl font-bold uppercase tracking-[0.15em] bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent" style={{ transform: 'skewY(-2deg)' }}>
               FALCON
             </h1>
-            <div className="flex items-center gap-2 mt-4">
-              <div className="w-3 h-3 bg-secondary rounded-full animate-pulse neon-glow" />
-              <span className="text-[11px] font-semibold tracking-widest text-secondary uppercase">ONLINE</span>
+            <div className="flex items-center gap-2 mt-3">
+              <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
+              <span className="text-[10px] font-semibold tracking-widest text-secondary uppercase">System: Online</span>
             </div>
           </div>
           <Button
@@ -110,7 +111,7 @@ export default function App() {
           </Button>
         </div>
 
-        <nav className="flex-1 p-5 space-y-3 overflow-y-auto scrollbar-thin">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -122,65 +123,72 @@ export default function App() {
                   setSidebarOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-5 px-8 py-5 text-lg font-semibold uppercase tracking-[0.12em]
-                  transition-all duration-200 border-2 relative group rounded-lg
+                  w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold uppercase tracking-[0.08em]
+                  transition-all duration-200 rounded-sm
                   ${
                     isActive
-                      ? "bg-primary/15 text-secondary border-primary shadow-[0_0_25px_oklch(0.62_0.25_290_/_0.4)]"
-                      : "text-muted-foreground border-primary/20 hover:text-secondary hover:bg-primary/10 hover:border-primary/50"
+                      ? "bg-secondary/10 text-secondary border-l-4 border-secondary"
+                      : "text-muted-foreground hover:text-secondary hover:bg-secondary/5"
                   }
                 `}
               >
-                <Icon size={32} weight={isActive ? "fill" : "regular"} />
+                <Icon size={20} weight={isActive ? "fill" : "regular"} />
                 <span className="flex-1 text-left">{tab.label}</span>
-                {isActive && (
-                  <div className="w-3 h-3 bg-secondary rounded-full animate-pulse neon-glow" />
-                )}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-5 border-t-2 border-primary/30 bg-primary/5">
-          <div className="text-[11px] font-bold tracking-widest text-secondary mb-4 uppercase">System Status</div>
-          <div className="space-y-3">
+        <div className="p-4 border-t border-secondary/30 bg-background/50">
+          <div className="text-[10px] font-bold tracking-widest text-secondary mb-3 uppercase">System Status</div>
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Connection</span>
-              <span className="text-secondary text-[11px] font-bold neon-glow">ACTIVE</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Connection</span>
+              <span className="text-secondary text-[10px] font-bold">ACTIVE</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Build</span>
-              <span className="text-primary text-[11px] font-bold tracking-wider">v2.4.1</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Build</span>
+              <span className="text-primary text-[10px] font-bold tracking-wider">v2.4.1</span>
             </div>
-          </div>
-          <div className="mt-4 h-2 bg-muted relative overflow-hidden rounded-full">
-            <div 
-              className="h-full bg-gradient-to-r from-primary via-accent to-secondary transition-all duration-500 neon-glow-accent rounded-full" 
-              style={{ width: '85%' }} 
-            />
           </div>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden sticky top-0 z-30 bg-card backdrop-blur-xl border-b-2 border-primary shadow-[0_0_20px_oklch(0.62_0.25_290_/_0.3)]">
-          <div className="flex items-center justify-between p-5">
+        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-secondary/30">
+          <div className="flex items-center justify-between h-10 px-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(true)}
-              className="border-2 border-primary hover:bg-primary/10"
+              className="lg:hidden text-secondary hover:bg-secondary/10"
             >
-              <List size={28} className="text-primary" />
+              <List size={20} />
             </Button>
-            <h2 className="text-xl font-bold text-secondary uppercase tracking-[0.15em] neon-glow">
-              {currentTab.label}
-            </h2>
-            <div className="w-12" />
+            
+            <div className="flex-1 flex items-center justify-end gap-4">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <span className="text-xs font-bold text-destructive uppercase tracking-wide">Live News</span>
+                <div className="overflow-hidden max-w-md">
+                  <div className="animate-marquee whitespace-nowrap text-xs text-destructive/70">
+                    {newsText}
+                  </div>
+                </div>
+              </div>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X size={16} />
+              </Button>
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 p-6 md:p-10 overflow-auto scrollbar-thin">
+        <main className="flex-1 p-8 overflow-auto scrollbar-thin">
           <Component key={activeTab} />
         </main>
       </div>
