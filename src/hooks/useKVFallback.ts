@@ -23,7 +23,6 @@ export function useKV<T>(
             setValue(storedValue);
           } else {
             console.log(`[useKV] No stored value for key "${key}", using initial:`, initialValue);
-            await setKVValue(key, initialValue);
           }
           setIsInitialized(true);
         }

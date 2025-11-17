@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ErrorBoundary } from 'react-error-boundary';
+import { toast } from 'sonner';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -30,7 +31,9 @@ function LoadingFallback() {
   );
 }
 
-function ComponentErrorFallback() {
+function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  console.error('[App] Component error:', error);
+  
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="cyber-card p-8 max-w-md w-full space-y-4 text-center">
@@ -39,14 +42,23 @@ function ComponentErrorFallback() {
           Component Error
         </h2>
         <p className="text-sm text-muted-foreground">
-          A component failed to load. Please refresh the page or try switching tabs.
+          {error.message}
         </p>
-        <Button
-          onClick={() => window.location.reload()}
-          className="w-full"
-        >
-          Refresh Page
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={resetErrorBoundary}
+            className="flex-1"
+          >
+            Try Again
+          </Button>
+          <Button
+            onClick={() => window.location.reload()}
+            variant="outline"
+            className="flex-1"
+          >
+            Reload Page
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -70,9 +82,9 @@ export default function App() {
     avatar: null,
     license: null
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
 
-  console.log('[App] Current auth state:', auth);
+  console.log('[App] Auth state:', auth);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -87,7 +99,7 @@ export default function App() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsLoading(false);
+      setIsInitializing(false);
     }, 500);
     return () => clearTimeout(timer);
   }, []);
@@ -105,33 +117,41 @@ export default function App() {
     return () => window.removeEventListener('navigate-tab', handleNavigateTab);
   }, [setActiveTab, tabs]);
 
-  const handleLicenseSuccess = (tier: string, expiresAt: number) => {
-    console.log('[App] License success, setting auth state:', { tier, expiresAt });
-    setAuth((currentAuth) => {
-      const newAuth = {
-        isAuthenticated: true,
+  const handleLicenseSuccess = async (tier: string, expiresAt: number) => {
+    console.log('[App] ✅ License success:', { tier, expiresAt });
+    
+    const newAuth: UserAuth = {
+      isAuthenticated: true,
+      userId: `user_${Date.now()}`,
+      username: `${tier.toUpperCase()}_User`,
+      email: null,
+      avatar: null,
+      license: {
         userId: `user_${Date.now()}`,
-        username: `${tier.toUpperCase()}_User`,
-        email: null,
-        avatar: null,
-        license: {
-          userId: `user_${Date.now()}`,
-          tier: tier as any,
-          expiresAt: expiresAt,
-          purchasedAt: Date.now(),
-          isActive: true
-        }
-      };
-      console.log('[App] New auth state:', newAuth);
-      return newAuth;
+        tier: tier as 'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime',
+        expiresAt: expiresAt,
+        purchasedAt: Date.now(),
+        isActive: true
+      }
+    };
+    
+    console.log('[App] 💾 Saving auth state:', newAuth);
+    setAuth(newAuth);
+    
+    await new Promise(resolve => setTimeout(resolve, 300));
+    console.log('[App] ✅ Auth state saved, app should now load');
+    
+    toast.success(`Welcome to ${tier.toUpperCase()} tier!`, {
+      description: 'Dashboard loading...'
     });
   };
 
-  if (isLoading) {
+  if (isInitializing) {
     return <LoadingFallback />;
   }
 
   if (!auth?.isAuthenticated) {
+    console.log('[App] User not authenticated, showing license auth');
     return (
       <Suspense fallback={<LoadingFallback />}>
         <LicenseAuth onSuccess={handleLicenseSuccess} />
@@ -139,6 +159,7 @@ export default function App() {
     );
   }
 
+  console.log('[App] User authenticated, showing main app');
   const Component = tabs.find(tab => tab.id === activeTab)?.component || EnhancedDashboard;
 
   return (

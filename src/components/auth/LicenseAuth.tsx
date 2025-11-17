@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Key, ShieldCheck, Warning } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +12,12 @@ interface LicenseAuthProps {
 export default function LicenseAuth({ onSuccess }: LicenseAuthProps) {
   const [licenseKey, setLicenseKey] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
+  const [debugInfo, setDebugInfo] = useState('')
+
+  useEffect(() => {
+    const info = `Storage Available: ${typeof localStorage !== 'undefined'}\nSession ID: ${Date.now()}`
+    setDebugInfo(info)
+  }, [])
 
   const handleVerify = async () => {
     if (!licenseKey.trim()) {
@@ -26,15 +32,21 @@ export default function LicenseAuth({ onSuccess }: LicenseAuthProps) {
 
       if (result.valid && result.tier && result.expiresAt) {
         toast.success(`License verified! Welcome to ${result.tier.toUpperCase()} tier`)
-        onSuccess(result.tier, result.expiresAt)
+        await onSuccess(result.tier, result.expiresAt)
       } else {
         toast.error(result.error || 'Invalid license key')
       }
     } catch (error) {
+      console.error('[LicenseAuth] Verification error:', error)
       toast.error('Verification failed. Please try again.')
     } finally {
       setIsVerifying(false)
     }
+  }
+
+  const handleFreeTier = async () => {
+    toast.success('Welcome to Free Tier!')
+    await onSuccess('free', Date.now() + 30 * 24 * 60 * 60 * 1000)
   }
 
   return (
@@ -122,7 +134,7 @@ export default function LicenseAuth({ onSuccess }: LicenseAuthProps) {
                 <Button
                   variant="ghost"
                   className="w-full text-muted-foreground hover:text-foreground uppercase tracking-wide text-xs"
-                  onClick={() => onSuccess('free', Date.now() + 30 * 24 * 60 * 60 * 1000)}
+                  onClick={handleFreeTier}
                 >
                   Continue with Free Tier
                 </Button>

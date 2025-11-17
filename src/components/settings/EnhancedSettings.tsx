@@ -12,7 +12,7 @@ import {
   CurrencyDollar, SpeakerHigh, Shield, ChartLine, Medal, Star,
   Fire, Target, CheckCircle, Crown, ArrowsClockwise, Lightning, 
   Wallet, CloudArrowUp, Database, Key, LinkSimple, WifiHigh, Cpu,
-  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales
+  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales, SignOut
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
@@ -20,6 +20,7 @@ import EditProfileDialog from '@/components/shared/EditProfileDialog'
 import EnhancedSubscriptionTiers from './EnhancedSubscriptionTiers'
 import APIIntegration from './APIIntegration'
 import LegalSection from './LegalSection'
+import { UserAuth } from '@/lib/auth'
 
 interface UserProfile {
   username: string
@@ -111,7 +112,29 @@ export default function EnhancedSettings() {
     memberSince: 'Jan 2024'
   })
 
+  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
+    isAuthenticated: false,
+    userId: null,
+    username: null,
+    email: null,
+    avatar: null,
+    license: null
+  })
+
   const [showEditProfile, setShowEditProfile] = useState(false)
+
+  const handleLogout = () => {
+    setAuth({
+      isAuthenticated: false,
+      userId: null,
+      username: null,
+      email: null,
+      avatar: null,
+      license: null
+    })
+    toast.success('Logged out successfully')
+    window.location.reload()
+  }
 
   const [settings, setSettings] = useKV<AppSettings>('app-settings', {
     notifications: {
@@ -618,6 +641,17 @@ export default function EnhancedSettings() {
                   >
                     <Users size={18} weight="duotone" className="mr-2" />
                     VIEW_SESSIONS
+                  </Button>
+                </div>
+
+                <div className="mt-4">
+                  <Button 
+                    variant="destructive" 
+                    className="w-full"
+                    onClick={handleLogout}
+                  >
+                    <SignOut size={18} weight="duotone" className="mr-2" />
+                    LOGOUT
                   </Button>
                 </div>
               </div>
