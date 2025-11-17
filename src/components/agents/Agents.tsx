@@ -11,6 +11,14 @@ import { useState, useEffect, useMemo } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
+import { 
+  HolographicCard, 
+  HolographicCardHeader, 
+  HolographicCardTitle, 
+  HolographicCardContent 
+} from "@/components/ui/holographic-card";
+import { NeonBadge } from "@/components/ui/neon-badge";
+import { NeonProgress } from "@/components/ui/neon-progress";
 
 interface Agent {
   id: string;
@@ -119,30 +127,18 @@ export default function AgentsExact() {
   return (
     <div className="relative min-h-full">
       {/* Background Grid */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(20, 241, 149, 0.05) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(20, 241, 149, 0.05) 1px, transparent 1px)
-            `,
-            backgroundSize: "50px 50px",
-            filter: "blur(1px)",
-          }}
-        />
-      </div>
+      <div className="fixed inset-0 pointer-events-none technical-grid opacity-10" />
 
       <div className="relative z-10 space-y-6 pb-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-5xl font-bold uppercase tracking-[0.15em] text-primary neon-glow-primary">
+          <h1 className="text-5xl font-bold uppercase tracking-[0.15em] text-primary neon-glow-primary hud-text">
             AI AGENT COMMAND
           </h1>
-          <p className="text-sm text-muted-foreground uppercase tracking-[0.2em]">
+          <p className="text-sm text-muted-foreground uppercase tracking-[0.2em] data-label">
             AUTONOMOUS TRADING INTELLIGENCE // MULTI-AGENT COORDINATION SYSTEM
           </p>
-          <div className="mx-auto w-4/5 h-px bg-primary/50" />
+          <div className="mx-auto w-4/5 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
         </div>
 
         {/* Main Content Grid */}
@@ -159,80 +155,75 @@ export default function AgentsExact() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.1 }}
-                  className="cyber-card p-6 space-y-4"
-                  style={{
-                    clipPath:
-                      "polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)",
-                  }}
                 >
-                  {/* Header Row */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded ${agent.iconColor}`}>
-                        <Icon size={32} weight="duotone" />
-                      </div>
-                      <h3 className="text-xl font-bold uppercase tracking-wide">
-                        {agent.name}
-                      </h3>
-                      <div className="flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent rounded-full">
-                        <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-                        <span className="text-xs font-bold text-accent uppercase">
+                  <HolographicCard variant="primary" glow className="p-6 space-y-4 angled-corners-dual-tl-br">
+                    {/* Header Row */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-2 bg-background/50 border-2 border-current jagged-corner-small ${agent.iconColor}`}>
+                          <Icon size={32} weight="duotone" className="animate-pulse-slow" />
+                        </div>
+                        <h3 className="text-xl font-bold uppercase tracking-wide hud-text">
+                          {agent.name}
+                        </h3>
+                        <NeonBadge variant="accent" glow pulse>
+                          <div className="w-2 h-2 bg-accent rounded-full animate-pulse mr-1" />
                           ACTIVE
+                        </NeonBadge>
+                      </div>
+                      <Switch
+                        checked={agent.enabled}
+                        onCheckedChange={() => toggleAgent(agent.id)}
+                        className="data-[state=checked]:bg-primary"
+                      />
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-sm text-primary uppercase tracking-wide data-label">
+                      {agent.description}
+                    </p>
+
+                    {/* Level & XP */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <NeonBadge variant="secondary" glow className="text-xs">
+                          LVL {agent.level}
+                        </NeonBadge>
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {agent.xp} / {agent.xpToNext}
                         </span>
                       </div>
+                      <NeonProgress value={xpPercent} max={100} variant="accent" animate showLabel={false} />
                     </div>
-                    <Switch
-                      checked={agent.enabled}
-                      onCheckedChange={() => toggleAgent(agent.id)}
-                      className="data-[state=checked]:bg-primary"
-                    />
-                  </div>
 
-                  {/* Description */}
-                  <p className="text-sm text-muted-foreground uppercase tracking-wide">
-                    {agent.description}
-                  </p>
-
-                  {/* Level & XP */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="px-2 py-1 bg-secondary/20 border border-secondary rounded text-xs font-bold uppercase">
-                        LVL {agent.level}
+                    {/* Metrics Row */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center p-4 bg-background/50 border-2 border-primary/40 angled-corner-tr">
+                        <div className="data-label mb-2">
+                          Confidence
+                        </div>
+                        <div className="hud-readout text-4xl">
+                          {agent.metrics.confidence}%
+                        </div>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {agent.xp} / {agent.xpToNext}
-                      </span>
-                    </div>
-                    <Progress value={xpPercent} className="h-1" />
-                  </div>
-
-                  {/* Metrics Row */}
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
-                      <div className="text-xs text-muted-foreground uppercase mb-2">
-                        Confidence
+                      <div className="text-center p-4 bg-background/50 border-2 border-primary/40 jagged-corner-small">
+                        <div className="data-label mb-2">
+                          Actions
+                        </div>
+                        <div className="text-4xl font-bold text-foreground">
+                          {agent.metrics.actions}
+                        </div>
                       </div>
-                      <div className="text-4xl font-bold text-primary">
-                        {agent.metrics.confidence}%
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
-                      <div className="text-xs text-muted-foreground uppercase mb-2">
-                        Actions
-                      </div>
-                      <div className="text-4xl font-bold">
-                        {agent.metrics.actions}
+                      <div className="text-center p-4 bg-background/50 border-2 border-accent/40 angled-corner-bl">
+                        <div className="data-label mb-2">
+                          Profit
+                        </div>
+                        <div className="text-4xl font-bold text-accent neon-glow-accent">
+                          +${agent.metrics.profit.toFixed(2)}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-center p-4 bg-black/50 border border-accent/30 rounded">
-                      <div className="text-xs text-muted-foreground uppercase mb-2">
-                        Profit
-                      </div>
-                      <div className="text-4xl font-bold text-accent">
-                        +${agent.metrics.profit.toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
+                  </HolographicCard>
                 </motion.div>
               );
             })}
@@ -241,10 +232,10 @@ export default function AgentsExact() {
           {/* Right Column */}
           <div className="space-y-6">
             {/* Live Activity Panel */}
-            <div className="cyber-card p-6 space-y-4 h-[400px] flex flex-col">
+            <HolographicCard variant="secondary" glow className="p-6 space-y-4 h-[400px] flex flex-col">
               <div className="flex items-center gap-2">
-                <Lightning size={20} weight="fill" className="text-[#FFFF00]" />
-                <h2 className="text-lg font-bold uppercase tracking-wide text-[#FF00FF]">
+                <Lightning size={20} weight="fill" className="text-accent animate-pulse" />
+                <h2 className="text-lg font-bold uppercase tracking-wide text-secondary neon-glow hud-text">
                   LIVE ACTIVITY
                 </h2>
               </div>
@@ -255,89 +246,89 @@ export default function AgentsExact() {
                   return (
                     <div
                       key={log.id}
-                      className="p-3 bg-black/50 border border-primary/20 rounded space-y-1"
+                      className="p-3 bg-background/30 border-l-2 border-secondary angled-corner-br data-stream space-y-1"
                     >
                       <div className="flex items-center gap-2">
-                        <Icon size={16} className="text-secondary" />
-                        <span className="text-xs font-bold uppercase">
+                        <Icon size={16} className="text-secondary" weight="fill" />
+                        <span className="text-xs font-bold uppercase data-label">
                           {log.agentName}
                         </span>
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-foreground font-medium">
                         {log.action}
                       </div>
-                      <div className="text-xs text-muted-foreground/60 text-right">
+                      <div className="text-xs text-muted-foreground font-mono text-right">
                         {log.timestamp}
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </HolographicCard>
 
             {/* Performance Panel */}
-            <div className="cyber-card p-6 space-y-4 border-[#FF00FF]">
-              <h2 className="text-lg font-bold uppercase tracking-wide text-primary">
+            <HolographicCard variant="accent" glow className="p-6 space-y-4">
+              <HolographicCardTitle className="text-lg">
                 PERFORMANCE
-              </h2>
+              </HolographicCardTitle>
               <div className="space-y-4">
-                <div className="text-center p-4 bg-black/50 border border-[#FF00FF]/30 rounded">
-                  <div className="text-xs text-muted-foreground uppercase mb-2">
+                <div className="text-center p-4 bg-background/50 border-2 border-secondary/40 jagged-corner-small">
+                  <div className="data-label mb-2">
                     Total Trades
                   </div>
-                  <div className="text-5xl font-bold">{totalTrades}</div>
+                  <div className="hud-readout text-5xl">{totalTrades}</div>
                 </div>
-                <div className="text-center p-4 bg-black/50 border border-accent/30 rounded">
-                  <div className="text-xs text-muted-foreground uppercase mb-2">
+                <div className="text-center p-4 bg-background/50 border-2 border-accent/40 angled-corner-tr">
+                  <div className="data-label mb-2">
                     Combined Profit
                   </div>
-                  <div className="text-5xl font-bold text-accent">
+                  <div className="text-5xl font-bold text-accent neon-glow-accent">
                     +${combinedProfit.toFixed(2)}
                   </div>
                 </div>
-                <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
-                  <div className="text-xs text-muted-foreground uppercase mb-2">
+                <div className="text-center p-4 bg-background/50 border-2 border-primary/40 angled-corner-bl">
+                  <div className="data-label mb-2">
                     Avg Confidence
                   </div>
-                  <div className="text-5xl font-bold text-primary">
+                  <div className="hud-readout text-5xl">
                     {avgConfidence.toFixed(0)}%
                   </div>
                 </div>
               </div>
-            </div>
+            </HolographicCard>
           </div>
         </div>
 
         {/* Bottom Summary Row */}
         <div className="grid grid-cols-3 gap-6">
-          <div className="cyber-card p-6 text-center space-y-4">
+          <HolographicCard variant="primary" glow className="p-6 text-center space-y-4">
             <div className="flex justify-center">
-              <TrendUp size={24} className="text-primary" />
+              <TrendUp size={24} className="text-primary animate-pulse-slow" weight="fill" />
             </div>
-            <div className="text-xs text-muted-foreground uppercase">
+            <div className="data-label">
               Success Rate
             </div>
-            <div className="text-5xl font-bold text-primary">94.2%</div>
-          </div>
-          <div className="cyber-card p-6 text-center space-y-4 border-[#FF00FF]">
+            <div className="hud-readout text-5xl">94.2%</div>
+          </HolographicCard>
+          <HolographicCard variant="secondary" glow className="p-6 text-center space-y-4">
             <div className="flex justify-center">
-              <Target size={24} className="text-[#FF00FF]" />
+              <Target size={24} className="text-secondary animate-pulse-slow" weight="fill" />
             </div>
-            <div className="text-xs text-muted-foreground uppercase">
+            <div className="data-label">
               Precision Score
             </div>
-            <div className="text-5xl font-bold text-[#FF00FF]">8.7/10</div>
-            <Progress value={87} className="h-1" />
-          </div>
-          <div className="cyber-card p-6 text-center space-y-4 border-secondary">
+            <div className="text-5xl font-bold text-secondary neon-glow">8.7/10</div>
+            <NeonProgress value={87} max={100} variant="secondary" animate showLabel={false} />
+          </HolographicCard>
+          <HolographicCard variant="accent" glow className="p-6 text-center space-y-4">
             <div className="flex justify-center">
-              <Brain size={24} className="text-secondary" />
+              <Brain size={24} className="text-accent animate-pulse" weight="fill" />
             </div>
-            <div className="text-xs text-muted-foreground uppercase">
+            <div className="data-label">
               AI Models
             </div>
-            <div className="text-5xl font-bold text-secondary">12</div>
-          </div>
+            <div className="text-5xl font-bold text-accent neon-glow-accent">12</div>
+          </HolographicCard>
         </div>
       </div>
     </div>
