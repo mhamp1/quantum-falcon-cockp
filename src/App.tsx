@@ -81,12 +81,14 @@ export default function App() {
             ))}
           </nav>
 
+          <div className="p-4 space-y-4 border-t-2 border-primary/20">
+            <button
               onClick={toggleTheme}
-            <buttoner-2 border-transparent text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5 rounded-lg"
+              className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all border-2 border-transparent text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5 rounded-lg"
               aria-label="Toggle theme"
             >
-              aria-label="Toggle theme"
-            >
+              {theme === 'light' ? (
+                <>
                   <Sun size={22} weight="duotone" />
                   <span className="font-medium uppercase tracking-wide text-sm">Light Mode</span>
                 </>
