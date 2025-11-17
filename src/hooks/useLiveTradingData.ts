@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useKV } from '@github/spark/hooks';
 import { tradingDataGenerator, BotLog, Activity } from '@/lib/tradingDataGenerator';
 
@@ -9,6 +9,12 @@ export function useLiveTradingData() {
   const [activeTrades, setActiveTrades] = useKV<number>('active-trades', 3);
   const [botLogs, setBotLogs] = useKV<BotLog[]>('bot-logs', []);
   const [recentActivity, setRecentActivity] = useKV<Activity[]>('recent-activity', []);
+
+  const metricsRef = useRef({ portfolioValue, dailyPnL, activeTrades });
+
+  useEffect(() => {
+    metricsRef.current = { portfolioValue, dailyPnL, activeTrades };
+  }, [portfolioValue, dailyPnL, activeTrades]);
 
   useEffect(() => {
     const updateMetrics = () => {
@@ -37,7 +43,10 @@ export function useLiveTradingData() {
       });
     };
 
-    updateMetrics();
+    const metricsInterval = setInterval(updateMetrics, 8000);
+    const logsInterval = setInterval(addBotLog, 5000);
+    const activityInterval = setInterval(addActivity, 7000);
+
     addBotLog();
     addActivity();
 

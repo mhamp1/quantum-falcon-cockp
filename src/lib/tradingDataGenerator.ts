@@ -106,9 +106,6 @@ export class TradingDataGenerator {
   private activityCounter = 1000;
   private tradeCounter = 1000;
   
-  private portfolioValue = 9843.21;
-  private dailyPnL = 342.56;
-  private activeTrades = 3;
   private totalTrades = 0;
   private winningTrades = 0;
 
@@ -220,27 +217,25 @@ export class TradingDataGenerator {
     ];
   }
 
-  updatePortfolioMetrics() {
+  updatePortfolioMetrics(currentPortfolio: number, currentPnL: number, currentActiveTrades: number) {
     const change = (Math.random() * 20 - 5);
-    this.portfolioValue += change;
-    this.dailyPnL += change;
+    const newPortfolioValue = currentPortfolio + change;
+    const newDailyPnL = currentPnL + change;
     
+    let newActiveTrades = currentActiveTrades;
     if (Math.random() > 0.7) {
-      this.activeTrades = Math.max(0, Math.min(5, this.activeTrades + (Math.random() > 0.5 ? 1 : -1)));
+      newActiveTrades = Math.max(0, Math.min(5, currentActiveTrades + (Math.random() > 0.5 ? 1 : -1)));
     }
     
     return {
-      portfolioValue: parseFloat(this.portfolioValue.toFixed(2)),
-      dailyPnL: parseFloat(this.dailyPnL.toFixed(2)),
+      portfolioValue: parseFloat(newPortfolioValue.toFixed(2)),
+      dailyPnL: parseFloat(newDailyPnL.toFixed(2)),
       winRate: this.totalTrades > 0 ? parseFloat(((this.winningTrades / this.totalTrades) * 100).toFixed(1)) : 68.5,
-      activeTrades: this.activeTrades,
+      activeTrades: newActiveTrades,
     };
   }
 
   reset() {
-    this.portfolioValue = 9843.21;
-    this.dailyPnL = 342.56;
-    this.activeTrades = 3;
     this.totalTrades = 0;
     this.winningTrades = 0;
   }
