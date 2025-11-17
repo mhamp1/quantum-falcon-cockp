@@ -1,35 +1,82 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  Coins,
-  Lightning,
-  Robot,
-  Target,
+  Play,
   ChartLine,
-  Brain,
-  ChatCircleDots,
+  EnvelopeSimple,
+  Users,
+  TrendUp,
+  TrendDown,
+  Lightning,
+  Crosshair,
+  CircleNotch,
 } from "@phosphor-icons/react";
 import { useKV } from "@github/spark/hooks";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { Textarea } from "@/components/ui/textarea";
 
 interface PortfolioData {
-  solanaBalance: number;
-  btcBalance: number;
   totalValue: number;
-  change24h: number;
+  todayPnL: number;
   activeAgents: number;
+  winRate: number;
+}
+
+interface Trade {
+  id: string;
+  timestamp: number;
+  pnl: number;
+  symbol: string;
 }
 
 export default function Dashboard() {
-  const [portfolio, setPortfolio] = useKV<PortfolioData>("portfolio", {
-    solanaBalance: 42.5,
-    btcBalance: 0.0125,
-    totalValue: 3245.67,
-    change24h: 5.23,
+  const [username] = useKV<string>("username", "OPERATOR");
+  const [portfolio, setPortfolio] = useKV<PortfolioData>("portfolio-metrics", {
+    totalValue: 12847.32,
+    todayPnL: 342.58,
     activeAgents: 3,
+    winRate: 68.4,
   });
 
-  const [showAssistant, setShowAssistant] = useState(false);
+  const [recentTrades, setRecentTrades] = useKV<Trade[]>("recent-trades", [
+    { id: "1", timestamp: Date.now() - 300000, pnl: 342.58, symbol: "SOL/USDT" },
+    { id: "2", timestamp: Date.now() - 600000, pnl: -100.00, symbol: "BTC/USDT" },
+    { id: "3", timestamp: Date.now() - 900000, pnl: 50.00, symbol: "ETH/USDT" },
+    { id: "4", timestamp: Date.now() - 1200000, pnl: 10.00, symbol: "SOL/USDT" },
+  ]);
+
+  const [tradingMode, setTradingMode] = useKV<"PAPER" | "LIVE">("trading-mode", "PAPER");
+  const [strategyCode, setStrategyCode] = useKV<string>("strategy-logic", 
+    `// Trading Strategy Logic\nif (RSI < 30 && MA_50 > MA_200) {\n  buySignal();\n} else if (RSI > 70) {\n  sellSignal();\n}`
+  );
+
+  const [agentProgress] = useState({
+    marketAnalysis: 100,
+    positionEval: 100,
+    strategyOpt: 100,
+    riskMgmt: 100,
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPortfolio((prev) => {
+        if (!prev) {
+          return {
+            totalValue: 12847.32,
+            todayPnL: 342.58,
+            activeAgents: 3,
+            winRate: 68.4,
+          };
+        }
+        return {
+          ...prev,
+          totalValue: prev.totalValue + (Math.random() - 0.5) * 10,
+          todayPnL: prev.todayPnL + (Math.random() - 0.5) * 2,
+        };
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [setPortfolio]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -39,287 +86,268 @@ export default function Dashboard() {
     }).format(value);
   };
 
-  const formatCrypto = (value: number, decimals: number = 4) => {
-    return value.toFixed(decimals);
+  const formatTime = (timestamp: number) => {
+    const minutes = Math.floor((Date.now() - timestamp) / 60000);
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    return `${Math.floor(minutes / 60)}h ago`;
   };
 
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-5xl font-bold uppercase tracking-[0.2em] neon-glow mb-3">
-            Mission Control
-          </h1>
-          <p className="text-base text-muted-foreground uppercase tracking-wide">
-            Real-time trading intelligence dashboard
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="w-4 h-4 bg-secondary rounded-full animate-pulse neon-glow" />
-          <span className="text-base font-bold tracking-wider text-secondary uppercase">
-            All Systems Operational
-          </span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div className="glass-morph-card p-10 hover:scale-105 transition-transform cursor-pointer">
-          <div className="flex items-start justify-between mb-8">
-            <div className="p-5 bg-primary/10 border-2 border-primary rounded-lg">
-              <Coins size={40} className="text-primary neon-glow-primary" />
-            </div>
-            <div className={`text-base font-bold px-4 py-2 border-2 rounded-lg ${(portfolio?.change24h ?? 0) >= 0 ? 'text-secondary border-secondary' : 'text-destructive border-destructive'}`}>
-              {(portfolio?.change24h ?? 0) >= 0 ? '+' : ''}{(portfolio?.change24h ?? 0).toFixed(2)}%
+    <div className="space-y-6">
+      <div className="glass-morph-card p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 opacity-50" />
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold uppercase tracking-[0.15em] neon-glow mb-2">
+              WELCOME BACK, {username}
+            </h1>
+            <div className="flex items-center gap-4 mt-3">
+              <div className="px-4 py-2 border-2 border-primary bg-primary/10 jagged-corner-small">
+                <span className="text-sm font-bold uppercase tracking-wider text-primary">
+                  {tradingMode} MODE
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Paper mode simulates a live environment with no risk.
+              </p>
             </div>
           </div>
-          <div className="space-y-3">
-            <div className="text-sm uppercase tracking-wider text-muted-foreground font-bold">Total Portfolio</div>
-            <div className="text-4xl font-bold neon-glow">{formatCurrency(portfolio?.totalValue ?? 0)}</div>
-          </div>
-        </div>
-
-        <div className="glass-morph-card p-10 hover:scale-105 transition-transform cursor-pointer">
-          <div className="flex items-start justify-between mb-8">
-            <div className="p-5 bg-secondary/10 border-2 border-secondary rounded-lg">
-              <Lightning size={40} className="text-secondary neon-glow" />
-            </div>
-            <div className="text-base font-bold text-primary px-4 py-2 border-2 border-primary rounded-lg">SOL</div>
-          </div>
-          <div className="space-y-3">
-            <div className="text-sm uppercase tracking-wider text-muted-foreground font-bold">Solana Balance</div>
-            <div className="text-4xl font-bold neon-glow">{formatCrypto(portfolio?.solanaBalance ?? 0)} SOL</div>
-          </div>
-        </div>
-
-        <div className="glass-morph-card p-10 hover:scale-105 transition-transform cursor-pointer">
-          <div className="flex items-start justify-between mb-8">
-            <div className="p-5 bg-accent/10 border-2 border-accent rounded-lg">
-              <Coins size={40} className="text-accent neon-glow-accent" />
-            </div>
-            <div className="text-base font-bold text-primary px-4 py-2 border-2 border-primary rounded-lg">BTC</div>
-          </div>
-          <div className="space-y-3">
-            <div className="text-sm uppercase tracking-wider text-muted-foreground font-bold">Bitcoin Vault</div>
-            <div className="text-4xl font-bold neon-glow">{formatCrypto(portfolio?.btcBalance ?? 0, 6)} BTC</div>
-          </div>
-        </div>
-
-        <div className="glass-morph-card p-10 hover:scale-105 transition-transform cursor-pointer">
-          <div className="flex items-start justify-between mb-8">
-            <div className="p-5 bg-primary/10 border-2 border-primary rounded-lg">
-              <Robot size={40} className="text-primary neon-glow-primary" />
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-secondary rounded-full animate-pulse neon-glow" />
-              <span className="text-xs font-bold text-secondary uppercase tracking-wider">ACTIVE</span>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <div className="text-sm uppercase tracking-wider text-muted-foreground font-bold">AI Agents</div>
-            <div className="text-4xl font-bold neon-glow">{portfolio?.activeAgents ?? 0}/3 Online</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-10">
-          <div className="glass-morph-card p-10">
-            <div className="flex items-center gap-5 mb-10">
-              <div className="p-5 bg-primary/10 border-2 border-primary rounded-lg">
-                <ChartLine size={40} className="text-primary neon-glow-primary" />
-              </div>
-              <div>
-                <h2 className="text-3xl font-bold uppercase tracking-wider neon-glow">
-                  Performance Overview
-                </h2>
-                <p className="text-sm text-muted-foreground uppercase tracking-wide mt-2">24-hour trading metrics</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-8">
-              <div className="p-8 bg-muted/20 border-2 border-primary/30 rounded-lg hover:border-primary/60 transition-all">
-                <div className="text-sm uppercase tracking-wider text-muted-foreground mb-4 font-semibold">Total Trades</div>
-                <div className="text-5xl font-bold neon-glow technical-readout">47</div>
-              </div>
-              <div className="p-8 bg-muted/20 border-2 border-secondary/30 rounded-lg hover:border-secondary/60 transition-all">
-                <div className="text-sm uppercase tracking-wider text-muted-foreground mb-4 font-semibold">Win Rate</div>
-                <div className="text-5xl font-bold text-secondary neon-glow technical-readout">68%</div>
-              </div>
-              <div className="p-8 bg-muted/20 border-2 border-accent/30 rounded-lg hover:border-accent/60 transition-all">
-                <div className="text-sm uppercase tracking-wider text-muted-foreground mb-4 font-semibold">Profit</div>
-                <div className="text-5xl font-bold text-accent neon-glow-accent technical-readout">+$127</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-10">
-          <div className="glass-morph-card p-10 scan-line-effect">
-            <div className="flex items-center gap-5 mb-10">
-              <div className="p-5 bg-secondary/10 border-2 border-secondary rounded-lg">
-                <Brain size={40} className="text-secondary neon-glow" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold uppercase tracking-wider neon-glow">
-                  Agent Status
-                </h2>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <div className="p-6 border-2 border-primary/30 bg-primary/5 rounded-lg hover:border-primary/60 transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-base font-bold uppercase tracking-wider">Market Analysis</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-secondary rounded-full animate-pulse neon-glow" />
-                    <span className="text-xs font-bold text-secondary uppercase tracking-wider">ACTIVE</span>
-                  </div>
-                </div>
-                <div className="text-sm text-muted-foreground mb-3">Scanning market conditions</div>
-                <div className="h-3 bg-muted relative overflow-hidden rounded-full">
-                  <div className="h-full bg-secondary neon-glow rounded-full" style={{ width: '87%' }} />
-                </div>
-              </div>
-
-              <div className="p-6 border-2 border-primary/30 bg-primary/5 rounded-lg hover:border-primary/60 transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-base font-bold uppercase tracking-wider">Strategy Execution</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-secondary rounded-full animate-pulse neon-glow" />
-                    <span className="text-xs font-bold text-secondary uppercase tracking-wider">ACTIVE</span>
-                  </div>
-                </div>
-                <div className="text-sm text-muted-foreground mb-3">Executing DCA orders</div>
-                <div className="h-3 bg-muted relative overflow-hidden rounded-full">
-                  <div className="h-full bg-secondary neon-glow rounded-full" style={{ width: '72%' }} />
-                </div>
-              </div>
-
-              <div className="p-6 border-2 border-primary/30 bg-primary/5 rounded-lg hover:border-primary/60 transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-base font-bold uppercase tracking-wider">RL Optimizer</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-secondary rounded-full animate-pulse neon-glow" />
-                    <span className="text-xs font-bold text-secondary uppercase tracking-wider">ACTIVE</span>
-                  </div>
-                </div>
-                <div className="text-sm text-muted-foreground mb-3">Optimizing parameters</div>
-                <div className="h-3 bg-muted relative overflow-hidden rounded-full">
-                  <div className="h-full bg-secondary neon-glow rounded-full" style={{ width: '94%' }} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="glass-morph-card p-10">
-            <div className="flex items-center gap-5 mb-10">
-              <div className="p-5 bg-accent/10 border-2 border-accent rounded-lg">
-                <Target size={40} className="text-accent neon-glow-accent" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold uppercase tracking-wider neon-glow-accent">
-                  Quick Stats
-                </h2>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <div className="flex items-center justify-between p-4 hover:bg-muted/20 transition-all border-l-2 border-primary/30 rounded">
-                <span className="text-base uppercase tracking-wider text-muted-foreground font-semibold">Active Positions</span>
-                <span className="text-2xl font-bold neon-glow">12</span>
-              </div>
-              <div className="flex items-center justify-between p-4 hover:bg-muted/20 transition-all border-l-2 border-primary/30 rounded">
-                <span className="text-base uppercase tracking-wider text-muted-foreground font-semibold">Pending Orders</span>
-                <span className="text-2xl font-bold neon-glow">5</span>
-              </div>
-              <div className="flex items-center justify-between p-4 hover:bg-muted/20 transition-all border-l-2 border-primary/30 rounded">
-                <span className="text-base uppercase tracking-wider text-muted-foreground font-semibold">Best Trade</span>
-                <span className="text-2xl font-bold text-secondary neon-glow">+$47.23</span>
-              </div>
-              <div className="flex items-center justify-between p-4 hover:bg-muted/20 transition-all border-l-2 border-primary/30 rounded">
-                <span className="text-base uppercase tracking-wider text-muted-foreground font-semibold">Avg. Hold Time</span>
-                <span className="text-2xl font-bold neon-glow">4.2h</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {showAssistant && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="fixed bottom-32 right-10 w-[480px] glass-morph-card p-8 z-50 shadow-2xl"
+          <Button
+            variant="outline"
+            className="border-2 border-destructive text-destructive hover:bg-destructive/10 jagged-corner-small uppercase tracking-wider font-bold"
           >
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4">
-                <div className="p-4 bg-primary/10 border-2 border-primary rounded-lg">
-                  <Robot size={32} className="text-primary neon-glow-primary" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold uppercase tracking-wider neon-glow">AI Assistant</h3>
-                  <p className="text-sm text-muted-foreground uppercase tracking-wide">Ask me anything</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowAssistant(false)}
-                className="border-2 border-primary hover:bg-primary/10 rounded-lg"
-              >
-                <span className="text-primary text-2xl">×</span>
-              </Button>
-            </div>
-            <div className="space-y-5">
-              <div className="p-5 bg-muted/20 border-l-4 border-primary rounded-lg">
-                <p className="text-base text-foreground mb-4">
-                  👋 Hello! I'm your AI trading assistant. I can help you with:
-                </p>
-                <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-primary rounded-full" />
-                    Market analysis and insights
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-primary rounded-full" />
-                    Trading strategy suggestions
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-primary rounded-full" />
-                    Agent configuration tips
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-primary rounded-full" />
-                    Performance optimization
-                  </li>
-                </ul>
-              </div>
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  placeholder="Type your question..."
-                  className="flex-1 px-5 py-4 bg-muted border-2 border-primary/30 focus:border-primary text-base uppercase tracking-wide outline-none transition-all rounded-lg"
-                />
-                <Button className="px-8 py-4 border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary neon-glow-primary uppercase tracking-wider font-bold rounded-lg">
-                  Send
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            Logout
+          </Button>
+        </div>
+      </div>
 
-      <motion.button
-        onClick={() => setShowAssistant(!showAssistant)}
-        className="fixed bottom-10 right-10 p-6 bg-primary border-3 border-primary rounded-xl neon-glow-primary shadow-2xl z-40 hover:scale-110 transition-transform"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <ChatCircleDots size={40} weight="fill" className="text-background" />
-        <div className="absolute -top-2 -right-2 w-5 h-5 bg-secondary rounded-full animate-pulse neon-glow" />
-      </motion.button>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          className="glass-morph-card p-6 relative overflow-hidden group cursor-pointer"
+        >
+          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-transparent animate-shimmer" />
+          <div className="relative z-10">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-3">
+              Total Portfolio
+            </div>
+            <div className="text-4xl font-bold neon-glow technical-readout mb-2">
+              {formatCurrency(portfolio?.totalValue ?? 0)}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <TrendUp size={16} className="text-secondary" />
+              <span className="text-sm font-bold text-secondary">+2.74%</span>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          className="glass-morph-card p-6 relative overflow-hidden group cursor-pointer"
+        >
+          <div className={`absolute inset-0 ${(portfolio?.todayPnL ?? 0) >= 0 ? 'bg-secondary/5' : 'bg-destructive/5'} opacity-0 group-hover:opacity-100 transition-opacity`} />
+          <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${(portfolio?.todayPnL ?? 0) >= 0 ? 'from-secondary' : 'from-destructive'} via-accent to-transparent animate-shimmer`} />
+          <div className="relative z-10">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-3">
+              Today's P&L
+            </div>
+            <div className={`text-4xl font-bold technical-readout mb-2 ${(portfolio?.todayPnL ?? 0) >= 0 ? 'text-secondary neon-glow' : 'text-destructive neon-glow-destructive'}`}>
+              {(portfolio?.todayPnL ?? 0) >= 0 ? '+' : ''}{formatCurrency(portfolio?.todayPnL ?? 0)}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              {(portfolio?.todayPnL ?? 0) >= 0 ? (
+                <TrendUp size={16} className="text-secondary" />
+              ) : (
+                <TrendDown size={16} className="text-destructive" />
+              )}
+              <span className={`text-sm font-bold ${(portfolio?.todayPnL ?? 0) >= 0 ? 'text-secondary' : 'text-destructive'}`}>
+                {(portfolio?.todayPnL ?? 0) >= 0 ? '+' : ''}{(((portfolio?.todayPnL ?? 0) / (portfolio?.totalValue ?? 1)) * 100).toFixed(2)}%
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          className="glass-morph-card p-6 relative overflow-hidden group cursor-pointer"
+        >
+          <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-transparent animate-shimmer" />
+          <div className="relative z-10">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-3">
+              Active Agents
+            </div>
+            <div className="text-4xl font-bold neon-glow technical-readout mb-2">
+              {portfolio?.activeAgents ?? 0}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="w-2 h-2 bg-secondary rounded-full animate-pulse neon-glow" />
+              <span className="text-sm font-bold text-secondary uppercase tracking-wider">ONLINE</span>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          className="glass-morph-card p-6 relative overflow-hidden group cursor-pointer"
+        >
+          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-transparent animate-shimmer" />
+          <div className="relative z-10">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mb-3">
+              Win Rate
+            </div>
+            <div className="text-4xl font-bold text-secondary neon-glow technical-readout mb-2">
+              {portfolio?.winRate?.toFixed(1) ?? '0.0'}%
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <Crosshair size={16} className="text-primary" />
+              <span className="text-sm font-bold text-primary">47 TRADES</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+        <Button className="w-full h-24 border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary jagged-corner-small neon-glow-primary group relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+          <div className="flex items-center gap-3 relative z-10">
+            <Play size={24} weight="fill" />
+            <span className="text-lg font-bold uppercase tracking-wider">START BOT</span>
+          </div>
+        </Button>
+
+        <Button className="w-full h-24 border-2 border-secondary bg-secondary/10 hover:bg-secondary/20 text-secondary jagged-corner-small neon-glow group relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-secondary/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+          <div className="flex items-center gap-3 relative z-10">
+            <ChartLine size={24} weight="fill" />
+            <span className="text-lg font-bold uppercase tracking-wider">VIEW ANALYTICS</span>
+          </div>
+        </Button>
+
+        <Button className="w-full h-24 border-2 border-accent bg-accent/10 hover:bg-accent/20 text-accent jagged-corner-small neon-glow-accent group relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+          <div className="flex items-center gap-3 relative z-10">
+            <EnvelopeSimple size={24} weight="fill" />
+            <span className="text-lg font-bold uppercase tracking-wider">CHECK EMAIL</span>
+          </div>
+        </Button>
+
+        <Button className="w-full h-24 border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary jagged-corner-small neon-glow-primary group relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+          <div className="flex items-center gap-3 relative z-10">
+            <Users size={24} weight="fill" />
+            <span className="text-lg font-bold uppercase tracking-wider">COMMUNITY</span>
+          </div>
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-morph-card p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-secondary/10 border-2 border-secondary jagged-corner-small">
+              <Lightning size={24} className="text-secondary neon-glow" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold uppercase tracking-wider neon-glow">AI Agent Status</h2>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Real-time processing</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              { label: "Market Analysis", progress: agentProgress.marketAnalysis },
+              { label: "Position Evaluation", progress: agentProgress.positionEval },
+              { label: "Strategy Optimization", progress: agentProgress.strategyOpt },
+              { label: "Risk Management", progress: agentProgress.riskMgmt },
+            ].map((agent, idx) => (
+              <div key={idx}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                    {agent.label}
+                  </span>
+                  <span className="text-sm font-bold text-secondary">{agent.progress}%</span>
+                </div>
+                <div className="h-3 bg-muted relative overflow-hidden rounded-full border border-primary/30">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${agent.progress}%` }}
+                    transition={{ duration: 1, delay: idx * 0.1 }}
+                    className="h-full bg-gradient-to-r from-primary via-secondary to-accent neon-glow rounded-full relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/30 to-transparent animate-shimmer" />
+                  </motion.div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-morph-card p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-accent/10 border-2 border-accent jagged-corner-small">
+              <CircleNotch size={24} className="text-accent neon-glow-accent" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold uppercase tracking-wider neon-glow-accent">Recent Activity</h2>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Live trade feed</p>
+            </div>
+          </div>
+
+          <div className="space-y-3 max-h-[240px] overflow-y-auto scrollbar-thin">
+            {(recentTrades ?? []).map((trade) => (
+              <motion.div
+                key={trade.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={`p-4 border-l-4 ${trade.pnl >= 0 ? 'border-secondary bg-secondary/5' : 'border-destructive bg-destructive/5'} jagged-corner-small hover:bg-muted/10 transition-all cursor-pointer`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-bold uppercase tracking-wider">
+                      Position closed: {trade.symbol}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">{formatTime(trade.timestamp)}</div>
+                  </div>
+                  <div className={`text-lg font-bold ${trade.pnl >= 0 ? 'text-secondary neon-glow' : 'text-destructive neon-glow-destructive'}`}>
+                    {trade.pnl >= 0 ? '+' : ''}{formatCurrency(trade.pnl)}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-morph-card p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-primary/10 border-2 border-primary jagged-corner-small">
+            <ChartLine size={24} className="text-primary neon-glow-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold uppercase tracking-wider neon-glow-primary">SET LOGIC STRATEGY</h2>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Configure trading rules</p>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 technical-grid opacity-20 pointer-events-none" />
+          <Textarea
+            value={strategyCode}
+            onChange={(e) => setStrategyCode(e.target.value)}
+            className="min-h-[150px] font-mono text-sm bg-muted/20 border-2 border-primary/30 focus:border-primary text-secondary jagged-corner-small resize-none"
+            placeholder="Enter your trading strategy logic..."
+          />
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button className="border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary jagged-corner-small neon-glow-primary uppercase tracking-wider font-bold px-8">
+            SAVE STRATEGY
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

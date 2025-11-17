@@ -18,6 +18,7 @@ import Trade from "@/components/trade/Trade";
 import VaultView from "@/components/vault/VaultView";
 import SocialCommunity from "@/components/community/SocialCommunity";
 import EnhancedSettings from "@/components/settings/EnhancedSettings";
+import AIAssistant from "@/components/shared/AIAssistant";
 
 interface Tab {
   id: string;
@@ -184,6 +185,7 @@ export default function App() {
         </main>
       </div>
 
+      <AIAssistant />
       <Toaster />
     </div>
   );
