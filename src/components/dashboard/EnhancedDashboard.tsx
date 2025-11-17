@@ -1,5 +1,5 @@
 // Enhanced Dashboard with React 19 performance optimizations and AI integration
-import { useKV } from '@/hooks/useKVFallback'
+import { useKV } from '@github/spark/hooks'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
 import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'

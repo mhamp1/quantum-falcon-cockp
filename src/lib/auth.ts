@@ -1,4 +1,4 @@
-import { useKV } from '@/hooks/useKVFallback'
+import { useKV } from '@github/spark/hooks'
 
 export interface LicenseTier {
   id: string

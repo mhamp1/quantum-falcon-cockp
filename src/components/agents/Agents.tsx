@@ -1,4 +1,4 @@
-import { useKV } from '@/hooks/useKVFallback'
+import { useKV } from '@github/spark/hooks'
 import { Switch } from '@/components/ui/switch'
 import { Robot, Brain, ChartLine, Lightning, Target, TrendUp, TrendDown, ArrowsClockwise, CheckCircle, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'

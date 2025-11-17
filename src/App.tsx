@@ -1,4 +1,4 @@
-import { useKV } from '@/hooks/useKVFallback';
+import { useKV } from '@github/spark/hooks';
 import { useEffect, useMemo, Suspense, lazy, useState } from 'react';
 import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning } from '@phosphor-icons/react';
 import { useIsMobile } from '@/hooks/use-mobile';
