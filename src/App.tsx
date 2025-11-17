@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   House,
   Robot,
@@ -68,6 +68,10 @@ const TABS: Tab[] = [
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.remove("high-contrast");
+  }, []);
 
   const currentTab = TABS.find((tab) => tab.id === activeTab) || TABS[0];
   const Component = currentTab.component;

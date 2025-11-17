@@ -198,6 +198,20 @@ export default function EnhancedSettings() {
     },
   });
 
+  useEffect(() => {
+    document.documentElement.classList.remove("high-contrast");
+    
+    if (settings?.theme?.highContrast) {
+      setSettings((current) => ({
+        ...current!,
+        theme: {
+          ...current!.theme,
+          highContrast: false,
+        },
+      }));
+    }
+  }, []);
+
   const achievements: Achievement[] = [
     {
       id: "1",

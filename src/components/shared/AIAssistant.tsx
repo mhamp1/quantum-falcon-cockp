@@ -90,7 +90,7 @@ User question: ${userInput}
 
 Provide a helpful, insightful response incorporating live market data when relevant. Discuss trading strategies, market analysis, technical indicators, or platform features. Keep responses under 200 words. Be professional yet friendly with actionable insights.`;
 
-      const response = await window.spark.llm(promptText, "gpt-4o-mini");
+      const response = await (window as any).spark.llm(promptText, "gpt-4o-mini");
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
