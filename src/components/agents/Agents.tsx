@@ -2,326 +2,342 @@ import {
   Robot,
   Brain,
   ChartLine,
-  Shield,
-  Scales,
-  Fire,
-  ArrowUp,
-  Circle,
+  Lightning,
+  TrendUp,
+  Target,
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
-import { useState } from "react";
-import { Slider } from "@/components/ui/slider";
+import { useState, useEffect, useMemo } from "react";
+import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
 
 interface Agent {
-  id: number;
+  id: string;
   name: string;
   description: string;
   icon: any;
+  iconColor: string;
+  enabled: boolean;
+  level: number;
+  xp: number;
+  xpToNext: number;
   metrics: {
-    cpu: number;
-    memory: number;
-    status: number;
+    confidence: number;
+    actions: number;
+    profit: number;
   };
 }
 
-const agents: Agent[] = [
+interface ActivityLog {
+  id: string;
+  agentId: string;
+  agentName: string;
+  action: string;
+  timestamp: string;
+}
+
+const initialAgents: Agent[] = [
   {
-    id: 1,
-    name: "Market Analyst",
-    description:
-      "Continuously scans the Solana ecosystem for trading opportunities and market trends.",
+    id: "market-analyst",
+    name: "MARKET ANALYST",
+    description: "SCANS SOLANA ECOSYSTEM FOR TRADING OPPORTUNITIES AND MARKET TRENDS",
     icon: ChartLine,
-    metrics: { cpu: 45, memory: 32, status: 100 },
+    iconColor: "text-secondary",
+    enabled: true,
+    level: 12,
+    xp: 3420,
+    xpToNext: 5000,
+    metrics: { confidence: 87, actions: 247, profit: 234.56 },
   },
   {
-    id: 2,
-    name: "Strategy Engine",
-    description:
-      "Executes DCA schedules and sniping strategies based on market signals.",
+    id: "strategy-engine",
+    name: "STRATEGY ENGINE",
+    description: "EXECUTES DCA SCHEDULES AND SNIPING STRATEGIES BASED ON MARKET SIGNALS",
     icon: Robot,
-    metrics: { cpu: 52, memory: 41, status: 100 },
+    iconColor: "text-primary",
+    enabled: true,
+    level: 18,
+    xp: 7823,
+    xpToNext: 10000,
+    metrics: { confidence: 92, actions: 12, profit: 512.33 },
   },
   {
-    id: 3,
-    name: "RL Optimizer",
-    description:
-      "Reinforcement learning model that adapts strategies based on outcomes.",
+    id: "rl-optimizer",
+    name: "RL OPTIMIZER",
+    description: "REINFORCEMENT LEARNING MODEL THAT ADAPTS STRATEGIES BASED ON OUTCOMES",
     icon: Brain,
-    metrics: { cpu: 38, memory: 28, status: 100 },
+    iconColor: "text-[#FF00FF]",
+    enabled: true,
+    level: 8,
+    xp: 1245,
+    xpToNext: 3000,
+    metrics: { confidence: 78, actions: 3, profit: 89.12 },
   },
 ];
 
-const aggressionLevels = [
-  {
-    level: "Cautious",
-    icon: Shield,
-    color: "border-primary",
-    description:
-      "Conservative risk-taking, low-frequency trades, focus on preservation.",
-  },
-  {
-    level: "Moderate",
-    icon: Scales,
-    color: "border-secondary",
-    description: "Balanced approach, medium risk, steady growth.",
-  },
-  {
-    level: "Aggressive",
-    icon: Fire,
-    color: "border-destructive",
-    description:
-      "High-risk trading, frequent actions, potential for high returns.",
-  },
-];
+export default function AgentsExact() {
+  const [agents, setAgents] = useState<Agent[]>(initialAgents);
+  const [activityLog, setActivityLog] = useState<ActivityLog[]>([
+    {
+      id: "1",
+      agentId: "market-analyst",
+      agentName: "MARKET ANALYST",
+      action: "Analyzed SOL/USDC pair",
+      timestamp: "10:00:10 PM",
+    },
+  ]);
 
-const pipelineSteps = [
-  "Market Data Ingestion: Real-time data from multiple sources including DEXs and oracles.",
-  "Signal Processing: Analyze trends, volatility, and patterns using ML algorithms.",
-  "Strategy Selection: Choose optimal trading strategy based on current conditions.",
-  "Order Execution: Execute trades with minimal latency and slippage control.",
-  "Performance Tracking: Monitor outcomes and feed back into RL model for optimization.",
-];
-
-export default function AgentsNew() {
-  const [activeSubTab, setActiveSubTab] = useState("overview");
-  const [activeArchTab, setActiveArchTab] = useState("architecture");
-  const [aggressionValue, setAggressionValue] = useState([1]);
-
-  const handleAggressionChange = (value: number[]) => {
-    setAggressionValue(value);
-    const level = value[0] === 1 ? "Cautious" : value[0] === 2 ? "Moderate" : "Aggressive";
-    toast.success(`Bot aggression set to ${level}`, {
-      description: `Level ${value[0]} activated`,
-    });
+  const toggleAgent = (agentId: string) => {
+    setAgents((prev) =>
+      prev.map((agent) =>
+        agent.id === agentId ? { ...agent, enabled: !agent.enabled } : agent
+      )
+    );
+    const agent = agents.find((a) => a.id === agentId);
+    if (agent) {
+      toast.success(`${agent.name} ${agent.enabled ? "DEACTIVATED" : "ACTIVATED"}`);
+    }
   };
 
+  const totalTrades = useMemo(
+    () => agents.reduce((sum, a) => sum + a.metrics.actions, 0),
+    [agents]
+  );
+
+  const combinedProfit = useMemo(
+    () => agents.reduce((sum, a) => sum + a.metrics.profit, 0),
+    [agents]
+  );
+
+  const avgConfidence = useMemo(
+    () =>
+      agents.reduce((sum, a) => sum + a.metrics.confidence, 0) / agents.length,
+    [agents]
+  );
+
   return (
-    <div className="space-y-8 pb-12">
-      {/* Header */}
-      <div className="space-y-4">
-        <h1 className="text-4xl font-bold uppercase tracking-wider text-secondary neon-glow-secondary">
-          MULTI-AGENT SYSTEM
-        </h1>
-        <p className="text-sm text-muted-foreground leading-relaxed max-w-5xl">
-          The Quantum Falcon multi-agent system utilizes advanced reinforcement
-          learning, self-optimizing algorithms, and concurrent trading
-          intelligence. Each agent operates independently while coordinating
-          through shared knowledge to optimize performance.
-        </p>
+    <div className="relative min-h-full">
+      {/* Background Grid */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(20, 241, 149, 0.05) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(20, 241, 149, 0.05) 1px, transparent 1px)
+            `,
+            backgroundSize: "50px 50px",
+            filter: "blur(1px)",
+          }}
+        />
       </div>
 
-      {/* Sub-Tab Navigation */}
-      <div className="flex gap-2">
-        {["overview", "settings", "logs", "analytics"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveSubTab(tab)}
-            className={`px-6 py-2 text-sm font-semibold uppercase tracking-wider rounded border-2 transition-all ${
-              activeSubTab === tab
-                ? "bg-primary/10 border-primary text-primary shadow-[0_0_8px_currentColor]"
-                : "border-primary/30 text-muted-foreground hover:border-primary/50 hover:text-primary"
-            }`}
-          >
-            {tab === "overview" ? "Bot Overview" : `Bot ${tab}`}
-          </button>
-        ))}
-      </div>
-
-      {/* System Metrics Row */}
-      <div className="grid grid-cols-4 gap-4">
-        {[
-          { label: "System Uptime", value: "94.7%", color: "text-primary" },
-          { label: "Total Trades", value: "1,241", color: "text-foreground" },
-          { label: "Success Rate", value: "81.3%", color: "text-accent" },
-          { label: "Total Profit", value: "$2,035", color: "text-primary" },
-        ].map((metric, i) => (
-          <div
-            key={i}
-            className="cyber-card p-4 space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {metric.label}
-              </span>
-              {i === 0 && <ArrowUp size={16} className="text-primary" />}
-            </div>
-            <div className={`text-2xl font-bold ${metric.color}`}>
-              {metric.value}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Bot Aggression Section */}
-      <div className="space-y-6">
+      <div className="relative z-10 space-y-6 pb-12">
+        {/* Header */}
         <div className="text-center space-y-4">
-          <h2 className="text-3xl font-bold uppercase tracking-widest text-primary neon-glow-primary">
-            BOT AGGRESSION
-          </h2>
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex items-center justify-center w-12 h-12 border-2 border-primary rounded bg-primary/10 text-xl font-bold text-primary">
-              {aggressionValue[0]}
+          <h1 className="text-5xl font-bold uppercase tracking-[0.15em] text-primary neon-glow-primary">
+            AI AGENT COMMAND
+          </h1>
+          <p className="text-sm text-muted-foreground uppercase tracking-[0.2em]">
+            AUTONOMOUS TRADING INTELLIGENCE // MULTI-AGENT COORDINATION SYSTEM
+          </p>
+          <div className="mx-auto w-4/5 h-px bg-primary/50" />
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-[1fr_35%] gap-6">
+          {/* Left Column - Agent Cards */}
+          <div className="space-y-6">
+            {agents.map((agent, idx) => {
+              const Icon = agent.icon;
+              const xpPercent = (agent.xp / agent.xpToNext) * 100;
+              
+              return (
+                <motion.div
+                  key={agent.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="cyber-card p-6 space-y-4"
+                  style={{
+                    clipPath:
+                      "polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)",
+                  }}
+                >
+                  {/* Header Row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded ${agent.iconColor}`}>
+                        <Icon size={32} weight="duotone" />
+                      </div>
+                      <h3 className="text-xl font-bold uppercase tracking-wide">
+                        {agent.name}
+                      </h3>
+                      <div className="flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent rounded-full">
+                        <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+                        <span className="text-xs font-bold text-accent uppercase">
+                          ACTIVE
+                        </span>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={agent.enabled}
+                      onCheckedChange={() => toggleAgent(agent.id)}
+                      className="data-[state=checked]:bg-primary"
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                    {agent.description}
+                  </p>
+
+                  {/* Level & XP */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="px-2 py-1 bg-secondary/20 border border-secondary rounded text-xs font-bold uppercase">
+                        LVL {agent.level}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {agent.xp} / {agent.xpToNext}
+                      </span>
+                    </div>
+                    <Progress value={xpPercent} className="h-1" />
+                  </div>
+
+                  {/* Metrics Row */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
+                      <div className="text-xs text-muted-foreground uppercase mb-2">
+                        Confidence
+                      </div>
+                      <div className="text-4xl font-bold text-primary">
+                        {agent.metrics.confidence}%
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
+                      <div className="text-xs text-muted-foreground uppercase mb-2">
+                        Actions
+                      </div>
+                      <div className="text-4xl font-bold">
+                        {agent.metrics.actions}
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-black/50 border border-accent/30 rounded">
+                      <div className="text-xs text-muted-foreground uppercase mb-2">
+                        Profit
+                      </div>
+                      <div className="text-4xl font-bold text-accent">
+                        +${agent.metrics.profit.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* Live Activity Panel */}
+            <div className="cyber-card p-6 space-y-4 h-[400px] flex flex-col">
+              <div className="flex items-center gap-2">
+                <Lightning size={20} weight="fill" className="text-[#FFFF00]" />
+                <h2 className="text-lg font-bold uppercase tracking-wide text-[#FF00FF]">
+                  LIVE ACTIVITY
+                </h2>
+              </div>
+              <div className="flex-1 overflow-y-auto scrollbar-thin space-y-3">
+                {activityLog.map((log) => {
+                  const agent = agents.find((a) => a.id === log.agentId);
+                  const Icon = agent?.icon || ChartLine;
+                  return (
+                    <div
+                      key={log.id}
+                      className="p-3 bg-black/50 border border-primary/20 rounded space-y-1"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon size={16} className="text-secondary" />
+                        <span className="text-xs font-bold uppercase">
+                          {log.agentName}
+                        </span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {log.action}
+                      </div>
+                      <div className="text-xs text-muted-foreground/60 text-right">
+                        {log.timestamp}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <span className="text-xl font-semibold uppercase tracking-wider text-primary">
-              {aggressionValue[0] === 1
-                ? "CAUTIOUS"
-                : aggressionValue[0] === 2
-                  ? "MODERATE"
-                  : "AGGRESSIVE"}
-            </span>
-          </div>
-          <div className="max-w-2xl mx-auto px-8">
-            <Slider
-              value={aggressionValue}
-              onValueChange={handleAggressionChange}
-              min={1}
-              max={3}
-              step={1}
-              className="cursor-pointer"
-            />
-          </div>
-        </div>
 
-        {/* Aggression Level Options */}
-        <div className="grid grid-cols-3 gap-6">
-          {aggressionLevels.map((level, i) => {
-            const Icon = level.icon;
-            return (
-              <button
-                key={i}
-                onClick={() => handleAggressionChange([i + 1])}
-                className={`cyber-card p-6 space-y-4 text-left transition-all hover:scale-105 ${level.color} ${
-                  aggressionValue[0] === i + 1
-                    ? "shadow-[0_0_20px_currentColor]"
-                    : ""
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon size={24} className="text-current" />
-                  <h3 className="text-lg font-bold uppercase tracking-wide">
-                    {level.level}
-                  </h3>
+            {/* Performance Panel */}
+            <div className="cyber-card p-6 space-y-4 border-[#FF00FF]">
+              <h2 className="text-lg font-bold uppercase tracking-wide text-primary">
+                PERFORMANCE
+              </h2>
+              <div className="space-y-4">
+                <div className="text-center p-4 bg-black/50 border border-[#FF00FF]/30 rounded">
+                  <div className="text-xs text-muted-foreground uppercase mb-2">
+                    Total Trades
+                  </div>
+                  <div className="text-5xl font-bold">{totalTrades}</div>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {level.description}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Detailed Description */}
-        <p className="text-xs text-primary/80 leading-relaxed max-w-6xl">
-          Set aggression level. Higher levels increase trade frequency, risk
-          exposure, and potential returns. Cautious mode prioritizes capital
-          preservation over growth. Moderate mode balances risk and reward.
-          Aggressive mode optimizes for maximum returns but increases
-          volatility. Current setting: {aggressionValue[0] === 1 ? "Cautious" : aggressionValue[0] === 2 ? "Moderate" : "Aggressive"} (Level {aggressionValue[0]}). System
-          will automatically adjust based on market conditions unless overridden.
-        </p>
-      </div>
-
-      {/* System Status Indicators */}
-      <div className="flex flex-wrap gap-4">
-        {[
-          "System Status ONLINE",
-          "Network CONNECTED",
-          "Algorithms OPERATIONAL",
-          "Agents ACTIVE",
-        ].map((status, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2 px-4 py-2 bg-black/50 border border-primary/30 rounded-full"
-          >
-            <Circle size={8} weight="fill" className="text-accent" />
-            <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-              {status}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Sub-Section Tabs */}
-      <div className="flex gap-2">
-        {["architecture", "asset", "configuration"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveArchTab(tab)}
-            className={`px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded border transition-all ${
-              activeArchTab === tab
-                ? "bg-primary/10 border-primary text-primary"
-                : "border-primary/30 text-muted-foreground hover:border-primary/50"
-            }`}
-          >
-            {tab === "asset" ? "Asset Detail" : tab}
-          </button>
-        ))}
-      </div>
-
-      {/* System Architecture Panel */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold uppercase tracking-wider text-secondary">
-          SYSTEM ARCHITECTURE
-        </h2>
-        <div className="grid grid-cols-3 gap-6">
-          {agents.map((agent) => {
-            const Icon = agent.icon;
-            return (
-              <div
-                key={agent.id}
-                className="cyber-card p-6 space-y-4 border-secondary"
-              >
-                <div className="flex items-center justify-center w-16 h-16 mx-auto bg-secondary/10 border-2 border-secondary rounded-lg">
-                  <Icon size={32} className="text-secondary" />
+                <div className="text-center p-4 bg-black/50 border border-accent/30 rounded">
+                  <div className="text-xs text-muted-foreground uppercase mb-2">
+                    Combined Profit
+                  </div>
+                  <div className="text-5xl font-bold text-accent">
+                    +${combinedProfit.toFixed(2)}
+                  </div>
                 </div>
-                <h3 className="text-center text-base font-bold uppercase tracking-wide">
-                  AGENT {agent.id} {agent.name}
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed text-center">
-                  {agent.description}
-                </p>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">CPU</span>
-                    <span className="text-primary font-semibold">
-                      {agent.metrics.cpu}%
-                    </span>
+                <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
+                  <div className="text-xs text-muted-foreground uppercase mb-2">
+                    Avg Confidence
                   </div>
-                  <Progress value={agent.metrics.cpu} className="h-1" />
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Memory</span>
-                    <span className="text-primary font-semibold">
-                      {agent.metrics.memory}%
-                    </span>
+                  <div className="text-5xl font-bold text-primary">
+                    {avgConfidence.toFixed(0)}%
                   </div>
-                  <Progress value={agent.metrics.memory} className="h-1" />
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Status</span>
-                    <span className="text-accent font-semibold">
-                      {agent.metrics.status}%
-                    </span>
-                  </div>
-                  <Progress value={agent.metrics.status} className="h-1" />
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Data Flow Pipeline */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold uppercase tracking-wider text-primary">
-          DATA FLOW PIPELINE
-        </h2>
-        <div className="space-y-3">
-          {pipelineSteps.map((step, i) => (
-            <div key={i} className="flex gap-3 text-sm">
-              <span className="text-primary font-bold">•</span>
-              <span className="text-foreground/90 leading-relaxed">{step}</span>
             </div>
-          ))}
+          </div>
+        </div>
+
+        {/* Bottom Summary Row */}
+        <div className="grid grid-cols-3 gap-6">
+          <div className="cyber-card p-6 text-center space-y-4">
+            <div className="flex justify-center">
+              <TrendUp size={24} className="text-primary" />
+            </div>
+            <div className="text-xs text-muted-foreground uppercase">
+              Success Rate
+            </div>
+            <div className="text-5xl font-bold text-primary">94.2%</div>
+          </div>
+          <div className="cyber-card p-6 text-center space-y-4 border-[#FF00FF]">
+            <div className="flex justify-center">
+              <Target size={24} className="text-[#FF00FF]" />
+            </div>
+            <div className="text-xs text-muted-foreground uppercase">
+              Precision Score
+            </div>
+            <div className="text-5xl font-bold text-[#FF00FF]">8.7/10</div>
+            <Progress value={87} className="h-1" />
+          </div>
+          <div className="cyber-card p-6 text-center space-y-4 border-secondary">
+            <div className="flex justify-center">
+              <Brain size={24} className="text-secondary" />
+            </div>
+            <div className="text-xs text-muted-foreground uppercase">
+              AI Models
+            </div>
+            <div className="text-5xl font-bold text-secondary">12</div>
+          </div>
         </div>
       </div>
     </div>
