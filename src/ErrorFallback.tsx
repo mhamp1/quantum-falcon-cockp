@@ -1,19 +1,19 @@
 // Error Handling Component (Error Boundary Fallback) - Further enhanced with error reporting, retry logic, and improved accessibility
 import { useEffect, useState } from 'react';
-import { Alert, AlertTitle, AlertDescription } from './components/ui/alert';
-import { Button } from './components/ui/button';
-import { AlertTriangleIcon, RefreshCwIcon, CopyIcon, SendIcon } from 'lucide-react';
+import { AlertTriangleIcon, RefreshCwIcon, CopyIcon, SendIcon } from 'lucide
+interface ErrorFallbackProps {
+  resetErrorBoundary: () => void;
 
 interface ErrorFallbackProps {
-  error: Error;
+    await navig
   resetErrorBoundary: () => void;
-}
+ 
 
-// Helper function to copy error to clipboard
-const copyErrorToClipboard = async (errorMessage: string) => {
+// Simulate sending error report (replace wit
   try {
-    await navigator.clipboard.writeText(errorMessage);
-    // Optional: Show a toast notification instead of alert
+    con
+  } catch (err) {
+  }
     console.log('Error details copied to clipboard');
   } catch (err) {
     console.error('Failed to copy error to clipboard:', err);
@@ -31,39 +31,39 @@ const reportError = async (error: Error) => {
   }
 };
 
-export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps) => {
-  const [isReporting, setIsReporting] = useState(false);
-  const [hasReported, setHasReported] = useState(false);
+              aria-label="Copy error details to clipboard"
+              <CopyIcon size={16} />
+          </div>
 
-  useEffect(() => {
-    console.error('Application error:', error);
-  }, [error]);
+          {error.st
+              <summary className="text-xs text-
+              
 
-  const handleReport = async () => {
-    setIsReporting(true);
-    await reportError(error);
-    setHasReported(true);
-    setIsReporting(false);
-  };
+        </div>
+        <div className="f
+            onClick={resetErr
+            variant="outl
+          >
+    
 
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4" role="alert">
-      <div className="w-full max-w-md space-y-6">
-        <Alert variant="destructive">
-          <AlertTriangleIcon aria-hidden="true" />
-          <AlertTitle>Something went wrong</AlertTitle>
-          <AlertDescription>
-            An unexpected error occurred. We've logged this for review. You can try refreshing or contact support.
-          </AlertDescription>
-        </Alert>
+          
+            aria-label="Report this error"
+            <SendIcon aria-hidden="true" classNam
+          </Button>
+      </div>
+  );
 
-        <div className="bg-card border rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-sm text-muted-foreground">Error Details:</h3>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => copyErrorToClipboard(`${error.message}\n\nStack Trace:\n${error.stack || 'N/A'}`)}
+
+
+
+
+
+
+
+
+
+
+
               aria-label="Copy error details to clipboard"
             >
               <CopyIcon size={16} />
