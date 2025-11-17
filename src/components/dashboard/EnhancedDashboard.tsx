@@ -324,11 +324,10 @@ export default function EnhancedDashboard() {
       <LicenseExpiry />
 
       <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        whileHover={{ scale: 1.01 }}
-        className="glass-morph-card p-6 relative overflow-hidden transition-all"
+        className="glass-morph-card p-6 relative overflow-hidden"
       >
         <div className="absolute inset-0 grid-background opacity-5" />
         <svg className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
@@ -351,10 +350,10 @@ export default function EnhancedDashboard() {
             </div>
           </div>
           
-          <div className="flex items-center gap-3 p-4 bg-background/40 backdrop-blur-sm border-2 jagged-corner" style={{
+          <div className="flex items-center gap-3 p-4 bg-background/60 border-2 jagged-corner transition-colors" style={{
             borderColor: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
           }}>
-            <Label htmlFor="paper-mode" className="text-sm font-bold uppercase tracking-wide cursor-pointer" style={{
+            <Label htmlFor="paper-mode" className="text-sm font-bold uppercase tracking-wide cursor-pointer transition-colors" style={{
               color: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
             }}>
               {paperTradingMode ? 'PAPER MODE' : 'LIVE MODE'}
