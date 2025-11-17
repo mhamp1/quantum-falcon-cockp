@@ -30,7 +30,6 @@ export function useKVFallback<T>(
   initialValue: T,
 ): [T, (value: SetStateAction<T>) => void, () => void] {
   const [value, setValue] = useState<T>(initialValue);
-  const [isLoading, setIsLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   // Load initial value from storage
@@ -47,10 +46,8 @@ export function useKVFallback<T>(
           if (storedValue !== undefined) {
             setValue(storedValue);
           } else {
-            // If no value exists, set the initial value
             await setKVValue(key, initialValue);
           }
-          setIsLoading(false);
           setHasLoadedOnce(true);
         }
       } catch (error) {
@@ -60,7 +57,6 @@ export function useKVFallback<T>(
         );
         if (isMounted) {
           setValue(initialValue);
-          setIsLoading(false);
           setHasLoadedOnce(true);
         }
       }

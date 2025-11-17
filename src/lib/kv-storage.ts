@@ -26,13 +26,18 @@ export async function isSparkKVAvailable(): Promise<boolean> {
     return sparkKVAvailable;
   }
 
-  // Try to connect to Spark KV
+  // Try to connect to Spark KV with timeout
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1000);
+    
     const response = await fetch("/_spark/kv", {
       method: "GET",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
     });
-    // 200 = available, anything else (401, 403, 404, etc) = unavailable
+    
+    clearTimeout(timeoutId);
     sparkKVAvailable = response.status === 200;
   } catch {
     sparkKVAvailable = false;
@@ -62,10 +67,16 @@ export async function getKVValue<T>(key: string): Promise<T | undefined> {
 
   // Try Spark KV first, fall back to localStorage on error
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    
     const response = await fetch(`/_spark/kv/${encodeURIComponent(key)}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error("KV fetch failed");
@@ -93,11 +104,17 @@ export async function setKVValue<T>(key: string, value: T): Promise<void> {
 
   // Try Spark KV first, fall back to localStorage on error
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    
     const response = await fetch(`/_spark/kv/${encodeURIComponent(key)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ value }),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error("KV set failed");
@@ -122,10 +139,16 @@ export async function deleteKVValue(key: string): Promise<void> {
 
   // Try Spark KV first, fall back to localStorage on error
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    
     const response = await fetch(`/_spark/kv/${encodeURIComponent(key)}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error("KV delete failed");
@@ -149,10 +172,16 @@ export async function getKVKeys(): Promise<string[]> {
 
   // Try Spark KV first, fall back to localStorage on error
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    
     const response = await fetch("/_spark/kv", {
       method: "GET",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error("KV keys fetch failed");
