@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks';
+import { useKV } from '@/hooks/useKVFallback';
 import { useEffect } from 'react';
 
 export type Theme = 'dark' | 'light';
