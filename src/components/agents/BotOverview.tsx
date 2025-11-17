@@ -1,53 +1,13 @@
-import { useKV } from '@github/spark/hooks';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Robot, Lightning, TrendUp, Brain } from '@phosphor-icons/react';
+import { useLiveAgentData } from '@/hooks/useLiveAgentData';
 
 export default function BotOverview() {
-  const [agents] = useKV<Array<{
-    id: string;
-    name: string;
-    status: 'active' | 'inactive' | 'processing';
-    confidence: number;
-    trades: number;
-    profit: number;
-    xp: number;
-    level: number;
-  }>>('agents', [
-    {
-      id: 'market-analyzer',
-      name: 'Market Analyzer',
-      status: 'active',
-      confidence: 85,
-      trades: 147,
-      profit: 1234.56,
-      xp: 4500,
-      level: 12,
-    },
-    {
-      id: 'strategy-executor',
-      name: 'Strategy Execution',
-      status: 'active',
-      confidence: 92,
-      trades: 203,
-      profit: 2341.78,
-      xp: 6200,
-      level: 15,
-    },
-    {
-      id: 'rl-optimizer',
-      name: 'RL Optimizer',
-      status: 'active',
-      confidence: 78,
-      trades: 89,
-      profit: 987.45,
-      xp: 3100,
-      level: 9,
-    },
-  ]);
+  const agents = useLiveAgentData();
 
   return (
     <div className="space-y-6">

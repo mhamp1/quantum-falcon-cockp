@@ -1,9 +1,11 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChartLine, TrendUp, Coins } from '@phosphor-icons/react';
+import { ChartLine, TrendUp, Coins, ArrowUp, ArrowDown } from '@phosphor-icons/react';
+import { useLiveAnalytics } from '@/hooks/useLiveAnalytics';
 
 export default function Analytics() {
+  const { totalPnL, totalTrades, winRate, avgTrade, tradeHistory } = useLiveAnalytics();
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b-2 border-primary/30">
@@ -23,8 +25,10 @@ export default function Analytics() {
             <p className="text-xs uppercase text-muted-foreground">Total P&L</p>
             <TrendUp size={24} weight="duotone" className="text-accent/20" />
           </div>
-          <p className="text-3xl font-bold text-accent">+$4,563.79</p>
-          <p className="text-xs text-muted-foreground mt-1">+12.4% this month</p>
+          <p className="text-3xl font-bold text-accent">+${(totalPnL || 0).toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {(totalPnL || 0) > 0 ? '+' : ''}{(((totalPnL || 0) / 36000) * 100).toFixed(1)}% this month
+          </p>
         </Card>
 
         <Card className="p-6 bg-card/50 border-2 border-primary/30">
@@ -32,8 +36,8 @@ export default function Analytics() {
             <p className="text-xs uppercase text-muted-foreground">Win Rate</p>
             <ChartLine size={24} weight="duotone" className="text-primary/20" />
           </div>
-          <p className="text-3xl font-bold text-primary">68.5%</p>
-          <p className="text-xs text-muted-foreground mt-1">439 total trades</p>
+          <p className="text-3xl font-bold text-primary">{(winRate || 0).toFixed(1)}%</p>
+          <p className="text-xs text-muted-foreground mt-1">{totalTrades || 0} total trades</p>
         </Card>
 
         <Card className="p-6 bg-card/50 border-2 border-primary/30">
@@ -41,7 +45,7 @@ export default function Analytics() {
             <p className="text-xs uppercase text-muted-foreground">Avg Trade</p>
             <Coins size={24} weight="duotone" className="text-primary/20" />
           </div>
-          <p className="text-3xl font-bold text-primary">$10.39</p>
+          <p className="text-3xl font-bold text-primary">${(avgTrade || 0).toFixed(2)}</p>
           <p className="text-xs text-muted-foreground mt-1">Per trade profit</p>
         </Card>
       </div>
@@ -78,36 +82,31 @@ export default function Analytics() {
         </h2>
 
         <div className="space-y-2">
-          {[
-            { pair: 'SOL/USDC', type: 'BUY', price: '$98.45', pnl: '+$24.50', status: 'Completed' },
-            { pair: 'BTC/USDC', type: 'SELL', price: '$43,234', pnl: '+$156.78', status: 'Completed' },
-            { pair: 'ETH/USDC', type: 'BUY', price: '$2,345', pnl: '-$12.34', status: 'Completed' },
-            { pair: 'SOL/USDC', type: 'BUY', price: '$97.89', pnl: '+$45.67', status: 'Completed' },
-          ].map((trade, idx) => (
+          {(tradeHistory || []).slice(0, 10).map((trade, idx) => (
             <div
-              key={idx}
+              key={trade.id}
               className="flex items-center justify-between p-4 bg-muted/20 border border-primary/20"
             >
               <div className="flex items-center gap-4">
                 <Badge
                   className={`${
-                    trade.type === 'BUY'
+                    trade.side === 'buy'
                       ? 'bg-accent/20 text-accent border-accent'
                       : 'bg-destructive/20 text-destructive border-destructive'
                   } border uppercase`}
                 >
-                  {trade.type}
+                  {trade.side}
                 </Badge>
-                <span className="font-bold">{trade.pair}</span>
-                <span className="text-muted-foreground">{trade.price}</span>
+                <span className="font-bold">{trade.symbol}/USDC</span>
+                <span className="text-muted-foreground">${trade.price.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-4">
                 <span
                   className={`font-bold ${
-                    trade.pnl.startsWith('+') ? 'text-accent' : 'text-destructive'
+                    trade.pnl >= 0 ? 'text-accent' : 'text-destructive'
                   }`}
                 >
-                  {trade.pnl}
+                  {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
                 </span>
                 <Badge className="bg-primary/20 text-primary border-primary border uppercase text-xs">
                   {trade.status}
@@ -115,6 +114,11 @@ export default function Analytics() {
               </div>
             </div>
           ))}
+          {(!tradeHistory || tradeHistory.length === 0) && (
+            <div className="p-8 text-center text-muted-foreground">
+              <p>No trades yet. Trade history will appear here.</p>
+            </div>
+          )}
         </div>
       </Card>
     </div>

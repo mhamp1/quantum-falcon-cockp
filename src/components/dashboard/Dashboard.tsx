@@ -1,35 +1,20 @@
-import { useState, useEffect } from 'react';
 import { useKV } from '@github/spark/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { TrendUp, TrendDown, Robot, Lightning, Vault as VaultIcon, Activity } from '@phosphor-icons/react';
+import { useLiveTradingData } from '@/hooks/useLiveTradingData';
+import { tradingDataGenerator } from '@/lib/tradingDataGenerator';
 
 interface DashboardProps {
   username: string;
 }
 
 export default function Dashboard({ username }: DashboardProps) {
-  const [portfolioValue] = useKV<number>('portfolio-value', 8949.21);
-  const [dailyPnL] = useKV<number>('daily-pnl', 342.50);
-  const [winRate] = useKV<number>('win-rate', 68.5);
-  const [activeTrades] = useKV<number>('active-trades', 3);
+  const { portfolioValue, dailyPnL, winRate, activeTrades, botLogs, recentActivity } = useLiveTradingData();
   const [paperMode, setPaperMode] = useKV<boolean>('paper-mode', true);
-  
-  const [botLogs] = useKV<Array<{id: number; time: string; agent: string; message: string; type: string}>>('bot-logs', [
-    { id: 1, time: '14:23:45', agent: 'STRATEGY EXECUTION', message: 'Risk threshold exceeded - reducing exposure', type: 'warning' },
-    { id: 2, time: '14:22:18', agent: 'MARKET ANALYSIS', message: 'High volatility detected in ETH market', type: 'info' },
-    { id: 3, time: '14:20:52', agent: 'RL OPTIMIZER', message: 'Portfolio rebalanced', type: 'success' },
-    { id: 4, time: '14:19:33', agent: 'MARKET ANALYSIS', message: 'Analyzing SOL ecosystem growth (contracts: +21%)', type: 'info' },
-  ]);
-
-  const [recentActivity] = useKV<Array<{id: number; message: string; time: string}>>('recent-activity', [
-    { id: 1, message: 'Trade executed - USDC→BTC', time: '3m ago' },
-    { id: 2, message: 'Market analysis completed', time: '5m ago' },
-    { id: 3, message: 'Portfolio rebalanced', time: '8m ago' },
-    { id: 4, message: 'Risk level: Standard', time: '12m ago' },
-  ]);
+  const agentStatuses = tradingDataGenerator.generateAgentStatus();
 
   return (
     <div className="space-y-6">
@@ -126,11 +111,7 @@ export default function Dashboard({ username }: DashboardProps) {
           </div>
           
           <div className="space-y-3">
-            {[
-              { name: 'Market Analyzer', status: 'Active', confidence: 85 },
-              { name: 'Strategy Execution', status: 'Active', confidence: 92 },
-              { name: 'RL Optimizer', status: 'Active', confidence: 78 },
-            ].map((agent, idx) => (
+            {agentStatuses.map((agent, idx) => (
               <div key={idx} className="flex items-center justify-between p-3 bg-muted/20 border border-primary/20">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-accent animate-pulse shadow-[0_0_10px_rgba(255,200,0,0.8)]" />
