@@ -5,338 +5,338 @@ import {
   Lightning,
   TrendUp,
   Target,
+  ShieldCheck,
+  ChartBar,
+  Crosshair,
+  Info,
 } from "@phosphor-icons/react";
-import { toast } from "sonner";
-import { useState, useEffect, useMemo } from "react";
-import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import imagePlaceholder from "@/assets/images/logo.png";
 
-interface Agent {
-  id: string;
-  name: string;
-  description: string;
-  icon: any;
-  iconColor: string;
-  enabled: boolean;
-  level: number;
-  xp: number;
-  xpToNext: number;
-  metrics: {
-    confidence: number;
-    actions: number;
-    profit: number;
-  };
-}
-
-interface ActivityLog {
-  id: string;
-  agentId: string;
-  agentName: string;
-  action: string;
-  timestamp: string;
-}
-
-const initialAgents: Agent[] = [
-  {
-    id: "market-analyst",
-    name: "MARKET ANALYST",
-    description: "SCANS SOLANA ECOSYSTEM FOR TRADING OPPORTUNITIES AND MARKET TRENDS",
-    icon: ChartLine,
-    iconColor: "text-secondary",
-    enabled: true,
-    level: 12,
-    xp: 3420,
-    xpToNext: 5000,
-    metrics: { confidence: 87, actions: 247, profit: 234.56 },
-  },
-  {
-    id: "strategy-engine",
-    name: "STRATEGY ENGINE",
-    description: "EXECUTES DCA SCHEDULES AND SNIPING STRATEGIES BASED ON MARKET SIGNALS",
-    icon: Robot,
-    iconColor: "text-primary",
-    enabled: true,
-    level: 18,
-    xp: 7823,
-    xpToNext: 10000,
-    metrics: { confidence: 92, actions: 12, profit: 512.33 },
-  },
-  {
-    id: "rl-optimizer",
-    name: "RL OPTIMIZER",
-    description: "REINFORCEMENT LEARNING MODEL THAT ADAPTS STRATEGIES BASED ON OUTCOMES",
-    icon: Brain,
-    iconColor: "text-[#FF00FF]",
-    enabled: true,
-    level: 8,
-    xp: 1245,
-    xpToNext: 3000,
-    metrics: { confidence: 78, actions: 3, profit: 89.12 },
-  },
-];
-
-export default function AgentsExact() {
-  const [agents, setAgents] = useState<Agent[]>(initialAgents);
-  const [activityLog, setActivityLog] = useState<ActivityLog[]>([
-    {
-      id: "1",
-      agentId: "market-analyst",
-      agentName: "MARKET ANALYST",
-      action: "Analyzed SOL/USDC pair",
-      timestamp: "10:00:10 PM",
-    },
-  ]);
-
-  const toggleAgent = (agentId: string) => {
-    setAgents((prev) =>
-      prev.map((agent) =>
-        agent.id === agentId ? { ...agent, enabled: !agent.enabled } : agent
-      )
-    );
-    const agent = agents.find((a) => a.id === agentId);
-    if (agent) {
-      toast.success(`${agent.name} ${agent.enabled ? "DEACTIVATED" : "ACTIVATED"}`);
-    }
-  };
-
-  const totalTrades = useMemo(
-    () => agents.reduce((sum, a) => sum + a.metrics.actions, 0),
-    [agents]
-  );
-
-  const combinedProfit = useMemo(
-    () => agents.reduce((sum, a) => sum + a.metrics.profit, 0),
-    [agents]
-  );
-
-  const avgConfidence = useMemo(
-    () =>
-      agents.reduce((sum, a) => sum + a.metrics.confidence, 0) / agents.length,
-    [agents]
-  );
+export default function Agents() {
+  const [botAggression, setBotAggression] = useState(68);
 
   return (
-    <div className="relative min-h-full">
-      {/* Background Grid */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(20, 241, 149, 0.05) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(20, 241, 149, 0.05) 1px, transparent 1px)
-            `,
-            backgroundSize: "50px 50px",
-            filter: "blur(1px)",
-          }}
-        />
+    <div className="space-y-6 max-w-[1400px]">
+      <div className="cyber-card p-6 space-y-6">
+        <div className="flex items-start gap-4">
+          <div className="w-16 h-16 border-2 border-primary rounded flex items-center justify-center bg-primary/10">
+            <Robot size={32} weight="duotone" className="text-primary" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold uppercase tracking-wider text-primary">
+                MULTI-AGENT SYSTEM
+              </h1>
+              <Badge className="bg-destructive/20 text-destructive border-destructive uppercase text-xs">
+                BETA TESTING
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              The Quantum Falcon deploys a coordinated multi-agent AI system for
+              analyzing market trends, timing executions, and optimizing
+              strategies. Each agent operates autonomously while executing
+              strategies through a unified operational framework.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-background/80 border border-primary/30 rounded p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Target size={16} className="text-primary" />
+              <span className="text-xs uppercase text-muted-foreground tracking-wide">
+                Online Agents
+              </span>
+            </div>
+            <div className="text-3xl font-bold text-primary">84.1%</div>
+          </div>
+          <div className="bg-background/80 border border-primary/30 rounded p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <ChartBar size={16} className="text-primary" />
+              <span className="text-xs uppercase text-muted-foreground tracking-wide">
+                Total Trades
+              </span>
+            </div>
+            <div className="text-3xl font-bold">1,841</div>
+          </div>
+          <div className="bg-background/80 border border-primary/30 rounded p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendUp size={16} className="text-primary" />
+              <span className="text-xs uppercase text-muted-foreground tracking-wide">
+                Success Rate
+              </span>
+            </div>
+            <div className="text-3xl font-bold text-[#FF00FF]">87.3%</div>
+          </div>
+          <div className="bg-background/80 border border-primary/30 rounded p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Lightning size={16} className="text-accent" />
+              <span className="text-xs uppercase text-muted-foreground tracking-wide">
+                Total Profit
+              </span>
+            </div>
+            <div className="text-3xl font-bold text-accent">$2935</div>
+          </div>
+        </div>
       </div>
 
-      <div className="relative z-10 space-y-6 pb-12">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-5xl font-bold uppercase tracking-[0.15em] text-primary neon-glow-primary">
-            AI AGENT COMMAND
-          </h1>
-          <p className="text-sm text-muted-foreground uppercase tracking-[0.2em]">
-            AUTONOMOUS TRADING INTELLIGENCE // MULTI-AGENT COORDINATION SYSTEM
-          </p>
-          <div className="mx-auto w-4/5 h-px bg-primary/50" />
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-[1fr_35%] gap-6">
-          {/* Left Column - Agent Cards */}
-          <div className="space-y-6">
-            {agents.map((agent, idx) => {
-              const Icon = agent.icon;
-              const xpPercent = (agent.xp / agent.xpToNext) * 100;
-              
-              return (
-                <motion.div
-                  key={agent.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="cyber-card p-6 space-y-4"
-                  style={{
-                    clipPath:
-                      "polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)",
-                  }}
-                >
-                  {/* Header Row */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded ${agent.iconColor}`}>
-                        <Icon size={32} weight="duotone" />
-                      </div>
-                      <h3 className="text-xl font-bold uppercase tracking-wide">
-                        {agent.name}
-                      </h3>
-                      <div className="flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent rounded-full">
-                        <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-                        <span className="text-xs font-bold text-accent uppercase">
-                          ACTIVE
-                        </span>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={agent.enabled}
-                      onCheckedChange={() => toggleAgent(agent.id)}
-                      className="data-[state=checked]:bg-primary"
-                    />
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-sm text-muted-foreground uppercase tracking-wide">
-                    {agent.description}
-                  </p>
-
-                  {/* Level & XP */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="px-2 py-1 bg-secondary/20 border border-secondary rounded text-xs font-bold uppercase">
-                        LVL {agent.level}
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {agent.xp} / {agent.xpToNext}
-                      </span>
-                    </div>
-                    <Progress value={xpPercent} className="h-1" />
-                  </div>
-
-                  {/* Metrics Row */}
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
-                      <div className="text-xs text-muted-foreground uppercase mb-2">
-                        Confidence
-                      </div>
-                      <div className="text-4xl font-bold text-primary">
-                        {agent.metrics.confidence}%
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
-                      <div className="text-xs text-muted-foreground uppercase mb-2">
-                        Actions
-                      </div>
-                      <div className="text-4xl font-bold">
-                        {agent.metrics.actions}
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-black/50 border border-accent/30 rounded">
-                      <div className="text-xs text-muted-foreground uppercase mb-2">
-                        Profit
-                      </div>
-                      <div className="text-4xl font-bold text-accent">
-                        +${agent.metrics.profit.toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+      <div className="cyber-card p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 border-2 border-primary rounded flex items-center justify-center bg-primary/10">
+            <Crosshair size={24} className="text-primary" />
           </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Live Activity Panel */}
-            <div className="cyber-card p-6 space-y-4 h-[400px] flex flex-col">
-              <div className="flex items-center gap-2">
-                <Lightning size={20} weight="fill" className="text-[#FFFF00]" />
-                <h2 className="text-lg font-bold uppercase tracking-wide text-[#FF00FF]">
-                  LIVE ACTIVITY
-                </h2>
-              </div>
-              <div className="flex-1 overflow-y-auto scrollbar-thin space-y-3">
-                {activityLog.map((log) => {
-                  const agent = agents.find((a) => a.id === log.agentId);
-                  const Icon = agent?.icon || ChartLine;
-                  return (
-                    <div
-                      key={log.id}
-                      className="p-3 bg-black/50 border border-primary/20 rounded space-y-1"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Icon size={16} className="text-secondary" />
-                        <span className="text-xs font-bold uppercase">
-                          {log.agentName}
-                        </span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {log.action}
-                      </div>
-                      <div className="text-xs text-muted-foreground/60 text-right">
-                        {log.timestamp}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Performance Panel */}
-            <div className="cyber-card p-6 space-y-4 border-[#FF00FF]">
-              <h2 className="text-lg font-bold uppercase tracking-wide text-primary">
-                PERFORMANCE
-              </h2>
-              <div className="space-y-4">
-                <div className="text-center p-4 bg-black/50 border border-[#FF00FF]/30 rounded">
-                  <div className="text-xs text-muted-foreground uppercase mb-2">
-                    Total Trades
-                  </div>
-                  <div className="text-5xl font-bold">{totalTrades}</div>
-                </div>
-                <div className="text-center p-4 bg-black/50 border border-accent/30 rounded">
-                  <div className="text-xs text-muted-foreground uppercase mb-2">
-                    Combined Profit
-                  </div>
-                  <div className="text-5xl font-bold text-accent">
-                    +${combinedProfit.toFixed(2)}
-                  </div>
-                </div>
-                <div className="text-center p-4 bg-black/50 border border-primary/30 rounded">
-                  <div className="text-xs text-muted-foreground uppercase mb-2">
-                    Avg Confidence
-                  </div>
-                  <div className="text-5xl font-bold text-primary">
-                    {avgConfidence.toFixed(0)}%
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div>
+            <h2 className="text-xl font-bold uppercase tracking-wide text-primary">
+              BOT AGGRESSION
+            </h2>
+            <p className="text-xs text-muted-foreground uppercase">
+              Moderates Risk Posture
+            </p>
           </div>
         </div>
 
-        {/* Bottom Summary Row */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="cyber-card p-6 text-center space-y-4">
-            <div className="flex justify-center">
-              <TrendUp size={24} className="text-primary" />
+        <div className="bg-background/50 border border-primary/20 rounded p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Lightning size={20} className="text-primary" />
+              <span className="text-sm font-bold uppercase text-muted-foreground">
+                Current Level
+              </span>
             </div>
-            <div className="text-xs text-muted-foreground uppercase">
-              Success Rate
-            </div>
-            <div className="text-5xl font-bold text-primary">94.2%</div>
+            <div className="text-4xl font-bold text-primary">{botAggression}%</div>
           </div>
-          <div className="cyber-card p-6 text-center space-y-4 border-[#FF00FF]">
-            <div className="flex justify-center">
+          <Slider
+            value={[botAggression]}
+            onValueChange={(v) => setBotAggression(v[0])}
+            min={0}
+            max={100}
+            step={1}
+            className="mb-2"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+            <span>PASSIVE</span>
+            <span>MODERATE</span>
+            <span>AGGRESSIVE</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-background/50 border-2 border-primary rounded p-4 text-center">
+            <div className="w-12 h-12 border-2 border-primary rounded mx-auto mb-3 flex items-center justify-center bg-primary/10">
+              <ShieldCheck size={24} className="text-primary" />
+            </div>
+            <h3 className="text-sm font-bold uppercase text-primary mb-1">
+              CAUTIOUS
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Conservative capital allocation with risk protection
+            </p>
+          </div>
+          <div className="bg-background/50 border border-primary/30 rounded p-4 text-center">
+            <div className="w-12 h-12 border-2 border-[#FF00FF] rounded mx-auto mb-3 flex items-center justify-center bg-[#FF00FF]/10">
               <Target size={24} className="text-[#FF00FF]" />
             </div>
-            <div className="text-xs text-muted-foreground uppercase">
-              Precision Score
-            </div>
-            <div className="text-5xl font-bold text-[#FF00FF]">8.7/10</div>
-            <Progress value={87} className="h-1" />
+            <h3 className="text-sm font-bold uppercase text-[#FF00FF] mb-1">
+              MODERATE
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Balanced risk-return with measured position sizing
+            </p>
           </div>
-          <div className="cyber-card p-6 text-center space-y-4 border-secondary">
-            <div className="flex justify-center">
-              <Brain size={24} className="text-secondary" />
+          <div className="bg-background/50 border border-primary/30 rounded p-4 text-center">
+            <div className="w-12 h-12 border-2 border-destructive rounded mx-auto mb-3 flex items-center justify-center bg-destructive/10">
+              <Lightning size={24} className="text-destructive" />
             </div>
-            <div className="text-xs text-muted-foreground uppercase">
-              AI Models
+            <h3 className="text-sm font-bold uppercase text-destructive mb-1">
+              AGGRESSIVE
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Higher leverage and risk for elevated returns
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-primary/10 border border-primary/30 rounded p-4 flex items-start gap-3">
+          <Info size={20} className="text-primary mt-0.5" />
+          <div className="text-sm text-muted-foreground">
+            <span className="text-primary font-bold">
+              Conservative strategies activated through Q1 and Q2.
+            </span>{" "}
+            Our bots dynamically adjust trade sizes, frequencies, stop-losses,
+            and take-profit targets to align with your specified risk profile.
+            Always exercise caution when adjusting.
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6">
+        <div className="cyber-card p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Current Status
+            </span>
+          </div>
+          <div className="grid grid-cols-4 gap-4">
+            {[
+              { label: "AGENTS", value: "ONLINE", status: "online" },
+              { label: "NETWORK", value: "CONNECTED", status: "connected" },
+              { label: "STATUS", value: "OPERATIONAL", status: "operational" },
+              { label: "UPTIME", value: "ACTIVE", status: "active" },
+            ].map((item, i) => (
+              <div key={i} className="text-center">
+                <div className="mb-2">
+                  <div className="w-3 h-3 rounded-full bg-accent mx-auto animate-pulse" />
+                </div>
+                <div className="text-xs uppercase text-muted-foreground mb-1">
+                  {item.label}
+                </div>
+                <div className="text-sm font-bold uppercase text-foreground">
+                  {item.value}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between pt-4 border-t border-primary/20">
+            <button className="text-xs uppercase text-primary hover:text-primary/80 font-bold">
+              ⚡ Monitoring
+            </button>
+            <button className="text-xs uppercase text-primary hover:text-primary/80 font-bold">
+              📊 Agent Status
+            </button>
+            <button className="text-xs uppercase text-primary hover:text-primary/80 font-bold">
+              🔄 System Logs
+            </button>
+          </div>
+        </div>
+
+        <div className="cyber-card p-6">
+          <div className="w-full h-full flex items-center justify-center border-2 border-primary/30 rounded bg-background/50">
+            <div className="text-center">
+              <div className="text-6xl mb-2">🤖</div>
+              <div className="text-sm uppercase tracking-widest text-primary font-bold">
+                CAUTIOUS
+              </div>
             </div>
-            <div className="text-5xl font-bold text-secondary">12</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="cyber-card p-6 space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+          <ChartBar size={20} className="text-primary" />
+          <h2 className="text-xl font-bold uppercase tracking-wide">
+            SYSTEM ARCHITECTURE
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            {
+              id: 1,
+              name: "AGENT 1",
+              role: "MARKET ANALYST",
+              status:
+                "Analyzes comprehensive market data for token opportunities",
+              bars: [
+                { label: "Accuracy", value: 94 },
+                { label: "Speed", value: 88 },
+                { label: "Uptime", value: 99 },
+              ],
+            },
+            {
+              id: 2,
+              name: "AGENT 2",
+              role: "STRATEGY ENGINE",
+              status: "Executes trading strategies with precision timing",
+              bars: [
+                { label: "Execution", value: 96 },
+                { label: "Risk Mgmt", value: 91 },
+                { label: "Returns", value: 87 },
+              ],
+            },
+            {
+              id: 3,
+              name: "AGENT 3",
+              role: "RL OPTIMIZER",
+              status:
+                "Self-optimizing reinforcement learning for strategy refinement",
+              bars: [
+                { label: "Learning", value: 89 },
+                { label: "Adaptation", value: 92 },
+                { label: "Performance", value: 85 },
+              ],
+            },
+          ].map((agent) => (
+            <div
+              key={agent.id}
+              className="bg-background/50 border border-primary/30 rounded p-4 space-y-3"
+            >
+              <div className="flex items-center gap-2">
+                <Robot size={20} className="text-primary" />
+                <span className="text-sm font-bold uppercase text-primary">
+                  {agent.name}
+                </span>
+              </div>
+              <div className="text-xs font-bold uppercase text-[#FF00FF]">
+                {agent.role}
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {agent.status}
+              </p>
+              <div className="space-y-2 pt-2 border-t border-primary/20">
+                {agent.bars.map((bar) => (
+                  <div key={bar.label} className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground w-20">
+                      {bar.label}
+                    </span>
+                    <div className="flex-1 h-2 bg-background/80 rounded overflow-hidden">
+                      <div
+                        className="h-full bg-primary"
+                        style={{ width: `${bar.value}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-bold text-primary w-8 text-right">
+                      {bar.value}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-primary/10 border border-primary/30 rounded p-4">
+          <div className="flex items-start gap-3">
+            <Info size={20} className="text-primary mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-sm font-bold uppercase text-primary mb-2">
+                📊 DATA FLOW PIPELINE
+              </h3>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <div>
+                  <span className="text-foreground font-bold">1.</span> Signal
+                  Processing: Aggregate feeds from on-chain, wallet, events and
+                  socials
+                </div>
+                <div>
+                  <span className="text-foreground font-bold">2.</span> Strategic
+                  Selection: AI filters signals against crypto capital goals
+                </div>
+                <div>
+                  <span className="text-foreground font-bold">3.</span> Order
+                  Generation: Automated order signals that send to exchange or
+                  DEX wallet
+                </div>
+                <div>
+                  <span className="text-foreground font-bold">4.</span>{" "}
+                  Post-Position Tracking: Real-time monitoring of outcomes and
+                  automatic adjustments
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
