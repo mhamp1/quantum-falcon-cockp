@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   House,
   Robot,
@@ -73,11 +73,6 @@ const TABS: Tab[] = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useKV<string>("active-tab", "dashboard");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const handleNavigateTab = (e: CustomEvent<string>) => {
@@ -94,16 +89,6 @@ export default function App() {
 
   const currentTab = TABS.find((tab) => tab.id === activeTab) || TABS[0];
   const Component = currentTab.component;
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-primary text-xl font-bold uppercase tracking-wider neon-glow-primary">
-          INITIALIZING...
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
