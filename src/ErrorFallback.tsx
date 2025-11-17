@@ -35,6 +35,11 @@ export default function ErrorFallback({ error, resetErrorBoundary }: ErrorFallba
     }
   };
 
+  const handleRetry = () => {
+    console.log('Attempting to recover from error...');
+    resetErrorBoundary();
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="cyber-card p-8 max-w-2xl w-full space-y-6">
@@ -71,7 +76,7 @@ export default function ErrorFallback({ error, resetErrorBoundary }: ErrorFallba
 
         <div className="flex gap-3 flex-wrap">
           <Button
-            onClick={resetErrorBoundary}
+            onClick={handleRetry}
             className="flex-1 gap-2"
             aria-label="Retry loading the application"
           >

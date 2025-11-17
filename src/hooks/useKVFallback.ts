@@ -18,9 +18,11 @@ export function useKV<T>(
         const storedValue = await getKVValue<T>(key);
         
         if (isMounted) {
-          if (storedValue !== undefined) {
+          if (storedValue !== undefined && storedValue !== null) {
+            console.log(`[useKV] Loaded value for key "${key}":`, storedValue);
             setValue(storedValue);
           } else {
+            console.log(`[useKV] No stored value for key "${key}", using initial:`, initialValue);
             await setKVValue(key, initialValue);
           }
           setIsInitialized(true);
@@ -39,7 +41,7 @@ export function useKV<T>(
     return () => {
       isMounted = false;
     };
-  }, [key, initialValue]);
+  }, [key]);
 
   const setStoredValue = useCallback(
     (newValue: SetStateAction<T>) => {
@@ -47,6 +49,8 @@ export function useKV<T>(
         const nextValue = typeof newValue === 'function'
           ? (newValue as (prevState: T) => T)(currentValue)
           : newValue;
+
+        console.log(`[useKV] Setting value for key "${key}":`, nextValue);
 
         if (isInitialized) {
           setKVValue(key, nextValue).catch((error) => {

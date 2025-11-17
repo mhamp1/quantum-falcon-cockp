@@ -6,6 +6,7 @@ import { UserAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -29,6 +30,28 @@ function LoadingFallback() {
   );
 }
 
+function ComponentErrorFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <div className="cyber-card p-8 max-w-md w-full space-y-4 text-center">
+        <div className="text-destructive text-5xl">⚠️</div>
+        <h2 className="text-xl font-bold text-destructive uppercase tracking-wide">
+          Component Error
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          A component failed to load. Please refresh the page or try switching tabs.
+        </p>
+        <Button
+          onClick={() => window.location.reload()}
+          className="w-full"
+        >
+          Refresh Page
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 interface Tab {
   id: string;
   label: string;
@@ -47,6 +70,9 @@ export default function App() {
     avatar: null,
     license: null
   });
+  const [isLoading, setIsLoading] = useState(true);
+
+  console.log('[App] Current auth state:', auth);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -58,6 +84,13 @@ export default function App() {
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
   ], []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const handleNavigateTab = (e: Event) => {
@@ -73,21 +106,30 @@ export default function App() {
   }, [setActiveTab, tabs]);
 
   const handleLicenseSuccess = (tier: string, expiresAt: number) => {
-    setAuth((currentAuth) => ({
-      isAuthenticated: true,
-      userId: `user_${Date.now()}`,
-      username: `${tier.toUpperCase()}_User`,
-      email: null,
-      avatar: null,
-      license: {
+    console.log('[App] License success, setting auth state:', { tier, expiresAt });
+    setAuth((currentAuth) => {
+      const newAuth = {
+        isAuthenticated: true,
         userId: `user_${Date.now()}`,
-        tier: tier as any,
-        expiresAt: expiresAt,
-        purchasedAt: Date.now(),
-        isActive: true
-      }
-    }));
+        username: `${tier.toUpperCase()}_User`,
+        email: null,
+        avatar: null,
+        license: {
+          userId: `user_${Date.now()}`,
+          tier: tier as any,
+          expiresAt: expiresAt,
+          purchasedAt: Date.now(),
+          isActive: true
+        }
+      };
+      console.log('[App] New auth state:', newAuth);
+      return newAuth;
+    });
   };
+
+  if (isLoading) {
+    return <LoadingFallback />;
+  }
 
   if (!auth?.isAuthenticated) {
     return (
@@ -166,19 +208,33 @@ export default function App() {
 
       <div className={cn("flex-1", !isMobile && "ml-64")}>
         <div className={cn("container mx-auto", isMobile ? "p-0" : "p-6")}>
-          <Suspense fallback={<LoadingFallback />}>
-            {isMobile ? (
-              <EnhancedDashboard key="mobile-dashboard" />
-            ) : (
-              <Component key={activeTab} />
-            )}
-          </Suspense>
+          <ErrorBoundary 
+            FallbackComponent={ComponentErrorFallback}
+            onError={(error) => {
+              console.error('Component error caught:', error);
+            }}
+          >
+            <Suspense fallback={<LoadingFallback />}>
+              {isMobile ? (
+                <EnhancedDashboard key="mobile-dashboard" />
+              ) : (
+                <Component key={activeTab} />
+              )}
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </div>
 
-      <Suspense fallback={null}>
-        <AIAssistant />
-      </Suspense>
+      <ErrorBoundary 
+        FallbackComponent={() => null}
+        onError={(error) => {
+          console.error('AI Assistant error:', error);
+        }}
+      >
+        <Suspense fallback={null}>
+          <AIAssistant />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }
