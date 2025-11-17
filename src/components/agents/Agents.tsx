@@ -4,6 +4,7 @@ import { Robot, Brain, ChartLine, Lightning, Target, TrendUp, TrendDown, ArrowsC
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
 import { Progress } from '@/components/ui/progress'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Agent {
   id: string
@@ -284,38 +285,64 @@ export default function Agents() {
                     </div>
                   </div>
 
-                  {isSelected && (
-                    <div className="mt-4 pt-4 border-t border-primary/30">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Neural Network Status</p>
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-1 bg-muted relative overflow-hidden">
-                              <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary animate-pulse" style={{ width: '87%' }} />
+                  <AnimatePresence>
+                    {isSelected && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        className="mt-6 pt-6 border-t-2 border-primary/50 bg-muted/10 -mx-6 -mb-6 px-6 pb-6 overflow-hidden"
+                      >
+                        <div className="flex items-center gap-2 mb-4">
+                          <Brain size={20} weight="duotone" className="text-primary animate-pulse" />
+                          <h4 className="text-sm font-bold uppercase tracking-wider text-primary hud-text">ADVANCED METRICS</h4>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3 p-4 angled-corner-tl bg-background/50 border border-primary/30">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Neural Network Status</p>
+                            <div className="flex items-center gap-3">
+                              <div className="flex-1 h-2 bg-muted relative overflow-hidden angled-corner-br">
+                                <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary animate-pulse" style={{ width: '87%' }} />
+                              </div>
+                              <span className="text-sm font-bold text-primary hud-value min-w-[3rem]">87%</span>
                             </div>
-                            <span className="text-xs font-bold text-primary">87%</span>
+                          </div>
+                          
+                          <div className="space-y-3 p-4 angled-corner-tr bg-background/50 border border-secondary/30">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Model Accuracy</p>
+                            <div className="flex items-center gap-3">
+                              <div className="flex-1 h-2 bg-muted relative overflow-hidden angled-corner-bl">
+                                <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary animate-pulse" style={{ width: '94%' }} />
+                              </div>
+                              <span className="text-sm font-bold text-secondary hud-value min-w-[3rem]">94%</span>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2 p-4 angled-corner-bl bg-background/50 border border-primary/30">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Training Cycles</p>
+                            <p className="text-2xl font-bold text-primary hud-value neon-glow">1,247</p>
+                          </div>
+                          
+                          <div className="space-y-2 p-4 angled-corner-br bg-background/50 border border-secondary/30">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Last Updated</p>
+                            <p className="text-2xl font-bold text-secondary hud-value neon-glow-secondary">2m ago</p>
+                          </div>
+                          
+                          <div className="space-y-2 p-4 angled-corner-tl bg-background/50 border border-accent/30">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Risk Score</p>
+                            <p className="text-2xl font-bold text-accent hud-value neon-glow-accent">Low</p>
+                          </div>
+                          
+                          <div className="space-y-2 p-4 angled-corner-tr bg-background/50 border border-primary/30">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Active Strategies</p>
+                            <p className="text-2xl font-bold text-primary hud-value neon-glow">5</p>
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Model Accuracy</p>
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-1 bg-muted relative overflow-hidden">
-                              <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary animate-pulse" style={{ width: '94%' }} />
-                            </div>
-                            <span className="text-xs font-bold text-secondary">94%</span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Training Cycles</p>
-                          <p className="text-lg font-bold text-primary hud-value">1,247</p>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Last Updated</p>
-                          <p className="text-lg font-bold text-secondary hud-value">2m ago</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             )
