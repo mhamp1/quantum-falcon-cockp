@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { House, Robot, ChartLine, TrendUp, Vault, Users, Gear } from '@phosphor-icons/react';
+import { House, Robot, ChartLine, TrendUp, Vault, Users, Gear, Sun, Moon } from '@phosphor-icons/react';
+import { useTheme } from '@/hooks/useTheme';
 import Dashboard from '@/components/dashboard/Dashboard';
 import BotOverview from '@/components/agents/BotOverview';
 import Analytics from '@/components/analytics/Analytics';
@@ -11,6 +12,7 @@ import Settings from '@/components/settings/Settings';
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [username] = useState('MHAMP1TRADING');
+  const { theme, toggleTheme } = useTheme();
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: House },
@@ -79,7 +81,25 @@ export default function App() {
             ))}
           </nav>
 
-          <div className="p-4 border-t-2 border-primary/20">
+          <div className="p-4 border-t-2 border-primary/20 space-y-4">
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all border-2 border-transparent text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5 rounded-lg"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun size={22} weight="duotone" />
+                  <span className="font-medium uppercase tracking-wide text-sm">Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon size={22} weight="duotone" />
+                  <span className="font-medium uppercase tracking-wide text-sm">Dark Mode</span>
+                </>
+              )}
+            </button>
+            
             <div className="text-xs text-muted-foreground space-y-1">
               <p className="uppercase tracking-wider">AGENT-ID: {username}</p>
               <p className="text-[10px]">v2.4.1 QUANTUM BUILD</p>
