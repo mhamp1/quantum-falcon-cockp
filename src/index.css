@@ -5,38 +5,50 @@
   * {
     @apply border-border;
   }
+  
+  body {
+    font-family: 'Rajdhani', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', sans-serif;
+  }
 }
 
 :root {
-  --background: oklch(0.98 0.01 106);
-  --foreground: oklch(0.15 0.02 106);
+  --background: oklch(0.06 0.04 280);
+  --foreground: oklch(0.92 0.08 70);
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 106);
+  --card: oklch(0.10 0.06 280);
+  --card-foreground: oklch(0.92 0.08 70);
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 106);
+  --popover: oklch(0.10 0.06 280);
+  --popover-foreground: oklch(0.92 0.08 70);
 
-  --primary: oklch(0.45 0.15 264);
-  --primary-foreground: oklch(0.98 0.01 106);
+  --primary: oklch(0.75 0.18 195);
+  --primary-foreground: oklch(0.06 0.04 280);
 
-  --secondary: oklch(0.92 0.01 106);
-  --secondary-foreground: oklch(0.15 0.02 106);
+  --secondary: oklch(0.80 0.20 70);
+  --secondary-foreground: oklch(0.06 0.04 280);
 
-  --muted: oklch(0.92 0.01 106);
-  --muted-foreground: oklch(0.50 0.01 106);
+  --muted: oklch(0.18 0.06 280);
+  --muted-foreground: oklch(0.55 0.08 195);
 
-  --accent: oklch(0.92 0.01 106);
-  --accent-foreground: oklch(0.15 0.02 106);
+  --accent: oklch(0.80 0.20 70);
+  --accent-foreground: oklch(0.06 0.04 280);
 
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.98 0.01 106);
+  --destructive: oklch(0.72 0.22 330);
+  --destructive-foreground: oklch(0.92 0.08 70);
 
-  --border: oklch(0.88 0.01 106);
-  --input: oklch(0.88 0.01 106);
-  --ring: oklch(0.45 0.15 264);
+  --border: oklch(0.30 0.12 195);
+  --input: oklch(0.30 0.12 195);
+  --ring: oklch(0.75 0.18 195);
 
-  --radius: 0.5rem;
+  --radius: 0rem;
+  
+  --cyan-glow: oklch(0.75 0.18 195);
+  --yellow-glow: oklch(0.80 0.20 70);
+  --magenta-glow: oklch(0.72 0.22 330);
 }
 
 @theme {
@@ -60,10 +72,10 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) * 0.5);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) * 1.5);
-  --radius-xl: calc(var(--radius) * 2);
-  --radius-2xl: calc(var(--radius) * 3);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
   --radius-full: 9999px;
 }

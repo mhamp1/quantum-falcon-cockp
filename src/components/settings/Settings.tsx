@@ -1,292 +1,230 @@
-import { Bell, Lock, Palette, ArrowsClockwise } from "@phosphor-icons/react";
-import { toast } from "sonner";
-
-import { useKV } from "@/hooks/useKVFallback";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-
-interface Settings {
-  notifications: {
-    trades: boolean;
-    agentAlerts: boolean;
-    profitMilestones: boolean;
-  };
-  trading: {
-    maxSlippage: number;
-    autoConvert: boolean;
-    riskLevel: "low" | "medium" | "high";
-  };
-  security: {
-    biometricsEnabled: boolean;
-  };
-}
+import { useKV } from '@github/spark/hooks';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Gear, User, Bell, Shield, CreditCard } from '@phosphor-icons/react';
 
 export default function Settings() {
-  const [settings, setSettings] = useKV<Settings>("app-settings", {
-    notifications: {
-      trades: true,
-      agentAlerts: true,
-      profitMilestones: true,
-    },
-    trading: {
-      maxSlippage: 1.5,
-      autoConvert: true,
-      riskLevel: "medium",
-    },
-    security: {
-      biometricsEnabled: false,
-    },
-  });
-
-  const updateSetting = (category: keyof Settings, key: string, value: any) => {
-    setSettings((current) => {
-      if (!current)
-        return {
-          notifications: {
-            trades: true,
-            agentAlerts: true,
-            profitMilestones: true,
-          },
-          trading: {
-            maxSlippage: 1.5,
-            autoConvert: true,
-            riskLevel: "medium" as const,
-          },
-          security: {
-            biometricsEnabled: false,
-          },
-        };
-      return {
-        ...current,
-        [category]: {
-          ...current[category],
-          [key]: value,
-        },
-      };
-    });
-    toast.success("Setting updated", {
-      description: "Your changes have been saved",
-    });
-  };
-
-  if (!settings) return null;
+  const [notifications, setNotifications] = useKV<boolean>('notifications', true);
+  const [soundEffects, setSoundEffects] = useKV<boolean>('sound-effects', true);
+  const [biometrics, setBiometrics] = useKV<boolean>('biometrics', false);
+  const [currentTier] = useKV<string>('subscription-tier', 'Free');
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-wider uppercase mb-2">
-          Settings
-        </h2>
-        <p className="text-muted-foreground">
-          Configure trading parameters and app preferences
-        </p>
+      <div className="flex items-center justify-between pb-4 border-b-2 border-primary/30">
+        <div>
+          <h1 className="text-3xl lg:text-4xl font-bold uppercase tracking-wider text-primary">
+            Settings
+          </h1>
+          <p className="text-sm text-muted-foreground uppercase tracking-wide mt-1">
+            ◆ Configure System
+          </p>
+        </div>
       </div>
 
-      <Card className="backdrop-blur-md bg-card/50 border-primary/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell size={24} weight="duotone" className="text-primary" />
-            Notifications
-          </CardTitle>
-          <CardDescription>
-            Manage alerts and notification preferences
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="notify-trades" className="text-base">
-                Trade Executions
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Get notified when trades execute
-              </p>
-            </div>
-            <Switch
-              id="notify-trades"
-              checked={settings.notifications.trades}
-              onCheckedChange={(checked) =>
-                updateSetting("notifications", "trades", checked)
-              }
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="notify-agents" className="text-base">
-                Agent Alerts
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Alerts for agent status changes
-              </p>
-            </div>
-            <Switch
-              id="notify-agents"
-              checked={settings.notifications.agentAlerts}
-              onCheckedChange={(checked) =>
-                updateSetting("notifications", "agentAlerts", checked)
-              }
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="notify-profits" className="text-base">
-                Profit Milestones
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Celebrate profit achievements
-              </p>
-            </div>
-            <Switch
-              id="notify-profits"
-              checked={settings.notifications.profitMilestones}
-              onCheckedChange={(checked) =>
-                updateSetting("notifications", "profitMilestones", checked)
-              }
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="profile" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5 bg-card/50 border-2 border-primary/30">
+          <TabsTrigger value="profile" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <User size={20} weight="duotone" className="lg:mr-2" />
+            <span className="hidden lg:inline">Profile</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <Bell size={20} weight="duotone" className="lg:mr-2" />
+            <span className="hidden lg:inline">Alerts</span>
+          </TabsTrigger>
+          <TabsTrigger value="security" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <Shield size={20} weight="duotone" className="lg:mr-2" />
+            <span className="hidden lg:inline">Security</span>
+          </TabsTrigger>
+          <TabsTrigger value="subscription" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <CreditCard size={20} weight="duotone" className="lg:mr-2" />
+            <span className="hidden lg:inline">Plan</span>
+          </TabsTrigger>
+          <TabsTrigger value="general" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <Gear size={20} weight="duotone" className="lg:mr-2" />
+            <span className="hidden lg:inline">General</span>
+          </TabsTrigger>
+        </TabsList>
 
-      <Card className="backdrop-blur-md bg-card/50 border-primary/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ArrowsClockwise
-              size={24}
-              weight="duotone"
-              className="text-accent"
-            />
-            Trading Parameters
-          </CardTitle>
-          <CardDescription>
-            Configure risk tolerance and execution settings
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="slippage">Max Slippage (%)</Label>
-            <Input
-              id="slippage"
-              type="number"
-              step="0.1"
-              value={settings.trading.maxSlippage}
-              onChange={(e) =>
-                updateSetting(
-                  "trading",
-                  "maxSlippage",
-                  parseFloat(e.target.value),
-                )
-              }
-              className="bg-muted/50 border-border focus:border-primary"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="auto-convert" className="text-base">
-                Auto-convert to BTC
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Automatically send profits to vault
-              </p>
-            </div>
-            <Switch
-              id="auto-convert"
-              checked={settings.trading.autoConvert}
-              onCheckedChange={(checked) =>
-                updateSetting("trading", "autoConvert", checked)
-              }
-            />
-          </div>
-          <div>
-            <Label className="text-base mb-3 block">Risk Level</Label>
-            <div className="flex gap-2">
-              {(["low", "medium", "high"] as const).map((level) => (
-                <Badge
-                  key={level}
-                  variant={
-                    settings.trading.riskLevel === level ? "default" : "outline"
-                  }
-                  className={`cursor-pointer capitalize ${
-                    settings.trading.riskLevel === level
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-primary/20"
-                  }`}
-                  onClick={() => updateSetting("trading", "riskLevel", level)}
-                >
-                  {level}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="profile">
+          <Card className="p-6 bg-card/50 border-2 border-primary/30">
+            <h2 className="text-xl font-bold uppercase tracking-wider text-primary mb-4">
+              Profile Information
+            </h2>
 
-      <Card className="backdrop-blur-md bg-card/50 border-destructive/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lock size={24} weight="duotone" className="text-destructive" />
-            Security
-          </CardTitle>
-          <CardDescription>
-            Protect your account and trading activity
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="biometrics" className="text-base">
-                Biometric Authentication
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Use fingerprint or face unlock
-              </p>
-            </div>
-            <Switch
-              id="biometrics"
-              checked={settings.security.biometricsEnabled}
-              onCheckedChange={(checked) =>
-                updateSetting("security", "biometricsEnabled", checked)
-              }
-            />
-          </div>
-          <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
-            <p className="text-sm font-semibold mb-1">API Keys Status</p>
-            <p className="text-xs text-muted-foreground mb-3">
-              Configure API keys to connect live trading
-            </p>
-            <Badge
-              variant="outline"
-              className="bg-accent/20 border-accent/30 text-accent"
-            >
-              Demo Mode Active
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Username</Label>
+                <div className="mt-2 p-3 bg-muted/20 border-2 border-primary/30">
+                  <p className="font-bold">MHAMP1TRADING</p>
+                </div>
+              </div>
 
-      <Card className="backdrop-blur-md bg-card/50 border-primary/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Palette size={24} weight="duotone" className="text-secondary" />
-            Appearance
-          </CardTitle>
-          <CardDescription>Customize the cyberpunk aesthetic</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Neon theme with holographic elements active. Additional themes
-            coming soon!
-          </p>
-        </CardContent>
-      </Card>
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Member Since</Label>
+                <div className="mt-2 p-3 bg-muted/20 border-2 border-primary/30">
+                  <p>January 2024</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Level</Label>
+                  <div className="mt-2 p-3 bg-muted/20 border-2 border-accent/30">
+                    <p className="font-bold text-accent">12</p>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Total XP</Label>
+                  <div className="mt-2 p-3 bg-muted/20 border-2 border-accent/30">
+                    <p className="font-bold text-accent">4,500</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <Card className="p-6 bg-card/50 border-2 border-primary/30">
+            <h2 className="text-xl font-bold uppercase tracking-wider text-primary mb-4">
+              Notification Settings
+            </h2>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-muted/20 border border-primary/20">
+                <div>
+                  <Label htmlFor="notifications" className="text-base">Push Notifications</Label>
+                  <p className="text-xs text-muted-foreground mt-1">Receive alerts for trades and events</p>
+                </div>
+                <Switch
+                  id="notifications"
+                  checked={notifications}
+                  onCheckedChange={setNotifications}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-muted/20 border border-primary/20">
+                <div>
+                  <Label htmlFor="sound" className="text-base">Sound Effects</Label>
+                  <p className="text-xs text-muted-foreground mt-1">Play sounds for trade executions</p>
+                </div>
+                <Switch
+                  id="sound"
+                  checked={soundEffects}
+                  onCheckedChange={setSoundEffects}
+                />
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="security">
+          <Card className="p-6 bg-card/50 border-2 border-primary/30">
+            <h2 className="text-xl font-bold uppercase tracking-wider text-primary mb-4">
+              Security Options
+            </h2>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-muted/20 border border-primary/20">
+                <div>
+                  <Label htmlFor="biometrics" className="text-base">Biometric Login</Label>
+                  <p className="text-xs text-muted-foreground mt-1">Use fingerprint or face ID</p>
+                </div>
+                <Switch
+                  id="biometrics"
+                  checked={biometrics}
+                  onCheckedChange={setBiometrics}
+                />
+              </div>
+
+              <Button className="w-full bg-primary/20 border-2 border-primary text-primary hover:bg-primary/30">
+                Change Password
+              </Button>
+
+              <Button variant="outline" className="w-full border-2 border-primary/30">
+                Enable 2FA
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="subscription">
+          <Card className="p-6 bg-card/50 border-2 border-accent/30 shadow-[0_0_30px_rgba(255,200,0,0.2)]">
+            <h2 className="text-xl font-bold uppercase tracking-wider text-accent mb-4">
+              Subscription Plan
+            </h2>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-muted/20 border-2 border-accent/50">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm uppercase tracking-wider text-muted-foreground">Current Plan</p>
+                  <span className="text-2xl font-bold text-accent">{currentTier || 'Free'}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {currentTier === 'Free' ? 'Paper trading with live data' : 'Live trading enabled'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { tier: 'Starter', price: '$29/mo', features: ['Live Trading', '1 AI Agent', 'Basic Analytics'] },
+                  { tier: 'Trader', price: '$79/mo', features: ['2 AI Agents', 'Enhanced Analytics', 'Priority Support'] },
+                  { tier: 'Pro', price: '$197/mo', features: ['3 AI Agents', 'All Strategies', 'VIP Support'] },
+                ].map((plan, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 bg-muted/20 border-2 border-primary/30 hover:border-primary/50 transition-colors"
+                  >
+                    <h3 className="font-bold text-lg mb-1">{plan.tier}</h3>
+                    <p className="text-2xl font-bold text-accent mb-3">{plan.price}</p>
+                    <ul className="space-y-1 mb-4">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="text-xs text-muted-foreground">
+                          • {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button size="sm" className="w-full bg-primary/20 border-2 border-primary text-primary hover:bg-primary/30">
+                      Upgrade
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="general">
+          <Card className="p-6 bg-card/50 border-2 border-primary/30">
+            <h2 className="text-xl font-bold uppercase tracking-wider text-primary mb-4">
+              General Settings
+            </h2>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-muted/20 border border-primary/20">
+                <Label className="text-base">Version</Label>
+                <p className="text-sm text-muted-foreground mt-1">v2.4.1 QUANTUM BUILD</p>
+              </div>
+
+              <Button variant="outline" className="w-full border-2 border-primary/30">
+                View Documentation
+              </Button>
+
+              <Button variant="outline" className="w-full border-2 border-primary/30">
+                Contact Support
+              </Button>
+
+              <Button variant="outline" className="w-full border-2 border-destructive/30 text-destructive">
+                Clear Cache
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
