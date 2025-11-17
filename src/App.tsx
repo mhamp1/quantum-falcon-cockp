@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   House,
   Robot,
@@ -30,73 +30,86 @@ interface Tab {
   component: React.ComponentType;
 }
 
+const TABS: Tab[] = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: House,
+    component: Dashboard,
+  },
+  {
+    id: "bot-overview",
+    label: "Bot Overview",
+    icon: Terminal,
+    component: BotOverview,
+  },
+  { id: "agents", label: "AI Agents", icon: Robot, component: Agents },
+  {
+    id: "analytics",
+    label: "Analytics",
+    icon: ChartLine,
+    component: Analytics,
+  },
+  {
+    id: "trading",
+    label: "Trading",
+    icon: Lightning,
+    component: AdvancedTradingHub,
+  },
+  { id: "vault", label: "Vault", icon: Vault, component: VaultView },
+  {
+    id: "community",
+    label: "Community",
+    icon: Users,
+    component: SocialCommunity,
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: Gear,
+    component: EnhancedSettings,
+  },
+];
+
 export default function App() {
   const [activeTab, setActiveTab] = useKV<string>("active-tab", "dashboard");
+  const [mounted, setMounted] = useState(false);
 
-  const tabs: Tab[] = useMemo(
-    () => [
-      {
-        id: "dashboard",
-        label: "Dashboard",
-        icon: House,
-        component: Dashboard,
-      },
-      {
-        id: "bot-overview",
-        label: "Bot Overview",
-        icon: Terminal,
-        component: BotOverview,
-      },
-      { id: "agents", label: "AI Agents", icon: Robot, component: Agents },
-      {
-        id: "analytics",
-        label: "Analytics",
-        icon: ChartLine,
-        component: Analytics,
-      },
-      {
-        id: "trading",
-        label: "Trading",
-        icon: Lightning,
-        component: AdvancedTradingHub,
-      },
-      { id: "vault", label: "Vault", icon: Vault, component: VaultView },
-      {
-        id: "community",
-        label: "Community",
-        icon: Users,
-        component: SocialCommunity,
-      },
-      {
-        id: "settings",
-        label: "Settings",
-        icon: Gear,
-        component: EnhancedSettings,
-      },
-    ],
-    [],
-  );
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleNavigateTab = (e: CustomEvent<string>) => {
       const newTab = e.detail;
-      if (tabs.some((tab) => tab.id === newTab)) {
+      if (TABS.some((tab) => tab.id === newTab)) {
         setActiveTab(newTab);
       }
     };
 
     window.addEventListener("navigate-tab", handleNavigateTab as EventListener);
-    return () => window.removeEventListener("navigate-tab", handleNavigateTab as EventListener);
-  }, [setActiveTab, tabs]);
+    return () =>
+      window.removeEventListener("navigate-tab", handleNavigateTab as EventListener);
+  }, [setActiveTab]);
 
-  const Component =
-    tabs.find((tab) => tab.id === activeTab)?.component || Dashboard;
+  const currentTab = TABS.find((tab) => tab.id === activeTab) || TABS[0];
+  const Component = currentTab.component;
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary text-xl font-bold uppercase tracking-wider neon-glow-primary">
+          INITIALIZING...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b-2 border-primary/30">
         <div className="flex items-center overflow-x-auto scrollbar-thin">
-          {tabs.map((tab) => {
+          {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (

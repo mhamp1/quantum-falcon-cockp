@@ -14,7 +14,7 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 
-import { useKV } from "@/hooks/useKVFallback";
+import { useKV } from "@github/spark/hooks";
 import Wireframe3D from "@/components/shared/Wireframe3D";
 
 interface PortfolioData {
