@@ -1,6 +1,6 @@
 import { useKV } from '@github/spark/hooks';
 import { useEffect, useMemo, Suspense, lazy, useState, useRef } from 'react';
-import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning } from '@phosphor-icons/react';
+import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning, Code } from '@phosphor-icons/react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UserAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ const VaultView = lazy(() => import('@/components/vault/VaultView'));
 const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
 const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTradingHub'));
 const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
+const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
 const AIAssistant = lazy(() => import('@/components/shared/AIAssistant'));
 const LicenseAuth = lazy(() => import('@/components/auth/LicenseAuth'));
 const LegalFooter = lazy(() => import('@/components/shared/LegalFooter'));
@@ -95,6 +96,7 @@ export default function App() {
     { id: 'agents', label: 'AI Agents', icon: Robot, component: Agents },
     { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
+    { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
