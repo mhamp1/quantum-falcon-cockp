@@ -119,6 +119,19 @@ export default function App() {
     return () => window.removeEventListener('navigate-tab', handleNavigateTab);
   }, [setActiveTab, tabs]);
 
+  useEffect(() => {
+    const handleOpenLegalRiskDisclosure = () => {
+      setActiveTab('settings')
+      setTimeout(() => {
+        const settingsTabEvent = new CustomEvent('open-settings-legal-tab')
+        window.dispatchEvent(settingsTabEvent)
+      }, 100)
+    }
+
+    window.addEventListener('open-legal-risk-disclosure', handleOpenLegalRiskDisclosure)
+    return () => window.removeEventListener('open-legal-risk-disclosure', handleOpenLegalRiskDisclosure)
+  }, [setActiveTab])
+
   const handleLicenseSuccess = async (tier: string, expiresAt: number) => {
     console.log('[App] ✅ License success:', { tier, expiresAt });
     

@@ -34,6 +34,15 @@ export default function LegalSection({
   const [riskAccepted, setRiskAccepted] = useKV<boolean>('risk-disclosure-accepted-' + version, false)
   const [showRiskModal, setShowRiskModal] = useState(false)
 
+  useEffect(() => {
+    const handleOpenRiskDisclosureModal = () => {
+      setShowRiskModal(true)
+    }
+
+    window.addEventListener('open-risk-disclosure-modal', handleOpenRiskDisclosureModal)
+    return () => window.removeEventListener('open-risk-disclosure-modal', handleOpenRiskDisclosureModal)
+  }, [])
+
   const exportUserData = () => {
     try {
       const userData = {

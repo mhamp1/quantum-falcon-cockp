@@ -128,6 +128,19 @@ export default function EnhancedSettings() {
   const [showEditProfile, setShowEditProfile] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
 
+  useEffect(() => {
+    const handleOpenSettingsLegalTab = () => {
+      setActiveTab('legal')
+      setTimeout(() => {
+        const riskDisclosureEvent = new CustomEvent('open-risk-disclosure-modal')
+        window.dispatchEvent(riskDisclosureEvent)
+      }, 150)
+    }
+
+    window.addEventListener('open-settings-legal-tab', handleOpenSettingsLegalTab)
+    return () => window.removeEventListener('open-settings-legal-tab', handleOpenSettingsLegalTab)
+  }, [])
+
   const handleLogout = () => {
     setAuth({
       isAuthenticated: false,

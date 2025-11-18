@@ -32,12 +32,10 @@ export default function RiskDisclosureBanner() {
       version: '2025-11-18',
       sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     }
-
-    setIsVisible(false)
     
-    setAcknowledgment(acknowledgmentData)
+    await setAcknowledgment(acknowledgmentData)
     
-    setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
+    await setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
 
     console.log('[Risk Disclosure Banner] ✅ Acknowledgment logged for legal compliance:', acknowledgmentData)
     console.log('[Risk Disclosure Banner] 📋 Full audit trail contains', (auditLog?.length || 0) + 1, 'entries')
@@ -45,6 +43,8 @@ export default function RiskDisclosureBanner() {
     console.log('[Risk Disclosure Banner] 📅 Timestamp:', new Date(acknowledgmentData.acknowledgedAt).toISOString())
     console.log('[Risk Disclosure Banner] 👤 User Agent:', acknowledgmentData.userAgent)
     console.log('[Risk Disclosure Banner] 🆔 Session ID:', acknowledgmentData.sessionId)
+    
+    setIsVisible(false)
     
     try {
       await fetch('/api/legal/acknowledge-risk', {

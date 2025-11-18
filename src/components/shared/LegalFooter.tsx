@@ -14,8 +14,12 @@ export default function LegalFooter() {
         <span className="hidden md:inline">•</span>
         <button 
           onClick={() => {
-            const event = new CustomEvent('navigate-tab', { detail: 'settings' })
-            window.dispatchEvent(event)
+            const settingsEvent = new CustomEvent('navigate-tab', { detail: 'settings' })
+            window.dispatchEvent(settingsEvent)
+            setTimeout(() => {
+              const legalTabEvent = new CustomEvent('open-legal-risk-disclosure')
+              window.dispatchEvent(legalTabEvent)
+            }, 100)
           }}
           className="underline hover:text-primary transition-colors"
         >
