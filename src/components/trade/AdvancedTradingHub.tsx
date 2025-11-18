@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { UserAuth } from '@/lib/auth'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Lightning, ChartLine, Target, Brain } from '@phosphor-icons/react'
+import { Lightning, ChartLine, Target, Brain, Crown } from '@phosphor-icons/react'
 import TradingStrategyCard from './TradingStrategyCard'
+import StrategyVault from './StrategyVault'
 import { toast } from 'sonner'
 
 interface Strategy {
@@ -353,10 +354,14 @@ export default function AdvancedTradingHub() {
         </div>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs defaultValue="vault" className="w-full">
         <TabsList className="w-full justify-start bg-card border-2 border-primary/30 p-1 jagged-corner">
+          <TabsTrigger value="vault" className="data-[state=active]:bg-accent/20 data-[state=active]:text-accent uppercase tracking-wider text-xs font-bold flex items-center gap-1">
+            <Crown size={14} weight="fill" />
+            Strategy Vault
+          </TabsTrigger>
           <TabsTrigger value="all" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
-            All Strategies
+            Active Strategies
           </TabsTrigger>
           <TabsTrigger value="dca" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
             DCA
@@ -367,10 +372,11 @@ export default function AdvancedTradingHub() {
           <TabsTrigger value="advanced" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
             Advanced
           </TabsTrigger>
-          <TabsTrigger value="special" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
-            Special
-          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="vault" className="mt-6">
+          <StrategyVault />
+        </TabsContent>
 
         <TabsContent value="all" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
