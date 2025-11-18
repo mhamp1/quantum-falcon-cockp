@@ -121,7 +121,7 @@ export default function AIAssistant() {
       dailyPnL: liveData.dailyPnL || 342.56,
       winRate: liveData.winRate || 68.5,
       activeTrades: liveData.activeTrades || 3,
-      sentiment: liveData.dailyPnL > 0 ? 'BULLISH' : liveData.dailyPnL < -100 ? 'BEARISH' : 'NEUTRAL',
+      sentiment: (liveData.dailyPnL ?? 0) > 0 ? 'BULLISH' : (liveData.dailyPnL ?? 0) < -100 ? 'BEARISH' : 'NEUTRAL',
       lastUpdate: Date.now()
     }
   }, [liveData.portfolioValue, liveData.dailyPnL, liveData.winRate, liveData.activeTrades])

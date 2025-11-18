@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useKV } from '@/hooks/useKVFallback';
+import { useKV } from '@github/spark/hooks';
 import { tradingDataGenerator, Trade } from '@/lib/tradingDataGenerator';
 
 export interface TradeHistory extends Trade {

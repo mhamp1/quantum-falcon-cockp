@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import SolanaLogo from '@/components/shared/SolanaLogo'
 import VaultTutorial from './VaultTutorial'
 import useEmblaCarousel from 'embla-carousel-react'
-import Autoplay from 'embla-carousel-autoplay'
 import { generateIntelligentOffers, getTimeUntilNextRotation, type IntelligentOffer } from '@/lib/intelligentOffers'
 import type { UserAuth } from '@/lib/auth'
 

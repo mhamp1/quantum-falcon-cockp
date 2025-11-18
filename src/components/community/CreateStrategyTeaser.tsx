@@ -1,6 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Float, Text, PerspectiveCamera } from '@react-three/drei'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { Button } from '@/components/ui/button'
@@ -22,18 +20,17 @@ import {
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 
-interface CodeParticle3D {
+interface CodeParticle {
   id: number
-  position: [number, number, number]
-  rotation: [number, number, number]
+  x: number
+  y: number
   code: string
-  speed: number
-  scale: number
+  delay: number
+  duration: number
 }
 
-function CodeParticle3DGroup() {
-  const groupRef = useRef<any>(null)
-  const [particles] = useState<CodeParticle3D[]>(() => {
+function CodeParticlesBackground() {
+  const [particles] = useState<CodeParticle[]>(() => {
     const codeSnippets = [
       'if', 'buy', 'sell', 'RSI', 'volume', 'whale', 'DCA', 'AI',
       'EMA', 'MACD', 'trend', 'signal', 'profit', 'loss', 'entry',
@@ -41,78 +38,41 @@ function CodeParticle3DGroup() {
     ]
     return Array.from({ length: 30 }, (_, i) => ({
       id: i,
-      position: [
-        (Math.random() - 0.5) * 20,
-        (Math.random() - 0.5) * 15,
-        (Math.random() - 0.5) * 10
-      ] as [number, number, number],
-      rotation: [
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2
-      ] as [number, number, number],
+      x: Math.random() * 100,
+      y: Math.random() * 100,
       code: codeSnippets[i % codeSnippets.length],
-      speed: 0.2 + Math.random() * 0.8,
-      scale: 0.3 + Math.random() * 0.4
+      delay: Math.random() * 3,
+      duration: 10 + Math.random() * 15
     }))
   })
 
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.1
-    }
-  })
-
   return (
-    <group ref={groupRef}>
+    <div className="absolute inset-0 overflow-hidden">
       {particles.map((particle) => (
-        <Float
+        <motion.div
           key={particle.id}
-          speed={particle.speed}
-          rotationIntensity={0.5}
-          floatIntensity={1.5}
+          className="absolute text-xs font-mono font-bold text-accent/40"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+          }}
+          animate={{
+            y: [-20, 20, -20],
+            x: [-10, 10, -10],
+            opacity: [0.2, 0.6, 0.2],
+            scale: [0.8, 1.2, 0.8],
+          }}
+          transition={{
+            duration: particle.duration,
+            repeat: Infinity,
+            delay: particle.delay,
+            ease: "easeInOut"
+          }}
         >
-          <mesh position={particle.position} rotation={particle.rotation} scale={particle.scale}>
-            <boxGeometry args={[2, 2, 0.3]} />
-            <meshStandardMaterial
-              color="#DC1FFF"
-              emissive="#DC1FFF"
-              emissiveIntensity={2}
-              transparent
-              opacity={0.6}
-            />
-          </mesh>
-        </Float>
+          {particle.code}
+        </motion.div>
       ))}
-    </group>
-  )
-}
-
-function FloatingEditorWindow() {
-  const meshRef = useRef<any>(null)
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.2
-      meshRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.5
-    }
-  })
-
-  return (
-    <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.5}>
-      <mesh ref={meshRef}>
-        <boxGeometry args={[6, 4, 0.3]} />
-        <meshStandardMaterial
-          color="#0a0a0a"
-          emissive="#1a0033"
-          emissiveIntensity={0.8}
-        />
-      </mesh>
-      <mesh position={[0, 0, 0.16]}>
-        <planeGeometry args={[5.5, 3.5]} />
-        <meshBasicMaterial color="#14F195" transparent opacity={0.1} />
-      </mesh>
-    </Float>
+    </div>
   )
 }
 
@@ -197,16 +157,7 @@ export default function CreateStrategyTeaser({ onUpgrade, isLocked = true }: Cre
         <div className="absolute inset-0 bg-gradient-to-br from-black via-[#0a0a0a] to-black" />
         
         <div className="absolute inset-0 z-0">
-          <Canvas camera={{ position: [0, 0, 12], fov: 65 }}>
-            <PerspectiveCamera makeDefault position={[0, 0, 12]} />
-            <ambientLight intensity={0.3} color="#DC1FFF" />
-            <pointLight position={[10, 10, 10]} intensity={1.5} color="#14F195" />
-            <pointLight position={[-10, -10, -10]} intensity={1} color="#9945FF" />
-            <pointLight position={[0, 15, 5]} intensity={0.8} color="#DC1FFF" />
-            
-            <CodeParticle3DGroup />
-            <FloatingEditorWindow />
-          </Canvas>
+          <CodeParticlesBackground />
         </div>
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />

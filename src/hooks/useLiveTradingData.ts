@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useKV } from '@/hooks/useKVFallback';
+import { useKV } from '@github/spark/hooks';
 import { tradingDataGenerator, BotLog, Activity } from '@/lib/tradingDataGenerator';
 
 export function useLiveTradingData() {

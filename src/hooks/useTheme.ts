@@ -1,4 +1,4 @@
-import { useKV } from '@/hooks/useKVFallback';
+import { useKV } from '@github/spark/hooks';
 import { useEffect } from 'react';
 
 export type ThemeStyle = 'default' | 'matrix' | 'synthwave';
@@ -13,31 +13,34 @@ interface ThemeSettings {
   highContrast: boolean
 }
 
+const DEFAULT_THEME: ThemeSettings = {
+  darkMode: true,
+  colorScheme: 'solana-cyber',
+  animations: true,
+  glassEffect: true,
+  neonGlow: true,
+  themeStyle: 'default',
+  highContrast: false
+};
+
 export function useTheme() {
-  const [themeSettings, setThemeSettings] = useKV<ThemeSettings>('app-theme-settings', {
-    darkMode: true,
-    colorScheme: 'solana-cyber',
-    animations: true,
-    glassEffect: true,
-    neonGlow: true,
-    themeStyle: 'default',
-    highContrast: false
-  });
+  const [themeSettings, setThemeSettings] = useKV<ThemeSettings>('app-theme-settings', DEFAULT_THEME);
 
   useEffect(() => {
     const root = document.documentElement;
+    const settings = themeSettings || DEFAULT_THEME;
     
     root.classList.remove('default', 'matrix', 'synthwave', 'high-contrast');
     
-    if (themeSettings.themeStyle) {
-      root.classList.add(themeSettings.themeStyle);
+    if (settings.themeStyle) {
+      root.classList.add(settings.themeStyle);
     }
     
-    if (themeSettings.highContrast) {
+    if (settings.highContrast) {
       root.classList.add('high-contrast');
     }
     
-    if (!themeSettings.animations) {
+    if (!settings.animations) {
       root.style.setProperty('--animate-duration', '0s');
     } else {
       root.style.removeProperty('--animate-duration');
@@ -45,8 +48,11 @@ export function useTheme() {
   }, [themeSettings]);
 
   const updateTheme = (updates: Partial<ThemeSettings>) => {
-    setThemeSettings(current => ({ ...current, ...updates }));
+    setThemeSettings((current) => {
+      const base = current || DEFAULT_THEME;
+      return { ...base, ...updates };
+    });
   };
 
-  return { themeSettings, setThemeSettings, updateTheme };
+  return { themeSettings: themeSettings || DEFAULT_THEME, setThemeSettings, updateTheme };
 }
