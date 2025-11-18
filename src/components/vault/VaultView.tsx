@@ -3,12 +3,13 @@ import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon, CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon, CaretLeft, CaretRight, Play, ChartLine } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import SolanaLogo from '@/components/shared/SolanaLogo'
 import VaultTutorial from './VaultTutorial'
 import useEmblaCarousel from 'embla-carousel-react'
+import Autoplay from 'embla-carousel-autoplay'
 
 interface VaultTransaction {
   id: string
@@ -151,13 +152,20 @@ export default function VaultView() {
   const [showTutorial, setShowTutorial] = useState(false)
   const [flashSales, setFlashSales] = useState<FlashSaleCard[]>([])
   const [timeRemaining, setTimeRemaining] = useState('')
+  const [btcPrice, setBtcPrice] = useState(67420)
+  const [solPrice, setSolPrice] = useState(178.5)
+  const [weeklyGrowth, setWeeklyGrowth] = useState(47.3)
+  const [autoConvertEnabled, setAutoConvertEnabled] = useKV<boolean>('auto-convert-enabled', true)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true, 
     align: 'start',
     skipSnaps: false,
-    slidesToScroll: 1
+    slidesToScroll: 1,
+    duration: 25
   })
+  
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
 
@@ -203,10 +211,17 @@ export default function VaultView() {
     const rotationCheck = setInterval(() => {
       updateFlashSales()
     }, 60000)
+    
+    const priceUpdateInterval = setInterval(() => {
+      setBtcPrice((prev) => prev + (Math.random() - 0.5) * 200)
+      setSolPrice((prev) => prev + (Math.random() - 0.5) * 5)
+      setWeeklyGrowth((prev) => Math.max(0, Math.min(100, prev + (Math.random() - 0.5) * 2)))
+    }, 8000)
 
     return () => {
       clearInterval(interval)
       clearInterval(rotationCheck)
+      clearInterval(priceUpdateInterval)
     }
   }, [])
 
@@ -551,7 +566,9 @@ export default function VaultView() {
               textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)'
             }}
           >
-            <span className="text-foreground">A new paradigm of autonomous trading, built for investors who value{' '}</span>
+            <span className="text-foreground">Welcome back! Your Vault grew{' '}</span>
+            <span className="text-secondary font-black neon-glow-secondary drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">+{weeklyGrowth.toFixed(1)}%</span>
+            <span className="text-foreground">{' '}this week. A new paradigm of autonomous trading, built for investors who value{' '}</span>
             <span className="text-primary font-black neon-glow-primary drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">speed</span>
             <span className="text-foreground">,{' '}</span>
             <span className="text-accent font-black neon-glow-accent drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">clarity</span>
@@ -901,12 +918,20 @@ export default function VaultView() {
                 {btcBalance?.toFixed(6) || '0.000000'}
                 <span className="text-2xl ml-2">BTC</span>
               </p>
-              <p className="text-lg uppercase tracking-wide font-black bg-card/90 px-3 py-1.5 inline-block border-3 border-secondary/60" style={{
-                textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
-                color: 'oklch(0.90 0.08 195)'
-              }}>
-                ≈ ${((btcBalance || 0) * 45000).toFixed(2)} USD
-              </p>
+              <div className="space-y-2">
+                <p className="text-lg uppercase tracking-wide font-black bg-card/90 px-3 py-1.5 inline-block border-3 border-secondary/60" style={{
+                  textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
+                  color: 'oklch(0.90 0.08 195)'
+                }}>
+                  ≈ ${((btcBalance || 0) * btcPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+                </p>
+                <div className="flex items-center gap-2 text-sm bg-card/80 px-3 py-1 border border-primary/40 jagged-corner-small">
+                  <ChartLine size={16} weight="duotone" className="text-primary" />
+                  <span className="text-muted-foreground font-bold">BTC: ${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                  <span className="text-primary">•</span>
+                  <span className="text-muted-foreground font-bold">SOL: ${solPrice.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 bg-card border-3 border-primary/50 jagged-corner-small shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.4)]">
