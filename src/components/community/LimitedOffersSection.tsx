@@ -92,7 +92,7 @@ export default function LimitedOffersSection() {
           <div
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className={`cyber-card p-4 space-y-3 relative overflow-hidden group cursor-help transition-all duration-300 ease-out ${
+            className={`cyber-card p-4 space-y-3 relative overflow-hidden group cursor-help transition-all duration-300 ease-in-out will-change-transform ${
               isPurchased ? 'ring-2 ring-primary' : ''
             } ${isFlashSale ? 'border-2 border-accent' : ''}`}
             style={{
@@ -104,6 +104,7 @@ export default function LimitedOffersSection() {
                   ? '0 0 15px oklch(0.68 0.18 330 / 0.3)' 
                   : undefined,
               transform: isHovered ? 'translateY(-2px) scale(1.02)' : 'translateY(0) scale(1)',
+              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
             {isPurchased && (

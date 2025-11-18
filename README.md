@@ -15,7 +15,7 @@ This app features a custom Solana-inspired cyberpunk theme with neon aesthetics,
 - Custom notification toasts and badges
 - Fully responsive design (mobile-first)
 
-📖 **[Complete Theme Guide](./THEME_GUIDE.md)** - Learn how to customize and extend the theme
+📖 **[Complete Theme Guide](./docs/THEME_GUIDE.md)** - Learn how to customize and extend the theme
 
 **Quick Start:**
 ```tsx
@@ -46,9 +46,9 @@ A cyberpunk-themed progressive web app for crypto trading with AI-powered tradin
 - [Project Structure](#-project-structure)
 - [License](#-license)
 
-> **Note**: Recent merge resolution - See [MERGE_RESOLUTION_SUMMARY.md](./MERGE_RESOLUTION_SUMMARY.md) for details on resolved conflicts and mobile implementation options.
+> **Documentation**: See the [docs/](./docs/) folder for comprehensive guides on architecture, API integration, implementation details, and more.
 > 
-> **Code Quality**: See [CODE_QUALITY_IMPROVEMENTS.md](./CODE_QUALITY_IMPROVEMENTS.md) for details on recent code quality improvements and linting setup.
+> **Code Quality**: See [docs/CODE_QUALITY_IMPROVEMENTS.md](./docs/CODE_QUALITY_IMPROVEMENTS.md) for details on recent code quality improvements and linting setup.
 
 ## ✨ Features
 
@@ -145,7 +145,7 @@ flutter run
 
 📖 See [mobile_app/QUICKSTART.md](./mobile_app/QUICKSTART.md) for quick start
 
-📋 **Choosing Between Implementations**: See [MERGE_RESOLUTION_SUMMARY.md](./MERGE_RESOLUTION_SUMMARY.md#integration-strategy) for detailed comparison and integration options.
+📋 **Choosing Between Implementations**: See [docs/MERGE_RESOLUTION_SUMMARY.md](./docs/MERGE_RESOLUTION_SUMMARY.md#integration-strategy) for detailed comparison and integration options.
 
 ### 2. Install Dependencies
 
@@ -1661,10 +1661,11 @@ The Spark Template files and resources from GitHub are licensed under the terms 
 
 ## 🔗 Related Documentation
 
-- [Backend API Example](./BACKEND_API_EXAMPLE.md) - Flask server implementation
-- [Implementation Plan](./IMPLEMENTATION_PLAN.md) - Feature development roadmap
-- [PRD](./PRD.md) - Complete product requirements
+- [Backend API Example](./docs/BACKEND_API_EXAMPLE.md) - Flask server implementation
+- [Implementation Plan](./docs/IMPLEMENTATION_PLAN.md) - Feature development roadmap
+- [PRD](./docs/PRD.md) - Complete product requirements
 - [Security](./SECURITY.md) - Security guidelines
+- [Complete Documentation Index](./docs/) - All project documentation
 
 ## 📞 Support
 
