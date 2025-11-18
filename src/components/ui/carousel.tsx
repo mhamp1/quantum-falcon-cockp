@@ -1,6 +1,6 @@
 "use client"
 
-import { ComponentProps, createContext, useCallback, useContext, useEffect, useState, KeyboardEvent } from "react"
+import { ComponentProps, createContext, useCallback, useContext, useEffect, useState, KeyboardEvent, useRef } from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
@@ -56,33 +56,48 @@ function Carousel({
     {
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",
+      duration: 20,
+      skipSnaps: false,
+      dragFree: false,
     },
     plugins
   )
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
+  const isScrollingRef = useRef(false)
 
   const onSelect = useCallback((api: CarouselApi) => {
     if (!api) return
     setCanScrollPrev(api.canScrollPrev())
     setCanScrollNext(api.canScrollNext())
+    isScrollingRef.current = false
   }, [])
 
   const scrollPrev = useCallback(() => {
-    api?.scrollPrev()
+    if (!api || isScrollingRef.current) return
+    isScrollingRef.current = true
+    api.scrollPrev()
   }, [api])
 
   const scrollNext = useCallback(() => {
-    api?.scrollNext()
+    if (!api || isScrollingRef.current) return
+    isScrollingRef.current = true
+    api.scrollNext()
   }, [api])
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
+      if (isScrollingRef.current) {
+        event.preventDefault()
+        return
+      }
       if (event.key === "ArrowLeft") {
         event.preventDefault()
+        event.stopPropagation()
         scrollPrev()
       } else if (event.key === "ArrowRight") {
         event.preventDefault()
+        event.stopPropagation()
         scrollNext()
       }
     },
@@ -99,9 +114,12 @@ function Carousel({
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)
+    api.on("settle", onSelect)
 
     return () => {
       api?.off("select", onSelect)
+      api?.off("reInit", onSelect)
+      api?.off("settle", onSelect)
     }
   }, [api, onSelect])
 
@@ -120,7 +138,7 @@ function Carousel({
       }}
     >
       <div
-        onKeyDownCapture={handleKeyDown}
+        onKeyDown={handleKeyDown}
         className={cn("relative", className)}
         role="region"
         aria-roledescription="carousel"
@@ -180,20 +198,29 @@ function CarouselPrevious({
 }: ComponentProps<typeof Button>) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
 
+  const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (canScrollPrev) {
+      scrollPrev()
+    }
+  }, [scrollPrev, canScrollPrev])
+
   return (
     <Button
       data-slot="carousel-previous"
       variant={variant}
       size={size}
       className={cn(
-        "absolute size-8 rounded-full",
+        "absolute size-8 rounded-full transition-opacity",
         orientation === "horizontal"
           ? "top-1/2 -left-12 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+        !canScrollPrev && "opacity-50 cursor-not-allowed",
         className
       )}
       disabled={!canScrollPrev}
-      onClick={scrollPrev}
+      onClick={handleClick}
       {...props}
     >
       <ArrowLeft />
@@ -210,20 +237,29 @@ function CarouselNext({
 }: ComponentProps<typeof Button>) {
   const { orientation, scrollNext, canScrollNext } = useCarousel()
 
+  const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (canScrollNext) {
+      scrollNext()
+    }
+  }, [scrollNext, canScrollNext])
+
   return (
     <Button
       data-slot="carousel-next"
       variant={variant}
       size={size}
       className={cn(
-        "absolute size-8 rounded-full",
+        "absolute size-8 rounded-full transition-opacity",
         orientation === "horizontal"
           ? "top-1/2 -right-12 -translate-y-1/2"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+        !canScrollNext && "opacity-50 cursor-not-allowed",
         className
       )}
       disabled={!canScrollNext}
-      onClick={scrollNext}
+      onClick={handleClick}
       {...props}
     >
       <ArrowRight />
