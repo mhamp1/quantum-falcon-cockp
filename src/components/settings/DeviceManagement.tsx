@@ -13,11 +13,14 @@ import {
   WarningCircle,
   Globe,
   Shield,
-  Clock
+  Clock,
+  WifiHigh,
+  WifiSlash
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import { settingsAPI } from '@/lib/api/settings-api'
+import { sessionTracker, SessionEvent } from '@/lib/websocket/sessionTracker'
 
 interface DeviceSession {
   id: string
@@ -33,6 +36,7 @@ interface DeviceSession {
 }
 
 export default function DeviceManagement() {
+  const [auth] = useKV<any>('user-auth', null)
   const [sessions, setSessions] = useKV<DeviceSession[]>('user-sessions', [
     {
       id: 'current',
@@ -75,20 +79,85 @@ export default function DeviceManagement() {
   const [isRevoking, setIsRevoking] = useState<{ [key: string]: boolean }>({})
   const [isRevokingAll, setIsRevokingAll] = useState(false)
   const [revokeCountdown, setRevokeCountdown] = useState(0)
+  const [wsConnected, setWsConnected] = useState(false)
+
+  useEffect(() => {
+    if (auth?.userId) {
+      sessionTracker.connect(auth.userId)
+
+      const unsubscribeUpdate = sessionTracker.on('session_update', (event: SessionEvent) => {
+        if (event.type === 'connection') {
+          setWsConnected((event.data as any).connected)
+        } else if (event.type === 'session_update' && event.data) {
+          const updates = Array.isArray(event.data) ? event.data : [event.data]
+          setSessions((current) => {
+            if (!current) return []
+            return current.map(session => {
+              const update = updates.find(u => 'sessionId' in u && u.sessionId === session.id)
+              return update && 'lastActive' in update ? { ...session, lastActive: update.lastActive } : session
+            })
+          })
+        }
+      })
+
+      const unsubscribeCreated = sessionTracker.on('session_created', (event: SessionEvent) => {
+        if (!Array.isArray(event.data)) {
+          const newSession = event.data as any
+          setSessions((current) => {
+            if (!current) return [newSession]
+            if (current.some(s => s.id === newSession.sessionId)) return current
+            return [...current, {
+              id: newSession.sessionId,
+              deviceType: newSession.deviceType,
+              deviceName: newSession.deviceName,
+              browser: newSession.browser,
+              os: newSession.os,
+              ip: newSession.ip,
+              location: newSession.location,
+              lastActive: newSession.lastActive,
+              loginTime: newSession.lastActive,
+              isCurrent: false
+            }]
+          })
+          
+          toast.info('New Session Detected', {
+            description: `${newSession.deviceName} from ${newSession.location}`,
+            className: 'border-primary/50 bg-background/95'
+          })
+        }
+      })
+
+      const unsubscribeRevoked = sessionTracker.on('session_revoked', (event: SessionEvent) => {
+        const data = event.data as any
+        setSessions((current) => {
+          if (!current) return []
+          return current.filter(s => s.id !== data.sessionId)
+        })
+      })
+
+      return () => {
+        unsubscribeUpdate()
+        unsubscribeCreated()
+        unsubscribeRevoked()
+      }
+    }
+  }, [auth?.userId, setSessions])
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setSessions((current) => {
-        if (!current) return []
-        return current.map(session => ({
-          ...session,
-          lastActive: session.isCurrent ? Date.now() : session.lastActive
-        }))
-      })
+      if (!wsConnected) {
+        setSessions((current) => {
+          if (!current) return []
+          return current.map(session => ({
+            ...session,
+            lastActive: session.isCurrent ? Date.now() : session.lastActive
+          }))
+        })
+      }
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [setSessions])
+  }, [setSessions, wsConnected])
 
   useEffect(() => {
     if (revokeCountdown > 0) {
@@ -218,8 +287,19 @@ export default function DeviceManagement() {
             <Shield size={32} weight="duotone" className="text-primary" />
             <div>
               <h2 className="text-2xl font-bold uppercase tracking-wide text-primary">Device Management</h2>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                 Manage your active sessions • {sessions?.length || 0} device{(sessions?.length || 0) !== 1 ? 's' : ''}
+                {wsConnected ? (
+                  <span className="flex items-center gap-1 text-primary">
+                    <WifiHigh size={12} weight="fill" />
+                    Live
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <WifiSlash size={12} />
+                    Polling
+                  </span>
+                )}
               </p>
             </div>
           </div>
