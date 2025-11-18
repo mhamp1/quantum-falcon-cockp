@@ -191,11 +191,24 @@ export default function App() {
           className="fixed left-0 top-0 h-screen w-64 border-r-2 border-primary/30 bg-card/95 backdrop-blur-md z-40 flex flex-col"
         >
           <div className="p-6 border-b-2 border-primary/30">
-            <h1 className="text-xl font-bold uppercase tracking-[0.15em] text-primary hud-text">
+            <h1 className="text-xl font-bold uppercase tracking-[0.15em]" style={{
+              color: 'var(--primary)',
+              textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)',
+              WebkitTextStroke: '0.5px currentColor',
+              paintOrder: 'stroke fill',
+              fontFamily: 'var(--font-family-display)',
+              letterSpacing: '0.15em'
+            }}>
               QUANTUM<br/>FALCON
             </h1>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">
-              COCKPIT v2.0
+            <p className="text-[10px] uppercase tracking-wider mt-1" style={{
+              color: 'var(--primary)',
+              textShadow: '0 0 10px var(--primary)',
+              fontFamily: 'monospace',
+              letterSpacing: '0.2em',
+              opacity: 0.8
+            }}>
+              SYSTEM_ONLINE<span className="animate-pulse">_</span>
             </p>
           </div>
           

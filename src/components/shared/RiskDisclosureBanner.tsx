@@ -22,12 +22,15 @@ export default function RiskDisclosureBanner() {
     'risk-disclosure-audit-log',
     []
   )
-  const [isVisible, setIsVisible] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     if (acknowledgment) {
       setIsVisible(false)
       console.log('[Risk Disclosure Banner] 🚫 Banner hidden - User has acknowledged (logged on:', new Date(acknowledgment.acknowledgedAt).toLocaleString(), ')')
+    } else {
+      setIsVisible(true)
+      console.log('[Risk Disclosure Banner] 👁️ Banner showing - awaiting user acknowledgment')
     }
   }, [acknowledgment])
 
@@ -43,9 +46,9 @@ export default function RiskDisclosureBanner() {
     
     setIsVisible(false)
     
-    setAcknowledgment(acknowledgmentData)
+    await setAcknowledgment(acknowledgmentData)
     
-    setAuditLog((currentLog) => {
+    await setAuditLog((currentLog) => {
       const newLog = [...(currentLog || []), acknowledgmentData]
       console.log('[Risk Disclosure Banner] 📋 Audit trail updated. Total entries:', newLog.length)
       return newLog
@@ -70,7 +73,7 @@ export default function RiskDisclosureBanner() {
     }
     
     toast.success('Risk Disclosure Acknowledged', {
-      description: 'Your acknowledgment has been permanently logged.'
+      description: 'Your acknowledgment has been permanently logged. The banner will not appear again.'
     })
   }
 
@@ -85,10 +88,11 @@ export default function RiskDisclosureBanner() {
   }
 
   if (!isVisible || acknowledgment) {
+    console.log('[Risk Disclosure Banner] 🚫 Banner not rendered - isVisible:', isVisible, 'acknowledgment:', !!acknowledgment)
     return null
   }
 
-  console.log('[Risk Disclosure Banner] 👁️ Banner showing - awaiting user acknowledgment')
+  console.log('[Risk Disclosure Banner] 👁️ Banner rendering - awaiting user acknowledgment')
 
   return (
     <AnimatePresence>

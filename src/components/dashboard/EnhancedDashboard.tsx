@@ -199,14 +199,27 @@ export default function EnhancedDashboard() {
               </div>
               
               <div className="space-y-4">
-                <h1 className="text-4xl md:text-5xl font-bold tracking-[0.2em] uppercase">
-                  <span className="text-primary neon-glow-primary">QUANTUM</span>
-                  <span className="text-secondary neon-glow-secondary ml-2">FALCON</span>
+                <h1 className="text-4xl md:text-5xl font-bold tracking-[0.2em] uppercase mb-2">
+                  <span className="text-primary" style={{
+                    textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary), 0 0 80px var(--primary)',
+                    WebkitTextStroke: '0.5px currentColor',
+                    paintOrder: 'stroke fill'
+                  }}>QUANTUM</span>
+                  <span className="text-accent ml-2" style={{
+                    textShadow: '0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 40px var(--accent), 0 0 80px var(--accent)',
+                    WebkitTextStroke: '0.5px currentColor',
+                    paintOrder: 'stroke fill'
+                  }}>FALCON</span>
                 </h1>
-                <p className="text-lg uppercase tracking-[0.15em] text-muted-foreground font-semibold">
-                  AI-POWERED AUTONOMOUS TRADING COCKPIT
+                <p className="text-lg uppercase tracking-[0.15em] font-bold" style={{
+                  color: 'var(--primary)',
+                  textShadow: '0 0 10px var(--primary)',
+                  fontFamily: 'monospace',
+                  letterSpacing: '0.3em'
+                }}>
+                  SYSTEM_ONLINE<span className="animate-pulse">_</span>
                 </p>
-                <p className="text-base leading-relaxed text-foreground max-w-2xl mx-auto">
+                <p className="text-base leading-relaxed text-foreground max-w-2xl mx-auto mt-4">
                   Access your <span className="text-primary font-bold">advanced trading dashboard</span>, manage{' '}
                   <span className="text-accent font-bold">AI agents</span>, and monitor your{' '}
                   <span className="text-secondary font-bold">portfolio</span> in real-time
@@ -269,8 +282,12 @@ export default function EnhancedDashboard() {
         <div className="p-6 relative z-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-[0.15em] uppercase">
-                <span className="text-primary neon-glow-primary">Welcome Back,</span>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-[0.15em] uppercase mb-2">
+                <span className="text-primary" style={{
+                  textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)',
+                  WebkitTextStroke: '0.5px currentColor',
+                  paintOrder: 'stroke fill'
+                }}>Welcome Back,</span>
                 <span className="text-foreground ml-2">{auth.username}</span>
               </h1>
               <div className="flex flex-wrap items-center gap-3 mt-2">
