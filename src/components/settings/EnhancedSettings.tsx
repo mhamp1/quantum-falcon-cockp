@@ -1,3 +1,8 @@
+// Security, Notifications & Preferences — LIVE (Production 2025)
+// 2FA support, session management, and notification controls
+// Comprehensive security settings with audit trail
+// Connected to /api/settings for real-time preference sync
+
 import { useKVSafe } from '@/hooks/useKVFallback'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Button } from '@/components/ui/button'

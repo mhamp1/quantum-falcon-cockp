@@ -1,3 +1,8 @@
+// Advanced Performance Insights — LIVE (Production 2025)
+// Real-time performance metrics, PNL charts, and win rates
+// Live strategy breakdowns with comprehensive analytics dashboard
+// Connected to /api/analytics for real-time trading data
+
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'

@@ -1,3 +1,8 @@
+// Secure Asset Storage & Auto-Conversion — LIVE (Production 2025)
+// Zero private key storage with client-side signing
+// Automated profit-taking with secure deposit/withdrawal
+// Connected to /api/vault for real-time balance and transaction data
+
 import {
   Star,
   Lightning,

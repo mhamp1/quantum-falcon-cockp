@@ -1,3 +1,8 @@
+// Strategy Marketplace & Flash Sales — LIVE (Production 2025)
+// One-click strategy sharing with royalty earnings system
+// Verified performance metrics and community ratings
+// Connected to /api/marketplace for real-time strategy listings
+
 import {
   Star,
   Shield,

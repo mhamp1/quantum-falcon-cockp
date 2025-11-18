@@ -5,10 +5,10 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { isNonCriticalError } from '@/lib/errorSuppression';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { House, Terminal, ChartLine, Lightning, Code, Vault, Users, Robot } from '@phosphor-icons/react';
 import { logError } from '@/lib/errorLogger';
+import { House, Terminal, ChartLine, Lightning, Code, Vault, Users, Robot } from '@phosphor-icons/react';
 
-// Lazy load components
+// Lazy load all heavy components
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
 const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
@@ -44,7 +44,7 @@ function LoadingFallback() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-4">
         <div className="text-5xl animate-pulse">⚡</div>
-        <p className="text-muted-foreground uppercase tracking-wider text-sm">Loading System...</p>
+        <p className="text-muted-foreground uppercase tracking-wider text-sm">Initializing Quantum Core...</p>
       </div>
     </div>
   );
@@ -52,68 +52,67 @@ function LoadingFallback() {
 
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   if (isNonCriticalError(error)) {
-    console.debug('[ComponentErrorFallback] Auto-recovering from non-critical error');
+    console.debug('[ComponentErrorFallback] Auto-recovering from non-critical error:', error.message);
     setTimeout(resetErrorBoundary, 0);
     return null;
   }
-  
-  console.error('[ComponentErrorFallback] Displaying error:', error);
-  
+
+  console.error('[ComponentErrorFallback] Critical component error:', error);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <div className="cyber-card p-8 max-w-2xl w-full space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="text-destructive text-5xl">⚠️</div>
+      <div className="cyber-card p-8 max-w-2xl w-full space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="text-destructive text-6xl">⚠️</div>
           <div>
-            <h2 className="text-xl font-bold text-destructive uppercase tracking-wide">
-              Component Error
+            <h2 className="text-2xl font-bold text-destructive uppercase tracking-wide">
+              Component Failure
             </h2>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">
-              Critical system failure detected
+            <p className="text-sm text-muted-foreground uppercase tracking-wider">
+              A critical error occurred in this module
             </p>
           </div>
         </div>
-        <div className="space-y-2">
-          <p className="text-sm text-foreground font-semibold">
+
+        <div className="space-y-3">
+          <p className="text-foreground font-mono text-sm break-all">
             {error.message}
           </p>
+
           {error.stack && (
-            <details className="mt-2">
-              <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground uppercase tracking-wide">
-                Show Stack Trace
+            <details className="mt-3">
+              <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground uppercase tracking-wide font-semibold">
+                View Stack Trace
               </summary>
-              <pre className="text-xs text-muted-foreground mt-2 p-4 bg-muted/20 rounded overflow-auto max-h-64 scrollbar-thin font-mono">
+              <pre className="mt-3 p-4 bg-muted/30 rounded-lg overflow-auto max-h-64 scrollbar-thin text-xs font-mono text-muted-foreground">
                 {error.stack}
               </pre>
             </details>
           )}
         </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={resetErrorBoundary}
-            className="flex-1"
-          >
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button onClick={resetErrorBoundary} size="lg" className="flex-1">
             Retry Component
           </Button>
-          <Button
-            onClick={() => window.location.reload()}
-            variant="outline"
-            className="flex-1"
-          >
-            Reload Page
+          <Button onClick={() => window.location.reload()} variant="outline" size="lg" className="flex-1">
+            Reload Application
           </Button>
           <Button
             onClick={() => {
-              navigator.clipboard.writeText(`Error: ${error.message}\n\nStack: ${error.stack || 'N/A'}`);
+              navigator.clipboard.writeText(`Error: ${error.message}\nStack: ${error.stack || 'N/A'}`);
+              alert('Error copied to clipboard');
             }}
             variant="secondary"
+            size="lg"
             className="flex-1"
           >
-            Copy Error
+            Copy Error Report
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground text-center">
-          If this error persists, please contact support with the error details above.
+
+        <p className="text-xs text-muted-foreground text-center pt-4 border-t border-border/50">
+          Quantum Falcon Cockpit v2025.1.0 • November 18, 2025 • Production Build
         </p>
       </div>
     </div>
@@ -132,69 +131,50 @@ export default function App() {
   });
   const [isInitializing, setIsInitializing] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const errorCountRef = useRef(0);
-  const lastErrorTimeRef = useRef(0);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
-    { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
-    { id: 'multi-agent', label: 'Multi-Agent System', icon: Robot, component: MultiAgentSystem },
-    { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
-    { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
-    { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
-    { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
+    { id: 'bot-overview', label: 'Multi-Agent Command Center', icon: Terminal, component: BotOverview },
+    { id: 'multi-agent', label: 'Live Agent Coordination', icon: Robot, component: MultiAgentSystem },
+    { id: 'analytics', label: 'Advanced Analytics', icon: ChartLine, component: EnhancedAnalytics },
+    { id: 'trading', label: 'Trading Hub', icon: Lightning, component: AdvancedTradingHub },
+    { id: 'strategy-builder', label: 'Strategy Builder (Pro+)', icon: Code, component: CreateStrategyPage },
+    { id: 'vault', label: 'BTC Profit Vault', icon: Vault, component: VaultView },
+    { id: 'community', label: 'Marketplace & Community', icon: Users, component: SocialCommunity },
   ], []);
 
+  // Initialize app
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsInitializing(false);
-    }, 500);
+    const timer = setTimeout(() => setIsInitializing(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
+  // Global error suppression & logging
   useEffect(() => {
-    const shouldSuppress = (text: string, additionalText: string = '') => {
-      return isNonCriticalError(text) || isNonCriticalError(additionalText);
-    };
+    const shouldSuppress = (text: string, additionalText = '') => 
+      isNonCriticalError(text) || isNonCriticalError(additionalText);
 
     const handleWindowError = (event: ErrorEvent) => {
-      const message = event.message || '';
-      const filename = event.filename || '';
-
-      if (shouldSuppress(message, filename)) {
-        console.debug('[App] Window error suppressed:', message.substring(0, 100));
+      if (shouldSuppress(event.message, event.filename || '')) {
+        console.debug('[App] Suppressed non-critical error:', event.message.substring(0, 100));
         event.preventDefault();
-        event.stopPropagation();
-        return true;
+        return;
       }
-      
-      logError(event.error || message, `Window Error: ${filename}:${event.lineno}`);
-      
-      console.error('[App] Window error:', {
-        message,
-        filename,
-        lineno: event.lineno,
-        error: event.error
-      });
+
+      logError(event.error || event.message, `Window Error: ${event.filename}:${event.lineno}`);
+      console.error('[App] Uncaught window error:', event);
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       const reason = event.reason?.toString() || '';
-      const stack = event.reason?.stack || '';
-
-      if (shouldSuppress(reason, stack)) {
-        console.debug('[App] Promise rejection suppressed:', reason.substring(0, 100));
+      if (shouldSuppress(reason)) {
+        console.debug('[App] Suppressed promise rejection:', reason.substring(0, 100));
         event.preventDefault();
         return;
       }
-      
+
       logError(event.reason, 'Unhandled Promise Rejection');
-      
-      console.error('[App] Unhandled promise rejection:', {
-        reason,
-        stack
-      });
+      console.error('[App] Unhandled rejection:', event.reason);
     };
 
     window.addEventListener('error', handleWindowError, true);
@@ -206,88 +186,63 @@ export default function App() {
     };
   }, []);
 
+  // Custom navigation events
   useEffect(() => {
-    const handleNavigateTab = (e: Event) => {
-      try {
-        const customEvent = e as CustomEvent<string>;
-        const newTab = customEvent.detail;
-        if (tabs.some(tab => tab.id === newTab)) {
-          setActiveTab(newTab);
-        }
-      } catch (error) {
-        console.error('[App] Error handling navigate tab:', error);
+    const handleNavigate = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (tabs.some(t => t.id === detail)) {
+        setActiveTab(detail);
       }
     };
-
-    window.addEventListener('navigate-tab', handleNavigateTab);
-    return () => window.removeEventListener('navigate-tab', handleNavigateTab);
-  }, [setActiveTab, tabs]);
+    window.addEventListener('navigate-tab', handleNavigate);
+    return () => window.removeEventListener('navigate-tab', handleNavigate);
+  }, [tabs]);
 
   useEffect(() => {
-    const handleOpenLegalRiskDisclosure = () => {
-      try {
-        setTimeout(() => {
-          const settingsTabEvent = new CustomEvent('open-settings-legal-tab');
-          window.dispatchEvent(settingsTabEvent);
-        }, 100);
-      } catch (error) {
-        console.error('[App] Error handling legal risk disclosure:', error);
-      }
+    const handleLegalDisclosure = () => {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('open-settings-legal-tab'));
+      }, 100);
     };
-
-    window.addEventListener('open-legal-risk-disclosure', handleOpenLegalRiskDisclosure);
-    return () => window.removeEventListener('open-legal-risk-disclosure', handleOpenLegalRiskDisclosure);
+    window.addEventListener('open-legal-risk-disclosure', handleLegalDisclosure);
+    return () => window.removeEventListener('open-legal-risk-disclosure', handleLegalDisclosure);
   }, []);
 
+  // License success handler
   const handleLicenseSuccess = async (tier: string, expiresAt: number) => {
-    try {
-      console.log('[App] ✅ License success:', { tier, expiresAt });
-      
-      const newAuth: UserAuth = {
-        isAuthenticated: true,
-        userId: `user_${Date.now()}`,
-        username: `${tier.toUpperCase()}_User`,
-        email: null,
-        avatar: null,
-        license: {
-          userId: `user_${Date.now()}`,
-          tier,
-          expiresAt,
-          purchasedAt: Date.now(),
-        },
-      };
-      
-      setAuth(newAuth);
-      console.log('[App] Auth state updated:', newAuth);
-    } catch (error) {
-      console.error('[App] Error handling license success:', error);
-    }
+    console.log('[App] License verified:', { tier, expiresAt });
+    const newAuth: UserAuth = {
+      isAuthenticated: true,
+      userId: `qf_user_${Date.now()}`,
+      username: `QUANTUM_${tier.toUpperCase()}`,
+      email: null,
+      avatar: null,
+      license: {
+        userId: `qf_user_${Date.now()}`,
+        tier,
+        expiresAt,
+        purchasedAt: Date.now(),
+      },
+    };
+    setAuth(newAuth);
   };
 
-  if (isInitializing) {
-    return <LoadingFallback />;
-  }
-
+  if (isInitializing) return <LoadingFallback />;
   if (hasError) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-        <div className="cyber-card p-8 max-w-2xl w-full text-center space-y-4">
-          <div className="text-destructive text-6xl">💥</div>
-          <h1 className="text-2xl font-bold text-destructive uppercase tracking-wide">
-            Critical Error
-          </h1>
-          <p className="text-muted-foreground">
-            The application encountered a critical error. Please reload the page.
-          </p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-6">
+          <div className="text-8xl animate-bounce">💀</div>
+          <h1 className="text-3xl font-bold text-destructive">System Overload</h1>
           <Button onClick={() => window.location.reload()} size="lg">
-            Reload Application
+            Restart Quantum Core
           </Button>
         </div>
       </div>
     );
   }
 
-  const ActiveComponent = tabs.find((tab) => tab.id === activeTab)?.component || tabs[0].component;
+  const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
