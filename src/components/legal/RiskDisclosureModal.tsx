@@ -143,7 +143,7 @@ export default function RiskDisclosureModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/98"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/98 overflow-y-auto"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
             }
@@ -153,10 +153,11 @@ export default function RiskDisclosureModal({
             initial={{ scale: 0.95, y: 20 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
-            className="w-full max-w-4xl max-h-[90vh] flex flex-col bg-card border-2 border-destructive shadow-[0_0_60px_rgba(255,0,102,0.5)] rounded-lg overflow-hidden"
+            className="w-full max-w-4xl my-8 flex flex-col bg-card border-2 border-destructive shadow-[0_0_60px_rgba(255,0,102,0.5)] rounded-lg overflow-hidden"
+            style={{ maxHeight: 'calc(100vh - 4rem)' }}
           >
             <div 
-              className="h-1.5 bg-destructive/30 relative overflow-hidden"
+              className="h-1.5 bg-destructive/30 relative overflow-hidden flex-shrink-0"
               style={{ width: '100%' }}
             >
               <motion.div
@@ -168,7 +169,7 @@ export default function RiskDisclosureModal({
               />
             </div>
 
-            <div className="p-8 text-center border-b-2 border-destructive/30 bg-destructive/10">
+            <div className="p-8 text-center border-b-2 border-destructive/30 bg-destructive/10 flex-shrink-0">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1, rotate: [0, -10, 10, -10, 0] }}
@@ -188,14 +189,15 @@ export default function RiskDisclosureModal({
             <div 
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex-1 p-8 bg-background/50 overflow-y-auto"
+              className="flex-1 p-8 bg-background/50 overflow-y-auto scrollbar-thin"
+              style={{ maxHeight: 'calc(100vh - 28rem)' }}
             >
               <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground/90">
                 {RISK_DISCLOSURE_CONTENT}
               </pre>
             </div>
 
-            <div className="p-6 border-t-2 border-destructive/30 bg-destructive/10 space-y-4">
+            <div className="p-6 border-t-2 border-destructive/30 bg-destructive/10 space-y-4 flex-shrink-0">
               <div className={`space-y-3 transition-opacity ${canAccept ? 'opacity-100' : 'opacity-40'}`}>
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <Checkbox
@@ -230,7 +232,7 @@ export default function RiskDisclosureModal({
                   animate={{ opacity: 1 }}
                   className="text-xs text-center text-muted-foreground bg-muted/50 p-2 rounded"
                 >
-                  Scroll to the bottom to unlock acceptance
+                  ⬇️ Scroll to the bottom to unlock acceptance
                 </motion.p>
               )}
 

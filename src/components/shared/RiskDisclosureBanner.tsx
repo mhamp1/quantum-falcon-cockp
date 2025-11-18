@@ -23,9 +23,8 @@ export default function RiskDisclosureBanner() {
     'risk-disclosure-audit-log',
     []
   )
-  const [isVisible, setIsVisible] = useState(true)
 
-  const handleAcknowledge = async () => {
+  const handleAcknowledge = () => {
     const acknowledgmentData: RiskAcknowledgment = {
       acknowledgedAt: Date.now(),
       userAgent: navigator.userAgent,
@@ -37,17 +36,15 @@ export default function RiskDisclosureBanner() {
     
     setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
 
-    console.log('[Risk Disclosure] Acknowledgment logged for legal compliance:', acknowledgmentData)
-    console.log('[Risk Disclosure] Full audit trail contains', (auditLog?.length || 0) + 1, 'entries')
+    console.log('[Risk Disclosure Banner] ✅ Acknowledgment logged for legal compliance:', acknowledgmentData)
+    console.log('[Risk Disclosure Banner] 📋 Full audit trail contains', (auditLog?.length || 0) + 1, 'entries')
     
-    setIsVisible(false)
-
     toast.success('Risk Disclosure Acknowledged', {
-      description: 'Your acknowledgment has been logged for legal compliance'
+      description: 'Your acknowledgment has been logged for legal compliance. The banner will no longer appear.'
     })
   }
 
-  if (acknowledgment || !isVisible) {
+  if (acknowledgment) {
     return null
   }
 

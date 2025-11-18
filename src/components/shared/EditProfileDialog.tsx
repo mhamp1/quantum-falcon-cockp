@@ -98,7 +98,10 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] cyber-card border-2 border-primary/30 p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent 
+        className="sm:max-w-[500px] cyber-card border-2 border-primary/30 p-0 gap-0 flex flex-col overflow-hidden fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]"
+        style={{ maxHeight: '85vh' }}
+      >
         <div className="absolute inset-0 technical-grid opacity-5 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none" />
         

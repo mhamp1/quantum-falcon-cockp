@@ -443,7 +443,8 @@ Version: ${version}`
                     </button>
                   </DialogTrigger>
                   <DialogContent 
-                    className="max-w-4xl max-h-[85vh] cyber-card border-2 border-primary/50 flex flex-col p-0 overflow-hidden"
+                    className="max-w-4xl cyber-card border-2 border-primary/50 flex flex-col p-0 overflow-hidden fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]"
+                    style={{ maxHeight: '85vh' }}
                     role="dialog"
                     aria-labelledby={`${doc.id}-title`}
                   >
@@ -453,7 +454,7 @@ Version: ${version}`
                         {doc.title}
                       </DialogTitle>
                     </DialogHeader>
-                    <ScrollArea className="flex-1 px-6">
+                    <ScrollArea className="flex-1 px-6 scrollbar-thin" style={{ maxHeight: 'calc(85vh - 12rem)' }}>
                       <div className="space-y-4 pb-4">
                         <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                           {doc.content}
