@@ -10,7 +10,7 @@ import {
   ChatCircle, Fire, Users, Clock, Code, Lightning, 
   MagnifyingGlass, FunnelSimple, Plus, Lock, ShoppingCart, 
   Crown, Sparkle, CaretLeft, CaretRight, TrendUp, Heart,
-  Eye, Play, Pause, Stop, CheckCircle
+  Eye, Play, Pause, Stop, CheckCircle, Trophy, Medal, Star
 } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -50,6 +50,9 @@ export default function SocialCommunity() {
   const [selectedSort, setSelectedSort] = useState<'hot' | 'new' | 'roi' | 'winrate'>('hot')
   const [heroIndex, setHeroIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isAutoPaused, setIsAutoPaused] = useState(false)
+  const [strategyViews, setStrategyViews] = useKV<Record<string, number>>('strategy-views', {})
+  const [autoPlayProgress, setAutoPlayProgress] = useState(0)
   
   const [ownedStrategies, setOwnedStrategies] = useKV<string[]>('owned-strategies', [])
   const [activeStrategies, setActiveStrategies] = useKV<string[]>('active-strategies', [])
@@ -91,16 +94,30 @@ export default function SocialCommunity() {
   }, [])
 
   useEffect(() => {
-    if (isTransitioning || featuredStrategies.length === 0) return
+    if (isTransitioning || isAutoPaused || featuredStrategies.length === 0) {
+      setAutoPlayProgress(0)
+      return
+    }
+
+    setAutoPlayProgress(0)
+    const progressInterval = setInterval(() => {
+      setAutoPlayProgress((prev) => {
+        if (prev >= 100) return 0
+        return prev + 2
+      })
+    }, 100)
 
     const heroTimer = setInterval(() => {
-      if (!isTransitioning) {
+      if (!isTransitioning && !isAutoPaused) {
         setHeroIndex((prev) => (prev + 1) % Math.min(featuredStrategies.length, 6))
       }
-    }, 6000)
+    }, 5000)
 
-    return () => clearInterval(heroTimer)
-  }, [featuredStrategies.length, isTransitioning])
+    return () => {
+      clearInterval(heroTimer)
+      clearInterval(progressInterval)
+    }
+  }, [featuredStrategies.length, isTransitioning, isAutoPaused, heroIndex])
 
   useEffect(() => {
     setPage(1)
@@ -219,6 +236,35 @@ export default function SocialCommunity() {
   const handleHeroNavigation = (newIndex: number) => {
     if (isTransitioning) return
     setHeroIndex(newIndex)
+    setIsAutoPaused(true)
+    setAutoPlayProgress(0)
+    setTimeout(() => setIsAutoPaused(false), 10000)
+  }
+
+  const trackStrategyView = (strategyId: string) => {
+    setStrategyViews((current) => ({
+      ...(current || {}),
+      [strategyId]: ((current || {})[strategyId] || 0) + 1
+    }))
+  }
+
+  const getStrategyPerformanceBadge = (winRate: number, roi: number) => {
+    if (winRate >= 80 && roi >= 50) {
+      return { icon: Trophy, color: 'text-accent', label: 'Elite', bg: 'bg-accent/20', border: 'border-accent' }
+    } else if (winRate >= 70 && roi >= 30) {
+      return { icon: Medal, color: 'text-primary', label: 'Pro', bg: 'bg-primary/20', border: 'border-primary' }
+    } else if (winRate >= 60 && roi >= 15) {
+      return { icon: Star, color: 'text-secondary', label: 'Solid', bg: 'bg-secondary/20', border: 'border-secondary' }
+    }
+    return null
+  }
+
+  const getStrategyPopularity = (views: number, likes: number) => {
+    const totalEngagement = (views || 0) + (likes || 0) * 10
+    if (totalEngagement >= 10000) return { label: 'Viral', color: 'text-destructive', pulse: true }
+    if (totalEngagement >= 5000) return { label: 'Trending', color: 'text-accent', pulse: true }
+    if (totalEngagement >= 1000) return { label: 'Popular', color: 'text-primary', pulse: false }
+    return null
   }
 
   return (
@@ -237,24 +283,47 @@ export default function SocialCommunity() {
                   </p>
                 </div>
               </div>
-              <Badge className="bg-accent/20 border-2 border-accent text-accent uppercase tracking-wider">
-                <Crown size={14} weight="fill" className="mr-1" />
-                {userTier} Tier
-              </Badge>
+              <div className="flex items-center gap-3">
+                <Badge className="bg-accent/20 border-2 border-accent text-accent uppercase tracking-wider">
+                  <Crown size={14} weight="fill" className="mr-1" />
+                  {userTier} Tier
+                </Badge>
+                {Object.keys(strategyViews || {}).length > 0 && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring" }}
+                  >
+                    <Badge className="bg-primary/20 border-2 border-primary text-primary uppercase tracking-wider">
+                      <Eye size={14} weight="fill" className="mr-1" />
+                      {Object.values(strategyViews || {}).reduce((a, b) => a + b, 0)} Views
+                    </Badge>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {featuredStrategies.length > 0 && (
-          <div className="relative overflow-hidden group">
+          <div 
+            className="relative overflow-hidden group"
+            onMouseEnter={() => setIsAutoPaused(true)}
+            onMouseLeave={() => setIsAutoPaused(false)}
+          >
             <AnimatePresence mode="wait" initial={false} onExitComplete={() => setIsTransitioning(false)}>
               <motion.div
                 key={heroIndex}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                onAnimationStart={() => setIsTransitioning(true)}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                onAnimationStart={() => {
+                  setIsTransitioning(true)
+                  if (currentHeroStrategy) {
+                    trackStrategyView(currentHeroStrategy.id)
+                  }
+                }}
                 className="glass-morph-card p-8 relative overflow-hidden min-h-[400px]"
               >
                 {currentHeroStrategy && (
@@ -373,14 +442,30 @@ export default function SocialCommunity() {
                                 <Heart size={14} />
                                 Likes
                               </span>
-                              <span className="font-bold">{currentHeroStrategy.likes?.toLocaleString()}</span>
+                              <motion.span 
+                                className="font-bold"
+                                key={currentHeroStrategy.likes}
+                                initial={{ scale: 1.2, color: 'oklch(0.72 0.20 195)' }}
+                                animate={{ scale: 1, color: 'inherit' }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                {currentHeroStrategy.likes?.toLocaleString()}
+                              </motion.span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-muted-foreground flex items-center gap-2">
                                 <Eye size={14} />
                                 Views
                               </span>
-                              <span className="font-bold">{currentHeroStrategy.views?.toLocaleString()}</span>
+                              <motion.span 
+                                className="font-bold"
+                                key={currentHeroStrategy.views}
+                                initial={{ scale: 1.2, color: 'oklch(0.68 0.18 330)' }}
+                                animate={{ scale: 1, color: 'inherit' }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                {currentHeroStrategy.views?.toLocaleString()}
+                              </motion.span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-muted-foreground flex items-center gap-2">
@@ -403,37 +488,61 @@ export default function SocialCommunity() {
                     </div>
 
                     <div className="absolute bottom-6 right-6 flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleHeroNavigation((heroIndex - 1 + featuredStrategies.length) % featuredStrategies.length)}
-                        disabled={isTransitioning}
-                        className="w-10 h-10 p-0 transition-all disabled:opacity-50"
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        <CaretLeft size={20} weight="bold" />
-                      </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleHeroNavigation((heroIndex - 1 + featuredStrategies.length) % featuredStrategies.length)}
+                          disabled={isTransitioning}
+                          className="w-10 h-10 p-0 transition-all disabled:opacity-50 hover:bg-primary/20 hover:border-primary hover:shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.4)]"
+                        >
+                          <CaretLeft size={20} weight="bold" />
+                        </Button>
+                      </motion.div>
                       <div className="flex gap-1">
                         {featuredStrategies.slice(0, 6).map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => handleHeroNavigation(idx)}
-                            disabled={isTransitioning}
-                            className={cn(
-                              "w-2 h-2 rounded-full transition-all disabled:opacity-50",
-                              idx === heroIndex ? "bg-primary w-8" : "bg-muted hover:bg-primary/50"
+                          <div key={idx} className="relative">
+                            <motion.button
+                              onClick={() => handleHeroNavigation(idx)}
+                              disabled={isTransitioning}
+                              whileHover={{ scale: 1.2 }}
+                              whileTap={{ scale: 0.9 }}
+                              className={cn(
+                                "w-2 h-2 rounded-full transition-all disabled:opacity-50",
+                                idx === heroIndex 
+                                  ? "bg-primary w-8 shadow-[0_0_10px_oklch(0.72_0.20_195)]" 
+                                  : "bg-muted hover:bg-primary/50"
+                              )}
+                            />
+                            {idx === heroIndex && !isAutoPaused && (
+                              <motion.div
+                                className="absolute inset-0 bg-primary/30 rounded-full"
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: autoPlayProgress / 100 }}
+                                transition={{ duration: 0.1, ease: "linear" }}
+                                style={{ transformOrigin: "left" }}
+                              />
                             )}
-                          />
+                          </div>
                         ))}
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleHeroNavigation((heroIndex + 1) % featuredStrategies.length)}
-                        disabled={isTransitioning}
-                        className="w-10 h-10 p-0 transition-all disabled:opacity-50"
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        <CaretRight size={20} weight="bold" />
-                      </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleHeroNavigation((heroIndex + 1) % featuredStrategies.length)}
+                          disabled={isTransitioning}
+                          className="w-10 h-10 p-0 transition-all disabled:opacity-50 hover:bg-primary/20 hover:border-primary hover:shadow-[0_0_15px_oklch(0.72_0.20_195_/_0.4)]"
+                        >
+                          <CaretRight size={20} weight="bold" />
+                        </Button>
+                      </motion.div>
                     </div>
                   </>
                 )}
@@ -523,6 +632,8 @@ export default function SocialCommunity() {
                 const isActive = isStrategyActive(strategy.id)
                 const colors = getCategoryColor(strategy.category)
                 const isFlashSale = strategy.is_flash_sale && strategy.flash_end_at && strategy.flash_end_at > Date.now()
+                const performanceBadge = getStrategyPerformanceBadge(strategy.stats.win_rate, strategy.stats.avg_roi)
+                const popularityBadge = getStrategyPopularity(strategy.views || 0, strategy.likes || 0)
 
                 return (
                   <Tooltip key={strategy.id}>
@@ -531,6 +642,7 @@ export default function SocialCommunity() {
                         layout
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
                         className={cn(
                           "glass-morph-card p-5 space-y-4 relative overflow-hidden group hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)] transition-all cursor-pointer",
                           isActive && "ring-2 ring-primary animate-pulse-glow",
@@ -553,6 +665,40 @@ export default function SocialCommunity() {
                           </div>
                         )}
 
+                        {performanceBadge && canAccess && (
+                          <div className="absolute top-3 left-3 z-20">
+                            <motion.div
+                              initial={{ scale: 0, rotate: -180 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              transition={{ type: "spring", delay: 0.2 }}
+                            >
+                              <Badge className={cn(
+                                performanceBadge.bg,
+                                "border-2",
+                                performanceBadge.border,
+                                performanceBadge.color,
+                                "text-[9px] uppercase tracking-wider font-bold"
+                              )}>
+                                <performanceBadge.icon size={10} weight="fill" className="mr-1" />
+                                {performanceBadge.label}
+                              </Badge>
+                            </motion.div>
+                          </div>
+                        )}
+
+                        {popularityBadge && (
+                          <div className="absolute top-3 right-3 z-20">
+                            <Badge className={cn(
+                              "bg-background/80 backdrop-blur-sm border border-border text-[9px] uppercase tracking-wider",
+                              popularityBadge.color,
+                              popularityBadge.pulse && "animate-pulse"
+                            )}>
+                              <Fire size={10} weight="fill" className="mr-1" />
+                              {popularityBadge.label}
+                            </Badge>
+                          </div>
+                        )}
+
                         {!canAccess && (
                           <div className="absolute inset-0 backdrop-blur-sm bg-background/30 z-10 flex items-center justify-center">
                             <div className="text-center space-y-2">
@@ -567,14 +713,21 @@ export default function SocialCommunity() {
                         <div className="absolute inset-0 grid-background opacity-5" />
                         
                         <div className="relative z-10 space-y-4">
-                          <div className="flex items-center justify-center">
-                            <div className={cn("p-4", colors.bg, "border-2", colors.border, "jagged-corner-small")}>
+                          <div className="flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <motion.div 
+                              className={cn("p-4", colors.bg, "border-2", colors.border, "jagged-corner-small")}
+                              whileHover={{ 
+                                scale: 1.1,
+                                boxShadow: "0 0 30px oklch(0.72 0.20 195 / 0.5)"
+                              }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
                               <CategoryIcon 
                                 category={strategy.category} 
                                 tier={strategy.tier_required}
                                 size={40}
                               />
-                            </div>
+                            </motion.div>
                           </div>
 
                           <div className="text-center space-y-2">
