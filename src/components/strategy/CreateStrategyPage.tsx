@@ -78,6 +78,22 @@ interface CodeParticle {
   speed: number
 }
 
+interface FeaturedStrategy {
+  name: string
+  roi: string
+  likes: string
+  description: string
+  category: string
+}
+
+const FEATURED_STRATEGIES: FeaturedStrategy[] = [
+  { name: "Neon Whale Sniper", roi: "+284%", likes: "12.4k", description: "AI-powered whale tracking with instant execution", category: "On-Chain" },
+  { name: "Quantum DCA God", roi: "+167%", likes: "8.9k", description: "Dollar-cost averaging perfected with ML optimization", category: "DCA" },
+  { name: "Flash Crash Hunter", roi: "+412%", likes: "15.2k", description: "Catches knife-falling markets with precision timing", category: "Scalping" },
+  { name: "RSI Divergence Master", roi: "+198%", likes: "9.3k", description: "Classic RSI with hidden divergence detection", category: "Mean Reversion" },
+  { name: "Momentum Tsunami", roi: "+223%", likes: "11.7k", description: "Rides explosive momentum waves to max profit", category: "Momentum" },
+]
+
 const STRATEGY_CATEGORIES = [
   'Trend Following',
   'Mean Reversion',
@@ -122,20 +138,26 @@ const DEFAULT_CODE = `// Quantum Falcon Strategy Template
 
 function CodeParticles() {
   const [particles] = useState<CodeParticle[]>(() => {
-    return Array.from({ length: 25 }, (_, i) => ({
+    const codeSnippets = [
+      'if', 'buy', 'sell', 'RSI', 'volume', 'whale', 'DCA', 'AI',
+      'EMA', 'MACD', 'trend', 'signal', 'profit', 'loss', 'entry',
+      'exit', 'stop', 'limit', '>', '<', '==', '&&', '||', 'return',
+      'func', 'const', 'let', 'price', 'data', 'chart'
+    ]
+    return Array.from({ length: 35 }, (_, i) => ({
       id: i,
       position: [
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 20,
-        (Math.random() - 0.5) * 15
+        (Math.random() - 0.5) * 35,
+        (Math.random() - 0.5) * 25,
+        (Math.random() - 0.5) * 20
       ] as [number, number, number],
       rotation: [
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        Math.random() * Math.PI
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2
       ] as [number, number, number],
-      code: ['BUY', 'SELL', 'MA', 'RSI', 'EMA', 'MACD', '>', '<', '==', '&&', '||', 'if', 'return'][i % 13],
-      speed: 0.5 + Math.random() * 1
+      code: codeSnippets[i % codeSnippets.length],
+      speed: 0.3 + Math.random() * 1.2
     }))
   })
 
@@ -150,29 +172,42 @@ function CodeParticles() {
         zIndex: 0,
         pointerEvents: 'none'
       }}
-      camera={{ position: [0, 0, 20], fov: 50 }}
+      camera={{ position: [0, 0, 25], fov: 60 }}
     >
-      <ambientLight intensity={0.3} />
-      <pointLight position={[10, 10, 10]} intensity={0.5} color="#14F195" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#9945FF" />
+      <ambientLight intensity={0.4} color="#DC1FFF" />
+      <pointLight position={[15, 15, 15]} intensity={1.2} color="#14F195" />
+      <pointLight position={[-15, -15, -15]} intensity={0.8} color="#9945FF" />
+      <pointLight position={[0, 20, 5]} intensity={0.6} color="#DC1FFF" />
       
       {particles.map((particle) => (
         <Float
           key={particle.id}
           speed={particle.speed}
-          rotationIntensity={0.4}
-          floatIntensity={0.5}
+          rotationIntensity={0.6}
+          floatIntensity={1.2}
         >
-          <mesh position={particle.position}>
-            <boxGeometry args={[1, 1, 0.2]} />
-            <meshStandardMaterial
-              color="#DC1FFF"
-              emissive="#DC1FFF"
-              emissiveIntensity={0.5}
-              transparent
-              opacity={0.6}
-            />
-          </mesh>
+          <group position={particle.position} rotation={particle.rotation}>
+            <mesh>
+              <boxGeometry args={[1.2, 1.2, 0.25]} />
+              <meshStandardMaterial
+                color="#DC1FFF"
+                emissive="#DC1FFF"
+                emissiveIntensity={1.8}
+                transparent
+                opacity={0.75}
+                metalness={0.5}
+                roughness={0.2}
+              />
+            </mesh>
+            <mesh position={[0, 0, 0.15]}>
+              <planeGeometry args={[0.8, 0.8]} />
+              <meshBasicMaterial
+                color="#14F195"
+                transparent
+                opacity={0.9}
+              />
+            </mesh>
+          </group>
         </Float>
       ))}
     </Canvas>
@@ -411,65 +446,165 @@ Return only improved code with comments explaining changes.`
   }
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background" />
       <CodeParticles />
       
-      <div className="relative z-10 container mx-auto p-6 space-y-6">
+      <div className="relative z-10 container mx-auto p-6 space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-4 py-8"
+          className="text-center space-y-6 py-12"
         >
           <motion.div
-            className="inline-flex items-center justify-center w-24 h-24 border-4 border-primary bg-primary/20 jagged-corner mb-4 shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]"
+            className="inline-flex items-center justify-center w-32 h-32 border-4 border-primary bg-primary/20 jagged-corner mb-6 shadow-[0_0_50px_oklch(0.72_0.20_195_/_0.8)]"
             animate={{ 
               rotate: [0, 360],
-              scale: [1, 1.1, 1]
+              scale: [1, 1.15, 1]
             }}
             transition={{ 
               rotate: { duration: 20, repeat: Infinity, ease: "linear" },
               scale: { duration: 2, repeat: Infinity }
             }}
           >
-            <Plus size={48} weight="bold" className="text-primary" />
+            <Code size={64} weight="duotone" className="text-primary animate-pulse" />
           </motion.div>
           
-          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-[0.15em]">
-            <span className="block text-primary neon-glow-primary" style={{
-              textShadow: '4px 4px 0 oklch(0.08 0.02 280), 0 0 25px oklch(0.72 0.20 195 / 0.9)',
-              WebkitTextStroke: '1px oklch(0.08 0.02 280)'
+          <motion.h1 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-6xl md:text-8xl font-black uppercase tracking-[0.15em]"
+          >
+            <span className="block text-primary neon-glow-primary mb-2" style={{
+              textShadow: '0 0 30px oklch(0.72 0.20 195), 0 0 60px oklch(0.72 0.20 195), 4px 4px 0 oklch(0.08 0.02 280)',
+              WebkitTextStroke: '2px oklch(0.08 0.02 280)'
             }}>
-              CREATE YOUR OWN
+              CREATE GOD-TIER
             </span>
-            <span className="block text-accent neon-glow-accent mt-2" style={{
-              textShadow: '4px 4px 0 oklch(0.08 0.02 280), 0 0 25px oklch(0.68 0.18 330 / 0.9)',
-              WebkitTextStroke: '1px oklch(0.08 0.02 280)'
+            <span className="block text-accent neon-glow-accent" style={{
+              textShadow: '0 0 30px oklch(0.68 0.18 330), 0 0 60px oklch(0.68 0.18 330), 4px 4px 0 oklch(0.08 0.02 280)',
+              WebkitTextStroke: '2px oklch(0.08 0.02 280)'
             }}>
-              STRATEGY
+              STRATEGIES
             </span>
-          </h1>
+          </motion.h1>
           
-          <p className="text-xl max-w-3xl mx-auto font-bold bg-card/95 border-3 border-primary/60 p-6 jagged-corner-small backdrop-blur-sm shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]">
-            <span className="text-foreground">Build and share custom trading strategies with the community. </span>
-            <span className="text-primary neon-glow-primary">Available for Pro tier and above.</span>
-          </p>
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-2xl max-w-4xl mx-auto font-bold bg-card/95 border-4 border-primary/60 p-8 jagged-corner backdrop-blur-sm shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.5)]"
+          >
+            <span className="text-foreground">Build, backtest, and share custom bots with the community — </span>
+            <span className="text-primary neon-glow-primary">the same tools Elite traders use to print money.</span>
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mt-12"
+          >
+            {[
+              { icon: <Sparkle size={28} weight="fill" />, text: "Full Monaco Editor with AI code completion" },
+              { icon: <ChartLine size={28} weight="duotone" />, text: "Real-time backtesting + live PNL tracking" },
+              { icon: <ShareNetwork size={28} weight="fill" />, text: "One-click sharing (earn royalties)" },
+              { icon: <Brain size={28} weight="duotone" />, text: "200+ premium indicators & on-chain data" },
+              { icon: <Lock size={28} weight="duotone" />, text: "On-chain proof via Solana NFT" },
+              { icon: <Star size={28} weight="fill" />, text: "Access to private Elite templates" },
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.6 + i * 0.1 }}
+                className="flex items-center gap-4 text-left bg-card/80 border-2 border-primary/40 p-4 jagged-corner-small backdrop-blur hover:border-primary transition-all hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]"
+              >
+                <span className="text-primary">{feature.icon}</span>
+                <span className="text-base text-foreground font-semibold">{feature.text}</span>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Featured Strategy Carousel */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="mt-16"
+          >
+            <h2 className="text-3xl font-black uppercase tracking-wider text-primary neon-glow-primary mb-8">
+              🔥 Top Community Strategies This Week
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {FEATURED_STRATEGIES.slice(0, 3).map((strategy, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 1 + i * 0.15 }}
+                  className="bg-black/80 border-3 border-accent/60 jagged-corner p-6 backdrop-blur-sm hover:border-accent transition-all hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.5)] group"
+                >
+                  <Badge className="mb-3 bg-accent/20 text-accent border border-accent/50">
+                    {strategy.category}
+                  </Badge>
+                  <h3 className="text-2xl font-black text-primary neon-glow-primary mb-2 group-hover:text-accent transition-colors">
+                    {strategy.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">{strategy.description}</p>
+                  <div className="flex justify-between items-center text-lg font-bold">
+                    <span className="text-primary neon-glow-primary">{strategy.roi} ROI</span>
+                    <span className="text-accent">❤️ {strategy.likes}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Live Counter */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 1.5, type: "spring", stiffness: 200 }}
+            className="mt-12 text-2xl font-black text-accent neon-glow-accent inline-block bg-card/90 border-3 border-accent/60 px-8 py-4 jagged-corner backdrop-blur"
+          >
+            🔥 1,247 strategies created this week • Top creator earned $8,421
+          </motion.div>
 
           {!canCreate && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="inline-block"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.8 }}
+              className="mt-16 flex flex-col items-center gap-6"
             >
-              <Button
-                size="lg"
-                onClick={() => setShowUpgradeModal(true)}
-                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground jagged-corner border-4 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)] hover:shadow-[0_0_40px_oklch(0.72_0.20_195_/_0.8)] uppercase tracking-[0.15em] font-bold px-12 py-6 text-lg group"
-              >
-                <Rocket size={28} weight="duotone" className="mr-3 group-hover:animate-pulse" />
-                UPGRADE TO PRO
-                <ArrowRight size={28} weight="bold" className="ml-3" />
-              </Button>
+              <div className="flex flex-wrap justify-center gap-6">
+                <Button
+                  disabled
+                  size="lg"
+                  className="bg-muted/50 text-muted-foreground border-2 border-muted cursor-not-allowed jagged-corner px-8 py-6 text-lg"
+                >
+                  <Lock className="mr-3" size={24} />
+                  Pro Tier Required
+                </Button>
+                <Button
+                  size="lg"
+                  onMouseEnter={() => {
+                    confetti({
+                      particleCount: 100,
+                      spread: 70,
+                      origin: { y: 0.8 },
+                      colors: ['#DC1FFF', '#14F195', '#9945FF']
+                    })
+                  }}
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90 text-primary-foreground jagged-corner border-4 border-primary shadow-[0_0_40px_oklch(0.72_0.20_195_/_0.8)] hover:shadow-[0_0_60px_oklch(0.72_0.20_195_/_1)] hover:scale-110 transition-all uppercase tracking-[0.15em] font-black px-16 py-8 text-2xl group"
+                >
+                  <Rocket size={36} weight="duotone" className="mr-4 group-hover:animate-bounce" />
+                  UPGRADE TO PRO →
+                </Button>
+              </div>
             </motion.div>
           )}
         </motion.div>
