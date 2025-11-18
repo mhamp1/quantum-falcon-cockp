@@ -253,19 +253,19 @@ export default function App() {
           </nav>
         )}
 
-        {/* Desktop Top-Right Navigation */}
+        {/* Desktop Left Sidebar Navigation */}
         {!isMobile && (
-          <div className="fixed top-4 right-4 z-50">
-            <div className="flex gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2 shadow-2xl">
+          <div className="fixed left-4 top-1/2 -translate-y-1/2 z-50">
+            <div className="flex flex-col gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2 shadow-2xl">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg transition-all",
+                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-all min-w-[200px]",
                     activeTab === tab.id
                       ? "bg-primary text-primary-foreground shadow-lg"
-                      : "hover:bg-accent hover:text-foreground"
+                      : "hover:bg-accent hover:text-foreground text-muted-foreground"
                   )}
                 >
                   <tab.icon size={20} weight={activeTab === tab.id ? "fill" : "regular"} />
