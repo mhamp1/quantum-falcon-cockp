@@ -99,8 +99,11 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-[500px] cyber-card border-2 border-primary/30 p-0 gap-0 flex flex-col overflow-hidden fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]"
-        style={{ maxHeight: '85vh' }}
+        className="sm:max-w-[500px] cyber-card border-2 border-primary/30 p-0 gap-0 flex flex-col overflow-hidden"
+        style={{ 
+          maxHeight: '90vh',
+          height: 'auto'
+        }}
       >
         <div className="absolute inset-0 technical-grid opacity-5 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none" />
@@ -116,7 +119,7 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
           </div>
         </DialogHeader>
 
-        <div className="p-6 space-y-4 relative z-10 flex-1 overflow-y-auto scrollbar-thin">
+        <div className="p-6 space-y-4 relative z-10 flex-1 overflow-y-auto scrollbar-thin" style={{ maxHeight: 'calc(90vh - 10rem)' }}>
           <div className="space-y-2">
             <Label htmlFor="username" className="text-xs uppercase tracking-wider font-bold text-foreground flex items-center gap-2">
               <At size={14} weight="duotone" className="text-primary" />

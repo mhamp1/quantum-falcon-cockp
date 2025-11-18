@@ -24,7 +24,7 @@ export default function RiskDisclosureBanner() {
     []
   )
 
-  const handleAcknowledge = () => {
+  const handleAcknowledge = async () => {
     const acknowledgmentData: RiskAcknowledgment = {
       acknowledgedAt: Date.now(),
       userAgent: navigator.userAgent,
@@ -38,9 +38,23 @@ export default function RiskDisclosureBanner() {
 
     console.log('[Risk Disclosure Banner] ✅ Acknowledgment logged for legal compliance:', acknowledgmentData)
     console.log('[Risk Disclosure Banner] 📋 Full audit trail contains', (auditLog?.length || 0) + 1, 'entries')
+    console.log('[Risk Disclosure Banner] 🔒 Acknowledgment stored permanently in key: risk-disclosure-acknowledgment')
+    console.log('[Risk Disclosure Banner] 📅 Timestamp:', new Date(acknowledgmentData.acknowledgedAt).toISOString())
+    
+    try {
+      await fetch('/api/legal/acknowledge-risk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(acknowledgmentData)
+      }).catch(() => {
+        console.log('[Risk Disclosure Banner] Backend logging unavailable, using client-side storage only')
+      })
+    } catch (err) {
+      console.log('[Risk Disclosure Banner] Backend logging unavailable, using client-side storage only')
+    }
     
     toast.success('Risk Disclosure Acknowledged', {
-      description: 'Your acknowledgment has been logged for legal compliance. The banner will no longer appear.'
+      description: 'Your acknowledgment has been permanently logged. The banner will no longer appear.'
     })
   }
 
@@ -51,53 +65,36 @@ export default function RiskDisclosureBanner() {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
+        exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.3 }}
-        className="fixed top-0 left-0 right-0 z-[100] p-4"
+        className="fixed bottom-0 left-0 right-0 z-[100]"
       >
-        <Alert
-          variant="destructive"
-          className="max-w-7xl mx-auto border-2 border-destructive bg-destructive/10 backdrop-blur-md shadow-[0_0_40px_rgba(255,0,102,0.4)] jagged-corner"
-        >
-          <Warning size={24} weight="fill" className="text-destructive" />
-          <AlertTitle className="text-lg font-bold uppercase tracking-wider text-destructive flex items-center justify-between">
-            <span>⚠️ RISK DISCLOSURE STATEMENT</span>
-          </AlertTitle>
-          <AlertDescription className="text-destructive/90">
-            <div className="space-y-3">
-              <p className="text-sm leading-relaxed">
-                <strong>WARNING:</strong> Trading cryptocurrencies and using automated tools involves substantial risk of loss. 
-                You may lose 100% (or more with leverage) of all invested capital rapidly and completely. 
-                This platform provides no investment advice and makes no guarantees of profit. 
-                Past performance is not indicative of future results.
-              </p>
-              <p className="text-xs">
-                By clicking "I Acknowledge", you confirm that you have read, understood, and accept all risks, 
-                including total loss of capital, and agree that you will never hold Quantum Falcon liable for any losses.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button
-                  onClick={handleAcknowledge}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider border-2 border-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.5)] jagged-corner-small"
-                  size="lg"
-                >
-                  I Acknowledge the Risks
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    window.open('/risk-disclosure-full', '_blank')
-                  }}
-                  className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:border-destructive uppercase tracking-wide jagged-corner-small"
-                >
-                  Read Full Disclosure
-                </Button>
+        <div className="bg-destructive text-destructive-foreground px-4 py-3 shadow-[0_-5px_40px_rgba(255,0,102,0.8)]">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1">
+              <Warning size={24} weight="fill" className="text-destructive-foreground flex-shrink-0" />
+              <div className="text-left">
+                <p className="font-bold uppercase tracking-wider text-sm">
+                  ⚠️ CRYPTOCURRENCY TRADING INVOLVES SUBSTANTIAL RISK OF LOSS
+                </p>
+                <p className="text-xs opacity-90">
+                  You may lose 100% of invested capital. No investment advice provided. See full disclosure.
+                </p>
               </div>
             </div>
-          </AlertDescription>
-        </Alert>
+            <div className="flex gap-2 flex-shrink-0">
+              <Button
+                onClick={handleAcknowledge}
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider border-2 border-primary-foreground/20 shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.5)]"
+              >
+                I Acknowledge
+              </Button>
+            </div>
+          </div>
+        </div>
       </motion.div>
     </AnimatePresence>
   )

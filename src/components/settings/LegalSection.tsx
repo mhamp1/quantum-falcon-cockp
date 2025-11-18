@@ -443,24 +443,27 @@ Version: ${version}`
                     </button>
                   </DialogTrigger>
                   <DialogContent 
-                    className="max-w-4xl cyber-card border-2 border-primary/50 flex flex-col p-0 overflow-hidden fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]"
-                    style={{ maxHeight: '85vh' }}
+                    className="max-w-4xl cyber-card border-2 border-primary/50 flex flex-col p-0 overflow-hidden"
+                    style={{ 
+                      maxHeight: '90vh',
+                      height: 'auto'
+                    }}
                     role="dialog"
                     aria-labelledby={`${doc.id}-title`}
                   >
-                    <DialogHeader className="flex-shrink-0 p-6 pb-4">
+                    <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b border-primary/30">
                       <DialogTitle id={`${doc.id}-title`} className="flex items-center gap-3 text-xl uppercase tracking-wide">
                         <Icon size={24} weight="duotone" className="text-primary" />
                         {doc.title}
                       </DialogTitle>
                     </DialogHeader>
-                    <ScrollArea className="flex-1 px-6 scrollbar-thin" style={{ maxHeight: 'calc(85vh - 12rem)' }}>
-                      <div className="space-y-4 pb-4">
+                    <div className="flex-1 overflow-y-auto scrollbar-thin" style={{ maxHeight: 'calc(90vh - 10rem)' }}>
+                      <div className="p-6 space-y-4">
                         <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                           {doc.content}
                         </pre>
                       </div>
-                    </ScrollArea>
+                    </div>
                     <div className="p-6 pt-4 border-t-2 border-primary/30 flex justify-between items-center flex-shrink-0 gap-2">
                       <Button 
                         variant="outline" 
