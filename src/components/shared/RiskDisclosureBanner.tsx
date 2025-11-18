@@ -7,6 +7,7 @@ import {
   getCurrentRiskVersion, 
   needsReacceptance, 
   clearOldVersions,
+  checkVersionExpiration,
   LegalAcknowledgment 
 } from '@/lib/legalVersions'
 
@@ -37,6 +38,14 @@ export default function RiskDisclosureBanner() {
       const localStorageKey = `risk_accepted_${CURRENT_VERSION}`
       const hasLocalStorage = localStorage.getItem(localStorageKey) === 'true'
       const hasValidAcknowledgment = acknowledgment && acknowledgment.version === CURRENT_VERSION
+      
+      const versionCheck = checkVersionExpiration()
+      if (versionCheck.expired && versionCheck.documentType === 'risk') {
+        console.log('[Risk Banner] 📢 DOCUMENT EXPIRED! User must re-accept')
+        setIsBannerVisible(true)
+        clearOldVersions()
+        return
+      }
       
       if (acknowledgment && needsReacceptance(acknowledgment.version, 'risk')) {
         console.log('[Risk Banner] 📢 DOCUMENT UPDATED! User must re-accept')
@@ -82,6 +91,16 @@ export default function RiskDisclosureBanner() {
     
     console.log('[Risk Banner] 💾 ACCEPTING RISK DISCLOSURE - Version:', CURRENT_VERSION)
     
+    localStorage.setItem(`risk_accepted_${CURRENT_VERSION}`, 'true')
+    console.log('[Risk Banner] 💾 Stored in localStorage key:', `risk_accepted_${CURRENT_VERSION}`)
+    
+    clearOldVersions()
+    
+    setShowModal(false)
+    setIsBannerVisible(false)
+    
+    console.log('[Risk Banner] ✅ BANNER HIDDEN IMMEDIATELY')
+    
     await setAcknowledgment(acknowledgmentData)
     
     await setAuditLog((currentLog) => {
@@ -90,18 +109,10 @@ export default function RiskDisclosureBanner() {
       return newLog
     })
 
-    console.log('[Risk Banner] ✅ ACCEPTANCE COMPLETE - Banner will now DISAPPEAR')
+    console.log('[Risk Banner] ✅ ACCEPTANCE COMPLETE')
     console.log('[Risk Banner] 📅 Timestamp:', new Date(acknowledgmentData.acknowledgedAt).toISOString())
     console.log('[Risk Banner] 👤 User Agent:', acknowledgmentData.userAgent)
     console.log('[Risk Banner] 🆔 Session ID:', acknowledgmentData.sessionId)
-    
-    localStorage.setItem(`risk_accepted_${CURRENT_VERSION}`, 'true')
-    console.log('[Risk Banner] 💾 Stored in localStorage key:', `risk_accepted_${CURRENT_VERSION}`)
-    
-    clearOldVersions()
-    
-    setIsBannerVisible(false)
-    setShowModal(false)
     
     try {
       await fetch('/api/legal/accept-risk', {
@@ -127,7 +138,7 @@ export default function RiskDisclosureBanner() {
             key="risk-banner"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20, transition: { duration: 0.5 } }}
+            exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3 }}
             className="fixed bottom-0 left-0 right-0 z-[100] pointer-events-auto"
           >

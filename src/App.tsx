@@ -192,21 +192,25 @@ export default function App() {
         >
           <div className="p-6 border-b-2 border-primary/30">
             <h1 className="text-xl font-bold uppercase tracking-[0.15em]" style={{
-              color: 'var(--primary)',
-              textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)',
-              WebkitTextStroke: '0.5px currentColor',
+              background: 'linear-gradient(135deg, #DC1FFF 0%, #9945FF 50%, #14F195 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              textShadow: '0 0 20px #DC1FFF, 0 0 40px #DC1FFF, 0 0 80px #A855F7, 0 0 120px #9945FF',
+              WebkitTextStroke: '0.5px #DC1FFF',
               paintOrder: 'stroke fill',
               fontFamily: 'var(--font-family-display)',
-              letterSpacing: '0.15em'
+              letterSpacing: '0.15em',
+              filter: 'drop-shadow(0 0 20px #DC1FFF) drop-shadow(0 0 40px #9945FF)'
             }}>
               QUANTUM<br/>FALCON
             </h1>
             <p className="text-[10px] uppercase tracking-wider mt-1" style={{
-              color: 'var(--primary)',
-              textShadow: '0 0 10px var(--primary)',
+              color: '#DC1FFF',
+              textShadow: '0 0 10px #DC1FFF, 0 0 20px #DC1FFF, 0 0 40px #A855F7',
               fontFamily: 'monospace',
               letterSpacing: '0.2em',
-              opacity: 0.8
+              opacity: 0.9
             }}>
               SYSTEM_ONLINE<span className="animate-pulse">_</span>
             </p>
