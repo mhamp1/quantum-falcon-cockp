@@ -49,6 +49,7 @@ export default function SocialCommunity() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedSort, setSelectedSort] = useState<'hot' | 'new' | 'roi' | 'winrate'>('hot')
   const [heroIndex, setHeroIndex] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
   
   const [ownedStrategies, setOwnedStrategies] = useKV<string[]>('owned-strategies', [])
   const [activeStrategies, setActiveStrategies] = useKV<string[]>('active-strategies', [])
@@ -90,12 +91,16 @@ export default function SocialCommunity() {
   }, [])
 
   useEffect(() => {
+    if (isTransitioning || featuredStrategies.length === 0) return
+
     const heroTimer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % Math.min(featuredStrategies.length, 6))
-    }, 5000)
+      if (!isTransitioning) {
+        setHeroIndex((prev) => (prev + 1) % Math.min(featuredStrategies.length, 6))
+      }
+    }, 6000)
 
     return () => clearInterval(heroTimer)
-  }, [featuredStrategies.length])
+  }, [featuredStrategies.length, isTransitioning])
 
   useEffect(() => {
     setPage(1)
@@ -211,6 +216,11 @@ export default function SocialCommunity() {
 
   const currentHeroStrategy = featuredStrategies[heroIndex]
 
+  const handleHeroNavigation = (newIndex: number) => {
+    if (isTransitioning) return
+    setHeroIndex(newIndex)
+  }
+
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-6">
@@ -237,13 +247,14 @@ export default function SocialCommunity() {
 
         {featuredStrategies.length > 0 && (
           <div className="relative overflow-hidden group">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false} onExitComplete={() => setIsTransitioning(false)}>
               <motion.div
                 key={heroIndex}
-                initial={{ opacity: 0, x: 100 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -100 }}
-                transition={{ duration: 0.5 }}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                onAnimationStart={() => setIsTransitioning(true)}
                 className="glass-morph-card p-8 relative overflow-hidden min-h-[400px]"
               >
                 {currentHeroStrategy && (
@@ -395,8 +406,9 @@ export default function SocialCommunity() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setHeroIndex((prev) => (prev - 1 + featuredStrategies.length) % featuredStrategies.length)}
-                        className="w-10 h-10 p-0"
+                        onClick={() => handleHeroNavigation((heroIndex - 1 + featuredStrategies.length) % featuredStrategies.length)}
+                        disabled={isTransitioning}
+                        className="w-10 h-10 p-0 transition-all disabled:opacity-50"
                       >
                         <CaretLeft size={20} weight="bold" />
                       </Button>
@@ -404,10 +416,11 @@ export default function SocialCommunity() {
                         {featuredStrategies.slice(0, 6).map((_, idx) => (
                           <button
                             key={idx}
-                            onClick={() => setHeroIndex(idx)}
+                            onClick={() => handleHeroNavigation(idx)}
+                            disabled={isTransitioning}
                             className={cn(
-                              "w-2 h-2 rounded-full transition-all",
-                              idx === heroIndex ? "bg-primary w-8" : "bg-muted"
+                              "w-2 h-2 rounded-full transition-all disabled:opacity-50",
+                              idx === heroIndex ? "bg-primary w-8" : "bg-muted hover:bg-primary/50"
                             )}
                           />
                         ))}
@@ -415,8 +428,9 @@ export default function SocialCommunity() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setHeroIndex((prev) => (prev + 1) % featuredStrategies.length)}
-                        className="w-10 h-10 p-0"
+                        onClick={() => handleHeroNavigation((heroIndex + 1) % featuredStrategies.length)}
+                        disabled={isTransitioning}
+                        className="w-10 h-10 p-0 transition-all disabled:opacity-50"
                       >
                         <CaretRight size={20} weight="bold" />
                       </Button>
