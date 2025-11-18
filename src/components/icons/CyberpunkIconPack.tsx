@@ -470,3 +470,14 @@ export const IconDataStreamLive = ({ size, className }: IconProps) => (
     <path d="M75 20 L85 10 L95 20" stroke="#FFFF00" strokeWidth="4"/>
   </IconWrapper>
 );
+
+export const IconQuantumLeap = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#DC1FFF" strokeWidth="4" strokeDasharray="10,5"/>
+    <circle cx="30" cy="50" r="15" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <circle cx="70" cy="50" r="15" fill="none" stroke="#FF00FF" strokeWidth="5"/>
+    <path d="M45 50 L55 50" stroke="#FFFF00" strokeWidth="6"/>
+    <path d="M50 35 L50 65" stroke="#00FFAA" strokeWidth="4"/>
+    <circle cx="50" cy="50" r="8" fill="#DC1FFF"/>
+  </IconWrapper>
+);
