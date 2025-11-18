@@ -1,5 +1,6 @@
 import { Component, ReactNode } from 'react'
 import { Brain } from '@phosphor-icons/react'
+import { isNonCriticalError } from '@/lib/errorSuppression'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -11,35 +12,6 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean
   error?: Error
-}
-
-function isR3FError(error: Error): boolean {
-  const message = error.message || ''
-  const stack = error.stack || ''
-  
-  const suppressedPatterns = [
-    'R3F',
-    'data-component-loc',
-    '__r3f',
-    'Cannot set "data-component-loc-end"',
-    'child.object is undefined',
-    '@react-three/fiber',
-    'react-three',
-    'ResizeObserver loop',
-    'THREE.',
-    'WebGL',
-    'canvas',
-    'OrbitControls',
-    'PerspectiveCamera',
-    'Cannot read properties of null',
-    'Cannot read property \'object\' of undefined',
-    'Rendered more hooks than during the previous render',
-  ]
-  
-  return suppressedPatterns.some(pattern =>
-    message.toLowerCase().includes(pattern.toLowerCase()) ||
-    stack.toLowerCase().includes(pattern.toLowerCase())
-  )
 }
 
 function DefaultErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
@@ -82,8 +54,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    if (isR3FError(error)) {
-      console.warn('[ErrorBoundary] R3F error suppressed:', error.message)
+    if (isNonCriticalError(error)) {
       return { hasError: false }
     }
     
@@ -91,15 +62,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
-    if (isR3FError(error)) {
-      console.warn('[ErrorBoundary] R3F error caught and suppressed:', {
-        message: error.message,
-        stack: errorInfo.componentStack
-      })
+    if (isNonCriticalError(error)) {
       return
     }
-
-    console.error('[ErrorBoundary] Error caught:', error, errorInfo)
     
     if (this.props.onError) {
       this.props.onError(error, errorInfo)

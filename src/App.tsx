@@ -8,6 +8,7 @@ import { motion, LazyMotion, domAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
+import { isNonCriticalError } from '@/lib/errorSuppression';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -35,28 +36,10 @@ function LoadingFallback() {
 }
 
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
-  // Don't even show the error if it's a suppressed type
-  const suppressedPatterns = [
-    'R3F',
-    'data-component-loc',
-    '__r3f',
-    'ResizeObserver',
-    'THREE.',
-    'WebGL',
-    'canvas',
-  ];
-  
-  const isSuppressed = suppressedPatterns.some(pattern => 
-    error.message.toLowerCase().includes(pattern.toLowerCase())
-  );
-  
-  if (isSuppressed) {
-    // Auto-reset and don't show anything
+  if (isNonCriticalError(error)) {
     setTimeout(resetErrorBoundary, 0);
     return null;
   }
-  
-  console.error('[App] Component error:', error);
   
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
@@ -131,28 +114,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const suppressedPatterns = [
-      'R3F',
-      'data-component-loc',
-      '__r3f',
-      'Cannot set "data-component-loc-end"',
-      'child.object is undefined',
-      '@react-three/fiber',
-      'react-three',
-      'ResizeObserver loop',
-      'THREE.',
-      'WebGL',
-      'canvas',
-      'Cannot read properties of null',
-      'Cannot read property \'object\' of undefined',
-      'Rendered more hooks',
-    ];
-
     const shouldSuppress = (text: string, additionalText: string = '') => {
-      return suppressedPatterns.some(pattern => 
-        text.toLowerCase().includes(pattern.toLowerCase()) ||
-        additionalText.toLowerCase().includes(pattern.toLowerCase())
-      );
+      return isNonCriticalError(text) || isNonCriticalError(additionalText);
     };
 
     const handleWindowError = (event: ErrorEvent) => {
@@ -160,7 +123,6 @@ export default function App() {
       const filename = event.filename || '';
       
       if (shouldSuppress(message, filename)) {
-        console.debug('[App] Non-critical error suppressed:', message.substring(0, 80));
         event.preventDefault();
         event.stopPropagation();
         return true;
@@ -172,7 +134,6 @@ export default function App() {
       const stack = event.reason?.stack || '';
       
       if (shouldSuppress(reason, stack)) {
-        console.debug('[App] Non-critical promise rejection suppressed:', reason.substring(0, 80));
         event.preventDefault();
         return;
       }
@@ -256,38 +217,7 @@ export default function App() {
   };
 
   const handleError = (error: Error, errorInfo: { componentStack: string }) => {
-    const message = error.message || '';
-    const stack = errorInfo.componentStack || '';
-    const fullStack = error.stack || '';
-    
-    // Comprehensive error suppression list
-    const suppressedErrors = [
-      'R3F',
-      'data-component-loc',
-      '__r3f',
-      'Cannot set "data-component-loc-end"',
-      'child.object is undefined',
-      '@react-three/fiber',
-      'react-three',
-      'ResizeObserver loop',
-      'Cannot read properties of null',
-      'THREE.',
-      'WebGL',
-      'canvas',
-      'OrbitControls',
-      'PerspectiveCamera',
-      'Cannot read property \'object\' of undefined',
-      'Rendered more hooks than during the previous render',
-    ];
-    
-    const shouldSuppress = suppressedErrors.some(pattern => 
-      message.toLowerCase().includes(pattern.toLowerCase()) ||
-      stack.toLowerCase().includes(pattern.toLowerCase()) ||
-      fullStack.toLowerCase().includes(pattern.toLowerCase())
-    );
-    
-    if (shouldSuppress) {
-      console.warn('[App] Non-critical error suppressed:', message.substring(0, 100));
+    if (isNonCriticalError(error)) {
       return;
     }
     
@@ -302,11 +232,8 @@ export default function App() {
     lastErrorTimeRef.current = now;
     
     if (errorCountRef.current > 3) {
-      console.error('[App] Multiple errors detected. Suppressing to prevent loops.');
       return;
     }
-    
-    console.warn('[App] Error caught (non-critical):', message.substring(0, 100));
   };
 
   if (hasError) {
