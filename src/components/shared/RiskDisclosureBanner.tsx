@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Warning, X } from '@phosphor-icons/react'
+import { Warning, FileText } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { toast } from 'sonner'
 
 interface RiskAcknowledgment {
@@ -23,7 +22,6 @@ export default function RiskDisclosureBanner() {
     'risk-disclosure-audit-log',
     []
   )
-  const [isVisible, setIsVisible] = useState(true)
 
   const handleAcknowledge = async () => {
     const acknowledgmentData: RiskAcknowledgment = {
@@ -33,6 +31,7 @@ export default function RiskDisclosureBanner() {
       sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     }
     
+    console.log('[Risk Disclosure Banner] 💾 Saving acknowledgment...')
     await setAcknowledgment(acknowledgmentData)
     
     await setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
@@ -43,8 +42,6 @@ export default function RiskDisclosureBanner() {
     console.log('[Risk Disclosure Banner] 📅 Timestamp:', new Date(acknowledgmentData.acknowledgedAt).toISOString())
     console.log('[Risk Disclosure Banner] 👤 User Agent:', acknowledgmentData.userAgent)
     console.log('[Risk Disclosure Banner] 🆔 Session ID:', acknowledgmentData.sessionId)
-    
-    setIsVisible(false)
     
     try {
       await fetch('/api/legal/acknowledge-risk', {
@@ -63,10 +60,22 @@ export default function RiskDisclosureBanner() {
     })
   }
 
-  if (acknowledgment || !isVisible) {
-    console.log('[Risk Disclosure Banner] 🚫 Banner hidden - User has acknowledged (logged on:', acknowledgment ? new Date(acknowledgment.acknowledgedAt).toLocaleString() : 'N/A', ')')
+  const handleSeeDisclosure = () => {
+    const event = new CustomEvent('navigate-tab', { detail: 'settings' })
+    window.dispatchEvent(event)
+    
+    setTimeout(() => {
+      const legalTabEvent = new CustomEvent('open-settings-legal-tab')
+      window.dispatchEvent(legalTabEvent)
+    }, 100)
+  }
+
+  if (acknowledgment) {
+    console.log('[Risk Disclosure Banner] 🚫 Banner hidden - User has acknowledged (logged on:', new Date(acknowledgment.acknowledgedAt).toLocaleString(), ')')
     return null
   }
+
+  console.log('[Risk Disclosure Banner] 👁️ Banner showing - awaiting user acknowledgment')
 
   return (
     <AnimatePresence>
@@ -86,11 +95,26 @@ export default function RiskDisclosureBanner() {
                   ⚠️ CRYPTOCURRENCY TRADING INVOLVES SUBSTANTIAL RISK OF LOSS
                 </p>
                 <p className="text-xs opacity-90">
-                  You may lose 100% of invested capital. No investment advice provided. See full disclosure.
+                  You may lose 100% of invested capital. No investment advice provided.{' '}
+                  <button 
+                    onClick={handleSeeDisclosure}
+                    className="underline hover:text-primary-foreground/80 transition-colors font-semibold"
+                  >
+                    See full disclosure
+                  </button>
                 </p>
               </div>
             </div>
             <div className="flex gap-2 flex-shrink-0">
+              <Button
+                onClick={handleSeeDisclosure}
+                size="sm"
+                variant="outline"
+                className="border-2 border-primary-foreground/50 text-destructive-foreground hover:bg-primary-foreground/10 font-bold uppercase tracking-wider"
+              >
+                <FileText size={16} weight="duotone" className="mr-2" />
+                Read Details
+              </Button>
               <Button
                 onClick={handleAcknowledge}
                 size="sm"
