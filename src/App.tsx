@@ -4,7 +4,6 @@ import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning, Code 
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UserAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
-import { m, LazyMotion, domAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
@@ -353,16 +352,13 @@ export default function App() {
       FallbackComponent={ComponentErrorFallback}
       onError={handleError}
     >
-      <LazyMotion features={domAnimation} strict>
-        <Suspense fallback={null}>
-          <RiskDisclosureBanner />
-        </Suspense>
-        
-        <div className="min-h-screen bg-background flex">
+      <Suspense fallback={null}>
+        <RiskDisclosureBanner />
+      </Suspense>
+      
+      <div className="min-h-screen bg-background flex">
         {!isMobile && (
-          <m.aside 
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
+          <aside 
             className="fixed left-0 top-0 h-screen w-64 border-r-2 border-primary/30 bg-card/95 backdrop-blur-md z-40 flex flex-col"
           >
           <div className="p-6 border-b-2 border-primary/30">
@@ -429,13 +425,6 @@ export default function App() {
                   <span className="text-xs font-bold uppercase tracking-wider">
                     {tab.label}
                   </span>
-                  {isActive && (
-                    <m.div
-                      layoutId="activeTab"
-                      className="absolute inset-0 -z-10 bg-primary/10"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
                 </Button>
               );
             })}
@@ -454,7 +443,7 @@ export default function App() {
               </div>
             </div>
           </div>
-        </m.aside>
+        </aside>
       )}
 
       <div className={cn("flex-1", !isMobile && "ml-64")}>
@@ -509,7 +498,6 @@ export default function App() {
         </Suspense>
       </ErrorBoundary>
     </div>
-    </LazyMotion>
     </ErrorBoundary>
   );
 }

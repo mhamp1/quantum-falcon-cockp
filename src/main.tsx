@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { StrictMode, startTransition } from 'react';
+import { startTransition } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import "@github/spark/spark";
@@ -64,35 +64,33 @@ const root = createRoot(rootElement);
 
 function renderApp() {
   root.render(
-    <StrictMode>
-      <ErrorBoundary 
-        FallbackComponent={ErrorFallback}
-        onError={(error, errorInfo) => {
-          if (isR3FError(error)) {
-            console.warn('[Root] R3F error suppressed in boundary:', error.message);
-            return;
-          }
-          console.error('[Root] Error caught by boundary:', error, errorInfo);
-        }}
-      >
-        <QueryClientProvider client={queryClient}>
-          <App />
-          <Toaster 
-            position="top-right" 
-            expand={false} 
-            richColors 
-            closeButton
-            toastOptions={{
-              style: {
-                background: 'oklch(0.12 0.03 280)',
-                border: '1px solid oklch(0.35 0.12 195)',
-                color: 'oklch(0.85 0.12 195)',
-              },
-            }}
-          />
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </StrictMode>
+    <ErrorBoundary 
+      FallbackComponent={ErrorFallback}
+      onError={(error, errorInfo) => {
+        if (isR3FError(error)) {
+          console.warn('[Root] R3F error suppressed in boundary:', error.message);
+          return;
+        }
+        console.error('[Root] Error caught by boundary:', error, errorInfo);
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <Toaster 
+          position="top-right" 
+          expand={false} 
+          richColors 
+          closeButton
+          toastOptions={{
+            style: {
+              background: 'oklch(0.12 0.03 280)',
+              border: '1px solid oklch(0.35 0.12 195)',
+              color: 'oklch(0.85 0.12 195)',
+            },
+          }}
+        />
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

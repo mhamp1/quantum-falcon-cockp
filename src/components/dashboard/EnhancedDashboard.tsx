@@ -1,7 +1,6 @@
 // Enhanced Dashboard with React 19 performance optimizations and AI integration
 import { useKV } from '@github/spark/hooks'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
-import { motion } from 'framer-motion'
 import { UserAuth } from '@/lib/auth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
@@ -180,11 +179,8 @@ export default function EnhancedDashboard() {
   if (!auth?.isAuthenticated) {
     return (
       <>
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6"
+        <div 
+          className="space-y-6 animate-in fade-in duration-500"
         >
           <div className="cyber-card relative overflow-hidden">
             <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
@@ -259,7 +255,7 @@ export default function EnhancedDashboard() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
         <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
       </>
     )
@@ -272,11 +268,8 @@ export default function EnhancedDashboard() {
           <NewsTicker />
         </Suspense>
       
-      <motion.div 
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="cyber-card relative overflow-hidden"
+      <div 
+        className="cyber-card relative overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300"
       >
         <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
         <div className="p-6 relative z-10">
@@ -336,15 +329,12 @@ export default function EnhancedDashboard() {
             </Button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <LicenseExpiry />
 
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-        className="glass-morph-card p-6 relative overflow-hidden"
+      <div 
+        className="glass-morph-card p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-100"
       >
         <div className="absolute inset-0 grid-background opacity-5" />
         <svg className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
@@ -392,7 +382,7 @@ export default function EnhancedDashboard() {
             />
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="grid" aria-label="Portfolio Quick Stats">
         {statsGrid.map((stat, idx) => (
