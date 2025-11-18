@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import Editor from '@monaco-editor/react'
-import { Canvas } from '@react-three/fiber'
-import { Float } from '@react-three/drei'
 import confetti from 'canvas-confetti'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -70,14 +68,6 @@ interface BacktestResult {
   avgLoss: number
 }
 
-interface CodeParticle {
-  id: number
-  position: [number, number, number]
-  rotation: [number, number, number]
-  code: string
-  speed: number
-}
-
 interface FeaturedStrategy {
   name: string
   roi: string
@@ -137,7 +127,7 @@ const DEFAULT_CODE = `// Quantum Falcon Strategy Template
 `
 
 function CodeParticles() {
-  const [particles] = useState<CodeParticle[]>(() => {
+  const [particles] = useState(() => {
     const codeSnippets = [
       'if', 'buy', 'sell', 'RSI', 'volume', 'whale', 'DCA', 'AI',
       'EMA', 'MACD', 'trend', 'signal', 'profit', 'loss', 'entry',
@@ -146,23 +136,17 @@ function CodeParticles() {
     ]
     return Array.from({ length: 35 }, (_, i) => ({
       id: i,
-      position: [
-        (Math.random() - 0.5) * 35,
-        (Math.random() - 0.5) * 25,
-        (Math.random() - 0.5) * 20
-      ] as [number, number, number],
-      rotation: [
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2
-      ] as [number, number, number],
-      code: codeSnippets[i % codeSnippets.length],
-      speed: 0.3 + Math.random() * 1.2
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: 20 + Math.random() * 30,
+      delay: Math.random() * 5,
+      duration: 8 + Math.random() * 12,
+      code: codeSnippets[i % codeSnippets.length]
     }))
   })
 
   return (
-    <Canvas
+    <div
       style={{
         position: 'absolute',
         top: 0,
@@ -170,47 +154,54 @@ function CodeParticles() {
         width: '100%',
         height: '100%',
         zIndex: 0,
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        overflow: 'hidden'
       }}
-      camera={{ position: [0, 0, 25], fov: 60 }}
     >
-      <ambientLight intensity={0.4} color="#DC1FFF" />
-      <pointLight position={[15, 15, 15]} intensity={1.2} color="#14F195" />
-      <pointLight position={[-15, -15, -15]} intensity={0.8} color="#9945FF" />
-      <pointLight position={[0, 20, 5]} intensity={0.6} color="#DC1FFF" />
-      
       {particles.map((particle) => (
-        <Float
+        <motion.div
           key={particle.id}
-          speed={particle.speed}
-          rotationIntensity={0.6}
-          floatIntensity={1.2}
+          initial={{ 
+            x: `${particle.x}%`, 
+            y: `${particle.y}%`,
+            opacity: 0,
+            scale: 0.5,
+            rotate: Math.random() * 360
+          }}
+          animate={{
+            x: [`${particle.x}%`, `${particle.x + (Math.random() - 0.5) * 20}%`, `${particle.x}%`],
+            y: [`${particle.y}%`, `${particle.y + (Math.random() - 0.5) * 20}%`, `${particle.y}%`],
+            opacity: [0, 0.6, 0.3, 0.6, 0],
+            scale: [0.5, 1, 0.8, 1, 0.5],
+            rotate: [0, 180, 360]
+          }}
+          transition={{
+            duration: particle.duration,
+            delay: particle.delay,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          style={{
+            position: 'absolute',
+            width: particle.size,
+            height: particle.size,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #DC1FFF 0%, #9945FF 100%)',
+            border: '2px solid #14F195',
+            boxShadow: '0 0 20px #DC1FFF',
+            fontSize: Math.max(8, particle.size * 0.4),
+            fontFamily: 'Orbitron, monospace',
+            fontWeight: 'bold',
+            color: '#14F195',
+            clipPath: 'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))'
+          }}
         >
-          <group position={particle.position} rotation={particle.rotation}>
-            <mesh>
-              <boxGeometry args={[1.2, 1.2, 0.25]} />
-              <meshStandardMaterial
-                color="#DC1FFF"
-                emissive="#DC1FFF"
-                emissiveIntensity={1.8}
-                transparent
-                opacity={0.75}
-                metalness={0.5}
-                roughness={0.2}
-              />
-            </mesh>
-            <mesh position={[0, 0, 0.15]}>
-              <planeGeometry args={[0.8, 0.8]} />
-              <meshBasicMaterial
-                color="#14F195"
-                transparent
-                opacity={0.9}
-              />
-            </mesh>
-          </group>
-        </Float>
+          {particle.code}
+        </motion.div>
       ))}
-    </Canvas>
+    </div>
   )
 }
 
