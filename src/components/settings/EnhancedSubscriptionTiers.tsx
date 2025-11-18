@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { UserAuth, LICENSE_TIERS } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
@@ -6,10 +6,11 @@ import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity as InfinityIcon, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { paymentProcessor, initializePaymentProviders } from '@/lib/payment/paymentProcessor'
 import SubscriptionUpgrade from './SubscriptionUpgrade'
 
 export default function EnhancedSubscriptionTiers() {
-  const [auth] = useKV<UserAuth>('user-auth', {
+  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
     username: null,
@@ -20,6 +21,32 @@ export default function EnhancedSubscriptionTiers() {
 
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime'>('free')
+  const [isCheckingOut, setIsCheckingOut] = useState(false)
+  const [paymentProvider, setPaymentProvider] = useState<'stripe' | 'paddle'>('stripe')
+
+  useEffect(() => {
+    initializePaymentProviders()
+
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('success') === 'true') {
+      const tier = params.get('tier')
+      toast.success('Payment Successful!', {
+        description: `Your ${tier?.toUpperCase()} subscription is now active`,
+        className: 'border-primary/50 bg-background/95',
+        duration: 7000
+      })
+      
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+    
+    if (params.get('canceled') === 'true') {
+      toast.info('Checkout Canceled', {
+        description: 'Your payment was canceled. No charges were made.',
+        className: 'border-muted/50 bg-background/95'
+      })
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   const currentTier = auth?.license?.tier || 'free'
 
@@ -50,10 +77,11 @@ export default function EnhancedSubscriptionTiers() {
     lifetime: 'UNLIMITED'
   }
 
-  const handleUpgrade = (tierId: string, tier: typeof LICENSE_TIERS[keyof typeof LICENSE_TIERS]) => {
+  const handleUpgrade = async (tierId: string, tier: typeof LICENSE_TIERS[keyof typeof LICENSE_TIERS]) => {
     if (currentTier === tierId) {
       toast.info('Already Active', {
-        description: 'This is your current subscription tier'
+        description: 'This is your current subscription tier',
+        className: 'border-accent/50 bg-background/95'
       })
       return
     }
@@ -62,8 +90,38 @@ export default function EnhancedSubscriptionTiers() {
       return
     }
 
+    setIsCheckingOut(true)
     setSelectedTier(tierId as any)
-    setCheckoutOpen(true)
+
+    toast.loading('Initiating secure checkout...', {
+      id: 'checkout-init',
+      className: 'border-primary/50 bg-background/95'
+    })
+
+    try {
+      const session = await paymentProcessor.createStripeCheckout({
+        tier: tierId,
+        price: tier.price,
+        userId: auth?.userId || 'guest',
+        userEmail: auth?.email || undefined,
+        type: tierId === 'lifetime' ? 'one_time' : 'subscription'
+      })
+
+      toast.dismiss('checkout-init')
+      toast.success('Redirecting to checkout...', {
+        description: 'You will be redirected to our secure payment page',
+        className: 'border-primary/50 bg-background/95',
+        duration: 3000
+      })
+    } catch (error: any) {
+      toast.dismiss('checkout-init')
+      toast.error('Checkout Failed', {
+        description: error.message || 'Please try again or contact support',
+        className: 'border-destructive/50 bg-background/95'
+      })
+    } finally {
+      setIsCheckingOut(false)
+    }
   }
 
   return (
@@ -240,8 +298,8 @@ export default function EnhancedSubscriptionTiers() {
 
                   <Button
                     onClick={() => handleUpgrade(tierId, tier)}
-                    disabled={isCurrentTier}
-                    className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner transition-all ${
+                    disabled={isCurrentTier || isCheckingOut}
+                    className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner transition-all hover:scale-[1.02] ${
                       isCurrentTier
                         ? 'bg-muted text-muted-foreground cursor-not-allowed'
                         : tierId === 'starter'
@@ -257,7 +315,7 @@ export default function EnhancedSubscriptionTiers() {
                                   : 'bg-muted/20 hover:bg-muted/30 border-2 border-muted text-foreground'
                     }`}
                   >
-                    {isCurrentTier ? 'Current Tier' : tier.price === 0 ? 'Active' : 'Upgrade Now'}
+                    {isCheckingOut ? 'Processing...' : isCurrentTier ? 'Current Tier' : tier.price === 0 ? 'Active' : 'Upgrade Now'}
                   </Button>
                 </div>
               </div>

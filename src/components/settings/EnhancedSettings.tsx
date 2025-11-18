@@ -1,5 +1,5 @@
 import { useKV } from '@github/spark/hooks'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,7 @@ import ChangeLog from './ChangeLog'
 import DeviceManagement from './DeviceManagement'
 import { UserAuth } from '@/lib/auth'
 import { logSettingChange } from '@/lib/changeLogger'
+import { debounce } from '@/lib/debounce'
 
 interface UserProfile {
   username: string
@@ -203,6 +204,27 @@ export default function EnhancedSettings() {
     }
   })
 
+  useEffect(() => {
+    if (settings?.theme) {
+      if (settings.theme.themeStyle) {
+        document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+        document.documentElement.classList.add(settings.theme.themeStyle)
+      }
+      
+      if (settings.theme.highContrast) {
+        document.documentElement.classList.add('high-contrast')
+      } else {
+        document.documentElement.classList.remove('high-contrast')
+      }
+      
+      if (!settings.theme.animations) {
+        document.documentElement.style.setProperty('--animate-duration', '0s')
+      } else {
+        document.documentElement.style.removeProperty('--animate-duration')
+      }
+    }
+  }, [settings?.theme])
+
   const achievements: Achievement[] = [
     {
       id: '1',
@@ -284,7 +306,52 @@ export default function EnhancedSettings() {
     }
   ]
 
-  const handleUpdateSetting = (path: string[], value: any) => {
+  const [isSaving, setIsSaving] = useState<{ [key: string]: boolean }>({})
+
+  const debouncedUpdate = useCallback(
+    debounce((path: string[], value: any) => {
+      handleUpdateSetting(path, value)
+    }, 300),
+    []
+  )
+
+  const handleSliderChange = (path: string[], value: any, immediate = false) => {
+    setSettings((current) => {
+      const base = current || {
+        notifications: { tradeAlerts: true, priceAlerts: true, forumReplies: false, pushEnabled: true },
+        theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true, neonGlow: true, themeStyle: 'default' as const, highContrast: false },
+        currency: 'USD',
+        audio: { soundEffects: true, ambientMusic: false, voiceNarration: false, volume: 70 },
+        trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },
+        security: { biometric: true, twoFactor: false, autoLogout: 5, sessionTimeout: 30 },
+        network: { rpcEndpoint: 'mainnet', priorityFees: true, customEndpoint: '' },
+        display: { compactMode: false, showBalances: true, chartType: 'candlestick', refreshRate: 5 }
+      }
+      const updated = { ...base }
+      let obj: any = updated
+      
+      for (let i = 0; i < path.length - 1; i++) {
+        if (!obj[path[i]]) {
+          obj[path[i]] = {}
+        }
+        obj = obj[path[i]]
+      }
+      obj[path[path.length - 1]] = value
+      
+      return updated
+    })
+
+    if (immediate) {
+      handleUpdateSetting(path, value)
+    } else {
+      debouncedUpdate(path, value)
+    }
+  }
+
+  const handleUpdateSetting = async (path: string[], value: any) => {
+    const settingKey = path.join('.')
+    setIsSaving(prev => ({ ...prev, [settingKey]: true }))
+
     setSettings((current) => {
       const base = current || {
         notifications: { tradeAlerts: true, priceAlerts: true, forumReplies: false, pushEnabled: true },
@@ -323,7 +390,16 @@ export default function EnhancedSettings() {
       
       return updated
     })
-    toast.success('Setting updated')
+
+    await new Promise(resolve => setTimeout(resolve, 400))
+
+    setIsSaving(prev => ({ ...prev, [settingKey]: false }))
+    
+    toast.success('✓ Setting saved', {
+      description: `${path[path.length - 1]} updated successfully`,
+      className: 'border-primary/50 bg-background/95',
+      duration: 3000
+    })
   }
 
   const handleSearchResultSelect = (tabId: string, sectionId: string) => {
@@ -884,7 +960,7 @@ export default function EnhancedSettings() {
                       min="0"
                       max="100"
                       value={settings.audio?.volume ?? 70}
-                      onChange={(e) => handleUpdateSetting(['audio', 'volume'], Number(e.target.value))}
+                      onChange={(e) => handleSliderChange(['audio', 'volume'], Number(e.target.value))}
                       className="w-full"
                     />
                     <div className="flex justify-between text-[9px] text-muted-foreground uppercase tracking-wider">
@@ -993,7 +1069,7 @@ export default function EnhancedSettings() {
                       max="5"
                       step="0.1"
                       value={settings.trading?.slippage ?? 1.0}
-                      onChange={(e) => handleUpdateSetting(['trading', 'slippage'], Number(e.target.value))}
+                      onChange={(e) => handleSliderChange(['trading', 'slippage'], Number(e.target.value))}
                       className="w-full"
                     />
                     <div className="flex justify-between text-[9px] text-muted-foreground uppercase tracking-wider">
@@ -1340,6 +1416,8 @@ export default function EnhancedSettings() {
                       value={settings.theme?.themeStyle ?? 'default'}
                       onValueChange={(v) => {
                         handleUpdateSetting(['theme', 'themeStyle'], v)
+                        document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+                        document.documentElement.classList.add(v)
                         toast.success(`Theme changed to ${v.toUpperCase()}`)
                       }}
                     >
@@ -1359,7 +1437,12 @@ export default function EnhancedSettings() {
                             ? 'border-primary bg-primary/10' 
                             : 'border-muted/30 hover:border-primary/50'
                         }`}
-                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'default')}
+                        onClick={() => {
+                          handleUpdateSetting(['theme', 'themeStyle'], 'default')
+                          document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+                          document.documentElement.classList.add('default')
+                          toast.success('Theme changed to DEFAULT')
+                        }}
                       >
                         <div className="w-full h-8 rounded mb-1" style={{ 
                           background: 'linear-gradient(135deg, oklch(0.72 0.20 195), oklch(0.68 0.18 330))' 
@@ -1372,7 +1455,12 @@ export default function EnhancedSettings() {
                             ? 'border-primary bg-primary/10' 
                             : 'border-muted/30 hover:border-primary/50'
                         }`}
-                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'matrix')}
+                        onClick={() => {
+                          handleUpdateSetting(['theme', 'themeStyle'], 'matrix')
+                          document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+                          document.documentElement.classList.add('matrix')
+                          toast.success('Theme changed to MATRIX')
+                        }}
                       >
                         <div className="w-full h-8 rounded mb-1" style={{ 
                           background: 'linear-gradient(135deg, oklch(0.60 0.20 145), oklch(0.40 0.15 160))' 
@@ -1385,7 +1473,12 @@ export default function EnhancedSettings() {
                             ? 'border-primary bg-primary/10' 
                             : 'border-muted/30 hover:border-primary/50'
                         }`}
-                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'synthwave')}
+                        onClick={() => {
+                          handleUpdateSetting(['theme', 'themeStyle'], 'synthwave')
+                          document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+                          document.documentElement.classList.add('synthwave')
+                          toast.success('Theme changed to SYNTHWAVE')
+                        }}
                       >
                         <div className="w-full h-8 rounded mb-1" style={{ 
                           background: 'linear-gradient(135deg, oklch(0.70 0.25 330), oklch(0.65 0.22 280))' 

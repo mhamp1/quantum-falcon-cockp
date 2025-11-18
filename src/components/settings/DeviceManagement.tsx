@@ -1,7 +1,8 @@
 import { useKV } from '@github/spark/hooks'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Badge } from '@/components/ui/badge'
 import { 
   DeviceMobile,
   Desktop,
@@ -10,10 +11,16 @@ import {
   Trash,
   CheckCircle,
   WarningCircle,
-  Globe
+  Globe,
+  Shield,
+  Clock,
+  WifiHigh,
+  WifiSlash
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
+import { settingsAPI } from '@/lib/api/settings-api'
+import { sessionTracker, SessionEvent } from '@/lib/websocket/sessionTracker'
 
 interface DeviceSession {
   id: string
@@ -29,6 +36,7 @@ interface DeviceSession {
 }
 
 export default function DeviceManagement() {
+  const [auth] = useKV<any>('user-auth', null)
   const [sessions, setSessions] = useKV<DeviceSession[]>('user-sessions', [
     {
       id: 'current',
@@ -53,35 +61,196 @@ export default function DeviceManagement() {
       lastActive: Date.now() - 7200000,
       loginTime: Date.now() - 86400000,
       isCurrent: false
+    },
+    {
+      id: 'session-3',
+      deviceType: 'laptop',
+      deviceName: 'Firefox on MacOS',
+      browser: 'Firefox 121',
+      os: 'MacOS 14',
+      ip: '172.16.•.•',
+      location: 'London, UK',
+      lastActive: Date.now() - 43200000,
+      loginTime: Date.now() - 172800000,
+      isCurrent: false
     }
   ])
 
-  const revokeSession = (sessionId: string) => {
+  const [isRevoking, setIsRevoking] = useState<{ [key: string]: boolean }>({})
+  const [isRevokingAll, setIsRevokingAll] = useState(false)
+  const [revokeCountdown, setRevokeCountdown] = useState(0)
+  const [wsConnected, setWsConnected] = useState(false)
+
+  useEffect(() => {
+    if (auth?.userId) {
+      sessionTracker.connect(auth.userId)
+
+      const unsubscribeUpdate = sessionTracker.on('session_update', (event: SessionEvent) => {
+        if (event.type === 'connection') {
+          setWsConnected((event.data as any).connected)
+        } else if (event.type === 'session_update' && event.data) {
+          const updates = Array.isArray(event.data) ? event.data : [event.data]
+          setSessions((current) => {
+            if (!current) return []
+            return current.map(session => {
+              const update = updates.find(u => 'sessionId' in u && u.sessionId === session.id)
+              return update && 'lastActive' in update ? { ...session, lastActive: update.lastActive } : session
+            })
+          })
+        }
+      })
+
+      const unsubscribeCreated = sessionTracker.on('session_created', (event: SessionEvent) => {
+        if (!Array.isArray(event.data)) {
+          const newSession = event.data as any
+          setSessions((current) => {
+            if (!current) return [newSession]
+            if (current.some(s => s.id === newSession.sessionId)) return current
+            return [...current, {
+              id: newSession.sessionId,
+              deviceType: newSession.deviceType,
+              deviceName: newSession.deviceName,
+              browser: newSession.browser,
+              os: newSession.os,
+              ip: newSession.ip,
+              location: newSession.location,
+              lastActive: newSession.lastActive,
+              loginTime: newSession.lastActive,
+              isCurrent: false
+            }]
+          })
+          
+          toast.info('New Session Detected', {
+            description: `${newSession.deviceName} from ${newSession.location}`,
+            className: 'border-primary/50 bg-background/95'
+          })
+        }
+      })
+
+      const unsubscribeRevoked = sessionTracker.on('session_revoked', (event: SessionEvent) => {
+        const data = event.data as any
+        setSessions((current) => {
+          if (!current) return []
+          return current.filter(s => s.id !== data.sessionId)
+        })
+      })
+
+      return () => {
+        unsubscribeUpdate()
+        unsubscribeCreated()
+        unsubscribeRevoked()
+      }
+    }
+  }, [auth?.userId, setSessions])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!wsConnected) {
+        setSessions((current) => {
+          if (!current) return []
+          return current.map(session => ({
+            ...session,
+            lastActive: session.isCurrent ? Date.now() : session.lastActive
+          }))
+        })
+      }
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [setSessions, wsConnected])
+
+  useEffect(() => {
+    if (revokeCountdown > 0) {
+      const timer = setTimeout(() => {
+        setRevokeCountdown(prev => prev - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [revokeCountdown])
+
+  const revokeSession = async (sessionId: string) => {
     if (sessionId === 'current') {
-      toast.error('Cannot revoke current session')
+      toast.error('✗ Cannot revoke current session', {
+        description: 'You cannot log out from this device using this action',
+        className: 'border-destructive/50 bg-background/95'
+      })
       return
     }
 
-    if (window.confirm('Are you sure you want to revoke this session? The device will be logged out immediately.')) {
-      setSessions((current) => {
-        if (!current) return []
-        return current.filter(s => s.id !== sessionId)
+    const session = sessions?.find(s => s.id === sessionId)
+    
+    if (window.confirm(`Revoke session from "${session?.deviceName}"? The device will be logged out immediately.`)) {
+      setIsRevoking(prev => ({ ...prev, [sessionId]: true }))
+      
+      toast.loading('Revoking session...', { 
+        id: `revoke-${sessionId}`,
+        className: 'border-primary/50 bg-background/95'
       })
-      toast.success('Session revoked successfully', {
-        description: 'The device has been logged out'
-      })
+
+      try {
+        await settingsAPI.revokeSession(sessionId)
+        
+        setSessions((current) => {
+          if (!current) return []
+          return current.filter(s => s.id !== sessionId)
+        })
+        
+        toast.dismiss(`revoke-${sessionId}`)
+        toast.success('✓ Session revoked', {
+          description: `${session?.deviceName} has been logged out`,
+          className: 'border-primary/50 bg-background/95',
+          duration: 4000
+        })
+      } catch (error) {
+        toast.dismiss(`revoke-${sessionId}`)
+        toast.error('✗ Failed to revoke session')
+      } finally {
+        setIsRevoking(prev => ({ ...prev, [sessionId]: false }))
+      }
     }
   }
 
-  const revokeAllOther = () => {
-    if (window.confirm('Are you sure you want to revoke all other sessions? All other devices will be logged out immediately.')) {
-      setSessions((current) => {
-        if (!current) return []
-        return current.filter(s => s.isCurrent)
+  const revokeAllOther = async () => {
+    const otherSessions = sessions?.filter(s => !s.isCurrent) || []
+    
+    if (otherSessions.length === 0) {
+      toast.info('No other sessions', {
+        description: 'There are no other active sessions to revoke',
+        className: 'border-primary/50 bg-background/95'
       })
-      toast.success('All other sessions revoked', {
-        description: 'Only your current device remains logged in'
+      return
+    }
+
+    if (window.confirm(`Revoke all ${otherSessions.length} other session(s)? All other devices will be logged out immediately.`)) {
+      setIsRevokingAll(true)
+      setRevokeCountdown(5)
+      
+      toast.loading('Revoking all sessions...', {
+        id: 'revoke-all',
+        className: 'border-primary/50 bg-background/95'
       })
+
+      try {
+        await settingsAPI.revokeAllSessions()
+        
+        setSessions((current) => {
+          if (!current) return []
+          return current.filter(s => s.isCurrent)
+        })
+        
+        toast.dismiss('revoke-all')
+        toast.success('✓ All sessions revoked', {
+          description: 'Only your current device remains logged in',
+          className: 'border-primary/50 bg-background/95',
+          duration: 5000
+        })
+      } catch (error) {
+        toast.dismiss('revoke-all')
+        toast.error('✗ Failed to revoke sessions')
+      } finally {
+        setIsRevokingAll(false)
+        setRevokeCountdown(0)
+      }
     }
   }
 
@@ -98,189 +267,158 @@ export default function DeviceManagement() {
     }
   }
 
-  const formatTimeAgo = (timestamp: number): string => {
-    const diff = Date.now() - timestamp
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
-
-    if (minutes < 1) return 'Just now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
-    return `${days}d ago`
+  const getTimeSince = (timestamp: number): string => {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000)
+    
+    if (seconds < 60) return 'Just now'
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+    if (seconds < 2592000) return `${Math.floor(seconds / 86400)}d ago`
+    return new Date(timestamp).toLocaleDateString()
   }
 
-  const getActivityStatus = (lastActive: number): 'active' | 'warning' | 'inactive' => {
-    const diff = Date.now() - lastActive
-    if (diff < 3600000) return 'active'
-    if (diff < 86400000) return 'warning'
-    return 'inactive'
-  }
+  const otherSessionsCount = sessions?.filter(s => !s.isCurrent).length || 0
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-3 jagged-corner bg-primary/20 border-2 border-primary">
-            <Desktop size={24} weight="duotone" className="text-primary" />
+    <div className="space-y-6">
+      <div className="cyber-card p-6">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <Shield size={32} weight="duotone" className="text-primary" />
+            <div>
+              <h2 className="text-2xl font-bold uppercase tracking-wide text-primary">Device Management</h2>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                Manage your active sessions • {sessions?.length || 0} device{(sessions?.length || 0) !== 1 ? 's' : ''}
+                {wsConnected ? (
+                  <span className="flex items-center gap-1 text-primary">
+                    <WifiHigh size={12} weight="fill" />
+                    Live
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <WifiSlash size={12} />
+                    Polling
+                  </span>
+                )}
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-bold uppercase tracking-wide">Device Management</h2>
-            <p className="text-sm text-muted-foreground">
-              Manage active sessions and connected devices
-            </p>
-          </div>
+          
+          {otherSessionsCount > 0 && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={revokeAllOther}
+              disabled={isRevokingAll || revokeCountdown > 0}
+              className="jagged-corner-small"
+            >
+              <Trash size={16} weight="duotone" className="mr-2" />
+              {isRevokingAll ? `Revoking... (${revokeCountdown}s)` : `Revoke All Others (${otherSessionsCount})`}
+            </Button>
+          )}
         </div>
-        <Button 
-          variant="destructive" 
-          size="sm"
-          onClick={revokeAllOther}
-          disabled={!sessions || sessions.length <= 1}
-        >
-          <Trash size={16} weight="duotone" className="mr-2" />
-          Revoke All Others
-        </Button>
-      </div>
 
-      <div className="cyber-card p-4 space-y-3">
-        <div className="flex items-center justify-between pb-3 border-b border-primary/30">
-          <div className="flex items-center gap-2">
-            <span className="data-label text-xs">ACTIVE_SESSIONS</span>
-            <span className="px-2 py-1 bg-primary/20 border border-primary/30 text-primary text-xs font-bold">
-              {sessions?.length || 0}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            <span>Live monitoring</span>
-          </div>
-        </div>
-
-        <ScrollArea className="h-[400px]">
-          <div className="space-y-3 pr-4">
-            {!sessions || sessions.length === 0 ? (
-              <div className="text-center py-12 space-y-3">
-                <div className="inline-flex p-4 bg-muted/20 border-2 border-muted/30 jagged-corner">
-                  <Desktop size={48} weight="duotone" className="text-muted-foreground" />
-                </div>
-                <p className="text-sm text-muted-foreground">No active sessions</p>
-              </div>
-            ) : (
+        <ScrollArea className="h-[600px] pr-4">
+          <div className="space-y-4">
+            {sessions && sessions.length > 0 ? (
               sessions.map((session, index) => {
                 const DeviceIcon = getDeviceIcon(session.deviceType)
-                const activityStatus = getActivityStatus(session.lastActive)
-                
+                const isLoading = isRevoking[session.id]
+
                 return (
                   <motion.div
                     key={session.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className={`p-4 border-2 transition-all relative overflow-hidden ${
-                      session.isCurrent
-                        ? 'bg-primary/10 border-primary hover:border-primary'
-                        : 'bg-background/60 border-primary/20 hover:border-primary/40'
+                    transition={{ delay: index * 0.1, duration: 0.3 }}
+                    className={`cyber-card p-5 relative overflow-hidden transition-all hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.2)] ${
+                      session.isCurrent ? 'border-primary/50 bg-primary/5' : 'border-muted/30'
                     }`}
                   >
                     {session.isCurrent && (
-                      <div className="absolute top-2 right-2">
-                        <div className="px-2 py-1 bg-primary/20 border border-primary/40 flex items-center gap-1">
-                          <CheckCircle size={12} weight="fill" className="text-primary" />
-                          <span className="text-[9px] font-bold text-primary uppercase tracking-wider">
-                            Current
-                          </span>
-                        </div>
+                      <div className="absolute top-4 right-4">
+                        <Badge className="bg-primary/20 border border-primary text-primary text-[9px] uppercase tracking-wider px-2 py-1 jagged-corner-small">
+                          <CheckCircle size={10} weight="fill" className="mr-1" />
+                          CURRENT
+                        </Badge>
                       </div>
                     )}
 
-                    <div className="flex gap-4">
-                      <div className={`p-3 border-2 jagged-corner ${
-                        activityStatus === 'active' 
-                          ? 'bg-primary/20 border-primary' 
-                          : activityStatus === 'warning'
-                          ? 'bg-accent/20 border-accent'
-                          : 'bg-muted/20 border-muted/30'
-                      }`}>
-                        <DeviceIcon 
-                          size={32} 
-                          weight="duotone" 
-                          className={
-                            activityStatus === 'active' 
-                              ? 'text-primary' 
-                              : activityStatus === 'warning'
-                              ? 'text-accent'
-                              : 'text-muted-foreground'
-                          }
-                        />
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 border-2 ${session.isCurrent ? 'border-primary bg-primary/10' : 'border-muted/30 bg-muted/10'}`}>
+                        <DeviceIcon size={28} weight="duotone" className={session.isCurrent ? 'text-primary' : 'text-muted-foreground'} />
                       </div>
 
-                      <div className="flex-1 space-y-2">
-                        <div>
-                          <h3 className="font-bold uppercase tracking-wide text-sm mb-1">
-                            {session.deviceName}
-                          </h3>
-                          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                            <span>{session.browser}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div>
+                            <h3 className="font-bold uppercase tracking-wide text-sm mb-1">{session.deviceName}</h3>
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Globe size={12} weight="duotone" />
+                                {session.browser}
+                              </span>
+                              <span>•</span>
+                              <span>{session.os}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                          <div className="p-3 bg-background/60 border border-primary/10">
+                            <div className="flex items-center gap-2 mb-1">
+                              <MapPin size={14} weight="duotone" className="text-primary" />
+                              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Location</span>
+                            </div>
+                            <p className="text-xs font-mono">{session.location}</p>
+                          </div>
+
+                          <div className="p-3 bg-background/60 border border-primary/10">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Shield size={14} weight="duotone" className="text-primary" />
+                              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">IP Address</span>
+                            </div>
+                            <p className="text-xs font-mono">{session.ip}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+                          <div className="flex items-center gap-4">
+                            <span className="flex items-center gap-1">
+                              <Clock size={12} weight="duotone" />
+                              Last active: <span className="font-bold text-primary">{getTimeSince(session.lastActive)}</span>
+                            </span>
                             <span>•</span>
-                            <span>{session.os}</span>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          <div className="flex items-center gap-2">
-                            <Globe size={14} weight="duotone" className="text-primary" />
-                            <span className="text-xs text-muted-foreground">
-                              IP: <span className="font-mono text-foreground">{session.ip}</span>
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin size={14} weight="duotone" className="text-primary" />
-                            <span className="text-xs text-muted-foreground">{session.location}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-primary/20">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                              Last Active:
-                            </span>
-                            <span className="text-xs font-bold text-primary">
-                              {formatTimeAgo(session.lastActive)}
-                            </span>
-                          </div>
-                          <div className="h-3 w-px bg-border" />
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                              Login:
-                            </span>
-                            <span className="text-xs font-mono text-foreground">
-                              {new Date(session.loginTime).toLocaleDateString([], { 
-                                month: 'short', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
+                            <span>
+                              Logged in: <span className="font-bold">{getTimeSince(session.loginTime)}</span>
                             </span>
                           </div>
                         </div>
-                      </div>
 
-                      {!session.isCurrent && (
-                        <div className="flex items-center">
+                        {!session.isCurrent && (
                           <Button
                             variant="destructive"
                             size="sm"
                             onClick={() => revokeSession(session.id)}
-                            className="h-auto"
+                            disabled={isLoading}
+                            className="w-full md:w-auto jagged-corner-small"
                           >
-                            <Trash size={16} weight="duotone" />
+                            <Trash size={14} weight="duotone" className="mr-2" />
+                            {isLoading ? 'Revoking...' : 'Revoke Session'}
                           </Button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 )
               })
+            ) : (
+              <div className="text-center py-12 space-y-3">
+                <div className="inline-flex p-4 bg-muted/20 border-2 border-muted/30 jagged-corner">
+                  <Shield size={48} weight="duotone" className="text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground">No active sessions</p>
+              </div>
             )}
           </div>
         </ScrollArea>
@@ -288,25 +426,25 @@ export default function DeviceManagement() {
 
       <div className="cyber-card-accent p-4">
         <div className="flex gap-3">
-          <WarningCircle size={20} weight="duotone" className="text-accent flex-shrink-0" />
+          <Shield size={20} weight="duotone" className="text-accent flex-shrink-0" />
           <div className="space-y-2 text-xs">
             <p className="font-bold uppercase tracking-wide">Security Recommendations</p>
-            <ul className="space-y-1 text-muted-foreground leading-relaxed">
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Review your active sessions regularly and revoke any unrecognized devices
+            <ul className="space-y-2 text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <div className="w-1 h-1 bg-accent rounded-full" />
+                Review your active sessions regularly for unauthorized access
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Enable Two-Factor Authentication for additional protection
+              <li className="flex items-center gap-2">
+                <div className="w-1 h-1 bg-accent rounded-full" />
+                Revoke sessions from unknown devices immediately
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                If you notice suspicious activity, revoke all sessions and change your password immediately
+              <li className="flex items-center gap-2">
+                <div className="w-1 h-1 bg-accent rounded-full" />
+                Use unique passwords and enable Two-Factor Authentication
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Use a secure network when accessing sensitive trading information
+              <li className="flex items-center gap-2">
+                <div className="w-1 h-1 bg-accent rounded-full" />
+                Session data updates in real-time every 5 seconds
               </li>
             </ul>
           </div>
