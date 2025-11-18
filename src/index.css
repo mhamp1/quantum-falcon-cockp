@@ -1282,5 +1282,433 @@
 }
 
 .animate-spin-slow {
-  animation: spin-slow linear infinite;
+  animation: spin-slow 20s linear infinite;
+}
+
+/* ===== CYBERPUNK 2025 BOT OVERVIEW ANIMATIONS ===== */
+
+/* Leaky Neon Drip Effect */
+@keyframes neon-drip {
+  0%, 90% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  95% {
+    clip-path: polygon(0 0, 100% 0, 100% 102%, 0 102%);
+  }
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 105%, 0 105%);
+  }
+}
+
+@keyframes neon-drip-drop {
+  0% {
+    transform: translateY(0) scaleY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(10px) scaleY(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(20px) scaleY(0.5);
+    opacity: 0;
+  }
+}
+
+/* Holographic Breathing Border */
+@keyframes holographic-breathe {
+  0%, 100% {
+    box-shadow: 
+      0 0 10px var(--primary),
+      0 0 20px var(--primary),
+      inset 0 0 10px oklch(0.72 0.20 195 / 0.2);
+    filter: brightness(0.8);
+  }
+  50% {
+    box-shadow: 
+      0 0 20px var(--primary),
+      0 0 40px var(--primary),
+      0 0 60px var(--primary),
+      inset 0 0 20px oklch(0.72 0.20 195 / 0.4);
+    filter: brightness(1.2);
+  }
+}
+
+/* Liquid Mercury Fill */
+@keyframes liquid-fill {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glitch Effect for Number Updates */
+@keyframes glitch-number {
+  0% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+    filter: hue-rotate(90deg);
+  }
+  40% {
+    transform: translate(2px, -2px);
+    filter: hue-rotate(-90deg);
+  }
+  60% {
+    transform: translate(-1px, -1px);
+    filter: hue-rotate(45deg);
+  }
+  80% {
+    transform: translate(1px, 1px);
+    filter: hue-rotate(-45deg);
+  }
+  100% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+}
+
+/* Electric Arc Animation */
+@keyframes electric-arc {
+  0%, 100% {
+    opacity: 0;
+    stroke-dashoffset: 100;
+  }
+  50% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Particle Trail */
+@keyframes particle-trail {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Pulse Ring */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+/* Scanline Flicker */
+@keyframes scanline-flicker {
+  0%, 100% {
+    opacity: 0.05;
+  }
+  50% {
+    opacity: 0.1;
+  }
+}
+
+/* Data Flow */
+@keyframes data-flow {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(200%);
+    opacity: 0;
+  }
+}
+
+/* Number Count Up Effect */
+@keyframes count-up-glow {
+  0% {
+    text-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor;
+  }
+  50% {
+    text-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor;
+  }
+  100% {
+    text-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor;
+  }
+}
+
+/* Screen Shake */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1px, 1px); }
+  20% { transform: translate(1px, -1px); }
+  30% { transform: translate(-1px, -1px); }
+  40% { transform: translate(1px, 1px); }
+  50% { transform: translate(-1px, 1px); }
+  60% { transform: translate(1px, -1px); }
+  70% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+  90% { transform: translate(-1px, -1px); }
+}
+
+/* Floating Code Particles */
+@keyframes float-particle {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100px) translateX(20px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Electric Crackle */
+@keyframes electric-crackle {
+  0%, 100% {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    opacity: 0.8;
+    filter: blur(0px);
+  }
+  20%, 40%, 60%, 80% {
+    opacity: 0;
+    filter: blur(1px);
+  }
+}
+
+/* CSS Classes for Bot Overview */
+.neon-drip {
+  position: relative;
+  animation: neon-drip 4s ease-in-out infinite;
+}
+
+.neon-drip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 4px;
+  height: 8px;
+  background: linear-gradient(180deg, currentColor, transparent);
+  animation: neon-drip-drop 2s ease-in-out infinite;
+  border-radius: 0 0 50% 50%;
+}
+
+.holographic-breathe {
+  animation: holographic-breathe 3s ease-in-out infinite;
+}
+
+.liquid-fill {
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    var(--secondary) 25%,
+    var(--accent) 50%,
+    var(--secondary) 75%,
+    var(--primary) 100%
+  );
+  background-size: 200% 100%;
+  animation: liquid-fill 3s ease-in-out infinite;
+}
+
+.glitch-update {
+  animation: glitch-number 0.3s ease-in-out;
+}
+
+.pulse-ring-effect {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+.scanline-effect {
+  position: relative;
+}
+
+.scanline-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    oklch(0.72 0.20 195 / 0.05) 2px,
+    oklch(0.72 0.20 195 / 0.05) 4px
+  );
+  animation: scanline-flicker 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.data-flow-animation {
+  animation: data-flow 3s ease-in-out infinite;
+}
+
+.count-up-animation {
+  animation: count-up-glow 0.5s ease-in-out;
+}
+
+.screen-shake-effect {
+  animation: screen-shake 0.5s ease-in-out;
+}
+
+.float-particle {
+  animation: float-particle 8s ease-in-out infinite;
+}
+
+.electric-crackle {
+  animation: electric-crackle 0.8s ease-in-out infinite;
+}
+
+/* Intense Neon Glow - 10x effect */
+.neon-glow-intense {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px currentColor,
+    0 0 20px currentColor,
+    0 0 30px currentColor,
+    0 0 40px currentColor,
+    0 0 60px currentColor,
+    0 0 80px currentColor;
+  -webkit-text-stroke: 1px currentColor;
+  text-stroke: 1px currentColor;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+/* Leaky Edge Effect */
+.leaky-edge {
+  position: relative;
+  filter: url(#leaky-filter);
+}
+
+/* God-tier pulsing stat numbers */
+.stat-number-godtier {
+  background: linear-gradient(135deg, 
+    var(--primary) 0%, 
+    var(--accent) 50%, 
+    var(--secondary) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 
+    0 0 10px var(--primary),
+    0 0 20px var(--accent),
+    0 0 30px var(--secondary);
+  filter: drop-shadow(0 0 5px var(--primary));
+  animation: holographic-breathe 2s ease-in-out infinite;
+}
+
+/* Dangerous Slider Zones */
+.slider-cautious {
+  background: linear-gradient(90deg, 
+    oklch(0.68 0.18 330 / 0.2) 0%,
+    oklch(0.68 0.18 330 / 0.4) 100%
+  );
+  border-color: var(--secondary);
+  box-shadow: 0 0 20px oklch(0.68 0.18 330 / 0.6);
+}
+
+.slider-moderate {
+  background: linear-gradient(90deg, 
+    oklch(0.68 0.18 330 / 0.3) 0%,
+    oklch(0.72 0.20 195 / 0.3) 100%
+  );
+  border-color: var(--accent);
+  box-shadow: 0 0 20px oklch(0.68 0.18 330 / 0.5);
+}
+
+.slider-aggressive {
+  background: linear-gradient(90deg, 
+    oklch(0.65 0.25 25 / 0.3) 0%,
+    oklch(0.65 0.25 25 / 0.5) 100%
+  );
+  border-color: var(--destructive);
+  box-shadow: 0 0 30px oklch(0.65 0.25 25 / 0.8);
+  animation: electric-crackle 0.8s ease-in-out infinite;
+}
+
+/* Nuclear Reactor Status */
+.nuclear-status {
+  position: relative;
+  box-shadow: 
+    0 0 10px var(--secondary),
+    0 0 20px var(--secondary),
+    inset 0 0 10px oklch(0.68 0.18 330 / 0.3);
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+.nuclear-status::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  border: 2px solid var(--secondary);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse-ring 2s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+/* 3D Holographic Card Depth */
+.holographic-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.holographic-3d:hover {
+  transform: rotateY(5deg) rotateX(5deg);
+}
+
+/* Circuit Traces */
+.circuit-trace {
+  position: absolute;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    var(--primary) 50%,
+    transparent 100%
+  );
+  height: 1px;
+  width: 100%;
+  animation: shimmer 3s ease-in-out infinite;
+  opacity: 0.3;
+}
 }

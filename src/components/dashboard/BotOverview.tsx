@@ -1,14 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword, Cube, Hexagon, Pentagon, Polygon } from '@phosphor-icons/react'
+import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword, Cube, Hexagon, Pentagon, Polygon, Activity, TrendUp, Database, Broadcast } from '@phosphor-icons/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
+import { motion, AnimatePresence } from 'framer-motion'
+import confetti from 'canvas-confetti'
 import Wireframe3D from '@/components/shared/Wireframe3D'
 import BotAggressionControl from './BotAggressionControl'
+import LiveActivityPanel from './LiveActivityPanel'
 
 type AggressionLevel = 'cautious' | 'moderate' | 'aggressive'
 
@@ -179,36 +182,215 @@ export default function BotOverview() {
     return <Warning size={16} weight="fill" className="text-destructive" />
   }
 
+  // Live updates simulation with glitch effect
+  const [lastProfit, setLastProfit] = useState(metrics?.totalProfit || 0)
+  const [glitchTrigger, setGlitchTrigger] = useState(false)
+  const [particles, setParticles] = useState<Array<{id: number, x: number, y: number}>>([])
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (metrics) {
+        const profitChange = Math.random() * 100
+        const newProfit = metrics.totalProfit + profitChange
+        
+        if (profitChange > 50) {
+          setGlitchTrigger(true)
+          setTimeout(() => setGlitchTrigger(false), 300)
+          
+          // Confetti on big profit
+          confetti({
+            particleCount: 30,
+            spread: 60,
+            origin: { y: 0.6 },
+            colors: ['#14F195', '#9945FF', '#DC1FFF']
+          })
+        }
+      }
+    }, 8000)
+    
+    return () => clearInterval(interval)
+  }, [metrics])
+
   if (!config || !metrics) return null
 
   return (
-    <div className="space-y-6">
-      <div className="cyber-card relative overflow-hidden">
+    <div className="space-y-6 relative">
+      {/* Floating Code Particles Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-primary/20 text-xs font-mono"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`
+            }}
+            animate={{
+              y: [0, -100],
+              opacity: [0, 0.3, 0],
+              rotate: [0, 360]
+            }}
+            transition={{
+              duration: 8 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 5
+            }}
+          >
+            {['01', '11', '10', '00'][Math.floor(Math.random() * 4)]}
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div 
+        className="cyber-card relative overflow-hidden"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
+        
+        {/* Animated Grid Background */}
+        <motion.div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: 'linear-gradient(var(--primary) 1px, transparent 1px), linear-gradient(90deg, var(--primary) 1px, transparent 1px)',
+            backgroundSize: '30px 30px'
+          }}
+          animate={{
+            backgroundPosition: ['0px 0px', '30px 30px']
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'linear'
+          }}
+        />
+        
         <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
           <Wireframe3D type="sphere" size={256} color="primary" animated={true} />
         </div>
+        
+        {/* Scanline Effect */}
+        <motion.div
+          className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-30 pointer-events-none"
+          animate={{
+            y: ['-100%', '200%']
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: 'linear'
+          }}
+        />
+        
         <div className="p-6 md:p-8 relative z-10">
           <div className="flex flex-col md:flex-row items-start gap-6">
-            <div className="flex-shrink-0">
-              <div className="p-6 jagged-corner bg-gradient-to-br from-secondary/20 to-accent/20 border-4 border-secondary shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.6)]">
-                <Robot size={64} weight="duotone" className="text-secondary" />
-              </div>
-            </div>
+            <motion.div 
+              className="flex-shrink-0"
+              whileHover={{ scale: 1.05, rotate: 2 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <motion.div 
+                className="p-6 jagged-corner bg-gradient-to-br from-secondary/20 to-accent/20 border-4 border-secondary relative overflow-hidden"
+                style={{
+                  boxShadow: '0 0 30px oklch(0.68 0.18 330 / 0.6), 0 0 60px oklch(0.68 0.18 330 / 0.3)'
+                }}
+                animate={{
+                  boxShadow: [
+                    '0 0 30px oklch(0.68 0.18 330 / 0.6), 0 0 60px oklch(0.68 0.18 330 / 0.3)',
+                    '0 0 40px oklch(0.68 0.18 330 / 0.8), 0 0 80px oklch(0.68 0.18 330 / 0.5)',
+                    '0 0 30px oklch(0.68 0.18 330 / 0.6), 0 0 60px oklch(0.68 0.18 330 / 0.3)'
+                  ]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: 'easeInOut'
+                }}
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-transparent to-accent/30"
+                  animate={{
+                    rotate: 360
+                  }}
+                  transition={{
+                    duration: 10,
+                    repeat: Infinity,
+                    ease: 'linear'
+                  }}
+                />
+                <Robot size={64} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 10px var(--secondary))' }} />
+              </motion.div>
+            </motion.div>
             <div className="flex-1 space-y-4">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-3xl md:text-4xl font-bold tracking-[0.2em] uppercase">
-                    <span className="text-secondary neon-glow-secondary">MULTI-AGENT</span>
-                    <span className="text-primary neon-glow-primary ml-2">SYSTEM</span>
-                  </h2>
-                  <div className="px-3 py-1 jagged-corner-small bg-secondary/20 border border-secondary">
+                  <motion.h2 
+                    className="text-3xl md:text-5xl font-bold tracking-[0.2em] uppercase relative"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <motion.span 
+                      className="text-secondary relative inline-block neon-drip"
+                      style={{
+                        textShadow: '0 0 10px var(--secondary), 0 0 20px var(--secondary), 0 0 40px var(--secondary), 0 0 60px var(--secondary), 0 0 80px var(--secondary)',
+                        WebkitTextStroke: '1px var(--secondary)',
+                        filter: 'drop-shadow(0 0 10px var(--secondary))'
+                      }}
+                      animate={{
+                        textShadow: [
+                          '0 0 10px var(--secondary), 0 0 20px var(--secondary), 0 0 40px var(--secondary)',
+                          '0 0 20px var(--secondary), 0 0 40px var(--secondary), 0 0 80px var(--secondary)',
+                          '0 0 10px var(--secondary), 0 0 20px var(--secondary), 0 0 40px var(--secondary)'
+                        ]
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: 'easeInOut'
+                      }}
+                    >
+                      MULTI-AGENT
+                    </motion.span>
+                    <motion.span 
+                      className="text-primary neon-drip ml-2 relative inline-block"
+                      style={{
+                        textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary), 0 0 60px var(--primary), 0 0 80px var(--primary)',
+                        WebkitTextStroke: '1px var(--primary)',
+                        filter: 'drop-shadow(0 0 10px var(--primary))'
+                      }}
+                      animate={{
+                        textShadow: [
+                          '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)',
+                          '0 0 20px var(--primary), 0 0 40px var(--primary), 0 0 80px var(--primary)',
+                          '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)'
+                        ]
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                        delay: 0.3
+                      }}
+                    >
+                      SYSTEM
+                    </motion.span>
+                  </motion.h2>
+                  <motion.div 
+                    className="px-3 py-1 jagged-corner-small bg-secondary/20 border border-secondary holographic-breathe"
+                    whileHover={{ scale: 1.1 }}
+                  >
                     <span className="text-xs font-bold text-secondary uppercase tracking-[0.15em]">BOT OVERVIEW</span>
-                  </div>
+                  </motion.div>
                 </div>
-                <p className="text-sm uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+                <motion.p 
+                  className="text-sm uppercase tracking-[0.15em] text-muted-foreground font-semibold scanline-effect"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
                   AUTONOMOUS AI TRADING ARCHITECTURE // REAL-TIME MARKET INTELLIGENCE
-                </p>
+                </motion.p>
               </div>
               
               <p className="text-base leading-relaxed text-foreground">
@@ -247,79 +429,343 @@ export default function BotOverview() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="cyber-card group hover:scale-105 transition-all">
+        <motion.div 
+          className="cyber-card group relative overflow-hidden"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          whileHover={{ scale: 1.05, y: -5 }}
+        >
+          {/* Pulse Ring Effect */}
+          <motion.div
+            className="absolute inset-0 border-2 border-secondary rounded-lg"
+            animate={{
+              scale: [1, 1.05, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          
           <div className="p-4 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold">System Uptime</p>
-              <div className="p-2 border-2 angled-corner-tr bg-secondary/5 border-secondary relative overflow-hidden">
+              <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold scanline-effect">System Uptime</p>
+              <motion.div 
+                className="p-2 border-2 angled-corner-tr bg-secondary/5 border-secondary relative overflow-hidden"
+                animate={{
+                  boxShadow: [
+                    '0 0 10px var(--secondary)',
+                    '0 0 20px var(--secondary)',
+                    '0 0 10px var(--secondary)'
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
                 <div className="absolute inset-0 bg-secondary opacity-5" />
-                <Cube size={16} weight="duotone" className="text-secondary relative z-10" />
-              </div>
+                <Cube size={16} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 5px var(--secondary))' }} />
+              </motion.div>
             </div>
-            <p className="text-4xl font-bold text-secondary neon-glow-secondary hud-value">{metrics.uptime}%</p>
+            <motion.p 
+              className="text-4xl font-bold text-secondary neon-glow-intense hud-value"
+              animate={{
+                textShadow: [
+                  '0 0 10px var(--secondary), 0 0 20px var(--secondary)',
+                  '0 0 20px var(--secondary), 0 0 40px var(--secondary)',
+                  '0 0 10px var(--secondary), 0 0 20px var(--secondary)'
+                ]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              {metrics.uptime}%
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="cyber-card group hover:scale-105 transition-all">
+        <motion.div 
+          className="cyber-card group relative overflow-hidden"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          whileHover={{ scale: 1.05, y: -5 }}
+        >
+          <motion.div
+            className="absolute inset-0 border-2 border-primary rounded-lg"
+            animate={{
+              scale: [1, 1.05, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+          />
+          
           <div className="p-4 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold">Total Trades</p>
-              <div className="p-2 border-2 cut-corner-tr bg-primary/5 border-primary relative overflow-hidden">
+              <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold scanline-effect">Total Trades</p>
+              <motion.div 
+                className="p-2 border-2 cut-corner-tr bg-primary/5 border-primary relative overflow-hidden"
+                animate={{
+                  boxShadow: [
+                    '0 0 10px var(--primary)',
+                    '0 0 20px var(--primary)',
+                    '0 0 10px var(--primary)'
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
                 <div className="absolute inset-0 bg-primary opacity-5" />
-                <Hexagon size={16} weight="duotone" className="text-primary relative z-10" />
-              </div>
+                <Hexagon size={16} weight="duotone" className="text-primary relative z-10" style={{ filter: 'drop-shadow(0 0 5px var(--primary))' }} />
+              </motion.div>
             </div>
-            <p className="text-4xl font-bold text-primary neon-glow-primary hud-value">{metrics.totalTrades.toLocaleString()}</p>
+            <motion.p 
+              className="text-4xl font-bold text-primary neon-glow-intense hud-value glitch-update"
+              key={metrics.totalTrades}
+              animate={{
+                textShadow: [
+                  '0 0 10px var(--primary), 0 0 20px var(--primary)',
+                  '0 0 20px var(--primary), 0 0 40px var(--primary)',
+                  '0 0 10px var(--primary), 0 0 20px var(--primary)'
+                ]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              {metrics.totalTrades.toLocaleString()}
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="cyber-card group hover:scale-105 transition-all">
+        <motion.div 
+          className="cyber-card group relative overflow-hidden"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          whileHover={{ scale: 1.05, y: -5 }}
+        >
+          <motion.div
+            className="absolute inset-0 border-2 border-secondary rounded-lg"
+            animate={{
+              scale: [1, 1.05, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+          />
+          
           <div className="p-4 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold">Success Rate</p>
-              <div className="p-2 border-2 angled-corner-br bg-secondary/5 border-secondary relative overflow-hidden">
+              <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold scanline-effect">Success Rate</p>
+              <motion.div 
+                className="p-2 border-2 angled-corner-br bg-secondary/5 border-secondary relative overflow-hidden"
+                animate={{
+                  boxShadow: [
+                    '0 0 10px var(--secondary)',
+                    '0 0 20px var(--secondary)',
+                    '0 0 10px var(--secondary)'
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
                 <div className="absolute inset-0 bg-secondary opacity-5" />
-                <Pentagon size={16} weight="duotone" className="text-secondary relative z-10" />
-              </div>
+                <Pentagon size={16} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 5px var(--secondary))' }} />
+              </motion.div>
             </div>
-            <p className="text-4xl font-bold text-secondary neon-glow-secondary hud-value">{metrics.successRate}%</p>
+            <motion.p 
+              className="text-4xl font-bold text-secondary neon-glow-intense hud-value"
+              animate={{
+                textShadow: [
+                  '0 0 10px var(--secondary), 0 0 20px var(--secondary)',
+                  '0 0 20px var(--secondary), 0 0 40px var(--secondary)',
+                  '0 0 10px var(--secondary), 0 0 20px var(--secondary)'
+                ]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              {metrics.successRate}%
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="cyber-card-accent group hover:scale-105 transition-all">
+        <motion.div 
+          className="cyber-card-accent group relative overflow-hidden"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          whileHover={{ scale: 1.05, y: -5 }}
+        >
+          <motion.div
+            className="absolute inset-0 border-2 border-accent rounded-lg"
+            animate={{
+              scale: [1, 1.05, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
+          />
+          
+          {/* Particle Burst on Update */}
+          <AnimatePresence>
+            {glitchTrigger && (
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                {[...Array(10)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 rounded-full bg-accent"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                      boxShadow: '0 0 10px var(--accent)'
+                    }}
+                    initial={{ scale: 0, x: 0, y: 0 }}
+                    animate={{
+                      scale: [0, 1, 0],
+                      x: (Math.random() - 0.5) * 100,
+                      y: (Math.random() - 0.5) * 100,
+                      opacity: [1, 0]
+                    }}
+                    transition={{ duration: 1 }}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
           <div className="p-4 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold">Total Profit</p>
-              <div className="p-2 border-2 cut-corner-br bg-accent/10 border-accent relative overflow-hidden">
+              <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold scanline-effect">Total Profit</p>
+              <motion.div 
+                className="p-2 border-2 cut-corner-br bg-accent/10 border-accent relative overflow-hidden"
+                animate={{
+                  boxShadow: [
+                    '0 0 10px var(--accent)',
+                    '0 0 20px var(--accent)',
+                    '0 0 10px var(--accent)'
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
                 <div className="absolute inset-0 bg-accent opacity-5" />
-                <Polygon size={16} weight="fill" className="text-accent relative z-10" />
-              </div>
+                <Polygon size={16} weight="fill" className="text-accent relative z-10" style={{ filter: 'drop-shadow(0 0 5px var(--accent))' }} />
+              </motion.div>
             </div>
-            <p className="text-4xl font-bold text-accent neon-glow-accent hud-value">${metrics.totalProfit.toFixed(0)}</p>
+            <motion.p 
+              className="text-4xl font-bold text-accent neon-glow-intense hud-value stat-number-godtier"
+              key={metrics.totalProfit}
+              animate={{
+                textShadow: [
+                  '0 0 10px var(--accent), 0 0 20px var(--accent)',
+                  '0 0 20px var(--accent), 0 0 40px var(--accent), 0 0 60px var(--accent)',
+                  '0 0 10px var(--accent), 0 0 20px var(--accent)'
+                ]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              ${metrics.totalProfit.toFixed(0)}
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <BotAggressionControl />
 
-      <div className="cyber-card scan-line-effect">
+      <motion.div 
+        className="cyber-card scan-line-effect relative overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+      >
+        {/* Circuit Traces Background */}
+        <div className="absolute inset-0 pointer-events-none opacity-20">
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute h-px left-0 right-0 circuit-trace"
+              style={{
+                top: `${15 + i * 15}%`,
+                background: 'linear-gradient(90deg, transparent, var(--primary), transparent)'
+              }}
+              animate={{
+                opacity: [0.2, 0.6, 0.2],
+                scaleX: [0.8, 1, 0.8]
+              }}
+              transition={{
+                duration: 3,
+                delay: i * 0.3,
+                repeat: Infinity
+              }}
+            />
+          ))}
+        </div>
+        
         <div className="p-6 relative z-10">
-          <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout mb-6">SYSTEM_STATUS</h3>
+          <motion.h3 
+            className="text-xl font-bold uppercase tracking-[0.2em] hud-readout mb-6 neon-glow-intense"
+            animate={{
+              textShadow: [
+                '0 0 10px var(--primary)',
+                '0 0 20px var(--primary), 0 0 40px var(--primary)',
+                '0 0 10px var(--primary)'
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            SYSTEM_STATUS // NUCLEAR_REACTOR
+          </motion.h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.entries(systemStatus).map(([key, value]) => (
-              <div key={key} className="p-4 bg-muted/30 border-l-2 border-primary hover:bg-muted/50 transition-all">
+            {Object.entries(systemStatus).map(([key, value], index) => (
+              <motion.div 
+                key={key} 
+                className="p-4 bg-muted/30 border-l-2 border-primary hover:bg-muted/50 transition-all relative overflow-hidden nuclear-status"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: '0 0 30px var(--secondary), 0 0 60px var(--secondary)'
+                }}
+              >
+                {/* Animated Status Dot */}
+                <motion.div
+                  className="absolute top-2 right-2 w-3 h-3 rounded-full"
+                  style={{
+                    backgroundColor: value === 'online' || value === 'connected' || value === 'operational' || value === 'active' ? 'var(--secondary)' : 'var(--destructive)',
+                    boxShadow: `0 0 15px ${value === 'online' || value === 'connected' || value === 'operational' || value === 'active' ? 'var(--secondary)' : 'var(--destructive)'}`
+                  }}
+                  animate={{
+                    scale: [1, 1.5, 1],
+                    opacity: [1, 0.6, 1]
+                  }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs uppercase tracking-wide font-bold text-muted-foreground">{key.replace(/([A-Z])/g, '_$1').toUpperCase()}</p>
-                  {getStatusIcon(value)}
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    {getStatusIcon(value)}
+                  </motion.div>
                 </div>
-                <p className={`text-lg font-bold uppercase tracking-wide ${getStatusColor(value)} hud-value`}>
+                <motion.p 
+                  className={`text-lg font-bold uppercase tracking-wide ${getStatusColor(value)} hud-value neon-glow-intense`}
+                  animate={{
+                    textShadow: [
+                      '0 0 5px currentColor',
+                      '0 0 15px currentColor, 0 0 30px currentColor',
+                      '0 0 5px currentColor'
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                >
                   {value.toUpperCase()}
-                </p>
-              </div>
+                </motion.p>
+              </motion.div>
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
         <TabsList className="w-full justify-start h-auto p-0 bg-transparent gap-1 border-b-2 border-primary/30">
@@ -806,6 +1252,15 @@ export default function BotOverview() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Live Activity Panel - Real-Time Chaos */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
+      >
+        <LiveActivityPanel />
+      </motion.div>
     </div>
   )
 }
