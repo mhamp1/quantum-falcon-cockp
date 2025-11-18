@@ -14,8 +14,12 @@ import {
   Code,
   Vault,
   Users,
-  Robot
+  Robot,
+  Crown
 } from '@phosphor-icons/react';
+import { PulsingQLoader } from '@/components/shared/ShimmerCard';
+import DebugHelper from '@/components/shared/DebugHelper';
+import AIBotAssistant from '@/components/shared/AIBotAssistant';
 
 // Lazy load all heavy components (code-splitting = instant startup)
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
@@ -49,16 +53,7 @@ interface Tab {
 }
 
 function LoadingFallback() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <div className="text-6xl animate-pulse">⚡</div>
-        <p className="text-muted-foreground uppercase tracking-wider text-sm">
-          Initializing Quantum Core...
-        </p>
-      </div>
-    </div>
-  );
+  return <PulsingQLoader />;
 }
 
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
@@ -228,16 +223,27 @@ export default function App() {
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
       <div className={cn('min-h-screen bg-background text-foreground flex', isMobile && 'flex-col')}>
+        {/* Debug Helper (Ctrl+Shift+D) */}
+        <DebugHelper />
+        
+        {/* AI Bot Assistant (bottom-right) */}
+        <AIBotAssistant />
+        
         {/* Desktop Left Sidebar Navigation */}
         {!isMobile && (
           <div className="fixed left-0 top-0 bottom-0 w-[240px] bg-card/95 backdrop-blur border-r border-primary/30 z-50 flex flex-col">
-            {/* Header */}
+            {/* Header with Solana-purple logo and scanline effect */}
             <div className="p-6 border-b border-primary/30">
-              <h1 className="text-2xl font-bold text-primary neon-glow tracking-tight mb-1">
-                QUANTUM<br />FALCON
-              </h1>
-              <p className="text-xs text-primary uppercase tracking-widest flex items-center gap-2">
-                <span className="w-2 h-2 bg-primary rounded-full animate-pulse-glow"></span>
+              <div className="scanline-effect mb-2">
+                <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ 
+                  color: '#9945FF',
+                  textShadow: '0 0 10px rgba(153, 69, 255, 0.8), 0 0 20px rgba(153, 69, 255, 0.4)'
+                }}>
+                  QUANTUM<br />FALCON
+                </h1>
+              </div>
+              <p className="text-xs uppercase tracking-widest flex items-center gap-2" style={{ color: '#9945FF' }}>
+                <span className="w-2 h-2 rounded-full animate-pulse-glow" style={{ backgroundColor: '#9945FF' }}></span>
                 SYSTEM_ONLINE
               </p>
             </div>
@@ -249,9 +255,9 @@ export default function App() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-4 py-3 transition-all text-left uppercase tracking-wider text-xs font-semibold",
+                    "w-full flex items-center gap-3 px-4 py-3 transition-all text-left uppercase tracking-wider text-xs font-semibold rounded-lg",
                     activeTab === tab.id
-                      ? "bg-primary/20 text-primary border-l-2 border-primary"
+                      ? "bg-primary/20 text-primary shadow-[0_0_15px_rgba(0,255,255,0.3)] border-l-2 border-primary"
                       : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                   )}
                 >
@@ -261,10 +267,16 @@ export default function App() {
               ))}
             </nav>
 
-            {/* Footer */}
-            <div className="p-4 border-t border-primary/30">
-              <p className="text-xs text-muted-foreground text-center">
-                v2025.1.0
+            {/* Footer with version and tier */}
+            <div className="p-4 border-t border-primary/30 space-y-2">
+              <div className="flex items-center justify-center gap-2">
+                <Crown size={14} weight="fill" className="text-accent" />
+                <span className="text-xs text-accent font-bold uppercase">
+                  {auth.license?.tier || 'FREE'} TIER
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground text-center font-mono">
+                v2025.1.0 • Production
               </p>
             </div>
           </div>
