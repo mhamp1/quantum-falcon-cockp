@@ -9,6 +9,12 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { 
   Brain, Lightning, ChartLine, Target, Robot, TrendUp, 
   ArrowsClockwise, Play, Pause, Stop, Lock, Crown, 
@@ -62,7 +68,7 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
   {
     id: 'rsi-mean-reversion',
     name: 'RSI Mean Reversion',
-    description: 'Buy oversold conditions (RSI < 30), sell overbought (RSI > 70)',
+    description: 'Exploits market inefficiencies when RSI indicates oversold (<30) or overbought (>70) conditions. Enters counter-trend positions expecting price to revert to mean. Optimal for range-bound markets with clear support/resistance levels.',
     category: 'mean-reversion',
     requiredTier: 'starter',
     icon: ChartLine,
@@ -70,16 +76,16 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
     expectedReturn: '5-15% monthly',
     timeframe: '4h-1d',
     parameters: [
-      { name: 'rsiPeriod', type: 'number', default: 14, min: 7, max: 28, description: 'RSI calculation period' },
-      { name: 'oversoldThreshold', type: 'number', default: 30, min: 20, max: 40, description: 'Buy below this RSI' },
-      { name: 'overboughtThreshold', type: 'number', default: 70, min: 60, max: 80, description: 'Sell above this RSI' },
-      { name: 'positionSize', type: 'number', default: 10, min: 1, max: 100, description: 'Position size %' }
+      { name: 'rsiPeriod', type: 'number', default: 14, min: 7, max: 28, description: 'RSI lookback period - shorter periods (7-10) for scalping, longer (21-28) for position trading' },
+      { name: 'oversoldThreshold', type: 'number', default: 30, min: 20, max: 40, description: 'Buy signal threshold - lower values reduce false signals but miss opportunities' },
+      { name: 'overboughtThreshold', type: 'number', default: 70, min: 60, max: 80, description: 'Sell signal threshold - higher values improve accuracy in strong trends' },
+      { name: 'positionSize', type: 'number', default: 10, min: 1, max: 100, description: 'Capital allocation per trade - conservative 5-10%, aggressive 15-25%' }
     ]
   },
   {
     id: 'macd-momentum',
     name: 'MACD Momentum',
-    description: 'Trend-following strategy using MACD crossovers',
+    description: 'Professional trend-following using MACD line/signal crossovers with histogram confirmation. Enters on bullish crossover (MACD crosses above signal), exits on bearish crossover. Filters trades using histogram strength to avoid choppy markets.',
     category: 'momentum',
     requiredTier: 'trader',
     icon: TrendUp,
@@ -87,16 +93,16 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
     expectedReturn: '10-25% monthly',
     timeframe: '1h-4h',
     parameters: [
-      { name: 'fastPeriod', type: 'number', default: 12, min: 8, max: 16, description: 'Fast EMA period' },
-      { name: 'slowPeriod', type: 'number', default: 26, min: 20, max: 32, description: 'Slow EMA period' },
-      { name: 'signalPeriod', type: 'number', default: 9, min: 7, max: 12, description: 'Signal line period' },
-      { name: 'positionSize', type: 'number', default: 15, min: 1, max: 100, description: 'Position size %' }
+      { name: 'fastPeriod', type: 'number', default: 12, min: 8, max: 16, description: 'Fast EMA period - shorter values increase sensitivity but add noise' },
+      { name: 'slowPeriod', type: 'number', default: 26, min: 20, max: 32, description: 'Slow EMA period - longer values smooth trends but lag entry timing' },
+      { name: 'signalPeriod', type: 'number', default: 9, min: 7, max: 12, description: 'Signal line smoothing - lower values provide earlier signals with more false positives' },
+      { name: 'positionSize', type: 'number', default: 15, min: 1, max: 100, description: 'Position size % - scale up in confirmed trends, down in uncertainty' }
     ]
   },
   {
     id: 'bollinger-breakout',
     name: 'Bollinger Breakout',
-    description: 'Trade breakouts from Bollinger Band squeezes',
+    description: 'Identifies volatility compression (squeeze) when bands narrow, then trades explosive breakouts. Enters aggressively when price breaks band with volume confirmation. Uses ATR for dynamic stop-loss placement. Best for highly volatile assets.',
     category: 'breakout',
     requiredTier: 'pro',
     icon: Lightning,
@@ -104,16 +110,16 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
     expectedReturn: '15-40% monthly',
     timeframe: '15m-1h',
     parameters: [
-      { name: 'period', type: 'number', default: 20, min: 10, max: 30, description: 'Moving average period' },
-      { name: 'stdDev', type: 'number', default: 2, min: 1, max: 3, description: 'Standard deviations' },
-      { name: 'squeezeThreshold', type: 'number', default: 0.05, min: 0.01, max: 0.1, description: 'Squeeze detection %' },
-      { name: 'positionSize', type: 'number', default: 20, min: 1, max: 100, description: 'Position size %' }
+      { name: 'period', type: 'number', default: 20, min: 10, max: 30, description: 'MA period - 20 is standard, shorter for day trading, longer for swing trading' },
+      { name: 'stdDev', type: 'number', default: 2, min: 1, max: 3, description: 'Standard deviation multiplier - 2.0 captures 95% of price action, 2.5-3.0 for extreme breakouts' },
+      { name: 'squeezeThreshold', type: 'number', default: 0.05, min: 0.01, max: 0.1, description: 'Band width threshold for squeeze detection - lower values = tighter squeeze = bigger breakout' },
+      { name: 'positionSize', type: 'number', default: 20, min: 1, max: 100, description: 'Breakout position size - high conviction trades warrant 20-30%' }
     ]
   },
   {
     id: 'arbitrage-scanner',
     name: 'Cross-Exchange Arbitrage',
-    description: 'Detect and exploit price differences across exchanges',
+    description: 'Scans multiple exchanges simultaneously for price discrepancies. Executes paired trades (buy low/sell high) across venues within milliseconds. Accounts for trading fees, slippage, and transfer time. Requires fast execution and significant capital.',
     category: 'arbitrage',
     requiredTier: 'elite',
     icon: ArrowsClockwise,
@@ -121,16 +127,16 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
     expectedReturn: '20-50% monthly',
     timeframe: 'Real-time',
     parameters: [
-      { name: 'minSpread', type: 'number', default: 0.5, min: 0.1, max: 2, description: 'Minimum profit spread %' },
-      { name: 'maxSlippage', type: 'number', default: 0.3, min: 0.1, max: 1, description: 'Max acceptable slippage %' },
-      { name: 'positionSize', type: 'number', default: 25, min: 1, max: 100, description: 'Position size %' },
-      { name: 'autoExecute', type: 'boolean', default: true, description: 'Auto-execute opportunities' }
+      { name: 'minSpread', type: 'number', default: 0.5, min: 0.1, max: 2, description: 'Minimum profit spread % after fees - lower captures more opportunities but thinner margins' },
+      { name: 'maxSlippage', type: 'number', default: 0.3, min: 0.1, max: 1, description: 'Maximum acceptable slippage % - tighter limits reduce risk but decrease fill rate' },
+      { name: 'positionSize', type: 'number', default: 25, min: 1, max: 100, description: 'Capital per arbitrage opportunity - larger positions maximize profits but increase execution risk' },
+      { name: 'autoExecute', type: 'boolean', default: true, description: 'Automatic execution on detected opportunities - manual mode for verification' }
     ]
   },
   {
     id: 'ml-predictor',
     name: 'AI Price Predictor',
-    description: 'Machine learning model predicts price movements',
+    description: 'Machine learning LSTM neural network trained on 100+ technical indicators, order book depth, and historical patterns. Predicts next 1-12 hour price movement with confidence score. Only trades high-confidence signals (>75%). Self-optimizes via reinforcement learning.',
     category: 'custom',
     requiredTier: 'elite',
     icon: Brain,
@@ -138,16 +144,16 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
     expectedReturn: '25-60% monthly',
     timeframe: '5m-1h',
     parameters: [
-      { name: 'confidence', type: 'number', default: 75, min: 60, max: 95, description: 'Min prediction confidence %' },
-      { name: 'lookback', type: 'number', default: 100, min: 50, max: 200, description: 'Historical bars to analyze' },
-      { name: 'positionSize', type: 'number', default: 30, min: 1, max: 100, description: 'Position size %' },
-      { name: 'riskReward', type: 'number', default: 2, min: 1, max: 5, description: 'Risk/reward ratio' }
+      { name: 'confidence', type: 'number', default: 75, min: 60, max: 95, description: 'Minimum prediction confidence % - higher threshold means fewer but higher quality trades' },
+      { name: 'lookback', type: 'number', default: 100, min: 50, max: 200, description: 'Historical candles for analysis - more data improves accuracy but increases computation time' },
+      { name: 'positionSize', type: 'number', default: 30, min: 1, max: 100, description: 'AI trade position size - scale with confidence level for optimal risk management' },
+      { name: 'riskReward', type: 'number', default: 2, min: 1, max: 5, description: 'Target risk/reward ratio - 2:1 minimum, 3:1+ for conservative approach' }
     ]
   },
   {
     id: 'grid-trading',
     name: 'Grid Trading Bot',
-    description: 'Place buy/sell orders at regular intervals in a range',
+    description: 'Places buy orders at regular price intervals below current price, sell orders above. Profits from oscillation within defined range. Ideal for sideways markets and high-volatility pairs. Automatically rebalances grid as price moves.',
     category: 'mean-reversion',
     requiredTier: 'trader',
     icon: Target,
@@ -155,16 +161,16 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
     expectedReturn: '8-20% monthly',
     timeframe: 'Range-bound',
     parameters: [
-      { name: 'gridLevels', type: 'number', default: 10, min: 5, max: 20, description: 'Number of grid levels' },
-      { name: 'rangeTop', type: 'number', default: 50000, min: 1000, max: 100000, description: 'Upper price range' },
-      { name: 'rangeBottom', type: 'number', default: 40000, min: 1000, max: 100000, description: 'Lower price range' },
-      { name: 'orderSize', type: 'number', default: 5, min: 1, max: 50, description: 'Order size %' }
+      { name: 'gridLevels', type: 'number', default: 10, min: 5, max: 20, description: 'Number of grid orders - more levels = more trades but smaller profits per trade' },
+      { name: 'rangeTop', type: 'number', default: 50000, min: 1000, max: 100000, description: 'Upper price boundary - set just below resistance level' },
+      { name: 'rangeBottom', type: 'number', default: 40000, min: 1000, max: 100000, description: 'Lower price boundary - set just above support level' },
+      { name: 'orderSize', type: 'number', default: 5, min: 1, max: 50, description: 'Size per grid order % - divide capital evenly across all grid levels' }
     ]
   },
   {
     id: 'scalping-bot',
     name: 'High-Frequency Scalper',
-    description: 'Rapid-fire trades capturing small price movements',
+    description: 'Ultra-fast execution targeting micro price movements (0.1-0.5%). Uses Level 2 order book data and sub-second candles. Requires low latency connection and high win rate. Executes 50-200+ trades daily. Not for beginners.',
     category: 'momentum',
     requiredTier: 'pro',
     icon: Rocket,
@@ -172,10 +178,10 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
     expectedReturn: '30-70% monthly',
     timeframe: '1m-5m',
     parameters: [
-      { name: 'targetProfit', type: 'number', default: 0.5, min: 0.1, max: 2, description: 'Target profit %' },
-      { name: 'stopLoss', type: 'number', default: 0.3, min: 0.1, max: 1, description: 'Stop loss %' },
-      { name: 'maxTrades', type: 'number', default: 100, min: 10, max: 500, description: 'Max trades per day' },
-      { name: 'positionSize', type: 'number', default: 10, min: 1, max: 50, description: 'Position size %' }
+      { name: 'targetProfit', type: 'number', default: 0.5, min: 0.1, max: 2, description: 'Target profit % per trade - lower targets increase win rate but require more trades' },
+      { name: 'stopLoss', type: 'number', default: 0.3, min: 0.1, max: 1, description: 'Stop loss % - tight stops essential for scalping to preserve capital' },
+      { name: 'maxTrades', type: 'number', default: 100, min: 10, max: 500, description: 'Maximum daily trades - prevents overtrading and manages exchange fees' },
+      { name: 'positionSize', type: 'number', default: 10, min: 1, max: 50, description: 'Position size % - keep small due to high frequency, compound profits' }
     ]
   }
 ]
@@ -372,93 +378,143 @@ export default function AdvancedTradingStrategies() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredStrategies.map((strategy) => {
-              const hasAccess = canAccessFeature(userTier, strategy.requiredTier)
-              const Icon = strategy.icon
-              
-              return (
-                <motion.div
-                  key={strategy.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Card className={cn(
-                    "cyber-card p-5 relative overflow-hidden transition-all hover:scale-[1.02]",
-                    !hasAccess && "opacity-60"
-                  )}>
-                    {!hasAccess && (
-                      <div className="absolute top-3 right-3 z-10">
-                        <Lock size={20} className="text-destructive" weight="duotone" />
-                      </div>
-                    )}
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-primary/20 border border-primary/30">
-                            <Icon size={24} className="text-primary" weight="duotone" />
-                          </div>
-                          <div>
-                            <h3 className="font-bold uppercase text-sm tracking-wider">
-                              {strategy.name}
-                            </h3>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {strategy.timeframe}
+            <TooltipProvider delayDuration={200}>
+              {filteredStrategies.map((strategy) => {
+                const hasAccess = canAccessFeature(userTier, strategy.requiredTier)
+                const Icon = strategy.icon
+                
+                return (
+                  <motion.div
+                    key={strategy.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Card className={cn(
+                          "cyber-card p-5 relative overflow-hidden transition-all hover:scale-[1.02] cursor-pointer",
+                          !hasAccess && "opacity-60"
+                        )}>
+                          {!hasAccess && (
+                            <div className="absolute top-3 right-3 z-10">
+                              <Lock size={20} className="text-destructive" weight="duotone" />
+                            </div>
+                          )}
+                          
+                          <div className="space-y-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-primary/20 border border-primary/30">
+                                  <Icon size={24} className="text-primary" weight="duotone" />
+                                </div>
+                                <div>
+                                  <h3 className="font-bold uppercase text-sm tracking-wider">
+                                    {strategy.name}
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    {strategy.timeframe}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                              {strategy.description}
                             </p>
+
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge className={cn("text-xs uppercase", getRiskBadgeClass(strategy.riskLevel))}>
+                                {strategy.riskLevel} Risk
+                              </Badge>
+                              <Badge variant="outline" className="text-xs uppercase">
+                                {strategy.category}
+                              </Badge>
+                              {!hasAccess && (
+                                <Badge variant="outline" className="text-xs uppercase border-destructive/30 text-destructive">
+                                  <Crown size={12} className="mr-1" />
+                                  {LICENSE_TIERS[strategy.requiredTier].name}
+                                </Badge>
+                              )}
+                            </div>
+
+                            <div className="space-y-2 pt-2 border-t border-primary/20">
+                              <div className="flex justify-between text-xs">
+                                <span className="text-muted-foreground uppercase tracking-wider">Expected Return</span>
+                                <span className="text-primary font-bold">{strategy.expectedReturn}</span>
+                              </div>
+                            </div>
+
+                            <Button
+                              onClick={() => handleStrategySelect(strategy)}
+                              disabled={!hasAccess}
+                              className="w-full uppercase tracking-wider"
+                              variant={hasAccess ? "default" : "outline"}
+                            >
+                              {hasAccess ? (
+                                <>
+                                  <Play size={16} className="mr-2" weight="fill" />
+                                  Configure & Activate
+                                </>
+                              ) : (
+                                <>
+                                  <Lock size={16} className="mr-2" />
+                                  Upgrade to Unlock
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </Card>
+                      </TooltipTrigger>
+                      <TooltipContent 
+                        side="top" 
+                        className="max-w-md cyber-card p-4 border-primary/30"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Icon size={20} className="text-primary" weight="duotone" />
+                            <h4 className="font-bold uppercase text-sm tracking-wider text-primary">
+                              {strategy.name}
+                            </h4>
+                          </div>
+                          <p className="text-xs text-foreground leading-relaxed">
+                            {strategy.description}
+                          </p>
+                          <div className="pt-2 border-t border-primary/20 space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Category:</span>
+                              <span className="text-primary font-bold uppercase">{strategy.category}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Risk Level:</span>
+                              <span className={cn("font-bold uppercase", getRiskColor(strategy.riskLevel))}>
+                                {strategy.riskLevel}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Timeframe:</span>
+                              <span className="text-foreground font-bold">{strategy.timeframe}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Expected Return:</span>
+                              <span className="text-primary font-bold">{strategy.expectedReturn}</span>
+                            </div>
+                            {!hasAccess && (
+                              <div className="flex justify-between text-xs pt-2 border-t border-destructive/20">
+                                <span className="text-muted-foreground">Required Tier:</span>
+                                <span className="text-destructive font-bold uppercase">
+                                  {LICENSE_TIERS[strategy.requiredTier].name}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {strategy.description}
-                      </p>
-
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Badge className={cn("text-xs uppercase", getRiskBadgeClass(strategy.riskLevel))}>
-                          {strategy.riskLevel} Risk
-                        </Badge>
-                        <Badge variant="outline" className="text-xs uppercase">
-                          {strategy.category}
-                        </Badge>
-                        {!hasAccess && (
-                          <Badge variant="outline" className="text-xs uppercase border-destructive/30 text-destructive">
-                            <Crown size={12} className="mr-1" />
-                            {LICENSE_TIERS[strategy.requiredTier].name}
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div className="space-y-2 pt-2 border-t border-primary/20">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground uppercase tracking-wider">Expected Return</span>
-                          <span className="text-primary font-bold">{strategy.expectedReturn}</span>
-                        </div>
-                      </div>
-
-                      <Button
-                        onClick={() => handleStrategySelect(strategy)}
-                        disabled={!hasAccess}
-                        className="w-full uppercase tracking-wider"
-                        variant={hasAccess ? "default" : "outline"}
-                      >
-                        {hasAccess ? (
-                          <>
-                            <Play size={16} className="mr-2" weight="fill" />
-                            Configure & Activate
-                          </>
-                        ) : (
-                          <>
-                            <Lock size={16} className="mr-2" />
-                            Upgrade to Unlock
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </Card>
-                </motion.div>
-              )
-            })}
+                      </TooltipContent>
+                    </Tooltip>
+                  </motion.div>
+                )
+              })}
+            </TooltipProvider>
           </div>
         </TabsContent>
 
