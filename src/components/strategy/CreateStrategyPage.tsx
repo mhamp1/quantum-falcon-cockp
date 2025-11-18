@@ -134,13 +134,13 @@ function CodeParticles() {
       'exit', 'stop', 'limit', '>', '<', '==', '&&', '||', 'return',
       'func', 'const', 'let', 'price', 'data', 'chart'
     ]
-    return Array.from({ length: 35 }, (_, i) => ({
+    return Array.from({ length: 25 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: 20 + Math.random() * 30,
+      size: 24 + Math.random() * 32,
       delay: Math.random() * 5,
-      duration: 8 + Math.random() * 12,
+      duration: 10 + Math.random() * 15,
       code: codeSnippets[i % codeSnippets.length]
     }))
   })
@@ -153,7 +153,7 @@ function CodeParticles() {
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: 0,
+        zIndex: 1,
         pointerEvents: 'none',
         overflow: 'hidden'
       }}
@@ -165,15 +165,15 @@ function CodeParticles() {
             x: `${particle.x}%`, 
             y: `${particle.y}%`,
             opacity: 0,
-            scale: 0.5,
-            rotate: Math.random() * 360
+            scale: 0.8,
+            rotate: 0
           }}
           animate={{
-            x: [`${particle.x}%`, `${particle.x + (Math.random() - 0.5) * 20}%`, `${particle.x}%`],
-            y: [`${particle.y}%`, `${particle.y + (Math.random() - 0.5) * 20}%`, `${particle.y}%`],
-            opacity: [0, 0.6, 0.3, 0.6, 0],
-            scale: [0.5, 1, 0.8, 1, 0.5],
-            rotate: [0, 180, 360]
+            x: [`${particle.x}%`, `${particle.x + (Math.random() - 0.5) * 15}%`, `${particle.x}%`],
+            y: [`${particle.y}%`, `${particle.y + (Math.random() - 0.5) * 15}%`, `${particle.y}%`],
+            opacity: [0, 0.4, 0.2, 0.4, 0],
+            scale: [0.8, 1, 0.9, 1, 0.8],
+            rotate: [0, 90, 180, 270, 360]
           }}
           transition={{
             duration: particle.duration,
@@ -188,14 +188,15 @@ function CodeParticles() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #DC1FFF 0%, #9945FF 100%)',
-            border: '2px solid #14F195',
-            boxShadow: '0 0 20px #DC1FFF',
-            fontSize: Math.max(8, particle.size * 0.4),
+            background: 'linear-gradient(135deg, rgba(220, 31, 255, 0.15) 0%, rgba(153, 69, 255, 0.1) 100%)',
+            border: '1px solid rgba(20, 241, 149, 0.3)',
+            boxShadow: '0 0 16px rgba(220, 31, 255, 0.2)',
+            fontSize: Math.max(9, particle.size * 0.35),
             fontFamily: 'Orbitron, monospace',
-            fontWeight: 'bold',
-            color: '#14F195',
-            clipPath: 'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))'
+            fontWeight: '700',
+            color: 'rgba(20, 241, 149, 0.8)',
+            borderRadius: '8px',
+            backdropFilter: 'blur(4px)'
           }}
         >
           {particle.code}
@@ -438,45 +439,91 @@ Return only improved code with comments explaining changes.`
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background" />
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(180deg, #000000 0%, #1A0033 50%, #000000 100%)',
+        }}
+      />
+      <div 
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(0, 255, 255, 0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.8) 1px, transparent 1px)',
+          backgroundSize: '80px 80px',
+          maskImage: 'radial-gradient(ellipse at center, black 0%, transparent 70%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, black 0%, transparent 70%)'
+        }}
+      />
       <CodeParticles />
       
       <div className="relative z-10 container mx-auto p-6 space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-6 py-12"
+          className="text-center space-y-8 py-16 relative"
         >
           <motion.div
-            className="inline-flex items-center justify-center w-32 h-32 border-4 border-primary bg-primary/20 jagged-corner mb-6 shadow-[0_0_50px_oklch(0.72_0.20_195_/_0.8)]"
+            className="inline-flex items-center justify-center w-24 h-24 mb-8 relative"
             animate={{ 
-              rotate: [0, 360],
-              scale: [1, 1.15, 1]
+              y: [0, -8, 0],
             }}
             transition={{ 
-              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-              scale: { duration: 2, repeat: Infinity }
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
             }}
           >
-            <Code size={64} weight="duotone" className="text-primary animate-pulse" />
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-[#00FFFF] to-[#DC1FFF] rounded-2xl opacity-20 blur-xl"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.2, 0.4, 0.2]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            <Code size={48} weight="duotone" className="text-primary relative z-10" />
           </motion.div>
           
           <motion.h1 
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-6xl md:text-8xl font-black uppercase tracking-[0.15em]"
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-7xl md:text-9xl font-black uppercase leading-[0.9] mb-6"
+            style={{
+              fontFamily: 'Orbitron, sans-serif',
+              letterSpacing: '0.08em'
+            }}
           >
-            <span className="block text-primary neon-glow-primary mb-2" style={{
-              textShadow: '0 0 30px oklch(0.72 0.20 195), 0 0 60px oklch(0.72 0.20 195), 4px 4px 0 oklch(0.08 0.02 280)',
-              WebkitTextStroke: '2px oklch(0.08 0.02 280)'
-            }}>
+            <span 
+              className="block mb-3"
+              style={{
+                background: 'linear-gradient(135deg, #00FFFF 0%, #0EA5E9 50%, #00D9FF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: 'none',
+                filter: 'drop-shadow(0 0 8px rgba(0, 255, 255, 0.4)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))',
+                fontWeight: 900
+              }}
+            >
               CREATE GOD-TIER
             </span>
-            <span className="block text-accent neon-glow-accent" style={{
-              textShadow: '0 0 30px oklch(0.68 0.18 330), 0 0 60px oklch(0.68 0.18 330), 4px 4px 0 oklch(0.08 0.02 280)',
-              WebkitTextStroke: '2px oklch(0.08 0.02 280)'
-            }}>
+            <span 
+              className="block"
+              style={{
+                background: 'linear-gradient(135deg, #DC1FFF 0%, #9945FF 50%, #C026D3 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: 'none',
+                filter: 'drop-shadow(0 0 8px rgba(220, 31, 255, 0.4)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))',
+                fontWeight: 900
+              }}
+            >
               STRATEGIES
             </span>
           </motion.h1>
@@ -484,116 +531,186 @@ Return only improved code with comments explaining changes.`
           <motion.p 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-2xl max-w-4xl mx-auto font-bold bg-card/95 border-4 border-primary/60 p-8 jagged-corner backdrop-blur-sm shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.5)]"
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed px-4"
+            style={{
+              fontFamily: 'Rajdhani, sans-serif',
+              fontWeight: 500,
+              color: 'rgba(0, 255, 255, 0.75)'
+            }}
           >
-            <span className="text-foreground">Build, backtest, and share custom bots with the community — </span>
-            <span className="text-primary neon-glow-primary">the same tools Elite traders use to print money.</span>
+            <span className="text-foreground/90">Build, backtest, and share custom bots with the community — </span>
+            <span 
+              className="font-semibold"
+              style={{
+                background: 'linear-gradient(90deg, #00FFFF 0%, #14F195 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              the same tools Elite traders use to print money.
+            </span>
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mt-12"
+            transition={{ delay: 0.6, duration: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto mt-12 px-4"
           >
             {[
-              { icon: <Sparkle size={28} weight="fill" />, text: "Full Monaco Editor with AI code completion" },
-              { icon: <ChartLine size={28} weight="duotone" />, text: "Real-time backtesting + live PNL tracking" },
-              { icon: <ShareNetwork size={28} weight="fill" />, text: "One-click sharing (earn royalties)" },
-              { icon: <Brain size={28} weight="duotone" />, text: "200+ premium indicators & on-chain data" },
-              { icon: <Lock size={28} weight="duotone" />, text: "On-chain proof via Solana NFT" },
-              { icon: <Star size={28} weight="fill" />, text: "Access to private Elite templates" },
+              { icon: <Sparkle size={24} weight="fill" />, text: "Full Monaco Editor with AI code completion" },
+              { icon: <ChartLine size={24} weight="duotone" />, text: "Real-time backtesting + live PNL tracking" },
+              { icon: <ShareNetwork size={24} weight="fill" />, text: "One-click sharing (earn royalties)" },
+              { icon: <Brain size={24} weight="duotone" />, text: "200+ premium indicators & on-chain data" },
+              { icon: <Lock size={24} weight="duotone" />, text: "On-chain proof via Solana NFT" },
+              { icon: <Star size={24} weight="fill" />, text: "Access to private Elite templates" },
             ].map((feature, i) => (
               <motion.div
                 key={i}
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.6 + i * 0.1 }}
-                className="flex items-center gap-4 text-left bg-card/80 border-2 border-primary/40 p-4 jagged-corner-small backdrop-blur hover:border-primary transition-all hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.4)]"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.7 + i * 0.08, duration: 0.4 }}
+                className="group relative flex items-center gap-3 text-left bg-gradient-to-br from-card/60 to-card/40 backdrop-blur-md border border-white/10 rounded-xl p-4 hover:border-primary/50 transition-all duration-300"
+                style={{
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+                }}
               >
-                <span className="text-primary">{feature.icon}</span>
-                <span className="text-base text-foreground font-semibold">{feature.text}</span>
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-primary">{feature.icon}</span>
+                </div>
+                <span className="text-sm text-foreground/80 font-medium leading-snug">{feature.text}</span>
               </motion.div>
             ))}
           </motion.div>
 
-          {/* Featured Strategy Carousel */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="mt-16"
+            transition={{ delay: 1, duration: 0.5 }}
+            className="mt-20"
           >
-            <h2 className="text-3xl font-black uppercase tracking-wider text-primary neon-glow-primary mb-8">
+            <h2 
+              className="text-3xl md:text-4xl font-black uppercase mb-10"
+              style={{
+                fontFamily: 'Orbitron, sans-serif',
+                letterSpacing: '0.08em',
+                background: 'linear-gradient(135deg, #00FFFF 0%, #DC1FFF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                filter: 'drop-shadow(0 0 6px rgba(0, 255, 255, 0.3))'
+              }}
+            >
               🔥 Top Community Strategies This Week
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
               {FEATURED_STRATEGIES.slice(0, 3).map((strategy, i) => (
                 <motion.div
                   key={i}
-                  initial={{ y: 50, opacity: 0 }}
+                  initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1 + i * 0.15 }}
-                  className="bg-black/80 border-3 border-accent/60 jagged-corner p-6 backdrop-blur-sm hover:border-accent transition-all hover:shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.5)] group"
+                  transition={{ delay: 1.1 + i * 0.12, duration: 0.5 }}
+                  className="group relative bg-gradient-to-br from-card/70 to-card/40 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:border-accent/50 transition-all duration-300 overflow-hidden"
+                  style={{
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+                  }}
                 >
-                  <Badge className="mb-3 bg-accent/20 text-accent border border-accent/50">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-accent/10 to-transparent rounded-full blur-3xl group-hover:scale-150 transition-transform duration-500" />
+                  <Badge className="relative z-10 mb-4 bg-accent/20 text-accent border border-accent/40 rounded-lg px-3 py-1 font-semibold">
                     {strategy.category}
                   </Badge>
-                  <h3 className="text-2xl font-black text-primary neon-glow-primary mb-2 group-hover:text-accent transition-colors">
+                  <h3 
+                    className="relative z-10 text-xl md:text-2xl font-black mb-3 group-hover:scale-105 transition-transform duration-300"
+                    style={{
+                      fontFamily: 'Orbitron, sans-serif',
+                      background: 'linear-gradient(135deg, #00FFFF 0%, #14F195 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}
+                  >
                     {strategy.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-4">{strategy.description}</p>
-                  <div className="flex justify-between items-center text-lg font-bold">
-                    <span className="text-primary neon-glow-primary">{strategy.roi} ROI</span>
-                    <span className="text-accent">❤️ {strategy.likes}</span>
+                  <p className="relative z-10 text-sm text-foreground/70 mb-5 leading-relaxed">{strategy.description}</p>
+                  <div className="relative z-10 flex justify-between items-center text-base font-bold">
+                    <span 
+                      className="font-black text-lg"
+                      style={{
+                        background: 'linear-gradient(90deg, #00FFFF 0%, #14F195 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}
+                    >
+                      {strategy.roi} ROI
+                    </span>
+                    <span className="text-accent flex items-center gap-1">
+                      <span className="opacity-80">❤️</span> {strategy.likes}
+                    </span>
                   </div>
                 </motion.div>
               ))}
             </div>
           </motion.div>
 
-          {/* Live Counter */}
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1.5, type: "spring", stiffness: 200 }}
-            className="mt-12 text-2xl font-black text-accent neon-glow-accent inline-block bg-card/90 border-3 border-accent/60 px-8 py-4 jagged-corner backdrop-blur"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.5 }}
+            className="mt-16 inline-block bg-gradient-to-r from-card/80 to-card/60 backdrop-blur-lg border border-accent/30 rounded-2xl px-8 py-4"
+            style={{
+              boxShadow: '0 8px 32px rgba(220, 31, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+            }}
           >
-            🔥 1,247 strategies created this week • Top creator earned $8,421
+            <p 
+              className="text-xl md:text-2xl font-bold"
+              style={{
+                fontFamily: 'Rajdhani, sans-serif',
+                background: 'linear-gradient(90deg, #DC1FFF 0%, #14F195 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              🔥 1,247 strategies created this week • Top creator earned $8,421
+            </p>
           </motion.div>
 
           {!canCreate && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.8 }}
-              className="mt-16 flex flex-col items-center gap-6"
+              transition={{ delay: 1.8, duration: 0.5 }}
+              className="mt-20 flex flex-col items-center gap-8"
             >
-              <div className="flex flex-wrap justify-center gap-6">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Button
                   disabled
                   size="lg"
-                  className="bg-muted/50 text-muted-foreground border-2 border-muted cursor-not-allowed jagged-corner px-8 py-6 text-lg"
+                  className="relative bg-muted/30 text-muted-foreground border border-muted/50 cursor-not-allowed rounded-xl px-8 py-6 text-base font-semibold backdrop-blur-sm"
+                  style={{
+                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.3)'
+                  }}
                 >
-                  <Lock className="mr-3" size={24} />
+                  <Lock className="mr-3" size={20} />
                   Pro Tier Required
                 </Button>
                 <Button
                   size="lg"
-                  onMouseEnter={() => {
-                    confetti({
-                      particleCount: 100,
-                      spread: 70,
-                      origin: { y: 0.8 },
-                      colors: ['#DC1FFF', '#14F195', '#9945FF']
-                    })
-                  }}
                   onClick={() => setShowUpgradeModal(true)}
-                  className="bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90 text-primary-foreground jagged-corner border-4 border-primary shadow-[0_0_40px_oklch(0.72_0.20_195_/_0.8)] hover:shadow-[0_0_60px_oklch(0.72_0.20_195_/_1)] hover:scale-110 transition-all uppercase tracking-[0.15em] font-black px-16 py-8 text-2xl group"
+                  className="group relative bg-gradient-to-r from-[#DC1FFF] via-[#9945FF] to-[#00FFFF] hover:shadow-2xl text-white rounded-xl px-12 py-7 text-xl font-black uppercase transition-all duration-300 hover:scale-105 overflow-hidden"
+                  style={{
+                    fontFamily: 'Orbitron, sans-serif',
+                    letterSpacing: '0.1em',
+                    boxShadow: '0 0 40px rgba(220, 31, 255, 0.5), 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                  }}
                 >
-                  <Rocket size={36} weight="duotone" className="mr-4 group-hover:animate-bounce" />
-                  UPGRADE TO PRO →
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                  <Rocket size={28} weight="duotone" className="mr-4 relative z-10 group-hover:animate-bounce" />
+                  <span className="relative z-10">UPGRADE TO PRO</span>
+                  <ArrowRight size={28} weight="bold" className="ml-4 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
                 </Button>
               </div>
             </motion.div>
@@ -601,24 +718,24 @@ Return only improved code with comments explaining changes.`
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-card border-3 border-primary/50 p-1 jagged-corner-small">
+          <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-card/60 to-card/40 backdrop-blur-lg border border-white/10 p-1 rounded-xl">
             <TabsTrigger 
               value="editor" 
-              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary uppercase tracking-wider font-bold jagged-corner-small"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-accent/20 data-[state=active]:text-primary data-[state=active]:border data-[state=active]:border-primary/40 uppercase tracking-wider font-bold rounded-lg transition-all duration-300"
             >
               <Code size={20} weight="duotone" className="mr-2" />
               Editor
             </TabsTrigger>
             <TabsTrigger 
               value="backtest"
-              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary uppercase tracking-wider font-bold jagged-corner-small"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-accent/20 data-[state=active]:text-primary data-[state=active]:border data-[state=active]:border-primary/40 uppercase tracking-wider font-bold rounded-lg transition-all duration-300"
             >
               <ChartLine size={20} weight="duotone" className="mr-2" />
               Backtest
             </TabsTrigger>
             <TabsTrigger 
               value="templates"
-              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary uppercase tracking-wider font-bold jagged-corner-small"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-accent/20 data-[state=active]:text-primary data-[state=active]:border data-[state=active]:border-primary/40 uppercase tracking-wider font-bold rounded-lg transition-all duration-300"
             >
               <Cube size={20} weight="duotone" className="mr-2" />
               Templates
@@ -626,19 +743,29 @@ Return only improved code with comments explaining changes.`
           </TabsList>
 
           <TabsContent value="editor" className="space-y-6 mt-6">
-            <Card className="border-4 border-primary/60 bg-card/95 backdrop-blur-sm shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)]">
+            <Card className="border border-primary/30 bg-gradient-to-br from-card/70 to-card/40 backdrop-blur-lg rounded-2xl shadow-2xl">
               <CardHeader>
-                <CardTitle className="text-2xl uppercase tracking-wider text-primary neon-glow-primary">
+                <CardTitle 
+                  className="text-2xl uppercase font-black"
+                  style={{
+                    fontFamily: 'Orbitron, sans-serif',
+                    letterSpacing: '0.08em',
+                    background: 'linear-gradient(135deg, #00FFFF 0%, #14F195 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}
+                >
                   Strategy Configuration
                 </CardTitle>
-                <CardDescription className="text-base">
+                <CardDescription className="text-base text-foreground/70">
                   Define your strategy parameters and metadata
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="strategy-name" className="uppercase tracking-wide text-xs font-bold">
+                    <Label htmlFor="strategy-name" className="uppercase tracking-wide text-xs font-bold text-foreground/80">
                       Strategy Name
                     </Label>
                     <Input
@@ -646,17 +773,17 @@ Return only improved code with comments explaining changes.`
                       placeholder="My Awesome Strategy"
                       value={strategyName}
                       onChange={(e) => setStrategyName(e.target.value)}
-                      className="bg-card border-2 border-primary/50 focus:border-primary jagged-corner-small"
+                      className="bg-background/50 border border-primary/30 focus:border-primary rounded-lg backdrop-blur-sm transition-all duration-300"
                       disabled={!canCreate}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="category" className="uppercase tracking-wide text-xs font-bold">
+                    <Label htmlFor="category" className="uppercase tracking-wide text-xs font-bold text-foreground/80">
                       Category
                     </Label>
                     <Select value={category} onValueChange={setCategory} disabled={!canCreate}>
-                      <SelectTrigger className="bg-card border-2 border-primary/50 focus:border-primary jagged-corner-small">
+                      <SelectTrigger className="bg-background/50 border border-primary/30 focus:border-primary rounded-lg backdrop-blur-sm transition-all duration-300">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -669,7 +796,7 @@ Return only improved code with comments explaining changes.`
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="uppercase tracking-wide text-xs font-bold">
+                  <Label htmlFor="description" className="uppercase tracking-wide text-xs font-bold text-foreground/80">
                     Description
                   </Label>
                   <Input
@@ -677,27 +804,37 @@ Return only improved code with comments explaining changes.`
                     placeholder="Brief description of your strategy..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="bg-card border-2 border-primary/50 focus:border-primary jagged-corner-small"
+                    className="bg-background/50 border border-primary/30 focus:border-primary rounded-lg backdrop-blur-sm transition-all duration-300"
                     disabled={!canCreate}
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-4 border-accent/60 bg-card/95 backdrop-blur-sm shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)]">
+            <Card className="border border-accent/30 bg-gradient-to-br from-card/70 to-card/40 backdrop-blur-lg rounded-2xl shadow-2xl">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-2xl uppercase tracking-wider text-accent neon-glow-accent">
+                  <CardTitle 
+                    className="text-2xl uppercase font-black"
+                    style={{
+                      fontFamily: 'Orbitron, sans-serif',
+                      letterSpacing: '0.08em',
+                      background: 'linear-gradient(135deg, #DC1FFF 0%, #9945FF 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}
+                  >
                     Code Editor
                   </CardTitle>
-                  <CardDescription className="text-base">
+                  <CardDescription className="text-base text-foreground/70">
                     Write your strategy logic • Cmd/Ctrl+S to save • Cmd/Ctrl+Enter to backtest
                   </CardDescription>
                 </div>
                 <Button
                   onClick={handleAISuggestion}
                   disabled={!canCreate || aiSuggestionLoading}
-                  className="bg-accent/20 hover:bg-accent/30 text-accent border-2 border-accent jagged-corner-small"
+                  className="bg-accent/20 hover:bg-accent/30 text-accent border border-accent/40 rounded-lg transition-all duration-300 hover:scale-105"
                 >
                   {aiSuggestionLoading ? (
                     <>
@@ -713,7 +850,7 @@ Return only improved code with comments explaining changes.`
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="border-4 border-accent/60 jagged-corner overflow-hidden shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]">
+                <div className="border border-accent/30 rounded-xl overflow-hidden shadow-xl">
                   <Editor
                     height="600px"
                     defaultLanguage="javascript"
@@ -744,18 +881,27 @@ Return only improved code with comments explaining changes.`
                 </div>
 
                 {!canCreate && (
-                  <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-20">
-                    <div className="text-center space-y-4 p-8 bg-card border-4 border-destructive jagged-corner shadow-[0_0_40px_oklch(0.65_0.25_25_/_0.6)]">
-                      <Lock size={64} weight="duotone" className="text-destructive mx-auto" />
-                      <h3 className="text-2xl font-black uppercase tracking-wider text-destructive">
+                  <div className="absolute inset-0 bg-background/90 backdrop-blur-md flex items-center justify-center z-20 rounded-xl">
+                    <div className="text-center space-y-6 p-8 bg-gradient-to-br from-card/80 to-card/60 border border-destructive/50 rounded-2xl shadow-2xl max-w-md">
+                      <Lock size={64} weight="duotone" className="text-destructive mx-auto" style={{
+                        filter: 'drop-shadow(0 0 12px rgba(255, 100, 100, 0.4))'
+                      }} />
+                      <h3 
+                        className="text-2xl font-black uppercase"
+                        style={{
+                          fontFamily: 'Orbitron, sans-serif',
+                          letterSpacing: '0.1em',
+                          color: '#EF4444'
+                        }}
+                      >
                         Pro Feature
                       </h3>
-                      <p className="text-muted-foreground">
+                      <p className="text-foreground/70 leading-relaxed">
                         Upgrade to Pro tier to unlock strategy creation
                       </p>
                       <Button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                        className="bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-300 rounded-xl px-8 py-3"
                       >
                         <Rocket size={20} className="mr-2" />
                         Upgrade Now
@@ -771,7 +917,7 @@ Return only improved code with comments explaining changes.`
                 size="lg"
                 onClick={handleBacktest}
                 disabled={!canCreate || isBacktesting}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground jagged-corner border-3 border-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.5)] uppercase tracking-wider font-bold"
+                className="bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 text-primary-foreground rounded-xl border border-primary/40 shadow-lg uppercase tracking-wider font-bold transition-all duration-300 hover:scale-105 px-8 py-6"
               >
                 {isBacktesting ? (
                   <>
@@ -790,7 +936,7 @@ Return only improved code with comments explaining changes.`
                 size="lg"
                 onClick={handleSave}
                 disabled={!canCreate || isSaving}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground jagged-corner border-3 border-accent shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.5)] uppercase tracking-wider font-bold"
+                className="bg-gradient-to-r from-accent/90 to-accent hover:from-accent hover:to-accent/90 text-accent-foreground rounded-xl border border-accent/40 shadow-lg uppercase tracking-wider font-bold transition-all duration-300 hover:scale-105 px-8 py-6"
               >
                 {isSaving ? (
                   <>
@@ -810,7 +956,7 @@ Return only improved code with comments explaining changes.`
                 onClick={handleShare}
                 disabled={!canCreate || isSharing}
                 variant="outline"
-                className="border-3 border-secondary text-secondary hover:bg-secondary/10 jagged-corner uppercase tracking-wider font-bold"
+                className="border border-secondary/40 text-secondary hover:bg-secondary/10 rounded-xl uppercase tracking-wider font-bold transition-all duration-300 hover:scale-105 px-8 py-6"
               >
                 {isSharing ? (
                   <>
@@ -1085,43 +1231,56 @@ Return only improved code with comments explaining changes.`
       </div>
 
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
-        <DialogContent className="border-4 border-destructive bg-card shadow-[0_0_50px_oklch(0.65_0.25_25_/_0.6)]">
+        <DialogContent className="border border-destructive/50 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur-2xl rounded-2xl shadow-2xl max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-3xl uppercase tracking-wider text-destructive neon-glow-destructive flex items-center gap-3">
+            <DialogTitle 
+              className="text-3xl uppercase font-black flex items-center gap-3"
+              style={{
+                fontFamily: 'Orbitron, sans-serif',
+                letterSpacing: '0.1em',
+                background: 'linear-gradient(135deg, #EF4444 0%, #DC1FFF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                filter: 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.3))'
+              }}
+            >
               <Lock size={32} weight="duotone" />
               Upgrade Required
             </DialogTitle>
-            <DialogDescription className="text-base pt-4">
+            <DialogDescription className="text-base pt-4 text-foreground/70 leading-relaxed">
               Strategy creation is a premium feature available to Pro tier and above.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <CheckCircle size={24} weight="fill" className="text-primary" />
-                <span>Create unlimited custom strategies</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle size={24} weight="fill" className="text-primary" />
-                <span>AI-powered code suggestions</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle size={24} weight="fill" className="text-primary" />
-                <span>Advanced backtesting & analytics</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle size={24} weight="fill" className="text-primary" />
-                <span>Share strategies with community</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle size={24} weight="fill" className="text-primary" />
-                <span>Priority support & updates</span>
-              </div>
+              {[
+                'Create unlimited custom strategies',
+                'AI-powered code suggestions',
+                'Advanced backtesting & analytics',
+                'Share strategies with community',
+                'Priority support & updates'
+              ].map((feature, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="flex items-center gap-3"
+                >
+                  <CheckCircle size={24} weight="fill" className="text-primary flex-shrink-0" />
+                  <span className="text-foreground/90">{feature}</span>
+                </motion.div>
+              ))}
             </div>
 
             <Button
               size="lg"
-              className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground jagged-corner border-3 border-primary shadow-[0_0_25px_oklch(0.72_0.20_195_/_0.6)] uppercase tracking-wider font-bold py-6 text-lg"
+              className="w-full bg-gradient-to-r from-primary via-accent to-primary hover:shadow-2xl text-white rounded-xl py-6 text-lg uppercase font-black tracking-wider transition-all duration-300 hover:scale-105"
+              style={{
+                fontFamily: 'Orbitron, sans-serif',
+                boxShadow: '0 0 40px rgba(220, 31, 255, 0.4), 0 8px 32px rgba(0, 0, 0, 0.4)'
+              }}
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
                 setShowUpgradeModal(false)
