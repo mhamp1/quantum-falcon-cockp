@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
 import { isNonCriticalError } from '@/lib/errorSuppression';
+import { logError } from '@/lib/errorLogger';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -23,6 +24,7 @@ const AIAssistant = lazy(() => import('@/components/shared/AIAssistant'));
 const LicenseAuth = lazy(() => import('@/components/auth/LicenseAuth'));
 const LegalFooter = lazy(() => import('@/components/shared/LegalFooter'));
 const RiskDisclosureBanner = lazy(() => import('@/components/shared/RiskDisclosureBanner'));
+const ErrorDebugPanel = lazy(() => import('@/components/shared/ErrorDebugPanel'));
 
 function LoadingFallback() {
   return (
@@ -37,26 +39,48 @@ function LoadingFallback() {
 
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   if (isNonCriticalError(error)) {
+    console.debug('[ComponentErrorFallback] Auto-recovering from non-critical error');
     setTimeout(resetErrorBoundary, 0);
     return null;
   }
   
+  console.error('[ComponentErrorFallback] Displaying error:', error);
+  
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <div className="cyber-card p-8 max-w-md w-full space-y-4 text-center">
-        <div className="text-destructive text-5xl">⚠️</div>
-        <h2 className="text-xl font-bold text-destructive uppercase tracking-wide">
-          Component Error
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {error.message}
-        </p>
-        <div className="flex gap-2">
+      <div className="cyber-card p-8 max-w-2xl w-full space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="text-destructive text-5xl">⚠️</div>
+          <div>
+            <h2 className="text-xl font-bold text-destructive uppercase tracking-wide">
+              Component Error
+            </h2>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
+              Critical system failure detected
+            </p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <p className="text-sm text-foreground font-semibold">
+            {error.message}
+          </p>
+          {error.stack && (
+            <details className="mt-2">
+              <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground uppercase tracking-wide">
+                Show Stack Trace
+              </summary>
+              <pre className="text-xs text-muted-foreground mt-2 p-4 bg-muted/20 rounded overflow-auto max-h-64 scrollbar-thin font-mono">
+                {error.stack}
+              </pre>
+            </details>
+          )}
+        </div>
+        <div className="flex gap-2 flex-wrap">
           <Button
             onClick={resetErrorBoundary}
             className="flex-1"
           >
-            Try Again
+            Retry Component
           </Button>
           <Button
             onClick={() => window.location.reload()}
@@ -65,7 +89,19 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
           >
             Reload Page
           </Button>
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(`Error: ${error.message}\n\nStack: ${error.stack || 'N/A'}`);
+            }}
+            variant="secondary"
+            className="flex-1"
+          >
+            Copy Error
+          </Button>
         </div>
+        <p className="text-xs text-muted-foreground text-center">
+          If this error persists, please contact support with the error details above.
+        </p>
       </div>
     </div>
   );
@@ -123,10 +159,21 @@ export default function App() {
       const filename = event.filename || '';
       
       if (shouldSuppress(message, filename)) {
+        console.debug('[App] Window error suppressed:', message.substring(0, 100));
         event.preventDefault();
         event.stopPropagation();
         return true;
       }
+      
+      logError(event.error || message, `Window Error: ${filename}:${event.lineno}`);
+      
+      console.error('[App] Window error:', {
+        message,
+        filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error
+      });
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
@@ -134,9 +181,17 @@ export default function App() {
       const stack = event.reason?.stack || '';
       
       if (shouldSuppress(reason, stack)) {
+        console.debug('[App] Promise rejection suppressed:', reason.substring(0, 100));
         event.preventDefault();
         return;
       }
+      
+      logError(event.reason, 'Unhandled Promise Rejection');
+      
+      console.error('[App] Unhandled promise rejection:', {
+        reason,
+        stack
+      });
     };
 
     window.addEventListener('error', handleWindowError, true);
@@ -218,13 +273,23 @@ export default function App() {
 
   const handleError = (error: Error, errorInfo: { componentStack: string }) => {
     if (isNonCriticalError(error)) {
+      console.debug('[App] Suppressed non-critical error:', error.message);
       return;
     }
+    
+    logError(error, 'App ErrorBoundary', errorInfo.componentStack);
+    
+    console.error('[App] Critical error detected:', {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack
+    });
     
     const now = Date.now();
     
     if (now - lastErrorTimeRef.current < 5000) {
       errorCountRef.current += 1;
+      console.warn(`[App] Error count: ${errorCountRef.current}`);
     } else {
       errorCountRef.current = 1;
     }
@@ -232,6 +297,8 @@ export default function App() {
     lastErrorTimeRef.current = now;
     
     if (errorCountRef.current > 3) {
+      console.error('[App] Error loop detected, setting hasError state');
+      setHasError(true);
       return;
     }
   };
@@ -411,6 +478,7 @@ export default function App() {
         FallbackComponent={() => null}
         onError={(error) => {
           console.error('AI Assistant error:', error);
+          logError(error, 'AI Assistant');
         }}
       >
         <Suspense fallback={null}>
@@ -422,10 +490,22 @@ export default function App() {
         FallbackComponent={() => null}
         onError={(error) => {
           console.error('Legal Footer error:', error);
+          logError(error, 'Legal Footer');
         }}
       >
         <Suspense fallback={null}>
           <LegalFooter />
+        </Suspense>
+      </ErrorBoundary>
+
+      <ErrorBoundary 
+        FallbackComponent={() => null}
+        onError={(error) => {
+          console.error('Error Debug Panel error:', error);
+        }}
+      >
+        <Suspense fallback={null}>
+          <ErrorDebugPanel />
         </Suspense>
       </ErrorBoundary>
     </div>

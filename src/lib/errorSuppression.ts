@@ -9,30 +9,38 @@ export const SUPPRESSED_ERROR_PATTERNS = [
   '@react-three/fiber',
   'react-three',
   'ResizeObserver loop',
-  'Cannot read properties of null',
-  'Cannot read properties of undefined',
-  'Cannot read property',
   'THREE.',
   'WebGL',
-  'canvas',
   'OrbitControls',
   'PerspectiveCamera',
-  'Rendered more hooks than during the previous render',
-  'Rendered fewer hooks',
-  'Invalid hook call',
-  'useKV',
-  'React Hook',
-  'Hooks can only be called inside',
-  'Maximum update depth exceeded',
-  'Cannot update a component',
-  'Warning: Cannot update',
   'findDOMNode is deprecated',
   'ReactDOM.render',
+] as const;
+
+export const CRITICAL_ERROR_PATTERNS = [
+  'ReferenceError',
+  'TypeError: Cannot read',
+  'is not a function',
+  'undefined is not an object',
+  'null is not an object',
+  'Unexpected token',
+  'Syntax error',
+  'Module not found',
+  'Failed to fetch',
+  'Network request failed',
 ] as const;
 
 export function isNonCriticalError(error: Error | string): boolean {
   const message = typeof error === 'string' ? error : (error.message || '');
   const stack = typeof error === 'string' ? '' : (error.stack || '');
+  
+  const isCritical = CRITICAL_ERROR_PATTERNS.some(pattern =>
+    message.includes(pattern) || stack.includes(pattern)
+  );
+  
+  if (isCritical) {
+    return false;
+  }
   
   return SUPPRESSED_ERROR_PATTERNS.some(pattern =>
     message.toLowerCase().includes(pattern.toLowerCase()) ||
@@ -50,6 +58,6 @@ export function suppressError(error: Error | string, context: string = ''): void
   }
   
   const message = typeof error === 'string' ? error : error.message;
-  console.error(`[${context}] Error:`, message.substring(0, 100));
+  console.error(`[${context}] Error:`, message);
 }
 
