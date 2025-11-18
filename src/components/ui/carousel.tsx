@@ -56,9 +56,11 @@ function Carousel({
     {
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",
-      duration: 20,
+      duration: 25,
       skipSnaps: false,
       dragFree: false,
+      containScroll: "trimSnaps",
+      slidesToScroll: 1,
     },
     plugins
   )

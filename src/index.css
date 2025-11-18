@@ -513,6 +513,8 @@
   }
 }
 
+/* Optimized shimmer with will-change */
+
 @keyframes neon-flicker {
   0%, 100% {
     opacity: 1;
@@ -538,13 +540,17 @@
 }
 
 @keyframes holographic-shimmer {
-  0%, 100% {
+  0% {
     opacity: 0.3;
     transform: translateX(-10%) skewX(-15deg);
   }
   50% {
     opacity: 0.6;
     transform: translateX(110%) skewX(-15deg);
+  }
+  100% {
+    opacity: 0.3;
+    transform: translateX(210%) skewX(-15deg);
   }
 }
 
@@ -558,7 +564,8 @@
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: opacity, filter;
 }
 
 .animate-pulse-slow {
@@ -572,6 +579,7 @@
 .animate-shimmer {
   animation: shimmer 2s linear infinite;
   background-size: 200% 100%;
+  will-change: background-position;
 }
 
 .animate-neon-flicker {
@@ -589,7 +597,10 @@
   box-shadow: 
     0 0 10px oklch(0.72 0.20 195 / 0.4),
     inset 0 1px 0 oklch(0.72 0.20 195 / 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
 }
 
 .neon-button:hover {
@@ -660,8 +671,9 @@
     var(--primary) 50%,
     transparent 100%
   );
-  animation: scan-line 3s linear infinite;
+  animation: scan-line 3s ease-in-out infinite;
   opacity: 0.5;
+  will-change: transform;
 }
 
 .hud-text {
@@ -787,7 +799,8 @@
   inset: -2px;
   background: var(--primary);
   opacity: 0.4;
-  animation: pulse-ring 2s ease-out infinite;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
 }
 
 @keyframes pulse-ring {
@@ -853,6 +866,7 @@
 
 .animate-rotate-y {
   animation: rotate-y 20s linear infinite;
+  will-change: transform;
 }
 
 .crosshair {
@@ -976,7 +990,9 @@
     12px 100%,
     0 calc(100% - 12px)
   );
-  transition: all 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-morph-card::before {
@@ -1182,7 +1198,8 @@
 }
 
 .neon-search {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .neon-search:focus {
