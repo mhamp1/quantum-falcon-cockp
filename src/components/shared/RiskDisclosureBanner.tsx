@@ -35,44 +35,38 @@ export default function RiskDisclosureBanner() {
 
   useEffect(() => {
     const checkAcknowledgment = () => {
-      const localStorageKey = `risk_accepted_${CURRENT_VERSION}`
-      const hasLocalStorage = localStorage.getItem(localStorageKey) === 'true'
-      const hasValidAcknowledgment = acknowledgment && acknowledgment.version === CURRENT_VERSION
-      
-      const versionCheck = checkVersionExpiration()
-      if (versionCheck.expired && versionCheck.documentType === 'risk') {
-        console.log('[Risk Banner] 📢 DOCUMENT EXPIRED! User must re-accept')
-        setIsBannerVisible(true)
-        clearOldVersions()
-        return
-      }
-      
-      if (acknowledgment && needsReacceptance(acknowledgment.version, 'risk')) {
-        console.log('[Risk Banner] 📢 DOCUMENT UPDATED! User must re-accept')
-        console.log('[Risk Banner] Old version:', acknowledgment.version, 'New version:', CURRENT_VERSION)
-        setIsBannerVisible(true)
-        clearOldVersions()
-        return
-      }
-      
-      if (hasValidAcknowledgment && hasLocalStorage) {
-        setIsBannerVisible(false)
-        console.log('[Risk Banner] ✅ User has accepted version', CURRENT_VERSION, 'on', new Date(acknowledgment.acknowledgedAt).toLocaleString())
-      } else {
-        setIsBannerVisible(true)
-        console.log('[Risk Banner] ⚠️ User has NOT accepted current version', CURRENT_VERSION, '- banner MUST be shown')
-        if (!hasValidAcknowledgment) {
-          console.log('[Risk Banner] Missing KV acknowledgment or version mismatch')
+      try {
+        const localStorageKey = `risk_accepted_${CURRENT_VERSION}`
+        const hasLocalStorage = localStorage.getItem(localStorageKey) === 'true'
+        const hasValidAcknowledgment = acknowledgment && acknowledgment.version === CURRENT_VERSION
+        
+        const versionCheck = checkVersionExpiration()
+        if (versionCheck.expired && versionCheck.documentType === 'risk') {
+          setIsBannerVisible(true)
+          clearOldVersions()
+          return
         }
-        if (!hasLocalStorage) {
-          console.log('[Risk Banner] Missing localStorage flag')
+        
+        if (acknowledgment && needsReacceptance(acknowledgment.version, 'risk')) {
+          setIsBannerVisible(true)
+          clearOldVersions()
+          return
         }
+        
+        if (hasValidAcknowledgment && hasLocalStorage) {
+          setIsBannerVisible(false)
+        } else {
+          setIsBannerVisible(true)
+        }
+      } catch (error) {
+        console.error('[Risk Banner] Error checking acknowledgment:', error)
+        setIsBannerVisible(true)
       }
     }
 
     checkAcknowledgment()
     
-    const interval = setInterval(checkAcknowledgment, 5000)
+    const interval = setInterval(checkAcknowledgment, 30000)
     return () => clearInterval(interval)
   }, [acknowledgment, CURRENT_VERSION])
 

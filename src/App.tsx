@@ -1,5 +1,5 @@
 import { useKV } from '@github/spark/hooks';
-import { useEffect, useMemo, Suspense, lazy, useState } from 'react';
+import { useEffect, useMemo, Suspense, lazy, useState, useRef } from 'react';
 import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning } from '@phosphor-icons/react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UserAuth } from '@/lib/auth';
@@ -85,8 +85,9 @@ export default function App() {
     license: null
   });
   const [isInitializing, setIsInitializing] = useState(true);
-
-  console.log('[App] Auth state:', auth);
+  const [hasError, setHasError] = useState(false);
+  const errorCountRef = useRef(0);
+  const lastErrorTimeRef = useRef(0);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -108,10 +109,14 @@ export default function App() {
 
   useEffect(() => {
     const handleNavigateTab = (e: Event) => {
-      const customEvent = e as CustomEvent<string>;
-      const newTab = customEvent.detail;
-      if (tabs.some(tab => tab.id === newTab)) {
-        setActiveTab(newTab);
+      try {
+        const customEvent = e as CustomEvent<string>;
+        const newTab = customEvent.detail;
+        if (tabs.some(tab => tab.id === newTab)) {
+          setActiveTab(newTab);
+        }
+      } catch (error) {
+        console.error('[App] Error handling navigate tab:', error);
       }
     };
 
@@ -121,11 +126,15 @@ export default function App() {
 
   useEffect(() => {
     const handleOpenLegalRiskDisclosure = () => {
-      setActiveTab('settings')
-      setTimeout(() => {
-        const settingsTabEvent = new CustomEvent('open-settings-legal-tab')
-        window.dispatchEvent(settingsTabEvent)
-      }, 100)
+      try {
+        setActiveTab('settings')
+        setTimeout(() => {
+          const settingsTabEvent = new CustomEvent('open-settings-legal-tab')
+          window.dispatchEvent(settingsTabEvent)
+        }, 100)
+      } catch (error) {
+        console.error('[App] Error handling legal risk disclosure:', error);
+      }
     }
 
     window.addEventListener('open-legal-risk-disclosure', handleOpenLegalRiskDisclosure)
@@ -133,52 +142,109 @@ export default function App() {
   }, [setActiveTab])
 
   const handleLicenseSuccess = async (tier: string, expiresAt: number) => {
-    console.log('[App] ✅ License success:', { tier, expiresAt });
-    
-    const newAuth: UserAuth = {
-      isAuthenticated: true,
-      userId: `user_${Date.now()}`,
-      username: `${tier.toUpperCase()}_User`,
-      email: null,
-      avatar: null,
-      license: {
+    try {
+      console.log('[App] ✅ License success:', { tier, expiresAt });
+      
+      const newAuth: UserAuth = {
+        isAuthenticated: true,
         userId: `user_${Date.now()}`,
-        tier: tier as 'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime',
-        expiresAt: expiresAt,
-        purchasedAt: Date.now(),
-        isActive: true
-      }
-    };
-    
-    console.log('[App] 💾 Saving auth state:', newAuth);
-    setAuth(newAuth);
-    
-    await new Promise(resolve => setTimeout(resolve, 300));
-    console.log('[App] ✅ Auth state saved, app should now load');
-    
-    toast.success(`Welcome to ${tier.toUpperCase()} tier!`, {
-      description: 'Dashboard loading...'
-    });
+        username: `${tier.toUpperCase()}_User`,
+        email: null,
+        avatar: null,
+        license: {
+          userId: `user_${Date.now()}`,
+          tier: tier as 'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime',
+          expiresAt: expiresAt,
+          purchasedAt: Date.now(),
+          isActive: true
+        }
+      };
+      
+      console.log('[App] 💾 Saving auth state:', newAuth);
+      setAuth(newAuth);
+      
+      await new Promise(resolve => setTimeout(resolve, 300));
+      console.log('[App] ✅ Auth state saved, app should now load');
+      
+      toast.success(`Welcome to ${tier.toUpperCase()} tier!`, {
+        description: 'Dashboard loading...'
+      });
+    } catch (error) {
+      console.error('[App] Error in license success handler:', error);
+      toast.error('Failed to save license. Please try again.');
+    }
   };
+
+  const handleError = (error: Error, errorInfo: { componentStack: string }) => {
+    const now = Date.now();
+    
+    if (now - lastErrorTimeRef.current < 5000) {
+      errorCountRef.current += 1;
+    } else {
+      errorCountRef.current = 1;
+    }
+    
+    lastErrorTimeRef.current = now;
+    
+    if (errorCountRef.current > 5) {
+      console.error('[App] Too many errors detected. Preventing refresh loop.');
+      setHasError(true);
+      return;
+    }
+    
+    console.error('[App] Error caught:', error, errorInfo);
+  };
+
+  if (hasError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <div className="cyber-card p-8 max-w-md w-full space-y-4 text-center">
+          <div className="text-destructive text-5xl">🔄</div>
+          <h2 className="text-xl font-bold text-destructive uppercase tracking-wide">
+            Error Loop Detected
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Multiple errors occurred. Please reload the page manually.
+          </p>
+          <Button
+            onClick={() => {
+              errorCountRef.current = 0;
+              setHasError(false);
+              window.location.reload();
+            }}
+            className="w-full"
+          >
+            Reload Application
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isInitializing) {
     return <LoadingFallback />;
   }
 
   if (!auth?.isAuthenticated) {
-    console.log('[App] User not authenticated, showing license auth');
     return (
-      <Suspense fallback={<LoadingFallback />}>
-        <LicenseAuth onSuccess={handleLicenseSuccess} />
-      </Suspense>
+      <ErrorBoundary
+        FallbackComponent={ComponentErrorFallback}
+        onError={handleError}
+      >
+        <Suspense fallback={<LoadingFallback />}>
+          <LicenseAuth onSuccess={handleLicenseSuccess} />
+        </Suspense>
+      </ErrorBoundary>
     );
   }
 
-  console.log('[App] User authenticated, showing main app');
   const Component = tabs.find(tab => tab.id === activeTab)?.component || EnhancedDashboard;
 
   return (
-    <>
+    <ErrorBoundary
+      FallbackComponent={ComponentErrorFallback}
+      onError={handleError}
+    >
       <Suspense fallback={null}>
         <RiskDisclosureBanner />
       </Suspense>
@@ -286,9 +352,7 @@ export default function App() {
         <div className={cn("container mx-auto", isMobile ? "p-0" : "p-6")}>
           <ErrorBoundary 
             FallbackComponent={ComponentErrorFallback}
-            onError={(error) => {
-              console.error('Component error caught:', error);
-            }}
+            onError={handleError}
           >
             <Suspense fallback={<LoadingFallback />}>
               {isMobile ? (
@@ -323,6 +387,6 @@ export default function App() {
         </Suspense>
       </ErrorBoundary>
     </div>
-    </>
+    </ErrorBoundary>
   );
 }
