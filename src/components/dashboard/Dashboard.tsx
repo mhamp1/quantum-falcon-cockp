@@ -1,4 +1,4 @@
-import { useKV } from '@/hooks/useKVFallback'
+import { useKV } from '@github/spark/hooks'
 import { TrendUp, TrendDown, Coins, Lightning, ArrowsClockwise, ChartLine, Target, Terminal, Brain, CheckCircle, ArrowRight, ShieldCheck } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import Wireframe3D from '@/components/shared/Wireframe3D'

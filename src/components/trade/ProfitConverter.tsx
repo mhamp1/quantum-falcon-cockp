@@ -6,7 +6,7 @@ import { ArrowsLeftRight, TrendUp, Coins } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfitParticles from './ProfitParticles'
 import ConversionBeam from './ConversionBeam'
-import { useKV } from '@/hooks/useKVFallback'
+import { useKV } from '@github/spark/hooks'
 
 interface ConversionStats {
   totalConverted: number
