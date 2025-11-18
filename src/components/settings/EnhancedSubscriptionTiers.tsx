@@ -50,10 +50,13 @@ export default function EnhancedSubscriptionTiers() {
     lifetime: 'UNLIMITED'
   }
 
-  const handleUpgrade = (tierId: string, tier: typeof LICENSE_TIERS[keyof typeof LICENSE_TIERS]) => {
+  const [isCheckingOut, setIsCheckingOut] = useState(false)
+
+  const handleUpgrade = async (tierId: string, tier: typeof LICENSE_TIERS[keyof typeof LICENSE_TIERS]) => {
     if (currentTier === tierId) {
       toast.info('Already Active', {
-        description: 'This is your current subscription tier'
+        description: 'This is your current subscription tier',
+        className: 'border-accent/50 bg-background/95'
       })
       return
     }
@@ -62,7 +65,28 @@ export default function EnhancedSubscriptionTiers() {
       return
     }
 
+    setIsCheckingOut(true)
     setSelectedTier(tierId as any)
+
+    toast.loading('Initiating checkout...', {
+      id: 'checkout-init',
+      className: 'border-primary/50 bg-background/95'
+    })
+
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const checkoutUrl = `https://buy.stripe.com/test_quantum_falcon_${tierId}?prefilled_email=${auth?.email || ''}&client_reference_id=${auth?.userId || ''}`
+    
+    window.open(checkoutUrl, '_blank')
+    
+    toast.dismiss('checkout-init')
+    toast.success('Checkout opened in new tab', {
+      description: 'Complete your purchase to activate this tier',
+      className: 'border-primary/50 bg-background/95',
+      duration: 5000
+    })
+
+    setIsCheckingOut(false)
     setCheckoutOpen(true)
   }
 
@@ -240,8 +264,8 @@ export default function EnhancedSubscriptionTiers() {
 
                   <Button
                     onClick={() => handleUpgrade(tierId, tier)}
-                    disabled={isCurrentTier}
-                    className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner transition-all ${
+                    disabled={isCurrentTier || isCheckingOut}
+                    className={`w-full mt-4 py-6 uppercase tracking-wider font-bold text-xs jagged-corner transition-all hover:scale-[1.02] ${
                       isCurrentTier
                         ? 'bg-muted text-muted-foreground cursor-not-allowed'
                         : tierId === 'starter'
@@ -257,7 +281,7 @@ export default function EnhancedSubscriptionTiers() {
                                   : 'bg-muted/20 hover:bg-muted/30 border-2 border-muted text-foreground'
                     }`}
                   >
-                    {isCurrentTier ? 'Current Tier' : tier.price === 0 ? 'Active' : 'Upgrade Now'}
+                    {isCheckingOut ? 'Processing...' : isCurrentTier ? 'Current Tier' : tier.price === 0 ? 'Active' : 'Upgrade Now'}
                   </Button>
                 </div>
               </div>

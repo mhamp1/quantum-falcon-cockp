@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { useKV } from '@/hooks/useKVFallback'
+import { useState, useEffect } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { 
   Wallet, 
   Key, 
@@ -14,9 +14,12 @@ import {
   EyeSlash, 
   CheckCircle,
   Warning,
-  Lock
+  Lock,
+  XCircle,
+  Lightning
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { settingsAPI } from '@/lib/api/settings-api'
 
 interface APIConnection {
   id: string
@@ -25,6 +28,7 @@ interface APIConnection {
   connected: boolean
   encrypted: boolean
   lastUsed?: number
+  walletAddress?: string
 }
 
 interface APICredentials {
@@ -49,6 +53,19 @@ export default function APIIntegration() {
   const [editingConnection, setEditingConnection] = useState<string | null>(null)
   const [tempApiKey, setTempApiKey] = useState('')
   const [tempApiSecret, setTempApiSecret] = useState('')
+  const [isConnecting, setIsConnecting] = useState<{ [key: string]: boolean }>({})
+  const [isTesting, setIsTesting] = useState<{ [key: string]: boolean }>({})
+  const [securityDismissed, setSecurityDismissed] = useState(false)
+  const [dismissCountdown, setDismissCountdown] = useState(5)
+
+  useEffect(() => {
+    if (!securityDismissed && dismissCountdown > 0) {
+      const timer = setTimeout(() => {
+        setDismissCountdown(prev => prev - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [dismissCountdown, securityDismissed])
 
   const encryptData = (data: string): string => {
     return btoa(data)
@@ -63,289 +80,409 @@ export default function APIIntegration() {
   }
 
   const connectWallet = async (connectionId: string) => {
-    toast.info('Connecting wallet...', {
-      description: 'Please approve the connection in your wallet'
+    setIsConnecting(prev => ({ ...prev, [connectionId]: true }))
+    
+    toast.loading('Connecting wallet...', {
+      id: `connect-${connectionId}`,
+      description: 'Please approve the connection in your wallet',
+      className: 'border-primary/50 bg-background/95'
     })
 
-    setTimeout(() => {
-      setConnections((current) => 
-        current?.map((conn) =>
-          conn.id === connectionId
-            ? { ...conn, connected: true, lastUsed: Date.now() }
-            : conn
-        ) || []
-      )
+    try {
+      const result = await settingsAPI.connectWallet(connectionId)
       
-      toast.success('Wallet connected', {
-        description: 'Your wallet has been securely connected'
+      if (result.success) {
+        setConnections((current) => 
+          (current || []).map((conn) =>
+            conn.id === connectionId
+              ? { ...conn, connected: true, lastUsed: Date.now(), walletAddress: result.data?.address }
+              : conn
+          )
+        )
+        
+        toast.dismiss(`connect-${connectionId}`)
+        toast.success('✓ Wallet connected', {
+          description: `Address: ${result.data?.address || 'Connected'}`,
+          className: 'border-primary/50 bg-background/95',
+          duration: 4000
+        })
+      } else {
+        throw new Error(result.error || 'Failed to connect')
+      }
+    } catch (error: any) {
+      toast.dismiss(`connect-${connectionId}`)
+      toast.error('✗ Connection failed', {
+        description: error.message || 'Could not connect to wallet',
+        className: 'border-destructive/50 bg-background/95'
       })
-    }, 1500)
+    } finally {
+      setIsConnecting(prev => ({ ...prev, [connectionId]: false }))
+    }
   }
 
-  const disconnectConnection = (connectionId: string) => {
-    setConnections((current) =>
-      current?.map((conn) =>
-        conn.id === connectionId
-          ? { ...conn, connected: false }
-          : conn
-      ) || []
-    )
+  const disconnectConnection = async (connectionId: string) => {
+    const connection = connections?.find(c => c.id === connectionId)
+    
+    if (window.confirm(`Are you sure you want to disconnect ${connection?.name}?`)) {
+      toast.loading('Disconnecting...', { id: `disconnect-${connectionId}` })
+      
+      try {
+        await settingsAPI.disconnectWallet(connectionId)
+        
+        setConnections((current) =>
+          (current || []).map((conn) =>
+            conn.id === connectionId
+              ? { ...conn, connected: false, walletAddress: undefined }
+              : conn
+          )
+        )
 
-    setCredentials((current) => {
-      const updated = { ...current }
-      delete updated[connectionId]
-      return updated
-    })
+        setCredentials((current) => {
+          const updated = { ...(current || {}) }
+          delete updated[connectionId]
+          return updated
+        })
 
-    toast.info('Disconnected', {
-      description: 'Connection has been removed'
-    })
+        toast.dismiss(`disconnect-${connectionId}`)
+        toast.success('✓ Disconnected', {
+          description: `${connection?.name} has been removed`,
+          className: 'border-primary/50 bg-background/95'
+        })
+      } catch (error) {
+        toast.dismiss(`disconnect-${connectionId}`)
+        toast.error('✗ Failed to disconnect')
+      }
+    }
   }
 
-  const saveAPIKeys = (connectionId: string) => {
-    if (!tempApiKey.trim()) {
-      toast.error('API Key required', {
-        description: 'Please enter your API key'
+  const setupAPIConnection = () => {
+    if (!editingConnection || !tempApiKey) {
+      toast.error('✗ Invalid input', {
+        description: 'API Key is required',
+        className: 'border-destructive/50 bg-background/95'
       })
       return
     }
 
-    const encrypted = {
-      apiKey: encryptData(tempApiKey),
-      apiSecret: tempApiSecret ? encryptData(tempApiSecret) : '',
-      enabled: true
-    }
+    toast.loading('Setting up integration...', { id: 'api-setup' })
 
-    setCredentials((current) => ({
-      ...current,
-      [connectionId]: encrypted
-    }))
+    setTimeout(() => {
+      setCredentials((current) => ({
+        ...(current || {}),
+        [editingConnection]: {
+          apiKey: encryptData(tempApiKey),
+          apiSecret: tempApiSecret ? encryptData(tempApiSecret) : '',
+          enabled: true
+        }
+      }))
 
-    setConnections((current) =>
-      current?.map((conn) =>
-        conn.id === connectionId
-          ? { ...conn, connected: true, lastUsed: Date.now() }
-          : conn
-      ) || []
-    )
+      setConnections((current) =>
+        (current || []).map((conn) =>
+          conn.id === editingConnection
+            ? { ...conn, connected: true, lastUsed: Date.now() }
+            : conn
+        )
+      )
 
-    setEditingConnection(null)
-    setTempApiKey('')
-    setTempApiSecret('')
+      toast.dismiss('api-setup')
+      toast.success('✓ Setup complete', {
+        description: 'API integration configured successfully',
+        className: 'border-primary/50 bg-background/95'
+      })
 
-    toast.success('API credentials saved', {
-      description: 'Your keys are encrypted and stored securely'
+      setEditingConnection(null)
+      setTempApiKey('')
+      setTempApiSecret('')
+    }, 1200)
+  }
+
+  const testConnection = async (connectionId: string) => {
+    setIsTesting(prev => ({ ...prev, [connectionId]: true }))
+    
+    toast.loading('Testing connection...', {
+      id: `test-${connectionId}`,
+      className: 'border-primary/50 bg-background/95'
     })
+
+    try {
+      const result = await settingsAPI.testAPIConnection(connectionId)
+      
+      toast.dismiss(`test-${connectionId}`)
+      
+      if (result.success) {
+        toast.success('✓ Connection successful', {
+          description: `Latency: ${result.data?.latency}ms`,
+          className: 'border-primary/50 bg-background/95'
+        })
+      } else {
+        toast.error('✗ Connection failed', {
+          description: result.error || 'Could not reach endpoint',
+          className: 'border-destructive/50 bg-background/95'
+        })
+      }
+    } catch (error) {
+      toast.dismiss(`test-${connectionId}`)
+      toast.error('✗ Test failed')
+    } finally {
+      setIsTesting(prev => ({ ...prev, [connectionId]: false }))
+    }
   }
 
-  const toggleKeyVisibility = (connectionId: string) => {
-    setShowKeys((current) => ({
-      ...current,
-      [connectionId]: !current[connectionId]
-    }))
+  const getConnectionIcon = (type: APIConnection['type']) => {
+    switch (type) {
+      case 'wallet':
+        return Wallet
+      case 'exchange':
+        return LinkSimple
+      case 'rpc':
+        return Lightning
+      default:
+        return Key
+    }
   }
-
-  if (!connections) return null
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h3 className="text-lg font-bold uppercase tracking-wider text-primary hud-text">
-          API Integrations
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Connect wallets, exchanges, and RPC endpoints securely
-        </p>
-      </div>
+      {!securityDismissed && (
+        <div className="cyber-card-accent p-6 relative overflow-hidden">
+          <div className="absolute inset-0 diagonal-stripes opacity-5" />
+          <div className="relative z-10">
+            <div className="flex items-start gap-3 mb-4">
+              <ShieldCheck size={24} weight="duotone" className="text-accent flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-lg font-bold uppercase tracking-wide text-accent mb-2">Security Notice</h3>
+                <p className="text-sm text-foreground leading-relaxed mb-3">
+                  Your API keys and credentials are encrypted and stored locally on your device. Never share your private keys or
+                  seed phrases. Quantum Falcon will never ask for your password or private keys.
+                </p>
+                <ul className="space-y-2 text-xs text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <Lock size={12} weight="fill" className="text-accent" />
+                    <span>All credentials are encrypted using AES-256 encryption</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ShieldCheck size={12} weight="fill" className="text-accent" />
+                    <span>Keys are stored locally and never transmitted to external servers</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Warning size={12} weight="fill" className="text-accent" />
+                    <span>Use API-only keys with limited permissions when possible</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={dismissCountdown > 0}
+              onClick={() => setSecurityDismissed(true)}
+              className={`border-accent text-accent hover:bg-accent/10 ${dismissCountdown > 0 ? 'opacity-50' : ''}`}
+            >
+              {dismissCountdown > 0 ? `Dismiss in ${dismissCountdown}s` : 'I Understand'}
+            </Button>
+          </div>
+        </div>
+      )}
 
-      <div className="space-y-4">
-        {connections.map((connection) => {
-          const isEditing = editingConnection === connection.id
-          const creds = credentials?.[connection.id]
+      <div className="cyber-card p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <LinkSimple size={32} weight="duotone" className="text-primary" />
+          <div>
+            <h2 className="text-2xl font-bold uppercase tracking-wide text-primary">API Integrations</h2>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Connect wallets and services</p>
+          </div>
+        </div>
 
-          return (
-            <div key={connection.id} className="cyber-card p-4 space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded ${
-                    connection.type === 'wallet' ? 'bg-primary/20' :
-                    connection.type === 'exchange' ? 'bg-accent/20' :
-                    'bg-secondary/20'
-                  }`}>
-                    {connection.type === 'wallet' ? (
-                      <Wallet size={20} weight="duotone" className="text-primary" />
-                    ) : connection.type === 'exchange' ? (
-                      <LinkSimple size={20} weight="duotone" className="text-accent" />
-                    ) : (
-                      <Key size={20} weight="duotone" className="text-secondary" />
-                    )}
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-bold uppercase tracking-wider text-sm">
-                      {connection.name}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant={connection.connected ? 'default' : 'outline'} className="text-xs">
-                        {connection.connected ? 'Connected' : 'Not Connected'}
-                      </Badge>
-                      {connection.encrypted && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Lock size={12} />
-                          <span>Encrypted</span>
-                        </div>
-                      )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {connections?.map((connection) => {
+            const Icon = getConnectionIcon(connection.type)
+            const cred = credentials?.[connection.id]
+            const isLoading = isConnecting[connection.id] || isTesting[connection.id]
+
+            return (
+              <div
+                key={connection.id}
+                className={`cyber-card p-4 relative overflow-hidden transition-all hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.2)] ${
+                  connection.connected ? 'border-primary/50' : 'border-muted/30'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 border-2 ${connection.connected ? 'border-primary bg-primary/10' : 'border-muted/30 bg-muted/10'}`}>
+                      <Icon size={20} weight="duotone" className={connection.connected ? 'text-primary' : 'text-muted-foreground'} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold uppercase tracking-wide text-sm">{connection.name}</h4>
+                      <p className="text-xs text-muted-foreground capitalize">{connection.type}</p>
                     </div>
                   </div>
+                  {connection.connected ? (
+                    <Badge className="bg-primary/20 border border-primary text-primary text-[9px]">
+                      CONNECTED
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-muted/20 border border-muted text-muted-foreground text-[9px]">
+                      DISCONNECTED
+                    </Badge>
+                  )}
                 </div>
 
-                {!isEditing && (
-                  <div className="flex gap-2">
-                    {connection.connected ? (
+                {connection.walletAddress && (
+                  <div className="mb-3 p-2 bg-background/60 border border-primary/20">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Address</p>
+                    <p className="text-xs font-mono text-primary">{connection.walletAddress}</p>
+                  </div>
+                )}
+
+                {connection.connected && connection.lastUsed && (
+                  <p className="text-[10px] text-muted-foreground mb-3">
+                    Last used: {new Date(connection.lastUsed).toLocaleString()}
+                  </p>
+                )}
+
+                <div className="flex gap-2">
+                  {connection.type === 'wallet' ? (
+                    connection.connected ? (
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="destructive"
                         onClick={() => disconnectConnection(connection.id)}
-                        className="jagged-corner-small"
+                        disabled={isLoading}
+                        className="flex-1 text-xs"
                       >
+                        <XCircle size={14} weight="duotone" className="mr-1" />
                         Disconnect
                       </Button>
                     ) : (
-                      <>
-                        {connection.type === 'wallet' ? (
-                          <Button
-                            size="sm"
-                            onClick={() => connectWallet(connection.id)}
-                            className="jagged-corner-small"
-                          >
-                            Connect
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => setEditingConnection(connection.id)}
-                            className="jagged-corner-small"
-                          >
-                            Setup
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {isEditing && (
-                <div className="space-y-4 pt-4 border-t border-primary/30">
-                  <div className="space-y-2">
-                    <Label htmlFor={`${connection.id}-key`} className="text-xs uppercase tracking-wider">
-                      API Key / Public Key
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id={`${connection.id}-key`}
-                        type={showKeys[connection.id] ? 'text' : 'password'}
-                        value={tempApiKey}
-                        onChange={(e) => setTempApiKey(e.target.value)}
-                        placeholder="Enter your API key"
-                        className="flex-1 jagged-corner-small"
-                      />
                       <Button
                         size="sm"
-                        variant="outline"
-                        onClick={() => toggleKeyVisibility(connection.id)}
+                        onClick={() => connectWallet(connection.id)}
+                        disabled={isLoading}
+                        className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary text-xs"
                       >
-                        {showKeys[connection.id] ? <EyeSlash size={16} /> : <Eye size={16} />}
+                        {isLoading ? 'Connecting...' : (
+                          <>
+                            <Wallet size={14} weight="duotone" className="mr-1" />
+                            Connect
+                          </>
+                        )}
                       </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor={`${connection.id}-secret`} className="text-xs uppercase tracking-wider">
-                      API Secret / Private Key (Optional)
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id={`${connection.id}-secret`}
-                        type={showKeys[connection.id] ? 'text' : 'password'}
-                        value={tempApiSecret}
-                        onChange={(e) => setTempApiSecret(e.target.value)}
-                        placeholder="Enter your API secret"
-                        className="flex-1 jagged-corner-small"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="bg-muted/30 p-3 jagged-corner-small flex items-start gap-2">
-                    <ShieldCheck size={16} className="text-primary flex-shrink-0 mt-0.5" weight="duotone" />
-                    <p className="text-xs text-muted-foreground">
-                      Your API credentials are encrypted using AES-256 encryption and stored securely. 
-                      They are never transmitted to external servers.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => saveAPIKeys(connection.id)}
-                      className="jagged-corner-small"
-                    >
-                      Save & Connect
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setEditingConnection(null)
-                        setTempApiKey('')
-                        setTempApiSecret('')
-                      }}
-                      className="jagged-corner-small"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
+                    )
+                  ) : (
+                    <>
+                      {connection.connected ? (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => testConnection(connection.id)}
+                            disabled={isLoading}
+                            className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs"
+                          >
+                            {isTesting[connection.id] ? 'Testing...' : 'Test'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => disconnectConnection(connection.id)}
+                            className="flex-1 text-xs"
+                          >
+                            Remove
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setEditingConnection(connection.id)
+                            setTempApiKey('')
+                            setTempApiSecret('')
+                          }}
+                          className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary text-xs"
+                        >
+                          <Key size={14} weight="duotone" className="mr-1" />
+                          Setup
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
-              )}
-
-              {connection.connected && creds && !isEditing && (
-                <div className="pt-3 border-t border-primary/30 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <CheckCircle size={14} className="text-primary" weight="fill" />
-                    <span>Last used: {connection.lastUsed ? new Date(connection.lastUsed).toLocaleDateString() : 'Never'}</span>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setEditingConnection(connection.id)
-                      const decryptedKey = creds.apiKey ? decryptData(creds.apiKey) : ''
-                      const decryptedSecret = creds.apiSecret ? decryptData(creds.apiSecret) : ''
-                      setTempApiKey(decryptedKey)
-                      setTempApiSecret(decryptedSecret)
-                    }}
-                    className="text-xs"
-                  >
-                    Edit Credentials
-                  </Button>
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-
-      <div className="cyber-card-accent p-4 space-y-3">
-        <div className="flex items-start gap-3">
-          <Warning size={20} className="text-accent flex-shrink-0 mt-0.5" weight="duotone" />
-          <div className="space-y-1">
-            <h4 className="text-sm font-bold uppercase tracking-wider">Security Notice</h4>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Never share your API keys or private keys with anyone. Enable IP restrictions and read-only permissions 
-              when possible. Quantum Falcon uses industry-standard encryption but you are responsible for the security 
-              of your accounts.
-            </p>
-          </div>
+              </div>
+            )
+          })}
         </div>
       </div>
+
+      <Dialog open={editingConnection !== null} onOpenChange={() => setEditingConnection(null)}>
+        <DialogContent className="cyber-card border-2 border-primary max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl uppercase tracking-wide text-primary">
+              Setup API Integration
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Enter your API credentials for {connections?.find(c => c.id === editingConnection)?.name}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider font-bold">API Key *</Label>
+              <div className="relative">
+                <Input
+                  type={showKeys[editingConnection || ''] ? 'text' : 'password'}
+                  value={tempApiKey}
+                  onChange={(e) => setTempApiKey(e.target.value)}
+                  placeholder="Enter your API key"
+                  className="pr-10 font-mono text-xs"
+                />
+                <button
+                  onClick={() => setShowKeys(prev => ({ ...prev, [editingConnection || '']: !prev[editingConnection || ''] }))}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showKeys[editingConnection || ''] ? (
+                    <EyeSlash size={16} weight="duotone" />
+                  ) : (
+                    <Eye size={16} weight="duotone" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider font-bold">
+                API Secret <span className="text-muted-foreground font-normal">(Optional)</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  type="password"
+                  value={tempApiSecret}
+                  onChange={(e) => setTempApiSecret(e.target.value)}
+                  placeholder="Enter your API secret (if required)"
+                  className="font-mono text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setEditingConnection(null)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={setupAPIConnection}
+                disabled={!tempApiKey}
+                className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary"
+              >
+                <CheckCircle size={16} weight="duotone" className="mr-2" />
+                Connect
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
