@@ -128,8 +128,8 @@ Copies: 2,847`
             title="AI Strategy Assistant"
             subtitle="Let AI write & optimize for you"
             tooltip={{
-              title: "AI-Powered Strategy Builder",
-              description: "Let the AI write, optimize, and explain strategies for you — just describe your idea in plain English.",
+              title: "Create God-Tier Strategies (Pro+)",
+              description: "GPT-4 powered code completion, real-time backtesting, and one-click deployment. Build strategies that actually win.",
             }}
             delay={1.6}
           />

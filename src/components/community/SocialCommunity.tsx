@@ -279,9 +279,9 @@ export default function SocialCommunity() {
               <div className="flex items-center gap-3">
                 <Users size={32} weight="duotone" className="text-primary neon-glow-primary" />
                 <div>
-                  <h2 className="text-2xl font-bold uppercase tracking-[0.2em] text-primary">Community Hub</h2>
+                  <h2 className="text-2xl font-bold uppercase tracking-[0.2em] text-primary">Strategy Marketplace & Flash Sales</h2>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    {strategies.length}+ Strategies • Growing Daily • 100% Dynamic
+                    {strategies.length}+ Live Strategies • One-Click Deploy • Earn Royalties
                   </p>
                 </div>
               </div>

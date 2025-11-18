@@ -182,11 +182,11 @@ export default function Agents() {
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 blur-3xl opacity-30" />
         <div className="relative">
           <h2 className="text-3xl md:text-4xl font-bold tracking-[0.2em] uppercase hud-text">
-            <span className="text-primary neon-glow">AI AGENT</span>
-            <span className="text-secondary neon-glow-secondary ml-3">COMMAND</span>
+            <span className="text-primary neon-glow">AGENT CONTROL</span>
+            <span className="text-secondary neon-glow-secondary ml-3">& LEVELING</span>
           </h2>
           <p className="text-muted-foreground uppercase tracking-wide text-sm mt-2">
-            AUTONOMOUS TRADING INTELLIGENCE // MULTI-AGENT COORDINATION SYSTEM
+            REAL-TIME AGENT MANAGEMENT // XP PROGRESSION // LIVE METRICS
           </p>
         </div>
       </div>

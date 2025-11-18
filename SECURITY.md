@@ -2,11 +2,22 @@
 
 ## Overview
 
-Security is our top priority. This document outlines our security practices and how we protect sensitive information, particularly license keys and authentication data.
+Security is our top priority. **WE NEVER STORE YOUR PRIVATE KEYS.** All transaction signing occurs client-side in your wallet, ensuring you maintain full custody of your assets at all times.
+
+This document outlines our security practices and how we protect sensitive information, particularly license keys and authentication data.
 
 ---
 
 ## 🚨 Critical Security Principles
+
+### Wallet & Private Key Security
+
+**YOUR PRIVATE KEYS ARE NEVER STORED OR TRANSMITTED.**
+
+- All wallet transactions signed client-side in your browser
+- Private keys remain exclusively in your wallet (Phantom, Solflare, etc.)
+- Zero custody model — You maintain complete control of your assets
+- No backend access to your wallet credentials
 
 ### Master Key Protection
 
@@ -27,10 +38,11 @@ Security is our top priority. This document outlines our security practices and 
 ### What IS NOT in This Repository
 
 ❌ Master key  
-❌ Private keys  
+❌ **Your wallet private keys (NEVER stored anywhere)**  
 ❌ Database credentials  
 ❌ API secrets  
 ❌ User license keys  
+❌ Transaction signing keys  
 
 ---
 
@@ -252,8 +264,8 @@ For critical vulnerabilities requiring immediate attention:
 
 ## 📜 Security Policy Version
 
-- **Version**: 2.0
-- **Last Updated**: 2024
+- **Version**: 3.0
+- **Last Updated**: November 18, 2025
 - **Next Review**: Quarterly
 
 ---
