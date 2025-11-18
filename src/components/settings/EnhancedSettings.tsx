@@ -17,7 +17,7 @@ import {
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
 import EditProfileDialog from '@/components/shared/EditProfileDialog'
-import EnhancedSubscriptionTiers from './EnhancedSubscriptionTiers'
+import SubscriptionTiersWithStrategies from './SubscriptionTiersWithStrategies'
 import APIIntegration from './APIIntegration'
 import LegalSection from './LegalSection'
 import SettingsSearchBar from './SettingsSearchBar'
@@ -1598,7 +1598,7 @@ export default function EnhancedSettings() {
         </TabsContent>
 
         <TabsContent value="subscription">
-          <EnhancedSubscriptionTiers />
+          <SubscriptionTiersWithStrategies />
         </TabsContent>
 
         <TabsContent value="devices">
