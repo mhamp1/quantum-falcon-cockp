@@ -381,7 +381,7 @@ Version: ${version}`
     filterContent(doc.content)
   )
 
-  const handleRiskAcceptance = () => {
+  const handleRiskAcceptance = async () => {
     const acknowledgmentData = {
       acknowledgedAt: Date.now(),
       userAgent: navigator.userAgent,
@@ -389,9 +389,12 @@ Version: ${version}`
       sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     }
     
-    setAcknowledgment(acknowledgmentData)
-    setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
+    console.log('[Legal Section] 💾 Saving risk acceptance...')
+    await setAcknowledgment(acknowledgmentData)
+    await setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
     setShowRiskModal(false)
+    
+    console.log('[Legal Section] ✅ Risk acceptance saved - banner should disappear')
     
     toast.success('Risk Disclosure Accepted', {
       description: 'Your acknowledgment has been permanently logged. The banner will now disappear.'

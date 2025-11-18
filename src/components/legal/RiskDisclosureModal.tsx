@@ -110,8 +110,9 @@ export default function RiskDisclosureModal({
     
     setScrollProgress(Math.min(percent, 100))
     
-    if (percent >= 95) {
+    if (percent >= 98) {
       setCanAccept(true)
+      console.log('[Risk Modal] ✅ User scrolled to 98%+ - checkboxes now enabled')
     }
   }
 
@@ -119,19 +120,27 @@ export default function RiskDisclosureModal({
 
   const handleAccept = () => {
     if (isAcceptEnabled) {
+      console.log('[Risk Modal] ✅ User clicked "Accept & Continue" - both checkboxes checked')
+      console.log('[Risk Modal] 📋 Check 1 (Read disclosure):', check1)
+      console.log('[Risk Modal] 📋 Check 2 (Accept responsibility):', check2)
+      console.log('[Risk Modal] 📊 Scroll progress:', scrollProgress.toFixed(1) + '%')
+      
       fetch('/api/legal/accept-risk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           version,
           timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent
+          userAgent: navigator.userAgent,
+          scrollProgress: scrollProgress.toFixed(2)
         })
-      }).catch(err => console.error('Failed to log acceptance:', err))
+      }).catch(err => console.log('[Risk Modal] Backend logging failed (OK - using KV):', err))
 
+      console.log('[Risk Modal] 🎉 Calling onAccept() - banner should now DISAPPEAR')
       onAccept()
+      
       toast.success('Risk Disclosure Accepted', {
-        description: 'You can now proceed with full platform access'
+        description: 'The warning banner will now disappear permanently.'
       })
     }
   }
@@ -232,7 +241,7 @@ export default function RiskDisclosureModal({
                   animate={{ opacity: 1 }}
                   className="text-xs text-center text-muted-foreground bg-muted/50 p-2 rounded"
                 >
-                  ⬇️ Scroll to the bottom to unlock acceptance
+                  ⬇️ Scroll to at least 98% to unlock acceptance ({scrollProgress.toFixed(0)}% complete)
                 </motion.p>
               )}
 
