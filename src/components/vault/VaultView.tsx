@@ -3,13 +3,15 @@ import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon, CaretLeft, CaretRight, Play, ChartLine } from '@phosphor-icons/react'
+import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon, CaretLeft, CaretRight, Play, ChartLine, Check } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import SolanaLogo from '@/components/shared/SolanaLogo'
 import VaultTutorial from './VaultTutorial'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
+import { generateIntelligentOffers, getTimeUntilNextRotation, type IntelligentOffer } from '@/lib/intelligentOffers'
+import type { UserAuth } from '@/lib/auth'
 
 interface VaultTransaction {
   id: string
@@ -27,120 +29,6 @@ interface FloatingCoin {
   rotation: number
 }
 
-interface FlashSaleCard {
-  id: string
-  title: string
-  description: string
-  discount: number
-  icon: 'lightning' | 'star' | 'rocket'
-  category: 'boost' | 'perk' | 'cosmetic'
-  originalPrice: number
-  color: 'primary' | 'accent' | 'destructive'
-}
-
-const FLASH_SALE_POOL: FlashSaleCard[] = [
-  {
-    id: 'xp-surge',
-    title: 'XP SURGE',
-    description: '+50% XP earning boost for 24 hours',
-    discount: 15,
-    icon: 'lightning',
-    category: 'boost',
-    originalPrice: 299,
-    color: 'primary'
-  },
-  {
-    id: 'flash-execution',
-    title: 'FLASH EXECUTION',
-    description: 'Priority routing for instant trades during volatile market moves',
-    discount: 20,
-    icon: 'rocket',
-    category: 'perk',
-    originalPrice: 499,
-    color: 'accent'
-  },
-  {
-    id: 'instant-xp',
-    title: 'INSTANT 500 XP',
-    description: 'Immediate level boost with no grinding required',
-    discount: 30,
-    icon: 'star',
-    category: 'boost',
-    originalPrice: 199,
-    color: 'destructive'
-  },
-  {
-    id: 'trade-multiplier',
-    title: 'TRADE MULTIPLIER',
-    description: '2x trading volume credits for 48 hours',
-    discount: 25,
-    icon: 'lightning',
-    category: 'boost',
-    originalPrice: 399,
-    color: 'primary'
-  },
-  {
-    id: 'diamond-badge',
-    title: 'DIAMOND BADGE',
-    description: 'Exclusive diamond tier profile badge',
-    discount: 35,
-    icon: 'star',
-    category: 'cosmetic',
-    originalPrice: 599,
-    color: 'accent'
-  },
-  {
-    id: 'stealth-mode',
-    title: 'STEALTH MODE',
-    description: 'Hide your trades from public leaderboard',
-    discount: 18,
-    icon: 'rocket',
-    category: 'perk',
-    originalPrice: 349,
-    color: 'destructive'
-  },
-  {
-    id: 'mega-boost',
-    title: 'MEGA BOOST',
-    description: '+100% rewards on all activities for 12 hours',
-    discount: 40,
-    icon: 'lightning',
-    category: 'boost',
-    originalPrice: 799,
-    color: 'primary'
-  },
-  {
-    id: 'priority-support',
-    title: 'PRIORITY SUPPORT',
-    description: 'VIP customer support access for 30 days',
-    discount: 22,
-    icon: 'star',
-    category: 'perk',
-    originalPrice: 299,
-    color: 'accent'
-  },
-  {
-    id: 'cosmic-frame',
-    title: 'COSMIC FRAME',
-    description: 'Animated cosmic profile frame',
-    discount: 28,
-    icon: 'rocket',
-    category: 'cosmetic',
-    originalPrice: 449,
-    color: 'destructive'
-  },
-  {
-    id: 'lucky-streak',
-    title: 'LUCKY STREAK',
-    description: '+15% success rate on high-risk trades',
-    discount: 33,
-    icon: 'lightning',
-    category: 'perk',
-    originalPrice: 549,
-    color: 'primary'
-  }
-]
-
 export default function VaultView() {
   const [btcBalance, setBtcBalance] = useKV<number>('btc-vault-balance', 0.00234)
   const [solanaAccumulated, setSolanaAccumulated] = useKV<number>('solana-accumulated', 127.89)
@@ -150,12 +38,20 @@ export default function VaultView() {
   const [withdrawAddress, setWithdrawAddress] = useState('')
   const [floatingCoins, setFloatingCoins] = useState<FloatingCoin[]>([])
   const [showTutorial, setShowTutorial] = useState(false)
-  const [flashSales, setFlashSales] = useState<FlashSaleCard[]>([])
+  const [intelligentOffers, setIntelligentOffers] = useState<IntelligentOffer[]>([])
   const [timeRemaining, setTimeRemaining] = useState('')
   const [btcPrice, setBtcPrice] = useState(67420)
   const [solPrice, setSolPrice] = useState(178.5)
   const [weeklyGrowth, setWeeklyGrowth] = useState(47.3)
   const [autoConvertEnabled, setAutoConvertEnabled] = useKV<boolean>('auto-convert-enabled', true)
+  const [auth] = useKV<UserAuth>('user-auth', {
+    isAuthenticated: false,
+    userId: null,
+    username: null,
+    email: null,
+    avatar: null,
+    license: null
+  })
   const canvasRef = useRef<HTMLCanvasElement>(null)
   
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
@@ -169,47 +65,32 @@ export default function VaultView() {
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
 
-  const getRandomFlashSales = (seed: number): FlashSaleCard[] => {
-    const shuffled = [...FLASH_SALE_POOL].sort(() => {
-      const x = Math.sin(seed++) * 10000
-      return x - Math.floor(x) - 0.5
+  const updateIntelligentOffers = useCallback(() => {
+    const userTier = auth?.license?.tier || 'free'
+    const offers = generateIntelligentOffers({
+      userTier,
+      userLevel: 5,
+      recentStrategies: [],
+      totalTrades: 0,
+      marketVolatility: 'high'
     })
-    return shuffled.slice(0, 5)
-  }
+    setIntelligentOffers(offers)
+  }, [auth])
 
-  const getCurrentRotationSeed = (): number => {
-    const now = Date.now()
-    const threeHours = 3 * 60 * 60 * 1000
-    return Math.floor(now / threeHours)
-  }
-
-  const getTimeUntilNextRotation = (): string => {
-    const now = Date.now()
-    const threeHours = 3 * 60 * 60 * 1000
-    const nextRotation = Math.ceil(now / threeHours) * threeHours
-    const diff = nextRotation - now
-    
-    const hours = Math.floor(diff / (60 * 60 * 1000))
-    const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000))
-    const seconds = Math.floor((diff % (60 * 1000)) / 1000)
-    
+  const getTimeUntilNextRotationFormatted = (): string => {
+    const { hours, minutes, seconds } = getTimeUntilNextRotation()
     return `${hours}H ${minutes}M ${seconds}S REMAINING`
   }
 
   useEffect(() => {
-    const updateFlashSales = () => {
-      const seed = getCurrentRotationSeed()
-      setFlashSales(getRandomFlashSales(seed))
-    }
-
-    updateFlashSales()
+    updateIntelligentOffers()
 
     const interval = setInterval(() => {
-      setTimeRemaining(getTimeUntilNextRotation())
+      setTimeRemaining(getTimeUntilNextRotationFormatted())
     }, 1000)
 
     const rotationCheck = setInterval(() => {
-      updateFlashSales()
+      updateIntelligentOffers()
     }, 60000)
     
     const priceUpdateInterval = setInterval(() => {
@@ -223,7 +104,7 @@ export default function VaultView() {
       clearInterval(rotationCheck)
       clearInterval(priceUpdateInterval)
     }
-  }, [])
+  }, [updateIntelligentOffers])
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return
@@ -387,22 +268,14 @@ export default function VaultView() {
     })
   }
 
-  const handlePurchaseFlashSale = (card: FlashSaleCard) => {
-    const finalPrice = card.originalPrice * (1 - card.discount / 100)
+  const handlePurchaseOffer = (offer: IntelligentOffer) => {
     toast.success('Purchase successful!', {
-      description: `${card.title} activated for $${finalPrice.toFixed(0)}`
+      description: `${offer.title} activated for $${offer.finalPrice.toFixed(2)}!`
     })
   }
 
-  const getIconComponent = (iconType: 'lightning' | 'star' | 'rocket') => {
-    switch (iconType) {
-      case 'lightning':
-        return Lightning
-      case 'star':
-        return Star
-      case 'rocket':
-        return Rocket
-    }
+  const getIconComponent = (icon: any) => {
+    return icon
   }
 
   const getColorClasses = (color: 'primary' | 'accent' | 'destructive') => {
@@ -657,94 +530,106 @@ export default function VaultView() {
 
           <div className="relative">
             <div className="overflow-hidden" ref={emblaRef}>
-              <div className="flex gap-4">
-                {flashSales.map((card, index) => {
-                  const Icon = getIconComponent(card.icon)
-                  const colors = getColorClasses(card.color)
-                  const finalPrice = card.originalPrice * (1 - card.discount / 100)
+              <div className="flex gap-3">
+                {intelligentOffers.map((offer, index) => {
+                  const Icon = getIconComponent(offer.icon)
+                  const colors = getColorClasses(offer.color)
                   
                   return (
                     <div
-                      key={card.id}
-                      className="flex-[0_0_100%] min-w-0 md:flex-[0_0_calc(50%-8px)] lg:flex-[0_0_calc(33.333%-11px)]"
+                      key={offer.id}
+                      className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_calc(50%-6px)] lg:flex-[0_0_280px)]"
                     >
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: index * 0.1 }}
-                        className={`relative overflow-hidden group cursor-pointer border-3 ${colors.border} p-6 jagged-corner bg-gradient-to-br from-card to-background ${colors.shadow} ${colors.hoverShadow} transition-all h-full`}
+                        className={`relative overflow-hidden group cursor-pointer border-2 ${colors.border} p-4 jagged-corner-small bg-gradient-to-br from-card to-background ${colors.shadow} ${colors.hoverShadow} transition-all h-full`}
                         whileHover={{ scale: 1.02 }}
                       >
-                        <div className="absolute top-2 left-2 z-20">
+                        <div className="absolute top-1.5 left-1.5 z-20">
                           <motion.div 
-                            className="px-2 py-1 bg-destructive border-2 border-destructive jagged-corner-small"
-                            animate={{ rotate: [0, -2, 2, -2, 0] }}
+                            className="px-2 py-0.5 bg-destructive border border-destructive jagged-corner-small"
+                            animate={{ rotate: [0, -1, 1, -1, 0] }}
                             transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
                           >
-                            <span className="text-[10px] uppercase tracking-[0.2em] font-black text-destructive-foreground">
-                              -{card.discount}% OFF
+                            <span className="text-[9px] uppercase tracking-[0.15em] font-black text-destructive-foreground">
+                              -{offer.discount}% OFF
                             </span>
                           </motion.div>
                         </div>
 
-                        <div className={`absolute top-0 right-0 w-32 h-32 ${colors.bg} rounded-full blur-3xl group-hover:opacity-100 transition-all opacity-50`} />
-                        <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-${card.color} to-transparent`} />
+                        {offer.urgency === 'high' && (
+                          <div className="absolute top-1.5 right-1.5 z-20">
+                            <motion.div 
+                              className="px-2 py-0.5 bg-primary border border-primary jagged-corner-small"
+                              animate={{ opacity: [1, 0.6, 1] }}
+                              transition={{ duration: 1, repeat: Infinity }}
+                            >
+                              <span className="text-[9px] uppercase tracking-[0.15em] font-black text-primary-foreground">
+                                🔥 HOT
+                              </span>
+                            </motion.div>
+                          </div>
+                        )}
+
+                        <div className={`absolute top-0 right-0 w-24 h-24 ${colors.bg} rounded-full blur-2xl group-hover:opacity-100 transition-all opacity-40`} />
                         
                         <div className="relative z-10 pt-6">
-                          <div className="flex items-center justify-center mb-4">
-                            <div className={`p-4 jagged-corner ${colors.bg} border-3 ${colors.border}`}>
-                              <Icon size={48} weight="duotone" className={colors.text} />
+                          <div className="flex items-center justify-center mb-3">
+                            <div className={`p-3 jagged-corner-small ${colors.bg} border-2 ${colors.border}`}>
+                              <Icon size={36} weight="duotone" className={colors.text} />
                             </div>
                           </div>
                           
-                          <div className="text-center mb-4">
-                            <h3 className={`text-lg uppercase tracking-[0.15em] font-black mb-2 ${colors.text} ${colors.glow}`} style={{
-                              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px currentColor',
-                              WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
-                            }}>
-                              {card.title}
-                            </h3>
-                            <div className="px-2 py-1 bg-card/80 border border-border inline-block mb-3">
-                              <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-muted-foreground">
-                                {card.category}
+                          <div className="text-center mb-3">
+                            <div className="px-2 py-0.5 bg-card/90 border border-border inline-block mb-2">
+                              <span className="text-[9px] uppercase tracking-[0.15em] font-bold text-muted-foreground">
+                                {offer.subtitle}
                               </span>
                             </div>
-                            <p className="text-sm leading-relaxed font-semibold" style={{
-                              textShadow: '1px 1px 0 oklch(0.08 0.02 280)',
-                              color: 'oklch(0.85 0.08 195)'
+                            <h3 className={`text-base uppercase tracking-[0.1em] font-black mb-2 ${colors.text} leading-tight`} style={{
+                              textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 0 10px currentColor',
+                              WebkitTextStroke: '0.3px oklch(0.08 0.02 280)'
                             }}>
-                              {card.description}
+                              {offer.title}
+                            </h3>
+                            <p className="text-xs leading-snug font-medium mb-2 line-clamp-2" style={{
+                              textShadow: '1px 1px 0 oklch(0.08 0.02 280)',
+                              color: 'oklch(0.80 0.08 195)'
+                            }}>
+                              {offer.description}
                             </p>
+                            <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
+                              <Check size={12} weight="bold" className="text-primary" />
+                              <span className="font-semibold">{offer.benefit}</span>
+                            </div>
                           </div>
 
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-center gap-3">
-                              <span className="text-lg line-through text-muted-foreground font-bold">
-                                ${card.originalPrice}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-center gap-2">
+                              <span className="text-sm line-through text-muted-foreground font-semibold">
+                                ${offer.originalPrice.toFixed(2)}
                               </span>
-                              <span className={`text-2xl font-black ${colors.text} ${colors.glow}`} style={{
-                                textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 12px currentColor'
+                              <span className={`text-xl font-black ${colors.text}`} style={{
+                                textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 0 10px currentColor'
                               }}>
-                                ${finalPrice.toFixed(0)}
+                                ${offer.finalPrice.toFixed(2)}
                               </span>
                             </div>
                             
+                            <div className="text-center text-[10px] text-muted-foreground font-bold uppercase tracking-wide mb-2">
+                              {offer.duration} {offer.durationUnit} access
+                            </div>
+                            
                             <Button
-                              onClick={() => handlePurchaseFlashSale(card)}
-                              className={`w-full ${colors.bg} hover:opacity-90 ${colors.text} jagged-corner border-3 ${colors.border} ${colors.shadow} hover:${colors.hoverShadow} uppercase tracking-[0.15em] font-bold py-6 text-sm group/btn`}
+                              onClick={() => handlePurchaseOffer(offer)}
+                              className={`w-full ${colors.bg} hover:opacity-90 ${colors.text} jagged-corner-small border-2 ${colors.border} ${colors.shadow} hover:${colors.hoverShadow} uppercase tracking-[0.12em] font-bold py-3 text-xs group/btn transition-all`}
                             >
-                              <Lightning size={20} weight="fill" className="mr-2 group-hover/btn:animate-pulse" />
-                              CLAIM OFFER
+                              <Lightning size={16} weight="fill" className="mr-1.5 group-hover/btn:animate-pulse" />
+                              CLAIM NOW
                             </Button>
                           </div>
-
-                          <motion.div
-                            className="absolute bottom-2 right-2 opacity-20"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                          >
-                            <Icon size={80} weight="duotone" className={colors.text} />
-                          </motion.div>
                         </div>
                       </motion.div>
                     </div>
@@ -756,17 +641,17 @@ export default function VaultView() {
             <Button
               onClick={scrollPrev}
               disabled={!canScrollPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 p-0 bg-card/95 hover:bg-card border-3 border-destructive disabled:opacity-30 disabled:cursor-not-allowed jagged-corner-small shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.6)] hover:shadow-[0_0_30px_oklch(0.65_0.25_25_/_0.8)]"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 p-0 bg-card/95 hover:bg-card border-2 border-destructive disabled:opacity-30 disabled:cursor-not-allowed jagged-corner-small shadow-[0_0_15px_oklch(0.65_0.25_25_/_0.5)] hover:shadow-[0_0_25px_oklch(0.65_0.25_25_/_0.7)]"
             >
-              <CaretLeft size={24} weight="bold" className="text-destructive" />
+              <CaretLeft size={20} weight="bold" className="text-destructive" />
             </Button>
 
             <Button
               onClick={scrollNext}
               disabled={!canScrollNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 p-0 bg-card/95 hover:bg-card border-3 border-destructive disabled:opacity-30 disabled:cursor-not-allowed jagged-corner-small shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.6)] hover:shadow-[0_0_30px_oklch(0.65_0.25_25_/_0.8)]"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 p-0 bg-card/95 hover:bg-card border-2 border-destructive disabled:opacity-30 disabled:cursor-not-allowed jagged-corner-small shadow-[0_0_15px_oklch(0.65_0.25_25_/_0.5)] hover:shadow-[0_0_25px_oklch(0.65_0.25_25_/_0.7)]"
             >
-              <CaretRight size={24} weight="bold" className="text-destructive" />
+              <CaretRight size={20} weight="bold" className="text-destructive" />
             </Button>
           </div>
         </div>
