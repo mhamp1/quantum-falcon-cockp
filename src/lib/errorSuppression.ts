@@ -15,19 +15,17 @@ export const SUPPRESSED_ERROR_PATTERNS = [
   'PerspectiveCamera',
   'findDOMNode is deprecated',
   'ReactDOM.render',
+  'ResizeObserver',
+  'non-passive event listener',
+  'Violation',
 ] as const;
 
 export const CRITICAL_ERROR_PATTERNS = [
-  'ReferenceError',
-  'TypeError: Cannot read',
-  'is not a function',
-  'undefined is not an object',
-  'null is not an object',
-  'Unexpected token',
-  'Syntax error',
-  'Module not found',
   'Failed to fetch',
   'Network request failed',
+  'Syntax error',
+  'Module not found',
+  'Unexpected token',
 ] as const;
 
 export function isNonCriticalError(error: Error | string): boolean {

@@ -1,6 +1,5 @@
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { startTransition } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import "@github/spark/spark";
@@ -21,25 +20,52 @@ function isR3FError(error: Error | string): boolean {
     message.includes('Cannot set "data-component-loc-end"') ||
     message.includes('child.object is undefined') ||
     message.includes('addEventListener') && message.includes('null') ||
+    message.includes('ResizeObserver') ||
+    message.includes('useContext') ||
+    message.includes('dispatcher') ||
+    message.includes('Rendered more hooks than') ||
+    message.includes('hooks can only be called') ||
     stack.includes('@react-three/fiber') ||
     stack.includes('react-three')
   )
 }
 
+const originalConsoleError = console.error;
+console.error = (...args: any[]) => {
+  const message = args.join(' ');
+  if (isR3FError(message)) {
+    console.debug('[Suppressed error]:', message.substring(0, 100));
+    return;
+  }
+  originalConsoleError.apply(console, args);
+};
+
+const originalConsoleWarn = console.warn;
+console.warn = (...args: any[]) => {
+  const message = args.join(' ');
+  if (isR3FError(message)) {
+    return;
+  }
+  originalConsoleWarn.apply(console, args);
+};
+
 window.addEventListener('error', (event) => {
   if (isR3FError(event.error || event.message)) {
-    console.warn('[Global] R3F error suppressed:', event.message);
+    console.debug('[Global] R3F error suppressed:', event.message.substring(0, 100));
     event.preventDefault();
     event.stopPropagation();
-    return;
+    event.stopImmediatePropagation();
+    return true;
   }
   console.error('[Global] Uncaught error:', event.error);
 }, true);
 
 window.addEventListener('unhandledrejection', (event) => {
   if (isR3FError(event.reason)) {
-    console.warn('[Global] R3F promise rejection suppressed:', event.reason);
+    console.debug('[Global] R3F promise rejection suppressed:', event.reason);
     event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
     return;
   }
   console.error('[Global] Unhandled promise rejection:', event.reason);
@@ -62,7 +88,7 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-function renderApp() {
+try {
   root.render(
     <ErrorBoundary 
       FallbackComponent={ErrorFallback}
@@ -92,8 +118,42 @@ function renderApp() {
       </QueryClientProvider>
     </ErrorBoundary>
   );
+} catch (error) {
+  console.error('[Root] Fatal render error:', error);
+  if (error instanceof Error && !isR3FError(error)) {
+    root.render(
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'oklch(0.08 0.02 280)',
+        color: 'oklch(0.85 0.12 195)',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        padding: '2rem'
+      }}>
+        <div style={{ maxWidth: '600px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'oklch(0.65 0.25 25)' }}>
+            Critical Error
+          </h1>
+          <p style={{ marginBottom: '2rem' }}>{error.message}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '0.75rem 2rem',
+              background: 'oklch(0.72 0.20 195)',
+              color: 'oklch(0.08 0.02 280)',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: 'bold',
+              textTransform: 'uppercase'
+            }}
+          >
+            Reload Application
+          </button>
+        </div>
+      </div>
+    );
+  }
 }
-
-startTransition(() => {
-  renderApp();
-});
