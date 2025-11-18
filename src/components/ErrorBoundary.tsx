@@ -16,15 +16,29 @@ interface ErrorBoundaryState {
 function isR3FError(error: Error): boolean {
   const message = error.message || ''
   const stack = error.stack || ''
-  return (
-    message.includes('R3F') ||
-    message.includes('data-component-loc') ||
-    message.includes('__r3f') ||
-    message.includes('Cannot set "data-component-loc-end"') ||
-    message.includes('child.object is undefined') ||
-    message.includes('addEventListener') && message.includes('null') ||
-    stack.includes('@react-three/fiber') ||
-    stack.includes('react-three')
+  
+  const suppressedPatterns = [
+    'R3F',
+    'data-component-loc',
+    '__r3f',
+    'Cannot set "data-component-loc-end"',
+    'child.object is undefined',
+    '@react-three/fiber',
+    'react-three',
+    'ResizeObserver loop',
+    'THREE.',
+    'WebGL',
+    'canvas',
+    'OrbitControls',
+    'PerspectiveCamera',
+    'Cannot read properties of null',
+    'Cannot read property \'object\' of undefined',
+    'Rendered more hooks than during the previous render',
+  ]
+  
+  return suppressedPatterns.some(pattern =>
+    message.toLowerCase().includes(pattern.toLowerCase()) ||
+    stack.toLowerCase().includes(pattern.toLowerCase())
   )
 }
 

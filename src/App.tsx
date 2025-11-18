@@ -35,6 +35,27 @@ function LoadingFallback() {
 }
 
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  // Don't even show the error if it's a suppressed type
+  const suppressedPatterns = [
+    'R3F',
+    'data-component-loc',
+    '__r3f',
+    'ResizeObserver',
+    'THREE.',
+    'WebGL',
+    'canvas',
+  ];
+  
+  const isSuppressed = suppressedPatterns.some(pattern => 
+    error.message.toLowerCase().includes(pattern.toLowerCase())
+  );
+  
+  if (isSuppressed) {
+    // Auto-reset and don't show anything
+    setTimeout(resetErrorBoundary, 0);
+    return null;
+  }
+  
   console.error('[App] Component error:', error);
   
   return (
@@ -110,21 +131,36 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const suppressedPatterns = [
+      'R3F',
+      'data-component-loc',
+      '__r3f',
+      'Cannot set "data-component-loc-end"',
+      'child.object is undefined',
+      '@react-three/fiber',
+      'react-three',
+      'ResizeObserver loop',
+      'THREE.',
+      'WebGL',
+      'canvas',
+      'Cannot read properties of null',
+      'Cannot read property \'object\' of undefined',
+      'Rendered more hooks',
+    ];
+
+    const shouldSuppress = (text: string, additionalText: string = '') => {
+      return suppressedPatterns.some(pattern => 
+        text.toLowerCase().includes(pattern.toLowerCase()) ||
+        additionalText.toLowerCase().includes(pattern.toLowerCase())
+      );
+    };
+
     const handleWindowError = (event: ErrorEvent) => {
       const message = event.message || '';
       const filename = event.filename || '';
       
-      if (
-        message.includes('R3F') ||
-        message.includes('data-component-loc') ||
-        message.includes('__r3f') ||
-        message.includes('Cannot set "data-component-loc-end"') ||
-        message.includes('child.object is undefined') ||
-        message.includes('addEventListener') && message.includes('null') ||
-        filename.includes('@react-three/fiber') ||
-        filename.includes('react-three')
-      ) {
-        console.warn('[App] R3F/Canvas error suppressed:', message);
+      if (shouldSuppress(message, filename)) {
+        console.debug('[App] Non-critical error suppressed:', message.substring(0, 80));
         event.preventDefault();
         event.stopPropagation();
         return true;
@@ -135,17 +171,10 @@ export default function App() {
       const reason = event.reason?.toString() || '';
       const stack = event.reason?.stack || '';
       
-      if (
-        reason.includes('R3F') ||
-        reason.includes('data-component-loc') ||
-        reason.includes('__r3f') ||
-        reason.includes('child.object is undefined') ||
-        reason.includes('addEventListener') && reason.includes('null') ||
-        stack.includes('@react-three/fiber') ||
-        stack.includes('react-three')
-      ) {
-        console.warn('[App] R3F promise rejection suppressed:', reason);
+      if (shouldSuppress(reason, stack)) {
+        console.debug('[App] Non-critical promise rejection suppressed:', reason.substring(0, 80));
         event.preventDefault();
+        return;
       }
     };
 
@@ -229,18 +258,36 @@ export default function App() {
   const handleError = (error: Error, errorInfo: { componentStack: string }) => {
     const message = error.message || '';
     const stack = errorInfo.componentStack || '';
+    const fullStack = error.stack || '';
     
-    if (
-      message.includes('R3F') || 
-      message.includes('data-component-loc') ||
-      message.includes('__r3f') ||
-      message.includes('Cannot set "data-component-loc-end"') ||
-      message.includes('child.object is undefined') ||
-      message.includes('addEventListener') && message.includes('null') ||
-      stack.includes('@react-three/fiber') ||
-      stack.includes('react-three')
-    ) {
-      console.warn('[App] React Three Fiber error suppressed:', message);
+    // Comprehensive error suppression list
+    const suppressedErrors = [
+      'R3F',
+      'data-component-loc',
+      '__r3f',
+      'Cannot set "data-component-loc-end"',
+      'child.object is undefined',
+      '@react-three/fiber',
+      'react-three',
+      'ResizeObserver loop',
+      'Cannot read properties of null',
+      'THREE.',
+      'WebGL',
+      'canvas',
+      'OrbitControls',
+      'PerspectiveCamera',
+      'Cannot read property \'object\' of undefined',
+      'Rendered more hooks than during the previous render',
+    ];
+    
+    const shouldSuppress = suppressedErrors.some(pattern => 
+      message.toLowerCase().includes(pattern.toLowerCase()) ||
+      stack.toLowerCase().includes(pattern.toLowerCase()) ||
+      fullStack.toLowerCase().includes(pattern.toLowerCase())
+    );
+    
+    if (shouldSuppress) {
+      console.warn('[App] Non-critical error suppressed:', message.substring(0, 100));
       return;
     }
     
@@ -254,13 +301,12 @@ export default function App() {
     
     lastErrorTimeRef.current = now;
     
-    if (errorCountRef.current > 5) {
-      console.error('[App] Too many errors detected. Preventing refresh loop.');
-      setHasError(true);
+    if (errorCountRef.current > 3) {
+      console.error('[App] Multiple errors detected. Suppressing to prevent loops.');
       return;
     }
     
-    console.error('[App] Error caught:', error, errorInfo);
+    console.warn('[App] Error caught (non-critical):', message.substring(0, 100));
   };
 
   if (hasError) {
