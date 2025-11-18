@@ -191,19 +191,37 @@ export default function App() {
           className="fixed left-0 top-0 h-screen w-64 border-r-2 border-primary/30 bg-card/95 backdrop-blur-md z-40 flex flex-col"
         >
           <div className="p-6 border-b-2 border-primary/30">
-            <h1 className="text-xl font-bold uppercase tracking-[0.15em]" style={{
-              background: 'linear-gradient(135deg, #DC1FFF 0%, #9945FF 50%, #14F195 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              textShadow: '0 0 20px #DC1FFF, 0 0 40px #DC1FFF, 0 0 80px #A855F7, 0 0 120px #9945FF',
-              WebkitTextStroke: '0.5px #DC1FFF',
-              paintOrder: 'stroke fill',
-              fontFamily: 'var(--font-family-display)',
-              letterSpacing: '0.15em',
-              filter: 'drop-shadow(0 0 20px #DC1FFF) drop-shadow(0 0 40px #9945FF)'
-            }}>
-              QUANTUM<br/>FALCON
+            <h1 className="text-xl font-bold uppercase tracking-[0.15em]">
+              <span style={{
+                background: 'linear-gradient(135deg, #DC1FFF 0%, #9945FF 50%, #DC1FFF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: '0 0 15px #DC1FFF, 0 0 30px #DC1FFF',
+                WebkitTextStroke: '1px #DC1FFF',
+                paintOrder: 'stroke fill',
+                fontFamily: 'var(--font-family-display)',
+                letterSpacing: '0.15em',
+                filter: 'drop-shadow(0 0 10px #DC1FFF)',
+                display: 'block'
+              }}>
+                QUANTUM
+              </span>
+              <span style={{
+                background: 'linear-gradient(135deg, #14F195 0%, #0DCAA5 50%, #14F195 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: '0 0 15px #14F195, 0 0 30px #14F195',
+                WebkitTextStroke: '1px #14F195',
+                paintOrder: 'stroke fill',
+                fontFamily: 'var(--font-family-display)',
+                letterSpacing: '0.15em',
+                filter: 'drop-shadow(0 0 10px #14F195)',
+                display: 'block'
+              }}>
+                FALCON
+              </span>
             </h1>
             <p className="text-[10px] uppercase tracking-wider mt-1" style={{
               color: '#DC1FFF',
