@@ -6,7 +6,7 @@ import { UserAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
@@ -111,35 +111,49 @@ export default function App() {
 
   useEffect(() => {
     const handleWindowError = (event: ErrorEvent) => {
+      const message = event.message || '';
+      const filename = event.filename || '';
+      
       if (
-        event.message.includes('R3F') ||
-        event.message.includes('data-component-loc') ||
-        event.message.includes('__r3f') ||
-        event.message.includes('Cannot set "data-component-loc-end"')
+        message.includes('R3F') ||
+        message.includes('data-component-loc') ||
+        message.includes('__r3f') ||
+        message.includes('Cannot set "data-component-loc-end"') ||
+        message.includes('child.object is undefined') ||
+        message.includes('addEventListener') && message.includes('null') ||
+        filename.includes('@react-three/fiber') ||
+        filename.includes('react-three')
       ) {
-        console.warn('[App] R3F error suppressed:', event.message);
+        console.warn('[App] R3F/Canvas error suppressed:', message);
         event.preventDefault();
+        event.stopPropagation();
         return true;
       }
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       const reason = event.reason?.toString() || '';
+      const stack = event.reason?.stack || '';
+      
       if (
         reason.includes('R3F') ||
         reason.includes('data-component-loc') ||
-        reason.includes('__r3f')
+        reason.includes('__r3f') ||
+        reason.includes('child.object is undefined') ||
+        reason.includes('addEventListener') && reason.includes('null') ||
+        stack.includes('@react-three/fiber') ||
+        stack.includes('react-three')
       ) {
         console.warn('[App] R3F promise rejection suppressed:', reason);
         event.preventDefault();
       }
     };
 
-    window.addEventListener('error', handleWindowError);
+    window.addEventListener('error', handleWindowError, true);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
     return () => {
-      window.removeEventListener('error', handleWindowError);
+      window.removeEventListener('error', handleWindowError, true);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, []);
@@ -213,13 +227,20 @@ export default function App() {
   };
 
   const handleError = (error: Error, errorInfo: { componentStack: string }) => {
+    const message = error.message || '';
+    const stack = errorInfo.componentStack || '';
+    
     if (
-      error.message.includes('R3F') || 
-      error.message.includes('data-component-loc') ||
-      error.message.includes('__r3f') ||
-      error.message.includes('Cannot set "data-component-loc-end"')
+      message.includes('R3F') || 
+      message.includes('data-component-loc') ||
+      message.includes('__r3f') ||
+      message.includes('Cannot set "data-component-loc-end"') ||
+      message.includes('child.object is undefined') ||
+      message.includes('addEventListener') && message.includes('null') ||
+      stack.includes('@react-three/fiber') ||
+      stack.includes('react-three')
     ) {
-      console.warn('[App] React Three Fiber error suppressed:', error.message);
+      console.warn('[App] React Three Fiber error suppressed:', message);
       return;
     }
     
