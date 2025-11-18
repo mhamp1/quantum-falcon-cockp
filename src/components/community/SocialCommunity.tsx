@@ -25,6 +25,7 @@ import { CategoryIcon, getCategoryColor } from '@/components/shared/CategoryIcon
 import { getRotatingOffers, getTimeUntilNextRotation, type RotatingOffer } from '@/lib/rotatingOffers'
 import LimitedOffersSection from './LimitedOffersSection'
 import Forum from './Forum'
+import StrategyMarketplace from './StrategyMarketplace'
 import CheckoutDialog from '@/components/shared/CheckoutDialog'
 import { CheckoutItem } from '@/lib/checkout'
 import { UserAuth } from '@/lib/auth'
@@ -552,13 +553,20 @@ export default function SocialCommunity() {
         )}
 
         <Tabs defaultValue="strategies" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
+          <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
             <TabsTrigger 
               value="strategies" 
               className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
             >
               <Code size={16} weight="duotone" className="mr-2" />
               Strategies
+            </TabsTrigger>
+            <TabsTrigger 
+              value="marketplace" 
+              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-accent/20 data-[state=active]:text-accent data-[state=active]:border-2 data-[state=active]:border-accent jagged-corner-small transition-all"
+            >
+              <ShoppingCart size={16} weight="duotone" className="mr-2" />
+              Marketplace
             </TabsTrigger>
             <TabsTrigger 
               value="forum" 
@@ -861,6 +869,10 @@ export default function SocialCommunity() {
                 </div>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="marketplace">
+            <StrategyMarketplace />
           </TabsContent>
 
           <TabsContent value="forum">
