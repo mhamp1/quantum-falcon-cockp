@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Warning, FileText } from '@phosphor-icons/react'
@@ -22,6 +22,14 @@ export default function RiskDisclosureBanner() {
     'risk-disclosure-audit-log',
     []
   )
+  const [isVisible, setIsVisible] = useState(true)
+
+  useEffect(() => {
+    if (acknowledgment) {
+      setIsVisible(false)
+      console.log('[Risk Disclosure Banner] 🚫 Banner hidden - User has acknowledged (logged on:', new Date(acknowledgment.acknowledgedAt).toLocaleString(), ')')
+    }
+  }, [acknowledgment])
 
   const handleAcknowledge = async () => {
     const acknowledgmentData: RiskAcknowledgment = {
@@ -33,10 +41,9 @@ export default function RiskDisclosureBanner() {
     
     console.log('[Risk Disclosure Banner] 💾 Saving acknowledgment...')
     
-    setAcknowledgment((current) => {
-      console.log('[Risk Disclosure Banner] ✅ Acknowledgment state updated from:', current, 'to:', acknowledgmentData)
-      return acknowledgmentData
-    })
+    setIsVisible(false)
+    
+    setAcknowledgment(acknowledgmentData)
     
     setAuditLog((currentLog) => {
       const newLog = [...(currentLog || []), acknowledgmentData]
@@ -63,7 +70,7 @@ export default function RiskDisclosureBanner() {
     }
     
     toast.success('Risk Disclosure Acknowledged', {
-      description: 'Your acknowledgment has been permanently logged and the banner will now disappear.'
+      description: 'Your acknowledgment has been permanently logged.'
     })
   }
 
@@ -77,8 +84,7 @@ export default function RiskDisclosureBanner() {
     }, 100)
   }
 
-  if (acknowledgment) {
-    console.log('[Risk Disclosure Banner] 🚫 Banner hidden - User has acknowledged (logged on:', new Date(acknowledgment.acknowledgedAt).toLocaleString(), ')')
+  if (!isVisible || acknowledgment) {
     return null
   }
 
