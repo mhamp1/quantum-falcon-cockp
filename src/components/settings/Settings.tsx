@@ -74,10 +74,10 @@ export default function Settings() {
     <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-wider uppercase mb-2">
-          Settings
+          Security, Notifications & Preferences
         </h2>
         <p className="text-muted-foreground">
-          Configure trading parameters and app preferences
+          Configure security settings, alerts, and trading parameters
         </p>
       </div>
 

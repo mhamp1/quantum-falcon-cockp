@@ -380,7 +380,7 @@ export default function BotOverview() {
                     className="px-3 py-1 jagged-corner-small bg-secondary/20 border border-secondary holographic-breathe"
                     whileHover={{ scale: 1.1 }}
                   >
-                    <span className="text-xs font-bold text-secondary uppercase tracking-[0.15em]">BOT OVERVIEW</span>
+                    <span className="text-xs font-bold text-secondary uppercase tracking-[0.15em]">MULTI-AGENT COMMAND CENTER</span>
                   </motion.div>
                 </div>
                 <motion.p 
