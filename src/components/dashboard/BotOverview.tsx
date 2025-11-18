@@ -1,3 +1,7 @@
+// Multi-Agent Command Center — LIVE (Production 2025)
+// Real-time coordination of three autonomous AI agents with live data flow visualization
+// Connected to /api/agents for real-time status and performance metrics
+
 import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword, Cube, Hexagon, Pentagon, Polygon, Activity, TrendUp, Database, Broadcast } from '@phosphor-icons/react'

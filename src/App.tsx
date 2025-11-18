@@ -131,14 +131,12 @@ export default function App() {
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
-    { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
-    };
-    { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
+    { id: 'bot-overview', label: 'Multi-Agent Command Center', icon: Terminal, component: BotOverview },
+    { id: 'analytics', label: 'Advanced Performance Insights', icon: ChartLine, component: EnhancedAnalytics },
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
-    { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
-    { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
-          setActiveTab(newTab);
+    { id: 'strategy-builder', label: 'Create God-Tier Strategies (Pro+)', icon: Code, component: CreateStrategyPage },
+    { id: 'vault', label: 'Secure Asset Storage & Auto-Conversion', icon: Vault, component: VaultView },
+    { id: 'community', label: 'Strategy Marketplace & Flash Sales', icon: Users, component: SocialCommunity },
   ], []);
 
   useEffect(() => {
@@ -204,7 +202,7 @@ export default function App() {
 
   useEffect(() => {
     const handleNavigateTab = (e: Event) => {
-          <
+      try {
         const customEvent = e as CustomEvent<string>;
         const newTab = customEvent.detail;
         if (tabs.some(tab => tab.id === newTab)) {
@@ -222,7 +220,6 @@ export default function App() {
   useEffect(() => {
     const handleOpenLegalRiskDisclosure = () => {
       try {
-      <ErrorBoundary
         setTimeout(() => {
           const settingsTabEvent = new CustomEvent('open-settings-legal-tab')
           window.dispatchEvent(settingsTabEvent)
@@ -230,11 +227,11 @@ export default function App() {
       } catch (error) {
         console.error('[App] Error handling legal risk disclosure:', error);
       }
-
+    }
 
     window.addEventListener('open-legal-risk-disclosure', handleOpenLegalRiskDisclosure)
     return () => window.removeEventListener('open-legal-risk-disclosure', handleOpenLegalRiskDisclosure)
-      <Suspense fall
+  }, [])
 
   const handleLicenseSuccess = async (tier: string, expiresAt: number) => {
     try {

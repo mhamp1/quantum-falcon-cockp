@@ -1,7 +1,8 @@
 {
-    "name": "spark-template",
+    "name": "quantum-falcon-cockpit",
+    "description": "Quantum Falcon Cockpit — Autonomous Multi-Agent Trading System (Production 2025)",
     "private": true,
-    "version": "0.0.0",
+    "version": "2025.1.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
