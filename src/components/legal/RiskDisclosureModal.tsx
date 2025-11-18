@@ -118,30 +118,37 @@ export default function RiskDisclosureModal({
 
   const isAcceptEnabled = check1 && check2 && canAccept
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     if (isAcceptEnabled) {
       console.log('[Risk Modal] ✅ User clicked "Accept & Continue" - both checkboxes checked')
       console.log('[Risk Modal] 📋 Check 1 (Read disclosure):', check1)
       console.log('[Risk Modal] 📋 Check 2 (Accept responsibility):', check2)
       console.log('[Risk Modal] 📊 Scroll progress:', scrollProgress.toFixed(1) + '%')
       
-      fetch('/api/legal/accept-risk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          version,
-          timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent,
-          scrollProgress: scrollProgress.toFixed(2)
+      try {
+        await fetch('/api/legal/accept-risk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            version,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            scrollProgress: scrollProgress.toFixed(2)
+          })
         })
-      }).catch(err => console.log('[Risk Modal] Backend logging failed (OK - using KV):', err))
+      } catch (err) {
+        console.log('[Risk Modal] Backend logging failed (OK - using KV):', err)
+      }
 
-      console.log('[Risk Modal] 🎉 Calling onAccept() - banner should now DISAPPEAR')
-      onAccept()
+      console.log('[Risk Modal] 🎉 Calling onAccept() - banner should now DISAPPEAR IMMEDIATELY')
+      
+      await onAccept()
       
       toast.success('Risk Disclosure Accepted', {
-        description: 'The warning banner will now disappear permanently.'
+        description: 'The warning banner has been removed permanently.'
       })
+      
+      console.log('[Risk Modal] ✅ Modal closed - banner should be GONE')
     }
   }
 
