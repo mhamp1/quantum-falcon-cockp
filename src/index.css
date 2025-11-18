@@ -1711,3 +1711,89 @@
   animation: shimmer 3s ease-in-out infinite;
   opacity: 0.3;
 }
+
+/* Leaky Neon Effect - God-Tier Enhancement */
+.neon-leak {
+  position: relative;
+  text-shadow: 
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 30px currentColor,
+    0 0 40px currentColor,
+    0 0 70px currentColor,
+    0 0 80px currentColor,
+    0 0 100px currentColor,
+    0 0 150px currentColor;
+  animation: neon-leak-flicker 3s ease-in-out infinite;
+}
+
+@keyframes neon-leak-flicker {
+  0%, 100% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  10% {
+    opacity: 0.9;
+    filter: blur(0.5px);
+  }
+  20% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  30% {
+    opacity: 0.95;
+    filter: blur(0.3px);
+  }
+  40%, 60% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  70% {
+    opacity: 0.92;
+    filter: blur(0.4px);
+  }
+  80% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  90% {
+    opacity: 0.97;
+    filter: blur(0.2px);
+  }
+}
+
+.neon-leak-cyan {
+  color: #00FFFF;
+  text-shadow: 
+    0 0 10px #00FFFF,
+    0 0 20px #00FFFF,
+    0 0 30px #00FFFF,
+    0 0 40px #00FFFF,
+    0 0 70px #00FFFF,
+    0 0 80px #00FFFF,
+    0 0 100px #00FFFF;
+}
+
+.neon-leak-purple {
+  color: #DC1FFF;
+  text-shadow: 
+    0 0 10px #DC1FFF,
+    0 0 20px #DC1FFF,
+    0 0 30px #DC1FFF,
+    0 0 40px #DC1FFF,
+    0 0 70px #DC1FFF,
+    0 0 80px #DC1FFF,
+    0 0 100px #DC1FFF;
+}
+
+.neon-leak-pink {
+  color: #FF00FF;
+  text-shadow: 
+    0 0 10px #FF00FF,
+    0 0 20px #FF00FF,
+    0 0 30px #FF00FF,
+    0 0 40px #FF00FF,
+    0 0 70px #FF00FF,
+    0 0 80px #FF00FF,
+    0 0 100px #FF00FF;
+}
