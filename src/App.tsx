@@ -110,6 +110,41 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const handleWindowError = (event: ErrorEvent) => {
+      if (
+        event.message.includes('R3F') ||
+        event.message.includes('data-component-loc') ||
+        event.message.includes('__r3f') ||
+        event.message.includes('Cannot set "data-component-loc-end"')
+      ) {
+        console.warn('[App] R3F error suppressed:', event.message);
+        event.preventDefault();
+        return true;
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason?.toString() || '';
+      if (
+        reason.includes('R3F') ||
+        reason.includes('data-component-loc') ||
+        reason.includes('__r3f')
+      ) {
+        console.warn('[App] R3F promise rejection suppressed:', reason);
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('error', handleWindowError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleWindowError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleNavigateTab = (e: Event) => {
       try {
         const customEvent = e as CustomEvent<string>;
@@ -178,6 +213,16 @@ export default function App() {
   };
 
   const handleError = (error: Error, errorInfo: { componentStack: string }) => {
+    if (
+      error.message.includes('R3F') || 
+      error.message.includes('data-component-loc') ||
+      error.message.includes('__r3f') ||
+      error.message.includes('Cannot set "data-component-loc-end"')
+    ) {
+      console.warn('[App] React Three Fiber error suppressed:', error.message);
+      return;
+    }
+    
     const now = Date.now();
     
     if (now - lastErrorTimeRef.current < 5000) {
