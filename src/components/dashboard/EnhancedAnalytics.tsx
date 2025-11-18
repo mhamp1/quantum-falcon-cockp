@@ -75,10 +75,10 @@ export default function EnhancedAnalytics() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-[0.15em] text-primary hud-text">
-            Advanced Analytics
+            Advanced Performance Insights
           </h2>
           <p className="text-sm text-muted-foreground uppercase tracking-wider mt-1">
-            Performance Metrics & Insights
+            Real-Time Analytics & Strategy Performance
           </p>
         </div>
 

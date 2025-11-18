@@ -1,6 +1,8 @@
-# Quick Start Guide
+# Quick Start Guide — Quantum Falcon Cockpit (2025)
 
-Get started with Quantum Falcon Cockpit in 5 minutes.
+Get started with the most advanced autonomous multi-agent trading system in 5 minutes.
+
+**Production Ready — November 18, 2025**
 
 ## Prerequisites
 

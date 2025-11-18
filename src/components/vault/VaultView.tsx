@@ -416,7 +416,7 @@ export default function VaultView() {
               </motion.div>
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-primary font-bold mb-1">QUANTUM FALCON</p>
-                <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">VAULT PROTOCOL</p>
+                <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">SECURE ASSET STORAGE & AUTO-CONVERSION</p>
               </div>
             </div>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.15em] uppercase leading-tight" style={{ 

@@ -228,3 +228,256 @@ export const IconNeonGridBot = ({ size, className }: IconProps) => (
     <circle cx="60" cy="60" r="8" fill="#00FF00"/>
   </IconWrapper>
 );
+
+export const IconSniperMode = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="#FF0000" strokeWidth="5"/>
+    <circle cx="50" cy="50" r="25" fill="none" stroke="#FFFF00" strokeWidth="4"/>
+    <circle cx="50" cy="50" r="10" fill="#DC1FFF"/>
+    <path d="M20 50 H80 M50 20 V80" stroke="#00FFFF" strokeWidth="3"/>
+  </IconWrapper>
+);
+
+export const IconMomentumScanner = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M10 70 L30 40 L50 60 L70 20 L90 50" fill="none" stroke="#00FFFF" strokeWidth="6"/>
+    <path d="M50 60 L50 90" stroke="#FF00FF" strokeWidth="4" strokeDasharray="5,5"/>
+    <path d="M70 20 L70 10 L80 10" stroke="#00FF00" strokeWidth="5"/>
+  </IconWrapper>
+);
+
+export const IconStopLossGuardian = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 10 L20 40 L30 50 L50 70 L70 50 L80 40 Z" fill="none" stroke="#FF0000" strokeWidth="6"/>
+    <circle cx="50" cy="45" r="15" fill="none" stroke="#DC1FFF" strokeWidth="4"/>
+    <path d="M40 45 H60 M50 35 V55" stroke="#00FFFF" strokeWidth="5"/>
+  </IconWrapper>
+);
+
+export const IconTakeProfitZone = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M20 80 L50 20 L80 80" fill="none" stroke="#00FF00" strokeWidth="6"/>
+    <path d="M30 60 H70 M35 50 H65 M40 40 H60" stroke="#00FFFF" strokeWidth="4"/>
+    <circle cx="50" cy="25" r="8" fill="#DC1FFF"/>
+  </IconWrapper>
+);
+
+export const IconGasOptimizer = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M30 80 L30 40 Q30 20, 50 20 Q70 20, 70 40 L70 80" fill="none" stroke="#00FFAA" strokeWidth="6"/>
+    <circle cx="50" cy="35" r="10" fill="#DC1FFF"/>
+    <path d="M40 60 H60 M40 70 H60" stroke="#00FFFF" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconSlippageShield = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 10 L20 50 L50 90 Z" fill="none" stroke="#00FFFF" strokeWidth="6"/>
+    <path d="M50 30 L50 70" stroke="#DC1FFF" strokeWidth="5"/>
+    <path d="M35 50 L65 50" stroke="#FF00FF" strokeWidth="5"/>
+    <circle cx="50" cy="50" r="12" fill="none" stroke="#FFFF00" strokeWidth="3"/>
+  </IconWrapper>
+);
+
+export const IconMarketSentiment = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <circle cx="50" cy="40" r="30" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <circle cx="35" cy="35" r="6" fill="#DC1FFF"/>
+    <circle cx="65" cy="35" r="6" fill="#DC1FFF"/>
+    <path d="M30 55 Q50 70, 70 55" fill="none" stroke="#00FF00" strokeWidth="6"/>
+  </IconWrapper>
+);
+
+export const IconNewsTrader = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <rect x="20" y="20" width="60" height="60" rx="5" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <path d="M30 35 H70 M30 50 H70 M30 65 H55" stroke="#DC1FFF" strokeWidth="4"/>
+    <path d="M60 60 L80 80 L70 85" stroke="#FF00FF" strokeWidth="5"/>
+  </IconWrapper>
+);
+
+export const IconTwitterMonitor = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M20 60 Q30 40, 50 50 Q70 60, 80 40" fill="none" stroke="#00FFFF" strokeWidth="6"/>
+    <circle cx="30" cy="45" r="8" fill="#DC1FFF"/>
+    <circle cx="70" cy="45" r="8" fill="#FF00FF"/>
+    <path d="M50 50 L50 80 L40 70 M50 80 L60 70" stroke="#00FF00" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconContractScanner = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <rect x="25" y="25" width="50" height="50" rx="8" fill="none" stroke="#00FFAA" strokeWidth="5"/>
+    <path d="M35 40 H65 M35 50 H65 M35 60 H60" stroke="#DC1FFF" strokeWidth="3"/>
+    <circle cx="70" cy="70" r="15" fill="none" stroke="#00FFFF" strokeWidth="4"/>
+    <path d="M75 70 L85 80" stroke="#FF00FF" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconRugpullDetector = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 20 L20 80 L80 80 Z" fill="none" stroke="#FF0000" strokeWidth="6"/>
+    <path d="M50 40 L50 60" stroke="#FFFF00" strokeWidth="5"/>
+    <circle cx="50" cy="65" r="5" fill="#DC1FFF"/>
+    <path d="M35 35 L65 35" stroke="#00FFFF" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconLiquidityPoolTracker = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <circle cx="35" cy="50" r="20" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <circle cx="65" cy="50" r="20" fill="none" stroke="#FF00FF" strokeWidth="5"/>
+    <path d="M45 50 H55" stroke="#DC1FFF" strokeWidth="8"/>
+    <circle cx="50" cy="50" r="8" fill="#FFFF00"/>
+  </IconWrapper>
+);
+
+export const IconYieldFarming = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 80 L50 40 Q50 20, 30 20 M50 40 Q50 20, 70 20" fill="none" stroke="#00FF00" strokeWidth="6"/>
+    <circle cx="30" cy="20" r="8" fill="#DC1FFF"/>
+    <circle cx="70" cy="20" r="8" fill="#FF00FF"/>
+    <circle cx="50" cy="80" r="10" fill="#00FFFF"/>
+  </IconWrapper>
+);
+
+export const IconStakingRewards = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 20 L40 50 L20 55 L40 65 L35 90 L50 75 L65 90 L60 65 L80 55 L60 50 Z" fill="none" stroke="#FFFF00" strokeWidth="5"/>
+    <circle cx="50" cy="50" r="12" fill="none" stroke="#DC1FFF" strokeWidth="4"/>
+    <path d="M45 50 H55 M50 45 V55" stroke="#00FFFF" strokeWidth="3"/>
+  </IconWrapper>
+);
+
+export const IconCrossChainBridge = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M20 60 Q50 20, 80 60" fill="none" stroke="#00FFFF" strokeWidth="6"/>
+    <circle cx="20" cy="60" r="10" fill="none" stroke="#DC1FFF" strokeWidth="4"/>
+    <circle cx="80" cy="60" r="10" fill="none" stroke="#FF00FF" strokeWidth="4"/>
+    <path d="M20 60 H80" stroke="#00FFAA" strokeWidth="3" strokeDasharray="5,5"/>
+  </IconWrapper>
+);
+
+export const IconNFTFloorSweeper = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <rect x="25" y="25" width="50" height="50" rx="5" fill="none" stroke="#FF00FF" strokeWidth="5"/>
+    <path d="M35 35 H65 V65 H35 Z" fill="none" stroke="#00FFFF" strokeWidth="3"/>
+    <path d="M40 75 Q50 85, 60 75" fill="none" stroke="#DC1FFF" strokeWidth="4"/>
+    <circle cx="45" cy="45" r="4" fill="#FFFF00"/>
+  </IconWrapper>
+);
+
+export const IconTokenLauncher = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 80 L50 40 L30 50 M50 40 L70 50" fill="none" stroke="#FF00FF" strokeWidth="6"/>
+    <circle cx="50" cy="25" r="15" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <path d="M40 15 L50 5 L60 15" stroke="#DC1FFF" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconFrontRunProtector = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 15 L30 35 L40 50 L30 65 L50 85 L70 65 L60 50 L70 35 Z" fill="none" stroke="#FF0000" strokeWidth="6"/>
+    <circle cx="50" cy="50" r="18" fill="none" stroke="#00FFFF" strokeWidth="4"/>
+    <path d="M43 50 L50 57 L57 43" fill="none" stroke="#DC1FFF" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconMEVBlocker = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <rect x="25" y="25" width="50" height="50" fill="none" stroke="#FF0000" strokeWidth="6"/>
+    <path d="M25 25 L75 75 M75 25 L25 75" stroke="#FFFF00" strokeWidth="5"/>
+    <circle cx="50" cy="50" r="20" fill="none" stroke="#00FFFF" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconBacktestEngine = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M20 70 L35 40 L50 55 L65 30 L80 60" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <circle cx="35" cy="40" r="6" fill="#DC1FFF"/>
+    <circle cx="50" cy="55" r="6" fill="#FF00FF"/>
+    <circle cx="65" cy="30" r="6" fill="#00FF00"/>
+    <path d="M15 80 H85 M15 80 L15 20" stroke="#00FFAA" strokeWidth="3"/>
+  </IconWrapper>
+);
+
+export const IconPaperTrading = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <rect x="25" y="20" width="50" height="60" rx="3" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <path d="M35 35 H65 M35 50 H65 M35 65 H55" stroke="#DC1FFF" strokeWidth="3"/>
+    <path d="M60 60 L75 75 L70 80" stroke="#FF00FF" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconRiskCalculator = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <circle cx="50" cy="50" r="35" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <path d="M50 25 L50 50 L70 60" stroke="#DC1FFF" strokeWidth="5"/>
+    <circle cx="50" cy="50" r="5" fill="#FF00FF"/>
+    <path d="M85 50 L90 50 M50 15 L50 10 M15 50 L10 50 M50 85 L50 90" stroke="#00FFAA" strokeWidth="3"/>
+  </IconWrapper>
+);
+
+export const IconPortfolioRebalancer = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <circle cx="50" cy="50" r="35" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <path d="M50 15 L50 50 L75 65" stroke="#DC1FFF" strokeWidth="4"/>
+    <path d="M50 50 L25 65" stroke="#FF00FF" strokeWidth="4"/>
+    <circle cx="50" cy="50" r="8" fill="#FFFF00"/>
+  </IconWrapper>
+);
+
+export const IconTaxOptimizer = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 15 L30 40 L40 40 L40 85 L60 85 L60 40 L70 40 Z" fill="none" stroke="#00FF00" strokeWidth="5"/>
+    <circle cx="50" cy="50" r="12" fill="none" stroke="#DC1FFF" strokeWidth="4"/>
+    <path d="M45 50 H55 M50 45 V55" stroke="#00FFFF" strokeWidth="3"/>
+  </IconWrapper>
+);
+
+export const IconAlertManager = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M50 20 L20 70 L80 70 Z" fill="none" stroke="#FFFF00" strokeWidth="6"/>
+    <path d="M50 35 L50 55 M50 60 L50 65" stroke="#FF0000" strokeWidth="5"/>
+    <circle cx="50" cy="50" r="25" fill="none" stroke="#00FFFF" strokeWidth="3" strokeDasharray="5,5"/>
+  </IconWrapper>
+);
+
+export const IconWebhookIntegration = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M30 30 Q50 20, 70 30" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <path d="M30 70 Q50 80, 70 70" fill="none" stroke="#FF00FF" strokeWidth="5"/>
+    <path d="M30 30 L30 70 M70 30 L70 70" stroke="#DC1FFF" strokeWidth="5"/>
+    <circle cx="50" cy="50" r="10" fill="#00FFAA"/>
+  </IconWrapper>
+);
+
+export const IconAPIConnector = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <circle cx="30" cy="50" r="15" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <circle cx="70" cy="50" r="15" fill="none" stroke="#FF00FF" strokeWidth="5"/>
+    <path d="M45 50 H55" stroke="#DC1FFF" strokeWidth="6"/>
+    <path d="M20 35 L40 35 M20 65 L40 65 M60 35 L80 35 M60 65 L80 65" stroke="#00FFAA" strokeWidth="3"/>
+  </IconWrapper>
+);
+
+export const IconDataStreamLive = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <path d="M10 50 Q25 30, 40 50 Q55 70, 70 50 Q85 30, 100 50" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <circle cx="25" cy="40" r="5" fill="#DC1FFF"/>
+    <circle cx="55" cy="60" r="5" fill="#FF00FF"/>
+    <circle cx="85" cy="40" r="5" fill="#00FF00"/>
+    <path d="M75 20 L85 10 L95 20" stroke="#FFFF00" strokeWidth="4"/>
+  </IconWrapper>
+);
+
+export const IconQuantumLeap = ({ size, className }: IconProps) => (
+  <IconWrapper size={size} className={className}>
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#DC1FFF" strokeWidth="4" strokeDasharray="10,5"/>
+    <circle cx="30" cy="50" r="15" fill="none" stroke="#00FFFF" strokeWidth="5"/>
+    <circle cx="70" cy="50" r="15" fill="none" stroke="#FF00FF" strokeWidth="5"/>
+    <path d="M45 50 L55 50" stroke="#FFFF00" strokeWidth="6"/>
+    <path d="M50 35 L50 65" stroke="#00FFAA" strokeWidth="4"/>
+    <circle cx="50" cy="50" r="8" fill="#DC1FFF"/>
+  </IconWrapper>
+);

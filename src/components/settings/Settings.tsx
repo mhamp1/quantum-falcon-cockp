@@ -74,10 +74,10 @@ export default function Settings() {
     <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-wider uppercase mb-2">
-          Settings
+          Security, Notifications & Preferences
         </h2>
         <p className="text-muted-foreground">
-          Configure trading parameters and app preferences
+          Configure security settings, alerts, and trading parameters
         </p>
       </div>
 
@@ -229,7 +229,7 @@ export default function Settings() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Neon theme with holographic elements active. Additional themes coming soon!
+            Cyberpunk neon theme with holographic elements — Production ready. Theme customization available in Pro+ tiers.
           </p>
         </CardContent>
       </Card>

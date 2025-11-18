@@ -65,6 +65,8 @@ TRADING CRYPTOCURRENCIES AND USING AUTOMATED TOOLS INVOLVES A HIGH RISK OF FINAN
 
 5.2 Quantum Falcon does NOT custody funds and provides zero compensation for any losses, under any circumstances.
 
+5.3 SECURITY & PRIVATE KEYS: WE NEVER STORE YOUR PRIVATE KEYS. All transaction signing occurs client-side in your wallet. You maintain full custody of your assets at all times. We cannot and will not access your funds.
+
 6. TAX & LEGAL COMPLIANCE
 
 6.1 You are solely responsible for determining tax implications and reporting all gains/losses in your jurisdiction.
