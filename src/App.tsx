@@ -29,7 +29,7 @@ const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTrading
 const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
 const VaultView = lazy(() => import('@/components/vault/VaultView'));
 const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
-const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystem'));
+const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
 
 interface UserAuth {
   isAuthenticated: boolean;
