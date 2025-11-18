@@ -20,6 +20,7 @@ const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettin
 const AIAssistant = lazy(() => import('@/components/shared/AIAssistant'));
 const LicenseAuth = lazy(() => import('@/components/auth/LicenseAuth'));
 const LegalFooter = lazy(() => import('@/components/shared/LegalFooter'));
+const RiskDisclosureBanner = lazy(() => import('@/components/shared/RiskDisclosureBanner'));
 
 function LoadingFallback() {
   return (
@@ -164,7 +165,12 @@ export default function App() {
   const Component = tabs.find(tab => tab.id === activeTab)?.component || EnhancedDashboard;
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <>
+      <Suspense fallback={null}>
+        <RiskDisclosureBanner />
+      </Suspense>
+      
+      <div className="min-h-screen bg-background flex">
       {!isMobile && (
         <motion.aside 
           initial={{ x: -20, opacity: 0 }}
@@ -269,5 +275,6 @@ export default function App() {
         </Suspense>
       </ErrorBoundary>
     </div>
+    </>
   );
 }

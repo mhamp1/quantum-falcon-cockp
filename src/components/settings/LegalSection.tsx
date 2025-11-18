@@ -10,6 +10,7 @@ import jsPDF from 'jspdf'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import RiskDisclosureModal from '@/components/legal/RiskDisclosureModal'
+import RiskAcknowledgmentLog from './RiskAcknowledgmentLog'
 
 interface LegalSectionProps {
   version?: string
@@ -481,6 +482,8 @@ Version: ${version}`
           )
         })}
       </div>
+
+      <RiskAcknowledgmentLog />
 
       <div className="cyber-card-accent p-4 mt-6">
         <div className="flex gap-3">
