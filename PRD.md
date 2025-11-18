@@ -201,3 +201,34 @@ Animations should feel like holographic projections materializing in 3D space—
   - Single column layout for all detail views (agent details, trade history)
   - Sticky header with key metrics bar on scroll
   - Swipe gestures: left/right on dashboard cards for quick actions, down-to-refresh on timeline views
+
+## Recent Implementations
+
+### Create Strategy FOMO Teaser (Latest)
+- **Component**: CreateStrategyTeaser.tsx in Community Hub "Create" tab
+- **Visual Design**: 
+  - Full-screen hypnotic teaser with Three.js 3D particle field of floating code snippets
+  - Animated 3D holographic editor window with pulsing neon effects
+  - Massive gradient title "CREATE GOD-TIER STRATEGIES" with multi-layer text shadows and glow
+  - Auto-rotating strategy preview carousel (4 featured strategies, 5s interval)
+  - Live counters: "1,247 strategies created this week" + "$8,421 top creator royalty"
+- **FOMO Elements**:
+  - 6 feature bullets with staggered animations and hover effects
+  - Featured strategies show: name, win rate, ROI, likes, category badges
+  - Preview modal with 15-second video placeholder on click (when locked)
+  - Hover state shows "Click to Preview" overlay with pulsing lock icon
+- **Upgrade CTA**:
+  - Dual buttons: grayed "Pro Tier Required" + glowing "UPGRADE TO PRO" with confetti on hover
+  - Massive button (px-16 py-8 text-2xl) with animated shimmer overlay
+  - Crown icon + Arrow icon with bounce/slide animations
+  - Border glow: `shadow-[0_0_60px_oklch(0.72_0.20_195_/_0.8)]`
+- **Interactivity**:
+  - On hover: particle field intensifies, editor window zooms
+  - On click (locked): opens preview modal with feature checklist
+  - Confetti explosion on upgrade button hover
+  - Real-time counter increments (live simulation)
+- **Tier Logic**: 
+  - Locked for Free/Starter/Trader tiers
+  - Unlocked for Pro/Elite/Lifetime with "Start Building" CTA
+- **Purpose**: Convert Free tier users to Pro+ by showing the immense value and FOMO of strategy creation feature
+- **Integration**: Replaces plain "Create Your Own Strategy" card in Community → Create tab

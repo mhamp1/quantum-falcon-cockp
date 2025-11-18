@@ -26,6 +26,7 @@ import { getRotatingOffers, getTimeUntilNextRotation, type RotatingOffer } from 
 import LimitedOffersSection from './LimitedOffersSection'
 import Forum from './Forum'
 import StrategyMarketplace from './StrategyMarketplace'
+import CreateStrategyTeaser from './CreateStrategyTeaser'
 import CheckoutDialog from '@/components/shared/CheckoutDialog'
 import { CheckoutItem } from '@/lib/checkout'
 import { UserAuth } from '@/lib/auth'
@@ -960,40 +961,15 @@ export default function SocialCommunity() {
           </TabsContent>
 
           <TabsContent value="create">
-            <div className="cyber-card p-12 text-center space-y-6">
-              <div className="flex items-center justify-center">
-                <div className="p-6 bg-accent/20 border-2 border-accent rounded-full">
-                  <Plus size={64} weight="bold" className="text-accent" />
-                </div>
-              </div>
-              
-              <div className="space-y-3 max-w-2xl mx-auto">
-                <h3 className="text-3xl font-black uppercase tracking-wider text-accent">
-                  Create Your Own Strategy
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Build and share custom trading strategies with the community. Available for Pro tier and above.
-                </p>
-              </div>
-
-              {tierHierarchy[userTier] >= tierHierarchy['Pro'] ? (
-                <Button size="lg" className="jagged-corner uppercase tracking-wider font-bold">
-                  <Plus size={20} weight="bold" className="mr-2" />
-                  Start Building
-                </Button>
-              ) : (
-                <div className="space-y-4">
-                  <Badge className="bg-accent/20 border-2 border-accent text-accent text-sm px-4 py-2">
-                    <Lock size={16} weight="fill" className="mr-2" />
-                    Pro Tier Required
-                  </Badge>
-                  <Button size="lg" className="jagged-corner uppercase tracking-wider font-bold bg-accent hover:bg-accent/90">
-                    <Crown size={20} weight="fill" className="mr-2" />
-                    Upgrade to Pro
-                  </Button>
-                </div>
-              )}
-            </div>
+            <CreateStrategyTeaser 
+              onUpgrade={() => {
+                window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
+                toast.info('Navigate to Billing', {
+                  description: 'Go to Settings > Billing to upgrade your plan'
+                })
+              }}
+              isLocked={tierHierarchy[userTier] < tierHierarchy['Pro']}
+            />
           </TabsContent>
         </Tabs>
       </div>
