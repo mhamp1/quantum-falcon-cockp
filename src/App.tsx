@@ -142,13 +142,13 @@ export default function App() {
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
-    { id: 'bot-overview', label: 'Multi-Agent Command Center', icon: Terminal, component: BotOverview },
-    { id: 'multi-agent', label: 'Live Agent Coordination', icon: Robot, component: MultiAgentSystem },
-    { id: 'analytics', label: 'Advanced Analytics', icon: ChartLine, component: EnhancedAnalytics },
-    { id: 'trading', label: 'Trading Hub', icon: Lightning, component: AdvancedTradingHub },
-    { id: 'strategy-builder', label: 'Strategy Builder (Pro+)', icon: Code, component: CreateStrategyPage },
-    { id: 'vault', label: 'BTC Profit Vault', icon: Vault, component: VaultView },
-    { id: 'community', label: 'Marketplace & Community', icon: Users, component: SocialCommunity },
+    { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
+    { id: 'multi-agent', label: 'AI Agents', icon: Robot, component: MultiAgentSystem },
+    { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
+    { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
+    { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
+    { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
+    { id: 'strategy-builder', label: 'Settings', icon: Code, component: CreateStrategyPage },
   ], []);
 
   // App initialization
@@ -227,10 +227,55 @@ export default function App() {
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-      <div className={cn('min-h-screen bg-background text-foreground', isMobile && 'pb-20')}>
-        <Suspense fallback={<LoadingFallback />}>
-          <ActiveComponent />
-        </Suspense>
+      <div className={cn('min-h-screen bg-background text-foreground flex', isMobile && 'flex-col')}>
+        {/* Desktop Left Sidebar Navigation */}
+        {!isMobile && (
+          <div className="fixed left-0 top-0 bottom-0 w-[240px] bg-card/95 backdrop-blur border-r border-primary/30 z-50 flex flex-col">
+            {/* Header */}
+            <div className="p-6 border-b border-primary/30">
+              <h1 className="text-2xl font-bold text-primary neon-glow tracking-tight mb-1">
+                QUANTUM<br />FALCON
+              </h1>
+              <p className="text-xs text-primary uppercase tracking-widest flex items-center gap-2">
+                <span className="w-2 h-2 bg-primary rounded-full animate-pulse-glow"></span>
+                SYSTEM_ONLINE
+              </p>
+            </div>
+
+            {/* Navigation Tabs */}
+            <nav className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-1">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-4 py-3 transition-all text-left uppercase tracking-wider text-xs font-semibold",
+                    activeTab === tab.id
+                      ? "bg-primary/20 text-primary border-l-2 border-primary"
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  )}
+                >
+                  <tab.icon size={18} weight={activeTab === tab.id ? "fill" : "regular"} />
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-primary/30">
+              <p className="text-xs text-muted-foreground text-center">
+                v2025.1.0
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        <div className={cn('flex-1', !isMobile && 'ml-[240px]')}>
+          <Suspense fallback={<LoadingFallback />}>
+            <ActiveComponent />
+          </Suspense>
+        </div>
 
         {/* Mobile Bottom Navigation */}
         {isMobile && (
@@ -251,29 +296,6 @@ export default function App() {
               ))}
             </div>
           </nav>
-        )}
-
-        {/* Desktop Left Sidebar Navigation */}
-        {!isMobile && (
-          <div className="fixed left-4 top-1/2 -translate-y-1/2 z-50">
-            <div className="flex flex-col gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2 shadow-2xl">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-all min-w-[200px]",
-                    activeTab === tab.id
-                      ? "bg-primary text-primary-foreground shadow-lg"
-                      : "hover:bg-accent hover:text-foreground text-muted-foreground"
-                  )}
-                >
-                  <tab.icon size={20} weight={activeTab === tab.id ? "fill" : "regular"} />
-                  <span className="text-sm font-medium">{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         )}
       </div>
     </ErrorBoundary>
