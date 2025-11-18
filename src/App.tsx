@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { isNonCriticalError } from '@/lib/errorSuppression';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { House, Terminal, ChartLine, Lightning, Code, Vault, Users } from '@phosphor-icons/react';
+import { House, Terminal, ChartLine, Lightning, Code, Vault, Users, Robot } from '@phosphor-icons/react';
 import { logError } from '@/lib/errorLogger';
 
 // Lazy load components
@@ -16,6 +16,7 @@ const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTrading
 const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
 const VaultView = lazy(() => import('@/components/vault/VaultView'));
 const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
+const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystem'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -137,6 +138,7 @@ export default function App() {
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
     { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
+    { id: 'multi-agent', label: 'Multi-Agent System', icon: Robot, component: MultiAgentSystem },
     { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
