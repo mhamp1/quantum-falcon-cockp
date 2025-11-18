@@ -1074,3 +1074,37 @@
   background: oklch(0.95 0 0);
   box-shadow: 0 0 8px oklch(0.95 0 0);
 }
+
+[data-radix-popper-content-wrapper] {
+  z-index: 100 !important;
+}
+
+[data-slot="dialog-portal"] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 90 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+
+[data-slot="dialog-portal"] > * {
+  pointer-events: auto !important;
+}
+
+[data-slot="dialog-content"] {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 100 !important;
+  max-height: 90vh !important;
+  max-width: min(90vw, var(--dialog-max-width, 32rem)) !important;
+}
+
+[data-slot="dialog-overlay"] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 90 !important;
+}
