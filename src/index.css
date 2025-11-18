@@ -886,6 +886,33 @@
   }
 }
 
+.neural-falcon-orb {
+  position: relative;
+  overflow: visible;
+}
+
+.neural-falcon-eye {
+  animation: neural-eye-pulse 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes neural-eye-pulse {
+  0%, 100% { 
+    opacity: 0.8; 
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px #14F195);
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 8px #14F195);
+  }
+}
+
+.neural-falcon-orb:hover .neural-falcon-eye {
+  animation: neural-eye-pulse 2s ease-in-out infinite;
+}
+
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;
 }
