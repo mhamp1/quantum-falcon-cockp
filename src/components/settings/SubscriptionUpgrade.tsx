@@ -138,7 +138,7 @@ export default function SubscriptionUpgrade({ open, onOpenChange, tier }: Subscr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[85vh] cyber-card border-2 p-0 gap-0 flex flex-col overflow-hidden" style={{ borderColor: details.color }}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] cyber-card border-2 p-0 gap-0 flex flex-col overflow-hidden" style={{ borderColor: details.color }}>
         <div className="absolute inset-0 technical-grid opacity-5 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/10 to-transparent pointer-events-none" style={{ color: details.color }} />
         
