@@ -84,14 +84,27 @@ export default function LimitedOffersSection() {
     const Icon = offer.icon
     const colors = colorByCategory[offer.category]
     const isPurchased = purchasedOffers?.includes(offer.id)
+    const [isHovered, setIsHovered] = useState(false)
 
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <div
-            className={`cyber-card p-4 space-y-3 relative overflow-hidden group cursor-help hover:${colors.glow} transition-all duration-300 ${
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className={`cyber-card p-4 space-y-3 relative overflow-hidden group cursor-help transition-all duration-300 ease-out ${
               isPurchased ? 'ring-2 ring-primary' : ''
-            } ${isFlashSale ? 'border-2 border-accent animate-pulse-glow' : ''}`}
+            } ${isFlashSale ? 'border-2 border-accent' : ''}`}
+            style={{
+              boxShadow: isHovered && !isPurchased
+                ? isFlashSale 
+                  ? '0 0 30px oklch(0.68 0.18 330 / 0.6)' 
+                  : `0 0 20px ${colors.glow.replace('shadow-[0_0_20px_', '').replace(']', '')}`
+                : isFlashSale && !isPurchased 
+                  ? '0 0 15px oklch(0.68 0.18 330 / 0.3)' 
+                  : undefined,
+              transform: isHovered ? 'translateY(-2px) scale(1.02)' : 'translateY(0) scale(1)',
+            }}
           >
             {isPurchased && (
               <div className="absolute top-2 right-2 z-20">
@@ -179,16 +192,15 @@ export default function LimitedOffersSection() {
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-6">
-        {/* Flash Sales Section - Rotates every 3 hours */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-accent/10 via-card to-background border-3 border-accent/60 p-5 jagged-corner">
-          <div className="absolute inset-0 diagonal-stripes opacity-10" />
-          <div className="absolute top-0 right-0 w-48 h-48 bg-accent/20 blur-3xl animate-pulse-glow" />
+        <div className="relative overflow-hidden bg-gradient-to-br from-accent/10 via-card to-background border-3 border-accent/60 p-5 jagged-corner will-change-auto">
+          <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-48 h-48 bg-accent/20 blur-3xl pointer-events-none" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }} />
 
           <div className="relative z-10">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Lightning size={28} weight="fill" className="text-accent neon-glow-accent animate-pulse" />
+                  <Lightning size={28} weight="fill" className="text-accent neon-glow-accent" style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
                   <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-accent">Flash Sales</h3>
                 </div>
                 <p className="text-[9px] text-muted-foreground uppercase tracking-[0.15em]">
@@ -211,10 +223,9 @@ export default function LimitedOffersSection() {
           </div>
         </div>
 
-        {/* Limited Offers Section - Rotates daily */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-background via-card to-background border-3 border-primary/40 p-5 jagged-corner">
-          <div className="absolute inset-0 grid-background opacity-5" />
-          <div className="absolute top-0 left-0 w-48 h-48 bg-primary/10 blur-3xl" />
+        <div className="relative overflow-hidden bg-gradient-to-br from-background via-card to-background border-3 border-primary/40 p-5 jagged-corner will-change-auto">
+          <div className="absolute inset-0 grid-background opacity-5 pointer-events-none" />
+          <div className="absolute top-0 left-0 w-48 h-48 bg-primary/10 blur-3xl pointer-events-none" />
 
           <div className="relative z-10">
             <div className="flex items-start justify-between mb-4">
