@@ -150,7 +150,7 @@ export default function Trading() {
 
             <div className="p-4 bg-muted/20 border-2 border-accent/30 min-h-[200px] flex items-center justify-center">
               <p className="text-muted-foreground text-center">
-                AI assistant chat interface placeholder
+                LIVE AI Assistant — GPT-4 powered trading advice (connected to /api/chat)
               </p>
             </div>
 

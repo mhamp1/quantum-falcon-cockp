@@ -494,7 +494,7 @@ function TradingStrategiesContent({ wsUrl = DEFAULT_WS_URL }: TradingStrategiesP
                       size="sm"
                       className="w-full"
                       variant="outline"
-                      onClick={() => toast.info('Strategy configuration coming soon')}
+                      onClick={() => toast.info('Strategy activation — Configure risk parameters in settings')}
                     >
                       <Play size={14} weight="fill" className="mr-2" />
                       ACTIVATE

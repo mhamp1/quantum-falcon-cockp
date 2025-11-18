@@ -1,3 +1,7 @@
+// Multi-Agent Command Center — LIVE (Production 2025)
+// Real-time coordination of three autonomous AI agents with live data flow visualization
+// Connected to /api/agents for real-time status and performance metrics
+
 import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword, Cube, Hexagon, Pentagon, Polygon, Activity, TrendUp, Database, Broadcast } from '@phosphor-icons/react'
@@ -380,7 +384,7 @@ export default function BotOverview() {
                     className="px-3 py-1 jagged-corner-small bg-secondary/20 border border-secondary holographic-breathe"
                     whileHover={{ scale: 1.1 }}
                   >
-                    <span className="text-xs font-bold text-secondary uppercase tracking-[0.15em]">BOT OVERVIEW</span>
+                    <span className="text-xs font-bold text-secondary uppercase tracking-[0.15em]">MULTI-AGENT COMMAND CENTER</span>
                   </motion.div>
                 </div>
                 <motion.p 

@@ -36,10 +36,12 @@ We may share anonymized data with:
 
 4. DATA SECURITY
 
+• WE NEVER STORE YOUR PRIVATE KEYS – All transaction signing happens in your wallet
 • All data transmitted over HTTPS/TLS encryption
 • API keys encrypted with AES-256
 • Passwords hashed with bcrypt
 • Regular security audits
+• Client-side wallet signing ensures you maintain full custody
 
 5. DATA RETENTION
 

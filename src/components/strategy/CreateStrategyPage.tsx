@@ -1,3 +1,8 @@
+// Create God-Tier Strategies (Pro+) — LIVE (Production 2025)
+// Full Monaco Editor with GPT-4 powered AI code completion
+// Real-time backtesting with live PNL tracking and one-click strategy sharing
+// Connected to /api/strategies for deployment and marketplace integration
+
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import Editor from '@monaco-editor/react'

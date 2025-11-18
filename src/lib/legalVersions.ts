@@ -1,7 +1,7 @@
 export const LEGAL_DOCUMENT_VERSIONS = {
-  RISK_DISCLOSURE: '2025-01-18',
-  TERMS_OF_SERVICE: '2025-01-18',
-  PRIVACY_POLICY: '2025-01-18'
+  RISK_DISCLOSURE: '2025-11-18',
+  TERMS_OF_SERVICE: '2025-11-18',
+  PRIVACY_POLICY: '2025-11-18'
 } as const
 
 export interface LegalAcknowledgment {
