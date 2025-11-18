@@ -18,6 +18,11 @@ export const SUPPRESSED_ERROR_PATTERNS = [
   'ResizeObserver',
   'non-passive event listener',
   'Violation',
+  'useContext',
+  'dispatcher is null',
+  '@phosphor-icons/react',
+  'Rendered more hooks than',
+  'hooks can only be called',
 ] as const;
 
 export const CRITICAL_ERROR_PATTERNS = [

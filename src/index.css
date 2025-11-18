@@ -1241,3 +1241,46 @@
   inset: 0 !important;
   z-index: 90 !important;
 }
+
+/* Cyberpunk Icon Animations */
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  60% { transform: translate(-2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+.animate-glitch { 
+  animation: glitch 0.3s infinite; 
+  filter: drop-shadow(0 0 5px #DC1FFF); 
+}
+
+.scanline {
+  position: relative;
+}
+
+.scanline::after {
+  content: '';
+  position: absolute;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,255,0.05) 2px, rgba(0,255,255,0.05) 4px);
+  pointer-events: none;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow linear infinite;
+}

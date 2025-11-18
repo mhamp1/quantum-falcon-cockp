@@ -43,6 +43,7 @@ import {
   Cube
 } from '@phosphor-icons/react'
 import type { UserAuth } from '@/lib/auth'
+import CreateStrategyLockedHUD from './CreateStrategyLockedHUD'
 
 interface Strategy {
   id: string
@@ -435,6 +436,20 @@ Return only improved code with comments explaining changes.`
     toast.success('Template loaded', {
       description: 'You can now customize this strategy'
     })
+  }
+
+  // Show locked HUD if user doesn't have access
+  if (!canCreate) {
+    return (
+      <CreateStrategyLockedHUD
+        onUpgradeClick={() => {
+          window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
+          toast.info('Navigate to Billing', {
+            description: 'Go to Settings > Billing to upgrade your plan'
+          })
+        }}
+      />
+    )
   }
 
   return (
