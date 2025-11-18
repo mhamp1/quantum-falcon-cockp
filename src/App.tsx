@@ -4,7 +4,7 @@ import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning, Code 
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UserAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion, LazyMotion, domAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
@@ -313,17 +313,18 @@ export default function App() {
       FallbackComponent={ComponentErrorFallback}
       onError={handleError}
     >
-      <Suspense fallback={null}>
-        <RiskDisclosureBanner />
-      </Suspense>
-      
-      <div className="min-h-screen bg-background flex">
-      {!isMobile && (
-        <motion.aside 
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          className="fixed left-0 top-0 h-screen w-64 border-r-2 border-primary/30 bg-card/95 backdrop-blur-md z-40 flex flex-col"
-        >
+      <LazyMotion features={domAnimation} strict>
+        <Suspense fallback={null}>
+          <RiskDisclosureBanner />
+        </Suspense>
+        
+        <div className="min-h-screen bg-background flex">
+        {!isMobile && (
+          <motion.aside 
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            className="fixed left-0 top-0 h-screen w-64 border-r-2 border-primary/30 bg-card/95 backdrop-blur-md z-40 flex flex-col"
+          >
           <div className="p-6 border-b-2 border-primary/30">
             <h1 className="text-xl font-bold uppercase tracking-[0.15em]">
               <span style={{
@@ -455,6 +456,7 @@ export default function App() {
         </Suspense>
       </ErrorBoundary>
     </div>
+    </LazyMotion>
     </ErrorBoundary>
   );
 }
