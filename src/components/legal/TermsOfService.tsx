@@ -38,7 +38,7 @@ BY ACCESSING OR USING THE QUANTUM FALCON WEBSITE, WEB APPLICATION, MOBILE APPLIC
 
 3.2 Live trading occurs ONLY when you explicitly connect a real cryptocurrency exchange/wallet via API keys or OAuth. You alone control those keys and bear 100% responsibility for any executed trades.
 
-3.3 QUANTUM FALCON DOES NOT HOLD, CUSTODY, OR CONTROL USER FUNDS AT ANY TIME.
+3.3 QUANTUM FALCON DOES NOT HOLD, CUSTODY, OR CONTROL USER FUNDS AT ANY TIME. WE NEVER STORE YOUR PRIVATE KEYS. All transaction signing occurs in your wallet, ensuring you maintain full custody and control of your assets.
 
 4. NO INVESTMENT ADVICE OR BROKERAGE
 

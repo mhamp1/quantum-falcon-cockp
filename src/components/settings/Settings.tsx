@@ -229,7 +229,7 @@ export default function Settings() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Neon theme with holographic elements active. Additional themes coming soon!
+            Cyberpunk neon theme with holographic elements — Production ready. Theme customization available in Pro+ tiers.
           </p>
         </CardContent>
       </Card>
