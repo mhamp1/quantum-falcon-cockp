@@ -3,7 +3,7 @@ export interface CheckoutItem {
   name: string
   description: string
   price: number
-  type: 'subscription' | 'offer' | 'perk'
+  type: 'subscription' | 'offer' | 'perk' | 'strategy'
   duration?: number
   recurring?: boolean
 }
