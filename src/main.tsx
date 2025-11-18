@@ -25,8 +25,13 @@ function isR3FError(error: Error | string): boolean {
     message.includes('dispatcher') ||
     message.includes('Rendered more hooks than') ||
     message.includes('hooks can only be called') ||
+    message.includes('Failed to fetch KV key') ||
+    message.includes('Failed to set key') ||
+    message.includes('KV storage') ||
+    message.includes('_spark/kv') ||
     stack.includes('@react-three/fiber') ||
-    stack.includes('react-three')
+    stack.includes('react-three') ||
+    stack.includes('spark/hooks')
   )
 }
 
@@ -34,7 +39,6 @@ const originalConsoleError = console.error;
 console.error = (...args: any[]) => {
   const message = args.join(' ');
   if (isR3FError(message)) {
-    console.debug('[Suppressed error]:', message.substring(0, 100));
     return;
   }
   originalConsoleError.apply(console, args);
@@ -51,24 +55,20 @@ console.warn = (...args: any[]) => {
 
 window.addEventListener('error', (event) => {
   if (isR3FError(event.error || event.message)) {
-    console.debug('[Global] R3F error suppressed:', event.message.substring(0, 100));
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
     return true;
   }
-  console.error('[Global] Uncaught error:', event.error);
 }, true);
 
 window.addEventListener('unhandledrejection', (event) => {
   if (isR3FError(event.reason)) {
-    console.debug('[Global] R3F promise rejection suppressed:', event.reason);
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
     return;
   }
-  console.error('[Global] Unhandled promise rejection:', event.reason);
 });
 
 const queryClient = new QueryClient({
@@ -94,10 +94,8 @@ try {
       FallbackComponent={ErrorFallback}
       onError={(error, errorInfo) => {
         if (isR3FError(error)) {
-          console.warn('[Root] R3F error suppressed in boundary:', error.message);
           return;
         }
-        console.error('[Root] Error caught by boundary:', error, errorInfo);
       }}
     >
       <QueryClientProvider client={queryClient}>

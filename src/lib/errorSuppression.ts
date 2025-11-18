@@ -18,6 +18,10 @@ export const SUPPRESSED_ERROR_PATTERNS = [
   'ResizeObserver',
   'non-passive event listener',
   'Violation',
+  'Failed to fetch KV key',
+  'Failed to set key',
+  'KV storage',
+  '_spark/kv',
 ] as const;
 
 export const CRITICAL_ERROR_PATTERNS = [

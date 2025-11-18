@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe } from '@/hooks/useKVFallback'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -106,7 +106,7 @@ interface AppSettings {
 }
 
 export default function EnhancedSettings() {
-  const [profile, setProfile] = useKV<UserProfile>('user-profile-full', {
+  const [profile, setProfile] = useKVSafe<UserProfile>('user-profile-full', {
     username: 'QuantumTrader',
     email: 'trader@quantumfalcon.ai',
     level: 15,
@@ -117,7 +117,7 @@ export default function EnhancedSettings() {
     memberSince: 'Jan 2024'
   })
 
-  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
+  const [auth, setAuth] = useKVSafe<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
     username: null,
@@ -155,7 +155,7 @@ export default function EnhancedSettings() {
     window.location.reload()
   }
 
-  const [settings, setSettings] = useKV<AppSettings>('app-settings', {
+  const [settings, setSettings] = useKVSafe<AppSettings>('app-settings', {
     notifications: {
       tradeAlerts: true,
       priceAlerts: true,

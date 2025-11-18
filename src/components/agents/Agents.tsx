@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe } from '@/hooks/useKVFallback'
 import { Switch } from '@/components/ui/switch'
 import { Robot, Brain, ChartLine, Lightning, Target, TrendUp, TrendDown, ArrowsClockwise, CheckCircle, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -80,7 +80,7 @@ const activityTypes = [
 ]
 
 export default function Agents() {
-  const [agents, setAgents] = useKV<Agent[]>('trading-agents', initialAgents)
+  const [agents, setAgents] = useKVSafe<Agent[]>('trading-agents', initialAgents)
   const [activityLog, setActivityLog] = useState<ActivityLog[]>([])
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
 

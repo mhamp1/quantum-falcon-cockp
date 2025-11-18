@@ -1,7 +1,7 @@
-import { useKV } from '@github/spark/hooks';
 import { useEffect, useMemo, Suspense, lazy, useState, useRef } from 'react';
 import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning, Code } from '@phosphor-icons/react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useKVSafe } from '@/hooks/useKVFallback';
 import { UserAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -115,8 +115,8 @@ interface Tab {
 
 export default function App() {
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
-  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
+  const [activeTab, setActiveTab] = useKVSafe<string>('active-tab', 'dashboard');
+  const [auth, setAuth] = useKVSafe<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
     username: null,

@@ -1,5 +1,5 @@
 // Enhanced Dashboard with React 19 performance optimizations and AI integration
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe } from '@/hooks/useKVFallback'
 import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
 import { UserAuth } from '@/lib/auth'
 import {
@@ -34,7 +34,7 @@ interface QuickStat {
 }
 
 export default function EnhancedDashboard() {
-  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
+  const [auth, setAuth] = useKVSafe<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
     username: null,
@@ -44,10 +44,10 @@ export default function EnhancedDashboard() {
   })
 
   const [showLogin, setShowLogin] = useState(false)
-  const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false)
-  const [paperTradingMode, setPaperTradingMode] = useKV<boolean>('paper-trading-mode', true)
+  const [botRunning, setBotRunning] = useKVSafe<boolean>('bot-running', false)
+  const [paperTradingMode, setPaperTradingMode] = useKVSafe<boolean>('paper-trading-mode', true)
   const [isPending, startTransition] = useTransition()
-  const [portfolio] = useKV<{
+  const [portfolio] = useKVSafe<{
     solanaBalance: number
     btcBalance: number
     totalValue: number

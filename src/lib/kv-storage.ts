@@ -8,44 +8,29 @@
  */
 
 const KV_PREFIX = 'spark_kv_';
-const KV_AVAILABLE_KEY = '__spark_kv_available__';
-
-let sparkKVAvailable: boolean | null = null;
-
-export async function isSparkKVAvailable(): Promise<boolean> {
-  if (sparkKVAvailable !== null) {
-    return sparkKVAvailable;
-  }
-
-  const cached = sessionStorage.getItem(KV_AVAILABLE_KEY);
-  if (cached !== null) {
-    sparkKVAvailable = cached === 'true';
-    return sparkKVAvailable;
-  }
-
-  try {
-    const response = await fetch('/_spark/kv', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    sparkKVAvailable = response.status === 200;
-  } catch {
-    sparkKVAvailable = false;
-  }
-
-  sessionStorage.setItem(KV_AVAILABLE_KEY, String(sparkKVAvailable));
-  
-  if (!sparkKVAvailable) {
-    console.info('[KV Storage] Using localStorage fallback');
-  }
-  
-  return sparkKVAvailable;
-}
+const IS_DEV = import.meta.env.DEV;
 
 /**
  * Get a value from storage (Spark KV or localStorage fallback)
  */
 export async function getKVValue<T>(key: string): Promise<T | undefined> {
+  try {
+    if (typeof window !== 'undefined' && window.spark?.kv?.get) {
+      try {
+        const value = await window.spark.kv.get<T>(key);
+        return value;
+      } catch (sparkError) {
+        if (IS_DEV) {
+          console.debug(`[KV Storage] Spark KV failed for key "${key}", using localStorage fallback`);
+        }
+      }
+    }
+  } catch (error) {
+    if (IS_DEV) {
+      console.debug(`[KV Storage] Error accessing Spark KV, using localStorage fallback`);
+    }
+  }
+  
   return getFromLocalStorage<T>(key);
 }
 
@@ -53,6 +38,23 @@ export async function getKVValue<T>(key: string): Promise<T | undefined> {
  * Set a value in storage (Spark KV or localStorage fallback)
  */
 export async function setKVValue<T>(key: string, value: T): Promise<void> {
+  try {
+    if (typeof window !== 'undefined' && window.spark?.kv?.set) {
+      try {
+        await window.spark.kv.set(key, value);
+        return;
+      } catch (sparkError) {
+        if (IS_DEV) {
+          console.debug(`[KV Storage] Spark KV set failed for key "${key}", using localStorage fallback`);
+        }
+      }
+    }
+  } catch (error) {
+    if (IS_DEV) {
+      console.debug(`[KV Storage] Error accessing Spark KV, using localStorage fallback`);
+    }
+  }
+  
   setInLocalStorage(key, value);
 }
 
@@ -60,6 +62,23 @@ export async function setKVValue<T>(key: string, value: T): Promise<void> {
  * Delete a value from storage (Spark KV or localStorage fallback)
  */
 export async function deleteKVValue(key: string): Promise<void> {
+  try {
+    if (typeof window !== 'undefined' && window.spark?.kv?.delete) {
+      try {
+        await window.spark.kv.delete(key);
+        return;
+      } catch (sparkError) {
+        if (IS_DEV) {
+          console.debug(`[KV Storage] Spark KV delete failed for key "${key}", using localStorage fallback`);
+        }
+      }
+    }
+  } catch (error) {
+    if (IS_DEV) {
+      console.debug(`[KV Storage] Error accessing Spark KV, using localStorage fallback`);
+    }
+  }
+  
   deleteFromLocalStorage(key);
 }
 
@@ -67,6 +86,23 @@ export async function deleteKVValue(key: string): Promise<void> {
  * Get all keys from storage
  */
 export async function getKVKeys(): Promise<string[]> {
+  try {
+    if (typeof window !== 'undefined' && window.spark?.kv?.keys) {
+      try {
+        const keys = await window.spark.kv.keys();
+        return keys;
+      } catch (sparkError) {
+        if (IS_DEV) {
+          console.debug(`[KV Storage] Spark KV keys failed, using localStorage fallback`);
+        }
+      }
+    }
+  } catch (error) {
+    if (IS_DEV) {
+      console.debug(`[KV Storage] Error accessing Spark KV, using localStorage fallback`);
+    }
+  }
+  
   return getKeysFromLocalStorage();
 }
 
@@ -79,7 +115,9 @@ function getFromLocalStorage<T>(key: string): T | undefined {
     }
     return JSON.parse(item) as T;
   } catch (error) {
-    console.error(`[KV Fallback] Error reading from localStorage:`, error);
+    if (IS_DEV) {
+      console.debug(`[KV Fallback] Error reading from localStorage:`, error);
+    }
     return undefined;
   }
 }
@@ -88,7 +126,9 @@ function setInLocalStorage<T>(key: string, value: T): void {
   try {
     localStorage.setItem(KV_PREFIX + key, JSON.stringify(value));
   } catch (error) {
-    console.error(`[KV Fallback] Error writing to localStorage:`, error);
+    if (IS_DEV) {
+      console.debug(`[KV Fallback] Error writing to localStorage:`, error);
+    }
   }
 }
 
@@ -96,7 +136,9 @@ function deleteFromLocalStorage(key: string): void {
   try {
     localStorage.removeItem(KV_PREFIX + key);
   } catch (error) {
-    console.error(`[KV Fallback] Error deleting from localStorage:`, error);
+    if (IS_DEV) {
+      console.debug(`[KV Fallback] Error deleting from localStorage:`, error);
+    }
   }
 }
 
@@ -111,7 +153,9 @@ function getKeysFromLocalStorage(): string[] {
     }
     return keys;
   } catch (error) {
-    console.error(`[KV Fallback] Error getting keys from localStorage:`, error);
+    if (IS_DEV) {
+      console.debug(`[KV Fallback] Error getting keys from localStorage:`, error);
+    }
     return [];
   }
 }
