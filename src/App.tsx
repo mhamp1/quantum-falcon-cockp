@@ -19,6 +19,7 @@ const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTrading
 const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
 const AIAssistant = lazy(() => import('@/components/shared/AIAssistant'));
 const LicenseAuth = lazy(() => import('@/components/auth/LicenseAuth'));
+const LegalFooter = lazy(() => import('@/components/shared/LegalFooter'));
 
 function LoadingFallback() {
   return (
@@ -254,6 +255,17 @@ export default function App() {
       >
         <Suspense fallback={null}>
           <AIAssistant />
+        </Suspense>
+      </ErrorBoundary>
+
+      <ErrorBoundary 
+        FallbackComponent={() => null}
+        onError={(error) => {
+          console.error('Legal Footer error:', error);
+        }}
+      >
+        <Suspense fallback={null}>
+          <LegalFooter />
         </Suspense>
       </ErrorBoundary>
     </div>
