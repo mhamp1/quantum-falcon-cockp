@@ -23,6 +23,7 @@ export default function RiskDisclosureBanner() {
     'risk-disclosure-audit-log',
     []
   )
+  const [isVisible, setIsVisible] = useState(true)
 
   const handleAcknowledge = async () => {
     const acknowledgmentData: RiskAcknowledgment = {
@@ -32,6 +33,8 @@ export default function RiskDisclosureBanner() {
       sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     }
 
+    setIsVisible(false)
+    
     setAcknowledgment(acknowledgmentData)
     
     setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
@@ -40,6 +43,8 @@ export default function RiskDisclosureBanner() {
     console.log('[Risk Disclosure Banner] 📋 Full audit trail contains', (auditLog?.length || 0) + 1, 'entries')
     console.log('[Risk Disclosure Banner] 🔒 Acknowledgment stored permanently in key: risk-disclosure-acknowledgment')
     console.log('[Risk Disclosure Banner] 📅 Timestamp:', new Date(acknowledgmentData.acknowledgedAt).toISOString())
+    console.log('[Risk Disclosure Banner] 👤 User Agent:', acknowledgmentData.userAgent)
+    console.log('[Risk Disclosure Banner] 🆔 Session ID:', acknowledgmentData.sessionId)
     
     try {
       await fetch('/api/legal/acknowledge-risk', {
@@ -47,18 +52,19 @@ export default function RiskDisclosureBanner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(acknowledgmentData)
       }).catch(() => {
-        console.log('[Risk Disclosure Banner] Backend logging unavailable, using client-side storage only')
+        console.log('[Risk Disclosure Banner] ℹ️ Backend logging unavailable, using client-side storage only')
       })
     } catch (err) {
-      console.log('[Risk Disclosure Banner] Backend logging unavailable, using client-side storage only')
+      console.log('[Risk Disclosure Banner] ℹ️ Backend logging unavailable, using client-side storage only')
     }
     
     toast.success('Risk Disclosure Acknowledged', {
-      description: 'Your acknowledgment has been permanently logged. The banner will no longer appear.'
+      description: 'Your acknowledgment has been permanently logged.'
     })
   }
 
-  if (acknowledgment) {
+  if (acknowledgment || !isVisible) {
+    console.log('[Risk Disclosure Banner] 🚫 Banner hidden - User has acknowledged (logged on:', acknowledgment ? new Date(acknowledgment.acknowledgedAt).toLocaleString() : 'N/A', ')')
     return null
   }
 
