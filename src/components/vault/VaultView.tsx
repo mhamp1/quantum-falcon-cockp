@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon } from '@phosphor-icons/react'
+import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import SolanaLogo from '@/components/shared/SolanaLogo'
 import VaultTutorial from './VaultTutorial'
+import useEmblaCarousel from 'embla-carousel-react'
 
 interface VaultTransaction {
   id: string
@@ -151,13 +152,21 @@ export default function VaultView() {
   const [flashSales, setFlashSales] = useState<FlashSaleCard[]>([])
   const [timeRemaining, setTimeRemaining] = useState('')
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true, 
+    align: 'start',
+    skipSnaps: false,
+    slidesToScroll: 1
+  })
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(false)
 
   const getRandomFlashSales = (seed: number): FlashSaleCard[] => {
     const shuffled = [...FLASH_SALE_POOL].sort(() => {
       const x = Math.sin(seed++) * 10000
       return x - Math.floor(x) - 0.5
     })
-    return shuffled.slice(0, 3)
+    return shuffled.slice(0, 5)
   }
 
   const getCurrentRotationSeed = (): number => {
@@ -200,6 +209,31 @@ export default function VaultView() {
       clearInterval(rotationCheck)
     }
   }, [])
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setCanScrollPrev(emblaApi.canScrollPrev())
+    setCanScrollNext(emblaApi.canScrollNext())
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', onSelect)
+    return () => {
+      emblaApi.off('select', onSelect)
+      emblaApi.off('reInit', onSelect)
+    }
+  }, [emblaApi, onSelect])
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
 
   useEffect(() => {
     const coins: FloatingCoin[] = []
@@ -604,95 +638,119 @@ export default function VaultView() {
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {flashSales.map((card, index) => {
-              const Icon = getIconComponent(card.icon)
-              const colors = getColorClasses(card.color)
-              const finalPrice = card.originalPrice * (1 - card.discount / 100)
-              
-              return (
-                <motion.div
-                  key={card.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className={`relative overflow-hidden group cursor-pointer border-3 ${colors.border} p-6 jagged-corner bg-gradient-to-br from-card to-background ${colors.shadow} ${colors.hoverShadow} transition-all`}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="absolute top-2 left-2 z-20">
-                    <motion.div 
-                      className="px-2 py-1 bg-destructive border-2 border-destructive jagged-corner-small"
-                      animate={{ rotate: [0, -2, 2, -2, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-                    >
-                      <span className="text-[10px] uppercase tracking-[0.2em] font-black text-destructive-foreground">
-                        -{card.discount}% OFF
-                      </span>
-                    </motion.div>
-                  </div>
-
-                  <div className={`absolute top-0 right-0 w-32 h-32 ${colors.bg} rounded-full blur-3xl group-hover:opacity-100 transition-all opacity-50`} />
-                  <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-${card.color} to-transparent`} />
+          <div className="relative">
+            <div className="overflow-hidden" ref={emblaRef}>
+              <div className="flex gap-4">
+                {flashSales.map((card, index) => {
+                  const Icon = getIconComponent(card.icon)
+                  const colors = getColorClasses(card.color)
+                  const finalPrice = card.originalPrice * (1 - card.discount / 100)
                   
-                  <div className="relative z-10 pt-6">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className={`p-4 jagged-corner ${colors.bg} border-3 ${colors.border}`}>
-                        <Icon size={48} weight="duotone" className={colors.text} />
-                      </div>
-                    </div>
-                    
-                    <div className="text-center mb-4">
-                      <h3 className={`text-lg uppercase tracking-[0.15em] font-black mb-2 ${colors.text} ${colors.glow}`} style={{
-                        textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px currentColor',
-                        WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
-                      }}>
-                        {card.title}
-                      </h3>
-                      <div className="px-2 py-1 bg-card/80 border border-border inline-block mb-3">
-                        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-muted-foreground">
-                          {card.category}
-                        </span>
-                      </div>
-                      <p className="text-sm leading-relaxed font-semibold" style={{
-                        textShadow: '1px 1px 0 oklch(0.08 0.02 280)',
-                        color: 'oklch(0.85 0.08 195)'
-                      }}>
-                        {card.description}
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-center gap-3">
-                        <span className="text-lg line-through text-muted-foreground font-bold">
-                          ${card.originalPrice}
-                        </span>
-                        <span className={`text-2xl font-black ${colors.text} ${colors.glow}`} style={{
-                          textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 12px currentColor'
-                        }}>
-                          ${finalPrice.toFixed(0)}
-                        </span>
-                      </div>
-                      
-                      <Button
-                        onClick={() => handlePurchaseFlashSale(card)}
-                        className={`w-full ${colors.bg} hover:opacity-90 ${colors.text} jagged-corner border-3 ${colors.border} ${colors.shadow} hover:${colors.hoverShadow} uppercase tracking-[0.15em] font-bold py-6 text-sm group/btn`}
-                      >
-                        <Lightning size={20} weight="fill" className="mr-2 group-hover/btn:animate-pulse" />
-                        CLAIM OFFER
-                      </Button>
-                    </div>
-
-                    <motion.div
-                      className="absolute bottom-2 right-2 opacity-20"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  return (
+                    <div
+                      key={card.id}
+                      className="flex-[0_0_100%] min-w-0 md:flex-[0_0_calc(50%-8px)] lg:flex-[0_0_calc(33.333%-11px)]"
                     >
-                      <Icon size={80} weight="duotone" className={colors.text} />
-                    </motion.div>
-                  </div>
-                </motion.div>
-              )
-            })}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                        className={`relative overflow-hidden group cursor-pointer border-3 ${colors.border} p-6 jagged-corner bg-gradient-to-br from-card to-background ${colors.shadow} ${colors.hoverShadow} transition-all h-full`}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div className="absolute top-2 left-2 z-20">
+                          <motion.div 
+                            className="px-2 py-1 bg-destructive border-2 border-destructive jagged-corner-small"
+                            animate={{ rotate: [0, -2, 2, -2, 0] }}
+                            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                          >
+                            <span className="text-[10px] uppercase tracking-[0.2em] font-black text-destructive-foreground">
+                              -{card.discount}% OFF
+                            </span>
+                          </motion.div>
+                        </div>
+
+                        <div className={`absolute top-0 right-0 w-32 h-32 ${colors.bg} rounded-full blur-3xl group-hover:opacity-100 transition-all opacity-50`} />
+                        <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-${card.color} to-transparent`} />
+                        
+                        <div className="relative z-10 pt-6">
+                          <div className="flex items-center justify-center mb-4">
+                            <div className={`p-4 jagged-corner ${colors.bg} border-3 ${colors.border}`}>
+                              <Icon size={48} weight="duotone" className={colors.text} />
+                            </div>
+                          </div>
+                          
+                          <div className="text-center mb-4">
+                            <h3 className={`text-lg uppercase tracking-[0.15em] font-black mb-2 ${colors.text} ${colors.glow}`} style={{
+                              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px currentColor',
+                              WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+                            }}>
+                              {card.title}
+                            </h3>
+                            <div className="px-2 py-1 bg-card/80 border border-border inline-block mb-3">
+                              <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-muted-foreground">
+                                {card.category}
+                              </span>
+                            </div>
+                            <p className="text-sm leading-relaxed font-semibold" style={{
+                              textShadow: '1px 1px 0 oklch(0.08 0.02 280)',
+                              color: 'oklch(0.85 0.08 195)'
+                            }}>
+                              {card.description}
+                            </p>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-center gap-3">
+                              <span className="text-lg line-through text-muted-foreground font-bold">
+                                ${card.originalPrice}
+                              </span>
+                              <span className={`text-2xl font-black ${colors.text} ${colors.glow}`} style={{
+                                textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 12px currentColor'
+                              }}>
+                                ${finalPrice.toFixed(0)}
+                              </span>
+                            </div>
+                            
+                            <Button
+                              onClick={() => handlePurchaseFlashSale(card)}
+                              className={`w-full ${colors.bg} hover:opacity-90 ${colors.text} jagged-corner border-3 ${colors.border} ${colors.shadow} hover:${colors.hoverShadow} uppercase tracking-[0.15em] font-bold py-6 text-sm group/btn`}
+                            >
+                              <Lightning size={20} weight="fill" className="mr-2 group-hover/btn:animate-pulse" />
+                              CLAIM OFFER
+                            </Button>
+                          </div>
+
+                          <motion.div
+                            className="absolute bottom-2 right-2 opacity-20"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                          >
+                            <Icon size={80} weight="duotone" className={colors.text} />
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <Button
+              onClick={scrollPrev}
+              disabled={!canScrollPrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 p-0 bg-card/95 hover:bg-card border-3 border-destructive disabled:opacity-30 disabled:cursor-not-allowed jagged-corner-small shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.6)] hover:shadow-[0_0_30px_oklch(0.65_0.25_25_/_0.8)]"
+            >
+              <CaretLeft size={24} weight="bold" className="text-destructive" />
+            </Button>
+
+            <Button
+              onClick={scrollNext}
+              disabled={!canScrollNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 p-0 bg-card/95 hover:bg-card border-3 border-destructive disabled:opacity-30 disabled:cursor-not-allowed jagged-corner-small shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.6)] hover:shadow-[0_0_30px_oklch(0.65_0.25_25_/_0.8)]"
+            >
+              <CaretRight size={24} weight="bold" className="text-destructive" />
+            </Button>
           </div>
         </div>
       </div>
