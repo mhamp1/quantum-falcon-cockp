@@ -1,4 +1,4 @@
-import { useEffect, useMemo, Suspense, lazy, useState, useRef } from 'react';
+import { useEffect, useMemo, Suspense, lazy, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { cn } from '@/lib/utils';
@@ -6,9 +6,18 @@ import { Button } from '@/components/ui/button';
 import { isNonCriticalError } from '@/lib/errorSuppression';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { logError } from '@/lib/errorLogger';
-import { House, Terminal, ChartLine, Lightning, Code, Vault, Users, Robot } from '@phosphor-icons/react';
+import {
+  House,
+  Terminal,
+  ChartLine,
+  Lightning,
+  Code,
+  Vault,
+  Users,
+  Robot
+} from '@phosphor-icons/react';
 
-// Lazy load all heavy components
+// Lazy load all heavy components (code-splitting = instant startup)
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
 const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
@@ -43,8 +52,10 @@ function LoadingFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-4">
-        <div className="text-5xl animate-pulse">⚡</div>
-        <p className="text-muted-foreground uppercase tracking-wider text-sm">Initializing Quantum Core...</p>
+        <div className="text-6xl animate-pulse">⚡</div>
+        <p className="text-muted-foreground uppercase tracking-wider text-sm">
+          Initializing Quantum Core...
+        </p>
       </div>
     </div>
   );
@@ -75,9 +86,7 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
         </div>
 
         <div className="space-y-3">
-          <p className="text-foreground font-mono text-sm break-all">
-            {error.message}
-          </p>
+          <p className="text-foreground font-mono text-sm break-all">{error.message}</p>
 
           {error.stack && (
             <details className="mt-3">
@@ -100,8 +109,8 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
           </Button>
           <Button
             onClick={() => {
-              navigator.clipboard.writeText(`Error: ${error.message}\nStack: ${error.stack || 'N/A'}`);
-              alert('Error copied to clipboard');
+              navigator.clipboard.writeText(`Error: ${error.message}\n\nStack: ${error.stack || 'N/A'}`);
+              alert('Error report copied to clipboard');
             }}
             variant="secondary"
             size="lg"
@@ -112,7 +121,7 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
         </div>
 
         <p className="text-xs text-muted-foreground text-center pt-4 border-t border-border/50">
-          Quantum Falcon Cockpit v2025.1.0 • November 18, 2025 • Production Build
+          Quantum Falcon Cockpit v2025.1.0 — Production Build — November 18, 2025
         </p>
       </div>
     </div>
@@ -130,7 +139,6 @@ export default function App() {
     avatar: null,
   });
   const [isInitializing, setIsInitializing] = useState(true);
-  const [hasError, setHasError] = useState(false);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -143,73 +151,64 @@ export default function App() {
     { id: 'community', label: 'Marketplace & Community', icon: Users, component: SocialCommunity },
   ], []);
 
-  // Initialize app
+  // App initialization
   useEffect(() => {
     const timer = setTimeout(() => setIsInitializing(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
-  // Global error suppression & logging
+  // Global non-critical error suppression + proper logging
   useEffect(() => {
-    const shouldSuppress = (text: string, additionalText = '') => 
-      isNonCriticalError(text) || isNonCriticalError(additionalText);
+    const shouldSuppress = (text: string, extra = '') => isNonCriticalError(text) || isNonCriticalError(extra);
 
-    const handleWindowError = (event: ErrorEvent) => {
-      if (shouldSuppress(event.message, event.filename || '')) {
-        console.debug('[App] Suppressed non-critical error:', event.message.substring(0, 100));
-        event.preventDefault();
+    const handleWindowError = (e: ErrorEvent) => {
+      if (shouldSuppress(e.message, e.filename || '')) {
+        console.debug('[App] Suppressed non-critical error:', e.message.substring(0, 100));
+        e.preventDefault();
         return;
       }
-
-      logError(event.error || event.message, `Window Error: ${event.filename}:${event.lineno}`);
-      console.error('[App] Uncaught window error:', event);
+      logError(e.error || e.message, `Window Error: ${e.filename}:${e.lineno}`);
+      console.error('[App] Uncaught window error:', e);
     };
 
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      const reason = event.reason?.toString() || '';
+    const handleRejection = (e: PromiseRejectionEvent) => {
+      const reason = e.reason?.toString() || '';
       if (shouldSuppress(reason)) {
         console.debug('[App] Suppressed promise rejection:', reason.substring(0, 100));
-        event.preventDefault();
+        e.preventDefault();
         return;
       }
-
-      logError(event.reason, 'Unhandled Promise Rejection');
-      console.error('[App] Unhandled rejection:', event.reason);
+      logError(e.reason, 'Unhandled Promise Rejection');
+      console.error('[App] Unhandled rejection:', e.reason);
     };
 
     window.addEventListener('error', handleWindowError, true);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-
+    window.addEventListener('unhandledrejection', handleRejection);
     return () => {
       window.removeEventListener('error', handleWindowError, true);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('unhandledrejection', handleRejection);
     };
   }, []);
 
-  // Custom navigation events
+  // Tab navigation via custom events
   useEffect(() => {
-    const handleNavigate = (e: Event) => {
-      const detail = (e as CustomEvent<string>).detail;
-      if (tabs.some(t => t.id === detail)) {
-        setActiveTab(detail);
-      }
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (tabs.some(t => t.id === id)) setActiveTab(id);
     };
-    window.addEventListener('navigate-tab', handleNavigate);
-    return () => window.removeEventListener('navigate-tab', handleNavigate);
+    window.addEventListener('navigate-tab', handler);
+    return () => window.removeEventListener('navigate-tab', handler);
   }, [tabs]);
 
+  // Legal disclosure opener
   useEffect(() => {
-    const handleLegalDisclosure = () => {
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('open-settings-legal-tab'));
-      }, 100);
-    };
-    window.addEventListener('open-legal-risk-disclosure', handleLegalDisclosure);
-    return () => window.removeEventListener('open-legal-risk-disclosure', handleLegalDisclosure);
+    const handler = () => setTimeout(() => window.dispatchEvent(new CustomEvent('open-settings-legal-tab')), 100);
+    window.addEventListener('open-legal-risk-disclosure', handler);
+    return () => window.removeEventListener('open-legal-risk-disclosure', handler);
   }, []);
 
-  // License success handler
-  const handleLicenseSuccess = async (tier: string, expiresAt: number) => {
+  // License verification success handler
+  const handleLicenseSuccess = (tier: string, expiresAt: number) => {
     console.log('[App] License verified:', { tier, expiresAt });
     const newAuth: UserAuth = {
       isAuthenticated: true,
@@ -217,39 +216,65 @@ export default function App() {
       username: `QUANTUM_${tier.toUpperCase()}`,
       email: null,
       avatar: null,
-      license: {
-        userId: `qf_user_${Date.now()}`,
-        tier,
-        expiresAt,
-        purchasedAt: Date.now(),
-      },
+      license: { userId: `qf_user_${Date.now()}`, tier, expiresAt, purchasedAt: Date.now() },
     };
     setAuth(newAuth);
   };
 
   if (isInitializing) return <LoadingFallback />;
-  if (hasError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-6">
-          <div className="text-8xl animate-bounce">💀</div>
-          <h1 className="text-3xl font-bold text-destructive">System Overload</h1>
-          <Button onClick={() => window.location.reload()} size="lg">
-            Restart Quantum Core
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-      <div className={cn('min-h-screen bg-background text-foreground', isMobile && 'mobile-layout')}>
+      <div className={cn('min-h-screen bg-background text-foreground', isMobile && 'pb-20')}>
         <Suspense fallback={<LoadingFallback />}>
           <ActiveComponent />
         </Suspense>
+
+        {/* Mobile Bottom Navigation */}
+        {isMobile && (
+          <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur border-t border-border z-50">
+            <div className="flex justify-around py-2">
+              {tabs.slice(0, 5).map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors",
+                    activeTab === tab.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <tab.icon size={24} weight={activeTab === tab.id ? "fill" : "regular"} />
+                  <span className="text-xs">{tab.label.split(' ')[0]}</span>
+                </button>
+              ))}
+            </div>
+          </nav>
+        )}
+
+        {/* Desktop Top-Right Navigation */}
+        {!isMobile && (
+          <div className="fixed top-4 right-4 z-50">
+            <div className="flex gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2 shadow-2xl">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-lg transition-all",
+                    activeTab === tab.id
+                      ? "bg-primary text-primary-foreground shadow-lg"
+                      : "hover:bg-accent hover:text-foreground"
+                  )}
+                >
+                  <tab.icon size={20} weight={activeTab === tab.id ? "fill" : "regular"} />
+                  <span className="text-sm font-medium">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </ErrorBoundary>
   );
