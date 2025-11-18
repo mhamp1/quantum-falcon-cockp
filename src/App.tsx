@@ -4,7 +4,7 @@ import { House, Robot, ChartLine, Vault, Users, Gear, Terminal, Lightning, Code 
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UserAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
-import { motion, LazyMotion, domAnimation } from 'framer-motion';
+import { m, LazyMotion, domAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
@@ -360,7 +360,7 @@ export default function App() {
         
         <div className="min-h-screen bg-background flex">
         {!isMobile && (
-          <motion.aside 
+          <m.aside 
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             className="fixed left-0 top-0 h-screen w-64 border-r-2 border-primary/30 bg-card/95 backdrop-blur-md z-40 flex flex-col"
@@ -430,7 +430,7 @@ export default function App() {
                     {tab.label}
                   </span>
                   {isActive && (
-                    <motion.div
+                    <m.div
                       layoutId="activeTab"
                       className="absolute inset-0 -z-10 bg-primary/10"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -454,7 +454,7 @@ export default function App() {
               </div>
             </div>
           </div>
-        </motion.aside>
+        </m.aside>
       )}
 
       <div className={cn("flex-1", !isMobile && "ml-64")}>
