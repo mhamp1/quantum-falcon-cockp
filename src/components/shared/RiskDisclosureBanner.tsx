@@ -32,12 +32,19 @@ export default function RiskDisclosureBanner() {
     }
     
     console.log('[Risk Disclosure Banner] 💾 Saving acknowledgment...')
-    await setAcknowledgment(acknowledgmentData)
     
-    await setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
+    setAcknowledgment((current) => {
+      console.log('[Risk Disclosure Banner] ✅ Acknowledgment state updated from:', current, 'to:', acknowledgmentData)
+      return acknowledgmentData
+    })
+    
+    setAuditLog((currentLog) => {
+      const newLog = [...(currentLog || []), acknowledgmentData]
+      console.log('[Risk Disclosure Banner] 📋 Audit trail updated. Total entries:', newLog.length)
+      return newLog
+    })
 
     console.log('[Risk Disclosure Banner] ✅ Acknowledgment logged for legal compliance:', acknowledgmentData)
-    console.log('[Risk Disclosure Banner] 📋 Full audit trail contains', (auditLog?.length || 0) + 1, 'entries')
     console.log('[Risk Disclosure Banner] 🔒 Acknowledgment stored permanently in key: risk-disclosure-acknowledgment')
     console.log('[Risk Disclosure Banner] 📅 Timestamp:', new Date(acknowledgmentData.acknowledgedAt).toISOString())
     console.log('[Risk Disclosure Banner] 👤 User Agent:', acknowledgmentData.userAgent)
@@ -56,7 +63,7 @@ export default function RiskDisclosureBanner() {
     }
     
     toast.success('Risk Disclosure Acknowledged', {
-      description: 'Your acknowledgment has been permanently logged.'
+      description: 'Your acknowledgment has been permanently logged and the banner will now disappear.'
     })
   }
 

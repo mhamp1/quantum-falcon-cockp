@@ -12,6 +12,14 @@ import { useKV } from '@github/spark/hooks'
 import RiskDisclosureModal from '@/components/legal/RiskDisclosureModal'
 import RiskAcknowledgmentLog from './RiskAcknowledgmentLog'
 
+interface RiskAcknowledgment {
+  acknowledgedAt: number
+  ipAddress?: string
+  userAgent: string
+  version: string
+  sessionId: string
+}
+
 interface LegalSectionProps {
   version?: string
   lastUpdated?: string
@@ -31,8 +39,17 @@ export default function LegalSection({
 }: LegalSectionProps = {}) {
   const [openDialog, setOpenDialog] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [riskAccepted, setRiskAccepted] = useKV<boolean>('risk-disclosure-accepted-' + version, false)
+  const [acknowledgment, setAcknowledgment] = useKV<RiskAcknowledgment | null>(
+    'risk-disclosure-acknowledgment',
+    null
+  )
+  const [auditLog, setAuditLog] = useKV<RiskAcknowledgment[]>(
+    'risk-disclosure-audit-log',
+    []
+  )
   const [showRiskModal, setShowRiskModal] = useState(false)
+  
+  const riskAccepted = acknowledgment !== null && acknowledgment !== undefined && acknowledgment.version === version
 
   useEffect(() => {
     const handleOpenRiskDisclosureModal = () => {
@@ -365,10 +382,19 @@ Version: ${version}`
   )
 
   const handleRiskAcceptance = () => {
-    setRiskAccepted(true)
+    const acknowledgmentData = {
+      acknowledgedAt: Date.now(),
+      userAgent: navigator.userAgent,
+      version: version,
+      sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    }
+    
+    setAcknowledgment(acknowledgmentData)
+    setAuditLog((currentLog) => [...(currentLog || []), acknowledgmentData])
     setShowRiskModal(false)
+    
     toast.success('Risk Disclosure Accepted', {
-      description: 'Thank you for reviewing our risk disclosure'
+      description: 'Your acknowledgment has been permanently logged. The banner will now disappear.'
     })
   }
 
