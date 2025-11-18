@@ -109,7 +109,7 @@ const EnhancedAnalyticsV2: React.FC = () => {
   // Mock data generators - Replace with real API calls
   const generateMockTrades = (filter: string) => {
     const count = filter === '24h' ? 20 : filter === '7d' ? 100 : filter === '30d' ? 300 : 1000;
-    const trades = [];
+    const trades: Array<{ id: number; asset: string; pnl: number; win: boolean; timestamp: number; equity: number }> = [];
     let equity = 10000;
 
     for (let i = 0; i < count; i++) {

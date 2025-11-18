@@ -165,8 +165,8 @@ const AIAgentsV4: React.FC = () => {
     setIsLoading(false);
   };
 
-  const generateMockOutcomes = (count: number, winRate: number) => {
-    const outcomes = [];
+  const generateMockOutcomes = (count: number, winRate: number): Array<{ date: string; pnl: number; confidence: number }> => {
+    const outcomes: Array<{ date: string; pnl: number; confidence: number }> = [];
     for (let i = 0; i < count; i++) {
       const isWin = Math.random() < winRate;
       outcomes.push({
