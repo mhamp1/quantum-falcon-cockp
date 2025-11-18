@@ -204,6 +204,27 @@ export default function EnhancedSettings() {
     }
   })
 
+  useEffect(() => {
+    if (settings?.theme) {
+      if (settings.theme.themeStyle) {
+        document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+        document.documentElement.classList.add(settings.theme.themeStyle)
+      }
+      
+      if (settings.theme.highContrast) {
+        document.documentElement.classList.add('high-contrast')
+      } else {
+        document.documentElement.classList.remove('high-contrast')
+      }
+      
+      if (!settings.theme.animations) {
+        document.documentElement.style.setProperty('--animate-duration', '0s')
+      } else {
+        document.documentElement.style.removeProperty('--animate-duration')
+      }
+    }
+  }, [settings?.theme])
+
   const achievements: Achievement[] = [
     {
       id: '1',
@@ -1395,6 +1416,8 @@ export default function EnhancedSettings() {
                       value={settings.theme?.themeStyle ?? 'default'}
                       onValueChange={(v) => {
                         handleUpdateSetting(['theme', 'themeStyle'], v)
+                        document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+                        document.documentElement.classList.add(v)
                         toast.success(`Theme changed to ${v.toUpperCase()}`)
                       }}
                     >
@@ -1414,7 +1437,12 @@ export default function EnhancedSettings() {
                             ? 'border-primary bg-primary/10' 
                             : 'border-muted/30 hover:border-primary/50'
                         }`}
-                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'default')}
+                        onClick={() => {
+                          handleUpdateSetting(['theme', 'themeStyle'], 'default')
+                          document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+                          document.documentElement.classList.add('default')
+                          toast.success('Theme changed to DEFAULT')
+                        }}
                       >
                         <div className="w-full h-8 rounded mb-1" style={{ 
                           background: 'linear-gradient(135deg, oklch(0.72 0.20 195), oklch(0.68 0.18 330))' 
@@ -1427,7 +1455,12 @@ export default function EnhancedSettings() {
                             ? 'border-primary bg-primary/10' 
                             : 'border-muted/30 hover:border-primary/50'
                         }`}
-                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'matrix')}
+                        onClick={() => {
+                          handleUpdateSetting(['theme', 'themeStyle'], 'matrix')
+                          document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+                          document.documentElement.classList.add('matrix')
+                          toast.success('Theme changed to MATRIX')
+                        }}
                       >
                         <div className="w-full h-8 rounded mb-1" style={{ 
                           background: 'linear-gradient(135deg, oklch(0.60 0.20 145), oklch(0.40 0.15 160))' 
@@ -1440,7 +1473,12 @@ export default function EnhancedSettings() {
                             ? 'border-primary bg-primary/10' 
                             : 'border-muted/30 hover:border-primary/50'
                         }`}
-                        onClick={() => handleUpdateSetting(['theme', 'themeStyle'], 'synthwave')}
+                        onClick={() => {
+                          handleUpdateSetting(['theme', 'themeStyle'], 'synthwave')
+                          document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+                          document.documentElement.classList.add('synthwave')
+                          toast.success('Theme changed to SYNTHWAVE')
+                        }}
                       >
                         <div className="w-full h-8 rounded mb-1" style={{ 
                           background: 'linear-gradient(135deg, oklch(0.70 0.25 330), oklch(0.65 0.22 280))' 

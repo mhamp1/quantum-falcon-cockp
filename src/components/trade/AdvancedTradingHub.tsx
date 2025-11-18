@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { UserAuth } from '@/lib/auth'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Lightning, ChartLine, Target, Brain } from '@phosphor-icons/react'
+import { Lightning, ChartLine, Target, Brain, Sparkle } from '@phosphor-icons/react'
 import TradingStrategyCard from './TradingStrategyCard'
+import AdvancedTradingStrategies from './AdvancedTradingStrategies'
 import { toast } from 'sonner'
 
 interface Strategy {
@@ -354,23 +355,31 @@ export default function AdvancedTradingHub() {
       </div>
 
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="w-full justify-start bg-card border-2 border-primary/30 p-1 jagged-corner">
-          <TabsTrigger value="all" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
+        <TabsList className="w-full justify-start bg-card border-2 border-primary/30 p-1 jagged-corner overflow-x-auto flex-nowrap">
+          <TabsTrigger value="all" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap">
             All Strategies
           </TabsTrigger>
-          <TabsTrigger value="dca" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
+          <TabsTrigger value="advanced-strategies" className="data-[state=active]:bg-accent/20 data-[state=active]:text-accent uppercase tracking-wider text-xs font-bold whitespace-nowrap flex items-center gap-1">
+            <Sparkle size={14} weight="duotone" />
+            Advanced Strategies
+          </TabsTrigger>
+          <TabsTrigger value="dca" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap">
             DCA
           </TabsTrigger>
-          <TabsTrigger value="momentum" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
+          <TabsTrigger value="momentum" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap">
             Momentum
           </TabsTrigger>
-          <TabsTrigger value="advanced" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
+          <TabsTrigger value="advanced" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap">
             Advanced
           </TabsTrigger>
-          <TabsTrigger value="special" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold">
+          <TabsTrigger value="special" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap">
             Special
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="advanced-strategies" className="mt-6">
+          <AdvancedTradingStrategies />
+        </TabsContent>
 
         <TabsContent value="all" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
