@@ -4,10 +4,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Scales, FileText, Shield, WarningCircle, Download, MagnifyingGlass } from '@phosphor-icons/react'
+import { Scales, FileText, Shield, WarningCircle, Download, MagnifyingGlass, Database, Trash } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import jsPDF from 'jspdf'
 import { hashStringSync } from '@/lib/hash'
+import { toast } from 'sonner'
 
 /* LEGAL REVIEW NOTE: This component implements industry-standard legal terms for a crypto trading platform.
  * Key areas requiring lawyer review:
@@ -50,6 +51,61 @@ export default function LegalSection({
   const [openDialog, setOpenDialog] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+
+  const exportUserData = () => {
+    try {
+      const userData = {
+        profile: localStorage.getItem('user-profile-full'),
+        settings: localStorage.getItem('app-settings'),
+        auth: '••••••••',
+        changeLog: localStorage.getItem('settings-change-log'),
+        sessions: localStorage.getItem('user-sessions'),
+        exportDate: new Date().toISOString(),
+        version: version
+      }
+
+      const dataStr = JSON.stringify(userData, null, 2)
+      const blob = new Blob([dataStr], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `quantum-falcon-data-export-${Date.now()}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      
+      toast.success('Data exported successfully', {
+        description: 'Your data has been downloaded as JSON'
+      })
+    } catch (error) {
+      console.error('Export failed:', error)
+      toast.error('Failed to export data')
+    }
+  }
+
+  const deleteUserData = () => {
+    if (window.confirm('⚠️ WARNING: This will permanently delete ALL your data including profile, settings, and trading history. This action CANNOT be undone. Are you absolutely sure?')) {
+      if (window.confirm('Final confirmation: Type "DELETE" in your mind and click OK to proceed with permanent data deletion.')) {
+        const keysToDelete = [
+          'user-profile-full',
+          'app-settings',
+          'settings-change-log',
+          'user-sessions',
+          'quantum_falcon_terms_accepted',
+          'quantum_falcon_terms_version'
+        ]
+        
+        keysToDelete.forEach(key => localStorage.removeItem(key))
+        
+        toast.success('All data deleted', {
+          description: 'Your account data has been permanently removed. Refresh the page to start fresh.'
+        })
+        
+        setTimeout(() => {
+          window.location.reload()
+        }, 3000)
+      }
+    }
+  }
 
   // Load acceptance state from localStorage
   useEffect(() => {
@@ -591,6 +647,77 @@ Version Hash: ${hashStringSync(version)} (for proof of viewing)
               By using Quantum Falcon, you acknowledge that you have read, understood, and agree to these legal terms. 
               Cryptocurrency trading involves substantial risk of loss. Only invest what you can afford to lose. 
               We are not a licensed financial advisor.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="cyber-card p-6 mt-6 space-y-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-3 jagged-corner bg-primary/20 border-2 border-primary">
+            <Database size={24} weight="duotone" className="text-primary" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide">Data Management</h3>
+            <p className="text-sm text-muted-foreground">Export or delete your personal data (GDPR/CCPA compliance)</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="p-4 bg-primary/10 border-2 border-primary/30 hover:border-primary transition-all"
+          >
+            <div className="flex items-start gap-3 mb-3">
+              <Download size={24} weight="duotone" className="text-primary" />
+              <div>
+                <h4 className="font-bold uppercase tracking-wide text-sm mb-1">Export Your Data</h4>
+                <p className="text-xs text-muted-foreground">
+                  Download all your personal data including profile, settings, and trading history in JSON format
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={exportUserData}
+              className="w-full border-primary text-primary hover:bg-primary/10"
+              variant="outline"
+            >
+              <Download size={16} weight="duotone" className="mr-2" />
+              Export Data (JSON)
+            </Button>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="p-4 bg-destructive/10 border-2 border-destructive/30 hover:border-destructive transition-all"
+          >
+            <div className="flex items-start gap-3 mb-3">
+              <Trash size={24} weight="duotone" className="text-destructive" />
+              <div>
+                <h4 className="font-bold uppercase tracking-wide text-sm mb-1 text-destructive">Delete All Data</h4>
+                <p className="text-xs text-muted-foreground">
+                  Permanently delete all your data from our systems. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={deleteUserData}
+              variant="destructive"
+              className="w-full"
+            >
+              <Trash size={16} weight="duotone" className="mr-2" />
+              Request Data Deletion
+            </Button>
+          </motion.div>
+        </div>
+
+        <div className="cyber-card-accent p-3 mt-4">
+          <div className="flex items-start gap-2">
+            <Shield size={16} weight="duotone" className="text-accent flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <span className="font-bold text-accent">Privacy Rights:</span> Under GDPR and CCPA, you have the right to access, 
+              correct, delete, and export your personal data. Data deletion requests are processed within 30 days. Some data may 
+              be retained for legal compliance (7 years for financial records per SEC regulations).
             </p>
           </div>
         </div>

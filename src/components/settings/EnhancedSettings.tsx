@@ -12,7 +12,7 @@ import {
   CurrencyDollar, SpeakerHigh, Shield, ChartLine, Medal, Star,
   Fire, Target, CheckCircle, Crown, ArrowsClockwise, Lightning, 
   Wallet, CloudArrowUp, Database, Key, LinkSimple, WifiHigh, Cpu,
-  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales, SignOut
+  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales, SignOut, ClockClockwise
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
@@ -20,7 +20,11 @@ import EditProfileDialog from '@/components/shared/EditProfileDialog'
 import EnhancedSubscriptionTiers from './EnhancedSubscriptionTiers'
 import APIIntegration from './APIIntegration'
 import LegalSection from './LegalSection'
+import SettingsSearchBar from './SettingsSearchBar'
+import ChangeLog from './ChangeLog'
+import DeviceManagement from './DeviceManagement'
 import { UserAuth } from '@/lib/auth'
+import { logSettingChange } from '@/lib/changeLogger'
 
 interface UserProfile {
   username: string
@@ -122,6 +126,7 @@ export default function EnhancedSettings() {
   })
 
   const [showEditProfile, setShowEditProfile] = useState(false)
+  const [activeTab, setActiveTab] = useState('profile')
 
   const handleLogout = () => {
     setAuth({
@@ -281,6 +286,13 @@ export default function EnhancedSettings() {
       const updated = { ...base }
       let obj: any = updated
       
+      let oldValue: any = base
+      for (let i = 0; i < path.length; i++) {
+        if (oldValue && typeof oldValue === 'object') {
+          oldValue = oldValue[path[i]]
+        }
+      }
+      
       for (let i = 0; i < path.length - 1; i++) {
         if (!obj[path[i]]) {
           obj[path[i]] = {}
@@ -289,9 +301,20 @@ export default function EnhancedSettings() {
       }
       obj[path[path.length - 1]] = value
       
+      logSettingChange(
+        path.join(' > '),
+        oldValue,
+        value,
+        path[0]
+      )
+      
       return updated
     })
     toast.success('Setting updated')
+  }
+
+  const handleSearchResultSelect = (tabId: string, sectionId: string) => {
+    setActiveTab(tabId)
   }
 
   if (!profile || !settings) {
@@ -320,7 +343,9 @@ export default function EnhancedSettings() {
         </button>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-6">
+      <SettingsSearchBar onResultSelect={handleSearchResultSelect} />
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-muted/30 border border-primary/30 flex-wrap h-auto">
           <TabsTrigger value="profile" className="data-label gap-2">
             <User size={16} weight="duotone" />
@@ -334,6 +359,10 @@ export default function EnhancedSettings() {
             <Shield size={16} weight="duotone" />
             SECURITY
           </TabsTrigger>
+          <TabsTrigger value="devices" className="data-label gap-2">
+            <Users size={16} weight="duotone" />
+            DEVICES
+          </TabsTrigger>
           <TabsTrigger value="subscription" className="data-label gap-2">
             <Crown size={16} weight="duotone" />
             SUBSCRIPTION
@@ -345,6 +374,10 @@ export default function EnhancedSettings() {
           <TabsTrigger value="app" className="data-label gap-2">
             <Gear size={16} weight="duotone" />
             APP_SETTINGS
+          </TabsTrigger>
+          <TabsTrigger value="changelog" className="data-label gap-2">
+            <ClockClockwise size={16} weight="duotone" />
+            CHANGE_LOG
           </TabsTrigger>
           <TabsTrigger value="legal" className="data-label gap-2">
             <Scales size={16} weight="duotone" />
@@ -1462,8 +1495,16 @@ export default function EnhancedSettings() {
           <EnhancedSubscriptionTiers />
         </TabsContent>
 
+        <TabsContent value="devices">
+          <DeviceManagement />
+        </TabsContent>
+
         <TabsContent value="api">
           <APIIntegration />
+        </TabsContent>
+
+        <TabsContent value="changelog">
+          <ChangeLog />
         </TabsContent>
 
         <TabsContent value="legal">
