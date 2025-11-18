@@ -354,60 +354,40 @@ export default function AdvancedTradingHub() {
         </div>
       </div>
 
-<Tabs defaultValue="all" className="w-full">
-  <TabsList className="w-full justify-start bg-card border-2 border-primary/30 p-1 jagged-corner overflow-x-auto flex-nowrap">
-    <TabsTrigger 
-      value="all" 
-      className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap"
-    >
-      All Strategies
-    </TabsTrigger>
-    {/* Future tabs will be added here dynamically or manually: Flash Sales, My Active, etc. */}
-  </TabsList>
-
-  <TabsContent value="all">
-    <AdvancedTradingStrategies />  {/* This pulls EVERY strategy automatically */}
-  </TabsContent>
-</Tabs>
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList className="w-full justify-start bg-card border-2 border-primary/30 p-1 jagged-corner overflow-x-auto flex-nowrap">
+          <TabsTrigger 
+            value="all" 
+            className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap"
+          >
+            All Strategies
           </TabsTrigger>
-          <TabsTrigger value="advanced-strategies" className="data-[state=active]:bg-accent/20 data-[state=active]:text-accent uppercase tracking-wider text-xs font-bold whitespace-nowrap flex items-center gap-1">
-            <Sparkle size={14} weight="duotone" />
-            Advanced Strategies
-          </TabsTrigger>
-          <TabsTrigger value="dca" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap">
+          <TabsTrigger 
+            value="dca" 
+            className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap"
+          >
             DCA
           </TabsTrigger>
-          <TabsTrigger value="momentum" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap">
+          <TabsTrigger 
+            value="momentum" 
+            className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap"
+          >
             Momentum
           </TabsTrigger>
-          <TabsTrigger value="advanced" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap">
+          <TabsTrigger 
+            value="advanced" 
+            className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap"
+          >
             Advanced
           </TabsTrigger>
-<Tabs defaultValue="all" className="w-full">
-  <TabsList className="w-full justify-start bg-card border-2 border-primary/30 p-1 jagged-corner overflow-x-auto flex-nowrap">
-    <TabsTrigger 
-      value="all" 
-      className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap"
-    >
-      All Strategies
-    </TabsTrigger>
-    <TabsTrigger 
-      value="special" 
-      className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap"
-    >
-      Special
-    </TabsTrigger>
-  </TabsList>
-
-  <TabsContent value="all" className="mt-6">
-    <AdvancedTradingStrategies />   {/* ← This is the future-proof strategy marketplace */}
-  </TabsContent>
-
-  <TabsContent value="special" className="mt-6">
-    <SpecialPerksStore />           {/* ← XP → Perks shop – pink cards, "Unlock Now" etc. */}
-  </TabsContent>
-</Tabs>
-        </TabsContent>
+          <TabsTrigger 
+            value="advanced-strategies" 
+            className="data-[state=active]:bg-accent/20 data-[state=active]:text-accent uppercase tracking-wider text-xs font-bold whitespace-nowrap flex items-center gap-1"
+          >
+            <Sparkle size={14} weight="duotone" />
+            Special Perks
+          </TabsTrigger>
+        </TabsList>
 
         <TabsContent value="all" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -461,6 +441,10 @@ export default function AdvancedTradingHub() {
           </div>
         </TabsContent>
 
+        <TabsContent value="advanced-strategies" className="mt-6">
+          <AdvancedTradingStrategies />
+        </TabsContent>
+
         <TabsContent value="special" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {special.map((strategy) => (
@@ -477,3 +461,4 @@ export default function AdvancedTradingHub() {
     </div>
   )
 }
+

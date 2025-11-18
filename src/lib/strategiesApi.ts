@@ -74,8 +74,8 @@ export async function filterStrategies(
     strategies = strategies.filter(s => s.risk === filters.riskLevel)
   }
   
-  if (filters.minWinRate) {
-    strategies = strategies.filter(s => parseFloat(s.win_rate) >= filters.minWinRate)
+  if (filters.minWinRate !== undefined) {
+    strategies = strategies.filter(s => parseFloat(s.win_rate) >= (filters.minWinRate || 0))
   }
   
   if (filters.onlyUnlocked) {
