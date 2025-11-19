@@ -49,7 +49,7 @@ interface Tab {
   id: string;
   label: string;
   icon: any;
-  component: React.LazyExoticComponent<React.ComponentType<any>>;
+  component: React.LazyExoticComponent<() => JSX.Element>;
 }
 
 function LoadingFallback() {
@@ -133,16 +133,31 @@ export default function App() {
     email: null,
     avatar: null,
   });
+  const [isInitializing] = useState(false);
+
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
     { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
     { id: 'multi-agent', label: 'AI Agents', icon: Robot, component: MultiAgentSystem },
     { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
+    { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
-    { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
   ], []);
+
+  // App initialization
+  useEffect(() => {
+    const timer = setTimeout(() => {}, 600); // no state needed anymore
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Handle payment success redirects (from license repo)
+  useEffect(() => {
+    import('@/lib/webhooks/paymentWebhooks').then(({ handlePaymentSuccessRedirect }) => {
+      handlePaymentSuccessRedirect();
+    });
+  }, []);
 
   // Global non-critical error suppression + proper logging
   useEffect(() => {
@@ -213,19 +228,20 @@ export default function App() {
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
       <div className={cn('min-h-screen bg-background text-foreground flex', isMobile && 'flex-col')}>
+
         {/* Debug Helper (Ctrl+Shift+D) */}
         <DebugHelper />
-        
+
         {/* AI Bot Assistant (bottom-right) */}
         <AIBotAssistant />
-        
+
         {/* Desktop Left Sidebar Navigation */}
         {!isMobile && (
           <div className="fixed left-0 top-0 bottom-0 w-[240px] bg-card/95 backdrop-blur border-r border-primary/30 z-50 flex flex-col">
             {/* Header with Solana-purple logo and scanline effect */}
             <div className="p-6 border-b border-primary/30">
               <div className="scanline-effect mb-2">
-                <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ 
+                <h1 className="text-2xl font-bold tracking-tight mb-1" style={{
                   color: '#9945FF',
                   textShadow: '0 0 10px rgba(153, 69, 255, 0.8), 0 0 20px rgba(153, 69, 255, 0.4)'
                 }}>
@@ -233,8 +249,8 @@ export default function App() {
                 </h1>
               </div>
               <p className="text-xs uppercase tracking-widest flex items-center gap-2" style={{ color: '#9945FF' }}>
-                <span className="w-2 h-2 rounded-full animate-pulse-glow" style={{ backgroundColor: '#9945FF' }}></span>
-                SYSTEM_ONLINE
+                <span className="w-2 h-2 rounded-full animate-pulse bg-green-500"></span>
+                SYSTEM ONLINE
               </p>
             </div>
 
@@ -246,9 +262,8 @@ export default function App() {
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 transition-all text-left uppercase tracking-wider text-xs font-semibold rounded-lg",
-                    activeTab === tab.id
-                      ? "bg-primary/20 text-primary shadow-[0_0_15px_rgba(0,255,255,0.3)] border-l-2 border-primary"
-                      : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    active:bg-primary/20 active:text-primary active:shadow-[0_0_15px_rgba(0,255,255,0.3)] active:border-l-2 active:border-primary",
+                    activeTab === tab.id ? "bg-primary/20 text-primary shadow-[0_0_15px_rgba(0,255,255,0.3)] border-l-2 border-primary" : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                   )}
                 >
                   <tab.icon size={18} weight={activeTab === tab.id ? "fill" : "regular"} />
@@ -260,8 +275,8 @@ export default function App() {
             {/* Footer with version and tier */}
             <div className="p-4 border-t border-primary/30 space-y-2">
               <div className="flex items-center justify-center gap-2">
-                <Crown size={14} weight="fill" className="text-accent" />
-                <span className="text-xs text-accent font-bold uppercase">
+                <Crown size={14} weight="fill" className="text-yellow-400" />
+                <span className="text-xs text-yellow-400 font-bold uppercase">
                   {auth.license?.tier || 'FREE'} TIER
                 </span>
               </div>

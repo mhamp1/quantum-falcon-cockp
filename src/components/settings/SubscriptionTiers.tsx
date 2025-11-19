@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Crown, Lightning, Rocket, Star } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { useState } from 'react'
+import { paymentProcessor } from '@/lib/payment/paymentProcessor'
+import { LicenseAuthority } from '@/lib/license-auth'
 
 interface SubscriptionTier {
   id: string
@@ -16,6 +19,7 @@ interface SubscriptionTier {
 
 export default function SubscriptionTiers() {
   const [currentTier, setCurrentTier] = useKV<string>('subscription-tier', 'free')
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const tiers: SubscriptionTier[] = [
     {
@@ -97,16 +101,57 @@ export default function SubscriptionTiers() {
     }
   ]
 
-  const subscribeTo = (tierId: string) => {
+  const subscribeTo = async (tierId: string) => {
     const tier = tiers.find((t) => t.id === tierId)
     if (!tier) return
 
-    setCurrentTier(tierId)
+    // Handle free tier
+    if (tierId === 'free') {
+      setCurrentTier(tierId)
+      toast.success('Subscription Updated!', {
+        description: `You are now on the ${tier.name} plan`,
+        icon: '🎉'
+      })
+      return
+    }
 
-    toast.success('Subscription Updated!', {
-      description: `You are now on the ${tier.name} plan`,
-      icon: '🎉'
-    })
+    // For paid tiers, redirect to payment or show license purchase info
+    if (tier.price > 0) {
+      setIsProcessing(true)
+
+      try {
+        // Get user info from storage
+        const storedLicense = await LicenseAuthority.getStoredLicense()
+        const userId = storedLicense?.userId || `user_${Date.now()}`
+        const userEmail = 'user@example.com' // Should come from actual user auth
+
+        // Show toast with info about license generation
+        toast.info('Redirecting to Payment', {
+          description: 'After payment, your license will be generated automatically.',
+          duration: 5000
+        })
+
+        // In a real implementation, this would create a payment session
+        // For now, direct users to the LicenseAuthority repo
+        window.open(LicenseAuthority.getLicenseRepoUrl(), '_blank')
+
+        // Show additional instructions
+        setTimeout(() => {
+          toast.info('Get Your License', {
+            description: 'Once you complete payment, you will receive a license key that unlocks all features automatically.',
+            duration: 10000
+          })
+        }, 1000)
+
+      } catch (error) {
+        console.error('[SubscriptionTiers] Error initiating subscription:', error)
+        toast.error('Failed to initiate subscription', {
+          description: 'Please try again or contact support.'
+        })
+      } finally {
+        setIsProcessing(false)
+      }
+    }
   }
 
   return (
@@ -200,13 +245,24 @@ export default function SubscriptionTiers() {
 
               <Button
                 onClick={() => subscribeTo(tier.id)}
-                disabled={isActive}
+                disabled={isActive || isProcessing}
                 className={`w-full jagged-corner-small ${
                   tier.popular ? 'bg-accent hover:bg-accent/90' : ''
                 }`}
                 size="lg"
               >
-                {isActive ? 'Current Plan' : tier.id === 'free' ? 'Downgrade' : 'Upgrade Now'}
+                {isProcessing ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    Processing...
+                  </span>
+                ) : isActive ? (
+                  'Current Plan'
+                ) : tier.id === 'free' ? (
+                  'Downgrade'
+                ) : (
+                  'Get License Key'
+                )}
               </Button>
 
               {tier.id === 'lifetime' && (

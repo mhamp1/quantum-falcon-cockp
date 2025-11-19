@@ -1,3 +1,5 @@
+import { handlePaymentSuccess, type PaymentCompletionData } from '@/lib/licenseGeneration'
+
 export interface PaymentProvider {
   name: 'stripe' | 'paddle'
   publicKey: string
@@ -254,6 +256,56 @@ class PaymentProcessor {
       script.onerror = () => reject(new Error('Failed to load Paddle.js'))
       document.head.appendChild(script)
     })
+  }
+
+  /**
+   * Handle successful payment and trigger automatic license generation
+   */
+  async handlePaymentCompletion(params: {
+    userId: string
+    userEmail: string
+    tier: string
+    amount: number
+    paymentProvider: 'stripe' | 'paddle'
+    paymentIntentId: string
+  }): Promise<{ success: boolean; license?: string; error?: string }> {
+    try {
+      console.log('[PaymentProcessor] Payment completed, generating license...')
+
+      // Prepare payment data for license generation
+      const paymentData: PaymentCompletionData = {
+        userId: params.userId,
+        userEmail: params.userEmail,
+        tier: params.tier,
+        amount: params.amount,
+        paymentProvider: params.paymentProvider,
+        paymentIntentId: params.paymentIntentId,
+        timestamp: Date.now()
+      }
+
+      // Trigger license generation
+      const result = await handlePaymentSuccess(paymentData)
+
+      if (result.success && result.license) {
+        console.log('[PaymentProcessor] License generated successfully')
+        return {
+          success: true,
+          license: result.license
+        }
+      } else {
+        console.error('[PaymentProcessor] License generation failed:', result.error)
+        return {
+          success: false,
+          error: result.error || 'Failed to generate license'
+        }
+      }
+    } catch (error: any) {
+      console.error('[PaymentProcessor] Error handling payment completion:', error)
+      return {
+        success: false,
+        error: error.message || 'Payment completion handler failed'
+      }
+    }
   }
 }
 
