@@ -133,8 +133,6 @@ export default function App() {
     email: null,
     avatar: null,
   });
-  const [isInitializing, setIsInitializing] = useState(true);
-
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
     { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
@@ -145,12 +143,6 @@ export default function App() {
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'strategy-builder', label: 'Settings', icon: Code, component: CreateStrategyPage },
   ], []);
-
-  // App initialization
-  useEffect(() => {
-    const timer = setTimeout(() => setIsInitializing(false), 600);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Global non-critical error suppression + proper logging
   useEffect(() => {
@@ -215,8 +207,6 @@ export default function App() {
     };
     setAuth(newAuth);
   };
-
-  if (isInitializing) return <LoadingFallback />;
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
