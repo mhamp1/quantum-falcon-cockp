@@ -49,7 +49,7 @@ interface Tab {
   id: string;
   label: string;
   icon: any;
-  component: React.LazyExoticComponent<() => JSX.Element>;
+  component: React.LazyExoticComponent<React.ComponentType<any>>;
 }
 
 function LoadingFallback() {

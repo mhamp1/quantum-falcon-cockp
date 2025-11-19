@@ -18,7 +18,7 @@ export function useAutoRotateCarousel({
   delay = 5000,
   stopOnInteraction = true,
 }: UseAutoRotateCarouselOptions) {
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const isInteractingRef = useRef(false)
 
   const scrollNext = useCallback(() => {
