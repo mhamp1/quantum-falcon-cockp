@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 
 interface RiskDisclosureModalProps {
@@ -81,6 +82,84 @@ FINAL ACKNOWLEDGEMENT (REQUIRED)
 
 I understand that cryptocurrency trading and the use of automated tools can result in the rapid and complete loss of all invested capital. I accept full and sole responsibility for all trading outcomes. I will only risk money I can afford to lose entirely.`
 
+const TERMS_OF_SERVICE_CONTENT = `QUANTUM FALCON TERMS OF SERVICE
+Last Updated: November 18, 2025
+
+IMPORTANT – READ CAREFULLY: This Terms of Service Agreement ("Agreement") constitutes a legally binding contract between you ("User", "you") and Quantum Falcon Ltd., a Delaware corporation with registered office at 8 The Green, Ste A, Dover, DE 19901, USA ("Quantum Falcon", "we", "us", "our").
+
+BY ACCESSING OR USING THE QUANTUM FALCON WEBSITE, WEB APPLICATION, MOBILE APPLICATION, API, OR ANY ASSOCIATED SERVICES (collectively, the "Platform"), YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THIS AGREEMENT, OUR PRIVACY POLICY, AND RISK DISCLOSURE. IF YOU DO NOT AGREE, YOU MUST IMMEDIATELY CEASE ALL USE OF THE PLATFORM.
+
+1. ELIGIBILITY
+
+1.1 You must be at least 18 years old and have full legal capacity to enter into this Agreement.
+
+1.2 You represent that you are not located in, or a citizen/resident of, any jurisdiction where use of the Platform would violate applicable law (including but not limited to OFAC-sanctioned countries, FATF high-risk jurisdictions, or jurisdictions that prohibit cryptocurrency trading tools).
+
+2. LICENSE GRANT & RESTRICTIONS
+
+2.1 Quantum Falcon grants you a limited, non-exclusive, non-transferable, non-sublicensable, revocable license to access and use the Platform solely for your personal, non-commercial use (or commercial use only if you hold a valid paid subscription tier).
+
+2.2 You shall NOT: 
+(a) reverse engineer, decompile, or attempt to extract source code
+(b) use automated bots, scrapers, or data-mining tools
+(c) resell, white-label, or redistribute access
+(d) remove or alter any proprietary notices
+(e) interfere with Platform security or operation
+
+3. PAPER TRADING & LIVE TRADING
+
+3.1 The default mode is simulated "paper trading" using virtual funds. No real capital is at risk in paper mode.
+
+3.2 Live trading occurs ONLY when you explicitly connect a real cryptocurrency exchange/wallet via API keys or OAuth. You alone control those keys and bear 100% responsibility for any executed trades.
+
+3.3 QUANTUM FALCON DOES NOT HOLD, CUSTODY, OR CONTROL USER FUNDS AT ANY TIME. WE NEVER STORE YOUR PRIVATE KEYS. All transaction signing occurs in your wallet, ensuring you maintain full custody and control of your assets.
+
+4. NO INVESTMENT ADVICE OR BROKERAGE
+
+4.1 The Platform provides information, signals, and automation tools for educational and entertainment purposes only.
+
+4.2 Nothing on the Platform constitutes financial, investment, legal, or tax advice. You are solely responsible for evaluating the merits and risks of any trading decision.
+
+4.3 Quantum Falcon is NOT a registered broker-dealer, investment advisor, or money transmitter under U.S. or international law.
+
+5. DISCLAIMER OF WARRANTIES
+
+THE PLATFORM IS PROVIDED "AS-IS" AND "AS-AVAILABLE" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, OR NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE PLATFORM WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF VIRUSES.
+
+6. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW:
+
+6.1 IN NO EVENT SHALL QUANTUM FALCON, ITS OFFICERS, DIRECTORS, EMPLOYEES, OR AFFILIATES BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR CRYPTOCURRENCY, EVEN IF ADVISED OF THE POSSIBILITY.
+
+6.2 OUR TOTAL CUMULATIVE LIABILITY SHALL NOT EXCEED THE GREATER OF (A) $100 USD OR (B) THE AMOUNT YOU PAID US IN THE PAST 12 MONTHS.
+
+7. INDEMNIFICATION
+
+You agree to indemnify, defend, and hold harmless Quantum Falcon from any claims, losses, or damages arising from your violation of this Agreement, your use of the Platform, or your trading activity.
+
+8. CLASS ACTION WAIVER & ARBITRATION
+
+8.1 Any dispute shall be resolved by binding arbitration in Delaware under AAA rules on an individual basis.
+
+8.2 YOU WAIVE THE RIGHT TO PARTICIPATE IN A CLASS ACTION LAWSUIT OR CLASS-WIDE ARBITRATION.
+
+9. TERMINATION
+
+We may suspend or terminate your access immediately, without notice, for any reason, including suspected violation of this Agreement.
+
+10. GOVERNING LAW
+
+This Agreement is governed by the laws of the State of Delaware, USA, excluding conflict of law principles.
+
+11. CHANGES TO TERMS
+
+We may modify this Agreement at any time. Continued use after changes constitutes acceptance.
+
+12. CONTACT INFORMATION
+
+For questions about these terms, contact: legal@quantumfalcon.ai`
+
 export default function RiskDisclosureModal({ 
   isOpen, 
   onClose, 
@@ -88,17 +167,24 @@ export default function RiskDisclosureModal({
   version = '2025-11-18' 
 }: RiskDisclosureModalProps) {
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [scrollProgressTos, setScrollProgressTos] = useState(0)
   const [check1, setCheck1] = useState(false)
   const [check2, setCheck2] = useState(false)
+  const [check3, setCheck3] = useState(false)
   const [canAccept, setCanAccept] = useState(false)
+  const [canAcceptTos, setCanAcceptTos] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const scrollRefTos = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!isOpen) {
       setScrollProgress(0)
+      setScrollProgressTos(0)
       setCheck1(false)
       setCheck2(false)
+      setCheck3(false)
       setCanAccept(false)
+      setCanAcceptTos(false)
     }
   }, [isOpen])
 
@@ -114,18 +200,36 @@ export default function RiskDisclosureModal({
     
     if (percent >= 98) {
       setCanAccept(true)
-      console.log('[Risk Modal] ✅ User scrolled to 98%+ - checkboxes now enabled')
+      console.log('[Risk Modal] ✅ User scrolled Risk Disclosure to 98%+ - checkbox now enabled')
     }
   }
 
-  const isAcceptEnabled = check1 && check2 && canAccept
+  const handleScrollTos = () => {
+    if (!scrollRefTos.current) return
+    
+    const element = scrollRefTos.current
+    const scrolled = element.scrollTop
+    const total = element.scrollHeight - element.clientHeight
+    const percent = total > 0 ? (scrolled / total) * 100 : 100
+    
+    setScrollProgressTos(Math.min(percent, 100))
+    
+    if (percent >= 98) {
+      setCanAcceptTos(true)
+      console.log('[Risk Modal] ✅ User scrolled Terms of Service to 98%+ - checkbox now enabled')
+    }
+  }
+
+  const isAcceptEnabled = check1 && check2 && check3 && canAccept && canAcceptTos
 
   const handleAccept = async () => {
     if (isAcceptEnabled) {
-      console.log('[Risk Modal] ✅ User clicked "Accept & Continue" - both checkboxes checked')
-      console.log('[Risk Modal] 📋 Check 1 (Read disclosure):', check1)
+      console.log('[Risk Modal] ✅ User clicked "Accept & Continue" - all checkboxes checked')
+      console.log('[Risk Modal] 📋 Check 1 (Read risk disclosure):', check1)
       console.log('[Risk Modal] 📋 Check 2 (Accept responsibility):', check2)
-      console.log('[Risk Modal] 📊 Scroll progress:', scrollProgress.toFixed(1) + '%')
+      console.log('[Risk Modal] 📋 Check 3 (Accept terms of service):', check3)
+      console.log('[Risk Modal] 📊 Risk Disclosure scroll progress:', scrollProgress.toFixed(1) + '%')
+      console.log('[Risk Modal] 📊 Terms of Service scroll progress:', scrollProgressTos.toFixed(1) + '%')
       
       try {
         await fetch('/api/legal/accept-risk', {
@@ -135,7 +239,9 @@ export default function RiskDisclosureModal({
             version,
             timestamp: new Date().toISOString(),
             userAgent: navigator.userAgent,
-            scrollProgress: scrollProgress.toFixed(2)
+            scrollProgressRisk: scrollProgress.toFixed(2),
+            scrollProgressTos: scrollProgressTos.toFixed(2),
+            acceptedBoth: true
           })
         })
       } catch (err) {
@@ -146,8 +252,8 @@ export default function RiskDisclosureModal({
       
       await onAccept()
       
-      toast.success('Risk Disclosure Accepted', {
-        description: 'The warning banner has been removed permanently.'
+      toast.success('Legal Agreements Accepted', {
+        description: 'Risk Disclosure and Terms of Service accepted. Banner removed permanently.'
       })
       
       console.log('[Risk Modal] ✅ Modal closed - banner should be GONE')
@@ -174,19 +280,6 @@ export default function RiskDisclosureModal({
             className="w-full max-w-4xl my-8 flex flex-col bg-card border-2 border-destructive shadow-[0_0_60px_rgba(255,0,102,0.5)] rounded-lg overflow-hidden"
             style={{ maxHeight: 'calc(100vh - 4rem)' }}
           >
-            <div 
-              className="h-1.5 bg-destructive/30 relative overflow-hidden flex-shrink-0"
-              style={{ width: '100%' }}
-            >
-              <motion.div
-                className="h-full bg-destructive shadow-[0_0_20px_rgba(255,0,102,0.8)]"
-                style={{ width: `${scrollProgress}%` }}
-                initial={{ width: 0 }}
-                animate={{ width: `${scrollProgress}%` }}
-                transition={{ duration: 0.15 }}
-              />
-            </div>
-
             <div className="p-8 text-center border-b-2 border-destructive/30 bg-destructive/10 flex-shrink-0">
               <motion.div
                 initial={{ scale: 0 }}
@@ -197,26 +290,76 @@ export default function RiskDisclosureModal({
                 ⚠️
               </motion.div>
               <h1 className="text-3xl font-bold uppercase tracking-wider text-destructive neon-glow-destructive mb-2">
-                RISK DISCLOSURE STATEMENT
+                LEGAL AGREEMENTS REQUIRED
               </h1>
               <p className="text-lg text-muted-foreground">
-                You may lose <span className="text-destructive font-bold">100% of your capital</span> – rapidly and completely
+                You must read and accept both documents to continue
               </p>
             </div>
 
-            <div 
-              ref={scrollRef}
-              onScroll={handleScroll}
-              className="flex-1 p-8 bg-background/50 overflow-y-auto scrollbar-thin"
-              style={{ maxHeight: 'calc(100vh - 28rem)' }}
-            >
-              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground/90">
-                {RISK_DISCLOSURE_CONTENT}
-              </pre>
-            </div>
+            <Tabs defaultValue="risk" className="flex-1 flex flex-col">
+              <TabsList className="grid w-full grid-cols-2 mx-8 mt-4">
+                <TabsTrigger value="risk" className="uppercase tracking-wide font-semibold">
+                  Risk Disclosure
+                </TabsTrigger>
+                <TabsTrigger value="terms" className="uppercase tracking-wide font-semibold">
+                  Terms of Service
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="risk" className="flex-1 flex flex-col mt-0">
+                <div 
+                  className="h-1.5 bg-destructive/30 relative overflow-hidden flex-shrink-0"
+                  style={{ width: '100%' }}
+                >
+                  <motion.div
+                    className="h-full bg-destructive shadow-[0_0_20px_rgba(255,0,102,0.8)]"
+                    style={{ width: `${scrollProgress}%` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${scrollProgress}%` }}
+                    transition={{ duration: 0.15 }}
+                  />
+                </div>
+                <div 
+                  ref={scrollRef}
+                  onScroll={handleScroll}
+                  className="flex-1 p-8 bg-background/50 overflow-y-auto scrollbar-thin"
+                  style={{ maxHeight: 'calc(100vh - 32rem)' }}
+                >
+                  <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground/90">
+                    {RISK_DISCLOSURE_CONTENT}
+                  </pre>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="terms" className="flex-1 flex flex-col mt-0">
+                <div 
+                  className="h-1.5 bg-primary/30 relative overflow-hidden flex-shrink-0"
+                  style={{ width: '100%' }}
+                >
+                  <motion.div
+                    className="h-full bg-primary shadow-[0_0_20px_rgba(20,241,149,0.8)]"
+                    style={{ width: `${scrollProgressTos}%` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${scrollProgressTos}%` }}
+                    transition={{ duration: 0.15 }}
+                  />
+                </div>
+                <div 
+                  ref={scrollRefTos}
+                  onScroll={handleScrollTos}
+                  className="flex-1 p-8 bg-background/50 overflow-y-auto scrollbar-thin"
+                  style={{ maxHeight: 'calc(100vh - 32rem)' }}
+                >
+                  <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground/90">
+                    {TERMS_OF_SERVICE_CONTENT}
+                  </pre>
+                </div>
+              </TabsContent>
+            </Tabs>
 
             <div className="p-6 border-t-2 border-destructive/30 bg-destructive/10 space-y-4 flex-shrink-0">
-              <div className={`space-y-3 transition-opacity ${canAccept ? 'opacity-100' : 'opacity-40'}`}>
+              <div className={`space-y-3 transition-opacity ${(canAccept && canAcceptTos) ? 'opacity-100' : 'opacity-40'}`}>
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <Checkbox
                     id="risk-check-1"
@@ -226,7 +369,7 @@ export default function RiskDisclosureModal({
                     className="mt-1"
                   />
                   <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
-                    I have fully read and understand the Risk Disclosure above
+                    I have fully read and understand the Risk Disclosure
                   </span>
                 </label>
 
@@ -242,15 +385,30 @@ export default function RiskDisclosureModal({
                     I accept full responsibility for all trading losses and will never hold Quantum Falcon liable
                   </span>
                 </label>
+
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <Checkbox
+                    id="tos-check-3"
+                    checked={check3}
+                    onCheckedChange={(checked) => setCheck3(checked === true)}
+                    disabled={!canAcceptTos}
+                    className="mt-1"
+                  />
+                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
+                    I have read and agree to be bound by the Terms of Service
+                  </span>
+                </label>
               </div>
 
-              {!canAccept && (
+              {(!canAccept || !canAcceptTos) && (
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="text-xs text-center text-muted-foreground bg-muted/50 p-2 rounded"
                 >
-                  ⬇️ Scroll to at least 98% to unlock acceptance ({scrollProgress.toFixed(0)}% complete)
+                  ⬇️ Scroll both documents to 98% to unlock acceptance
+                  <br />
+                  Risk: {scrollProgress.toFixed(0)}% | Terms: {scrollProgressTos.toFixed(0)}%
                 </motion.p>
               )}
 
@@ -265,7 +423,7 @@ export default function RiskDisclosureModal({
                   }`}
                   size="lg"
                 >
-                  Accept & Continue
+                  Accept Both & Continue
                 </Button>
               </div>
             </div>

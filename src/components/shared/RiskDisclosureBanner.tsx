@@ -146,16 +146,16 @@ export default function RiskDisclosureBanner() {
                   <Warning size={28} weight="fill" className="text-destructive-foreground flex-shrink-0 animate-pulse" />
                   <div className="text-left">
                     <p className="font-bold uppercase tracking-wider text-sm">
-                      ⚠️ CRYPTOCURRENCY TRADING INVOLVES SUBSTANTIAL RISK OF LOSS
+                      ⚠️ LEGAL AGREEMENTS REQUIRED - TERMS OF SERVICE & RISK DISCLOSURE
                     </p>
                     <p className="text-xs opacity-90 font-semibold">
-                      Click anywhere on this banner to review and accept the Risk Disclosure
+                      Click to review and accept both documents before using the platform
                     </p>
                   </div>
                 </div>
                 <div className="flex gap-2 items-center flex-shrink-0">
                   <span className="text-xs uppercase tracking-wider font-bold opacity-80">
-                    SEE RISK DISCLOSURE
+                    REVIEW AGREEMENTS
                   </span>
                   <ChatCircle size={24} weight="duotone" className="text-destructive-foreground animate-pulse" />
                 </div>
