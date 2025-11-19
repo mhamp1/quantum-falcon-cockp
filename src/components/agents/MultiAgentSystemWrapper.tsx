@@ -1,7 +1,9 @@
-import { Component, ReactNode, Suspense } from 'react';
+import { Component, ReactNode, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import { ShimmerCard } from '@/components/shared/ShimmerCard';
-import { Robot } from '@phosphor-icons/react';
+import { Robot, Network } from '@phosphor-icons/react';
+
+const MultiAgentSystem = lazy(() => import('./MultiAgentSystem'));
 
 interface Props {
   children?: ReactNode;
@@ -33,7 +35,7 @@ function MultiAgentSystem2DFallback() {
           className="text-center mb-12"
         >
           <div className="flex items-center justify-center gap-4 mb-4">
-            <Robot size={64} weight="duotone" className="text-primary" />
+            <Network size={64} weight="duotone" className="text-primary" />
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-primary neon-glow-primary mb-4">
             MULTI-AGENT SYSTEM
@@ -185,19 +187,10 @@ class MultiAgentSystemErrorBoundary extends Component<Props, State> {
 }
 
 export default function MultiAgentSystemWrapper() {
-  let MultiAgentSystem3D: React.ComponentType | null = null;
-  
-  try {
-    MultiAgentSystem3D = require('./MultiAgentSystem').default;
-  } catch (err) {
-    console.warn('[MultiAgentSystemWrapper] Failed to load 3D view, using 2D fallback:', err);
-    return <MultiAgentSystem2DFallback />;
-  }
-
   return (
     <MultiAgentSystemErrorBoundary>
       <Suspense fallback={<ShimmerCard variant="large" count={3} />}>
-        {MultiAgentSystem3D ? <MultiAgentSystem3D /> : <MultiAgentSystem2DFallback />}
+        <MultiAgentSystem />
       </Suspense>
     </MultiAgentSystemErrorBoundary>
   );
