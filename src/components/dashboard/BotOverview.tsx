@@ -14,7 +14,6 @@ import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import Wireframe3D from '@/components/shared/Wireframe3D'
-import BotAggressionControl from './BotAggressionControl'
 import LiveActivityPanel from './LiveActivityPanel'
 
 type AggressionLevel = 'cautious' | 'moderate' | 'aggressive'
@@ -335,46 +334,19 @@ export default function BotOverview() {
                     animate={{ opacity: 1 }}
                   >
                     <motion.span 
-                      className="text-secondary relative inline-block neon-drip"
+                      className="text-secondary relative inline-block"
                       style={{
-                        textShadow: '0 0 10px var(--secondary), 0 0 20px var(--secondary), 0 0 40px var(--secondary), 0 0 60px var(--secondary), 0 0 80px var(--secondary)',
-                        WebkitTextStroke: '1px var(--secondary)',
-                        filter: 'drop-shadow(0 0 10px var(--secondary))'
-                      }}
-                      animate={{
-                        textShadow: [
-                          '0 0 10px var(--secondary), 0 0 20px var(--secondary), 0 0 40px var(--secondary)',
-                          '0 0 20px var(--secondary), 0 0 40px var(--secondary), 0 0 80px var(--secondary)',
-                          '0 0 10px var(--secondary), 0 0 20px var(--secondary), 0 0 40px var(--secondary)'
-                        ]
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: 'easeInOut'
+                        textShadow: '0 0 8px var(--secondary)',
+                        color: '#e0e0ff'
                       }}
                     >
                       MULTI-AGENT
                     </motion.span>
                     <motion.span 
-                      className="text-primary neon-drip ml-2 relative inline-block"
+                      className="text-primary ml-2 relative inline-block"
                       style={{
-                        textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary), 0 0 60px var(--primary), 0 0 80px var(--primary)',
-                        WebkitTextStroke: '1px var(--primary)',
-                        filter: 'drop-shadow(0 0 10px var(--primary))'
-                      }}
-                      animate={{
-                        textShadow: [
-                          '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)',
-                          '0 0 20px var(--primary), 0 0 40px var(--primary), 0 0 80px var(--primary)',
-                          '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)'
-                        ]
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                        delay: 0.3
+                        textShadow: '0 0 8px var(--primary)',
+                        color: '#e0e0ff'
                       }}
                     >
                       SYSTEM
@@ -652,24 +624,15 @@ export default function BotOverview() {
               </motion.div>
             </div>
             <motion.p 
-              className="text-4xl font-bold text-accent neon-glow-intense hud-value stat-number-godtier"
+              className="text-4xl font-bold text-accent hud-value"
+              style={{ textShadow: '0 0 6px var(--accent)', color: '#e0e0ff' }}
               key={metrics.totalProfit}
-              animate={{
-                textShadow: [
-                  '0 0 10px var(--accent), 0 0 20px var(--accent)',
-                  '0 0 20px var(--accent), 0 0 40px var(--accent), 0 0 60px var(--accent)',
-                  '0 0 10px var(--accent), 0 0 20px var(--accent)'
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
             >
               ${metrics.totalProfit.toFixed(0)}
             </motion.p>
           </div>
         </motion.div>
       </div>
-
-      <BotAggressionControl />
 
       <motion.div 
         className="cyber-card scan-line-effect relative overflow-hidden"
@@ -702,15 +665,8 @@ export default function BotOverview() {
         
         <div className="p-6 relative z-10">
           <motion.h3 
-            className="text-xl font-bold uppercase tracking-[0.2em] hud-readout mb-6 neon-glow-intense"
-            animate={{
-              textShadow: [
-                '0 0 10px var(--primary)',
-                '0 0 20px var(--primary), 0 0 40px var(--primary)',
-                '0 0 10px var(--primary)'
-              ]
-            }}
-            transition={{ duration: 3, repeat: Infinity }}
+            className="text-xl font-bold uppercase tracking-[0.2em] hud-readout mb-6"
+            style={{ textShadow: '0 0 8px var(--primary)' }}
           >
             SYSTEM_STATUS // NUCLEAR_REACTOR
           </motion.h3>
@@ -753,15 +709,8 @@ export default function BotOverview() {
                   </motion.div>
                 </div>
                 <motion.p 
-                  className={`text-lg font-bold uppercase tracking-wide ${getStatusColor(value)} hud-value neon-glow-intense`}
-                  animate={{
-                    textShadow: [
-                      '0 0 5px currentColor',
-                      '0 0 15px currentColor, 0 0 30px currentColor',
-                      '0 0 5px currentColor'
-                    ]
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                  className={`text-lg font-bold uppercase tracking-wide ${getStatusColor(value)} hud-value`}
+                  style={{ textShadow: '0 0 6px currentColor' }}
                 >
                   {value.toUpperCase()}
                 </motion.p>

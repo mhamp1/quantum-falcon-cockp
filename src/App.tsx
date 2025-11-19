@@ -1,11 +1,13 @@
-import { useEffect, useMemo, Suspense, lazy } from 'react';
+import { useEffect, useMemo, Suspense, lazy, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { isNonCriticalError } from '@/lib/errorSuppression';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { logError } from '@/lib/errorLogger';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   House,
   Terminal,
@@ -15,7 +17,11 @@ import {
   Vault,
   Users,
   Robot,
-  Crown
+  Crown,
+  X,
+  ShieldCheck,
+  Lightning as Zap,
+  Flame
 } from '@phosphor-icons/react';
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
@@ -126,6 +132,8 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
 export default function App() {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
+  const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
+  const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', true);
   const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
@@ -145,14 +153,12 @@ export default function App() {
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
   ], []);
 
-  // Handle payment success redirects
   useEffect(() => {
     import('@/lib/webhooks/paymentWebhooks').then(({ handlePaymentSuccessRedirect }) => {
       handlePaymentSuccessRedirect();
     }).catch(err => console.debug('Payment webhook module not available:', err));
   }, []);
 
-  // Global non-critical error suppression
   useEffect(() => {
     const shouldSuppress = (text: string, extra = '') => isNonCriticalError(text) || isNonCriticalError(extra);
 
@@ -185,7 +191,6 @@ export default function App() {
     };
   }, []);
 
-  // Tab navigation via custom events
   useEffect(() => {
     const handler = (e: Event) => {
       const id = (e as CustomEvent<string>).detail;
@@ -195,42 +200,45 @@ export default function App() {
     return () => window.removeEventListener('navigate-tab', handler);
   }, [tabs, setActiveTab]);
 
-  // Legal disclosure opener
   useEffect(() => {
     const handler = () => setTimeout(() => window.dispatchEvent(new CustomEvent('open-settings-legal-tab')), 100);
     window.addEventListener('open-legal-risk-disclosure', handler);
     return () => window.removeEventListener('open-legal-risk-disclosure', handler);
   }, []);
 
-  // License verification success handler
-  const handleLicenseSuccess = (tier: string, expiresAt: number) => {
-    console.log('[App] License verified:', { tier, expiresAt });
-    const newAuth: UserAuth = {
-      isAuthenticated: true,
-      userId: `qf_user_${Date.now()}`,
-      username: `QUANTUM_${tier.toUpperCase()}`,
-      email: null,
-      avatar: null,
-      license: { userId: `qf_user_${Date.now()}`, tier, expiresAt, purchasedAt: Date.now() },
-    };
-    setAuth(newAuth);
+  const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
+
+  const showAggressionControl = ['bot-overview', 'multi-agent', 'trading'].includes(activeTab);
+
+  const getAggressionLabel = (value: number) => {
+    if (value < 33) return 'CAUTIOUS';
+    if (value < 67) return 'MODERATE';
+    return 'AGGRESSIVE';
   };
 
-  const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
+  const getAggressionColor = (value: number) => {
+    if (value < 33) return '#14F195';
+    if (value < 67) return '#FFD700';
+    return '#FF4444';
+  };
+
+  const presets = [
+    { label: 'Cautious', value: 25, icon: ShieldCheck, color: '#14F195' },
+    { label: 'Moderate', value: 50, icon: Zap, color: '#FFD700' },
+    { label: 'Aggressive', value: 75, icon: Flame, color: '#FF4444' },
+  ];
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
       <div className={cn('min-h-screen bg-background text-foreground flex', isMobile && 'flex-col')}>
-
         <DebugHelper />
-
         <AIBotAssistant />
 
         {!isMobile && (
           <div className="fixed left-0 top-0 bottom-0 w-[240px] bg-card/95 backdrop-blur border-r border-primary/30 z-50 flex flex-col">
             <div className="p-6 border-b border-primary/30">
               <div className="scanline-effect mb-2">
-                <h1 className="text-2xl font-bold tracking-tight mb-1 text-primary neon-glow-primary">
+                <h1 className="text-2xl font-bold tracking-tight mb-1 text-primary" style={{ textShadow: '0 0 8px rgba(0,255,255,0.6)' }}>
                   QUANTUM<br />FALCON
                 </h1>
               </div>
@@ -248,9 +256,10 @@ export default function App() {
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 transition-all text-left uppercase tracking-wider text-xs font-semibold rounded-lg",
                     activeTab === tab.id 
-                      ? "bg-primary/20 text-primary shadow-[0_0_15px_rgba(0,255,255,0.3)] border-l-2 border-primary" 
+                      ? "bg-primary/20 text-primary border-l-2 border-primary" 
                       : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                   )}
+                  style={activeTab === tab.id ? { boxShadow: '0 0 15px rgba(0,255,255,0.2)' } : {}}
                 >
                   <tab.icon size={18} weight={activeTab === tab.id ? "fill" : "regular"} />
                   <span>{tab.label}</span>
@@ -279,25 +288,148 @@ export default function App() {
         </div>
 
         {isMobile && (
-          <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur border-t border-border z-50">
-            <div className="flex justify-around py-2">
-              {tabs.slice(0, 5).map(tab => (
+          <nav className="fixed bottom-0 left-0 right-0 h-20 bg-card/95 backdrop-blur border-t border-border z-50">
+            <div className="flex justify-around items-center h-full px-2">
+              {tabs.slice(0, 4).map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors",
-                    activeTab === tab.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    "flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-[60px]",
+                    activeTab === tab.id ? "text-primary" : "text-muted-foreground"
                   )}
                 >
-                  <tab.icon size={24} weight={activeTab === tab.id ? "fill" : "regular"} />
-                  <span className="text-xs">{tab.label.split(' ')[0]}</span>
+                  <tab.icon size={32} weight={activeTab === tab.id ? "fill" : "regular"} />
+                  <span className="text-xs font-semibold">{tab.label.split(' ')[0]}</span>
+                </button>
+              ))}
+              <button
+                onClick={() => setActiveTab('strategy-builder')}
+                className="flex flex-col items-center gap-1 px-4 py-3 rounded-2xl transition-all bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg"
+                style={{ transform: 'translateY(-8px)' }}
+              >
+                <Code size={32} weight="fill" />
+                <span className="text-xs font-bold">Strategy</span>
+              </button>
+              {tabs.slice(5, 8).map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-[60px]",
+                    activeTab === tab.id ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  <tab.icon size={32} weight={activeTab === tab.id ? "fill" : "regular"} />
+                  <span className="text-xs font-semibold">{tab.label.split(' ')[0]}</span>
                 </button>
               ))}
             </div>
           </nav>
         )}
+
+        <AnimatePresence>
+          {showAggressionControl && showAggressionPanel && (
+            <motion.div
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className={cn(
+                'fixed z-40 bg-card/95 backdrop-blur-2xl border rounded-3xl shadow-2xl shadow-black/50',
+                isMobile 
+                  ? 'inset-x-0 bottom-0 pb-4 rounded-b-none border-b-0' 
+                  : 'bottom-8 left-1/2 -translate-x-1/2 max-w-2xl w-full mx-4'
+              )}
+              style={{
+                borderColor: 'rgba(0, 255, 255, 0.4)',
+              }}
+            >
+              <div className="p-6 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold uppercase tracking-wider text-cyan-400" style={{ textShadow: '0 0 8px rgba(0,255,255,0.4)' }}>
+                      Bot Aggression Control
+                    </h3>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+                      Global Risk Management
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowAggressionPanel(false)}
+                    className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                  >
+                    <X size={20} className="text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-green-400 font-semibold uppercase tracking-wide">Cautious</span>
+                    <span 
+                      className="text-3xl font-black tabular-nums"
+                      style={{ 
+                        color: getAggressionColor(botAggression),
+                        textShadow: `0 0 6px ${getAggressionColor(botAggression)}80`
+                      }}
+                    >
+                      {getAggressionLabel(botAggression)}
+                    </span>
+                    <span className="text-red-400 font-semibold uppercase tracking-wide">Aggressive</span>
+                  </div>
+
+                  <div className="relative px-2">
+                    <Slider
+                      value={[botAggression]}
+                      onValueChange={(value) => setBotAggression(value[0])}
+                      min={0}
+                      max={100}
+                      step={1}
+                      className="cursor-grab active:cursor-grabbing"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    {presets.map((preset) => {
+                      const isActive = Math.abs(botAggression - preset.value) < 10;
+                      return (
+                        <button
+                          key={preset.label}
+                          onClick={() => setBotAggression(preset.value)}
+                          className={cn(
+                            "p-4 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-2 hover:-translate-y-1",
+                            isActive ? "border-current" : "border-white/10"
+                          )}
+                          style={{
+                            color: preset.color,
+                            backgroundColor: isActive ? `${preset.color}15` : 'transparent',
+                            boxShadow: isActive ? `0 0 20px ${preset.color}60` : 'none',
+                          }}
+                        >
+                          <preset.icon size={isMobile ? 32 : 28} weight={isActive ? "fill" : "regular"} />
+                          <span className="text-xs font-bold uppercase tracking-wide">{preset.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {showAggressionControl && !showAggressionPanel && (
+          <button
+            onClick={() => setShowAggressionPanel(true)}
+            className="fixed bottom-4 right-4 z-40 p-3 bg-cyan-500/20 border border-cyan-500/40 rounded-full hover:bg-cyan-500/30 transition-all"
+            style={{ boxShadow: '0 0 20px rgba(0,255,255,0.3)' }}
+          >
+            <Flame size={24} className="text-cyan-400" />
+          </button>
+        )}
       </div>
+
+
     </ErrorBoundary>
   );
 }
