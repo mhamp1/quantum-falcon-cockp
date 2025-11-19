@@ -1,4 +1,4 @@
-// QUANTUM FALCON COCKPIT v2025.1.0 - PRODUCTION NOVEMBER 18, 2025
+// QUANTUM FALCON COCKPIT v2025.1.0 - PRODUCTION NOVEMBER 19, 2025
 // 
 // RECENT UI PERFECTIONIST UPDATES (ALL TASKS COMPLETED):
 // ========================================================
@@ -39,6 +39,15 @@
 // ✅ TASK 9: AI BOT REPOSITIONING (NEVER OVERLAPS AGGRESSION PANEL)
 //    BEFORE: Orb covered slider at bottom-right when panel open
 //    AFTER: Intelligent repositioning to left: 280px with smooth Framer Motion transition
+//
+// ✅ TASK 10: RESTORED SETTINGS TAB TO FULL FUNCTIONALITY
+//    BEFORE: Settings tab was missing from navigation (removed in error)
+//    AFTER: Settings tab restored as 9th/final tab with Gear icon from @phosphor-icons/react
+//           - Position: Last in sidebar, above tier/version footer
+//           - Contains: License keys, API keys, risk limits, notifications, theme, export logs, legal
+//           - Crown badge visible on Elite/Lifetime tiers
+//           - Mobile nav updated to include Settings (tabs.slice(5, 9))
+//           - Component: EnhancedSettings (lazy loaded)
 //    
 // RESULT: TradingView + Bybit Pro dark mode quality - clean, expensive, 12-hour readable
 
@@ -66,7 +75,8 @@ import {
   ShieldCheck,
   Lightning as Zap,
   Flame,
-  Brain
+  Brain,
+  Gear
 } from '@phosphor-icons/react';
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
@@ -80,6 +90,7 @@ const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrate
 const VaultView = lazy(() => import('@/components/vault/VaultView'));
 const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
 const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
+const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -197,6 +208,7 @@ export default function App() {
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
+    { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
   ], []);
 
   useEffect(() => {
@@ -299,6 +311,8 @@ export default function App() {
               {tabs.map(tab => {
                 const isActive = activeTab === tab.id;
                 const IconComponent = tab.icon;
+                const isEliteOrLifetime = auth.license?.tier === 'ELITE' || auth.license?.tier === 'LIFETIME';
+                const showCrownBadge = tab.id === 'settings' && isEliteOrLifetime;
                 
                 return (
                   <motion.button
@@ -313,7 +327,6 @@ export default function App() {
                     whileHover={{ scale: isActive ? 1 : 1.02 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >
-                    {/* Pro-level active indicator: glowing left bar instead of full background */}
                     {isActive && (
                       <motion.div
                         layoutId="activeTab"
@@ -325,7 +338,6 @@ export default function App() {
                       />
                     )}
                     
-                    {/* Subtle background overlay on active (not blocky solid) */}
                     {isActive && (
                       <motion.div
                         className="absolute inset-0 bg-primary/10 rounded-lg"
@@ -335,7 +347,6 @@ export default function App() {
                       />
                     )}
                     
-                    {/* Icon with special treatment for bot icon */}
                     <div className="relative z-10 flex-shrink-0">
                       {tab.id === 'multi-agent' ? (
                         <HolographicBotIcon isActive={isActive} size={18} />
@@ -360,12 +371,21 @@ export default function App() {
                           />
                         </motion.div>
                       )}
+                      
+                      {showCrownBadge && (
+                        <Crown 
+                          size={10} 
+                          weight="fill" 
+                          className="absolute -top-1 -right-1 text-yellow-400"
+                          style={{ 
+                            filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.6))'
+                          }}
+                        />
+                      )}
                     </div>
                     
-                    {/* Text */}
                     <span className="relative z-10">{tab.label}</span>
                     
-                    {/* Hover glow effect */}
                     {!isActive && (
                       <motion.div
                         className="absolute inset-0 bg-primary/5 rounded-lg opacity-0 group-hover:opacity-100"
@@ -411,7 +431,6 @@ export default function App() {
                     onClick={() => setActiveTab(tab.id)}
                     className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-[60px]"
                   >
-                    {/* Glowing underline instead of full background */}
                     {isActive && (
                       <motion.div
                         layoutId="mobileActiveTab"
@@ -449,7 +468,7 @@ export default function App() {
                 <Code size={32} weight="fill" />
                 <span className="text-xs font-bold">Strategy</span>
               </button>
-              {tabs.slice(5, 8).map(tab => {
+              {tabs.slice(5, 9).map(tab => {
                 const isActive = activeTab === tab.id;
                 const IconComponent = tab.icon;
                 
