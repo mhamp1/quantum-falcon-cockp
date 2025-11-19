@@ -1,3 +1,5 @@
+import { isNonCriticalError } from './errorSuppression';
+
 const IS_DEV = import.meta.env.DEV;
 
 interface ErrorLogEntry {
@@ -13,6 +15,11 @@ class ErrorLogger {
   private maxErrors = 50;
 
   log(error: Error | string, context?: string, componentStack?: string) {
+    // Filter out KV errors and other non-critical errors
+    if (isNonCriticalError(error)) {
+      return;
+    }
+
     const entry: ErrorLogEntry = {
       timestamp: Date.now(),
       message: typeof error === 'string' ? error : error.message,

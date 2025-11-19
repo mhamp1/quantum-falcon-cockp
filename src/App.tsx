@@ -190,7 +190,7 @@ export default function App() {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
   const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
-  const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', true);
+  const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
@@ -610,7 +610,7 @@ export default function App() {
         {showAggressionControl && !showAggressionPanel && (
           <button
             onClick={() => setShowAggressionPanel(true)}
-            className="fixed bottom-4 right-4 z-40 p-3 bg-cyan-500/20 border border-cyan-500/40 rounded-full hover:bg-cyan-500/30 transition-all"
+            className="fixed bottom-28 right-4 z-40 p-3 bg-cyan-500/20 border border-cyan-500/40 rounded-full hover:bg-cyan-500/30 transition-all"
             style={{ boxShadow: '0 0 12px rgba(0,255,255,0.2)' }}
           >
             <Flame size={24} className="text-cyan-400" />

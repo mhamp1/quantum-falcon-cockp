@@ -47,30 +47,28 @@ export default function AIBotAssistant() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const isMobile = useIsMobile();
-  const [showAggressionPanel] = useKV<boolean>('show-aggression-panel', true);
+  const [showAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
 
   const getOrbPosition = () => {
     if (isMobile) {
       return {
         bottom: '90px',
-        right: '50%',
-        transform: 'translateX(50%)',
+        right: '16px',
         opacity: showAggressionPanel ? 0.8 : 1
       };
     }
 
-    // FIX: Move AI bot slightly to the right when aggression panel is open
+    // FIX: AI Bot repositioning - move higher when aggression panel is open
     if (showAggressionPanel) {
       return {
         bottom: '32px',
-        left: '280px', // Moved from 32px to 280px (shifted right)
-        right: 'auto'
+        right: '32px', // Keep on right side, just move higher to avoid overlap
       };
     }
 
     return {
-      bottom: '24px',
-      right: '24px'
+      bottom: '32px',
+      right: '32px'
     };
   };
 
