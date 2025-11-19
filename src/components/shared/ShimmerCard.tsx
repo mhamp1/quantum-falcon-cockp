@@ -108,31 +108,59 @@ function ListShimmer() {
   );
 }
 
-// Pulsing Q Logo Shimmer
 export function PulsingQLoader() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <motion.div
+      <div className="text-center space-y-6">
+        <motion.svg
+          width="120"
+          height="120"
+          viewBox="0 0 120 120"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.5, 1, 0.5],
+            scale: [1, 1.1, 1],
+            opacity: [0.7, 1, 0.7],
           }}
           transition={{
-            duration: 1.5,
+            duration: 2,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="text-9xl font-black text-primary neon-glow"
+          className="mx-auto"
+          style={{
+            filter: 'drop-shadow(0 0 20px rgba(20, 241, 149, 0.6)) drop-shadow(0 0 40px rgba(20, 241, 149, 0.3))',
+          }}
         >
-          Q
-        </motion.div>
+          <path
+            d="M60 20 L70 35 L85 30 L75 50 L90 55 L70 65 L75 80 L60 70 L45 80 L50 65 L30 55 L45 50 L35 30 L50 35 Z"
+            fill="url(#falconGradient)"
+            stroke="#14F195"
+            strokeWidth="2"
+          />
+          <circle cx="60" cy="50" r="8" fill="#9945FF" />
+          <circle cx="60" cy="50" r="4" fill="#14F195">
+            <animate
+              attributeName="r"
+              values="4;6;4"
+              dur="1.5s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <defs>
+            <linearGradient id="falconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#14F195" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#9945FF" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#14F195" stopOpacity="0.8" />
+            </linearGradient>
+          </defs>
+        </motion.svg>
         <motion.p
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-muted-foreground uppercase tracking-wider text-sm"
+          className="text-muted-foreground uppercase tracking-wider text-sm font-semibold"
         >
-          Initializing Quantum Core...
+          Initializing Quantum Falcon...
         </motion.p>
       </div>
     </div>
