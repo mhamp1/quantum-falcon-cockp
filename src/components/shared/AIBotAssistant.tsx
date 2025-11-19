@@ -104,7 +104,7 @@ export default function AIBotAssistant() {
   };
 
   return (
-    <>
+    <div className="fixed bottom-6 right-6 z-[9999]">
       {/* Floating Orb Button */}
       <AnimatePresence>
         {!isOpen && (
@@ -115,7 +115,7 @@ export default function AIBotAssistant() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-[9998] w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 shadow-2xl flex items-center justify-center cursor-pointer group"
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 shadow-2xl flex items-center justify-center cursor-pointer group"
             style={{
               boxShadow: '0 0 30px rgba(168, 85, 247, 0.5), 0 0 60px rgba(168, 85, 247, 0.3)',
             }}
@@ -144,7 +144,7 @@ export default function AIBotAssistant() {
             initial={{ opacity: 0, y: 100, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.8 }}
-            className="fixed bottom-6 right-6 z-[9999] w-96 h-[600px] cyber-card-accent flex flex-col overflow-hidden"
+            className="absolute bottom-0 right-0 w-96 h-[600px] cyber-card-accent flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-cyan-500/20 border-b border-purple-500/30">
@@ -267,6 +267,6 @@ export default function AIBotAssistant() {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }
