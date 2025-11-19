@@ -528,31 +528,6 @@ Return only improved code with comments explaining changes.`
               STRATEGIES
             </motion.span>
           </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed px-4"
-            style={{
-              fontFamily: 'Rajdhani, sans-serif',
-              fontWeight: 500,
-              color: 'rgba(0, 255, 255, 0.75)'
-            }}
-          >
-            <span className="text-foreground/90">Build, backtest, and share custom bots with the community — </span>
-            <span 
-              className="font-semibold"
-              style={{
-                background: 'linear-gradient(90deg, #00FFFF 0%, #14F195 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
-              the same tools Elite traders use to print money.
-            </span>
-          </motion.p>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

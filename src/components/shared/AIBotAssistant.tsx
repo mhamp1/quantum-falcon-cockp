@@ -59,10 +59,11 @@ export default function AIBotAssistant() {
       };
     }
 
+    // FIX: Move AI bot slightly to the right when aggression panel is open
     if (showAggressionPanel) {
       return {
         bottom: '32px',
-        left: '32px',
+        left: '280px', // Moved from 32px to 280px (shifted right)
         right: 'auto'
       };
     }

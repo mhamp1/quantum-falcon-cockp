@@ -429,27 +429,23 @@ export default function BotOverview() {
                 className="p-2 border-2 angled-corner-tr bg-secondary/5 border-secondary relative overflow-hidden"
                 animate={{
                   boxShadow: [
+                    '0 0 6px var(--secondary)',
                     '0 0 10px var(--secondary)',
-                    '0 0 20px var(--secondary)',
-                    '0 0 10px var(--secondary)'
+                    '0 0 6px var(--secondary)'
                   ]
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
                 <div className="absolute inset-0 bg-secondary opacity-5" />
-                <Cube size={16} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 5px var(--secondary))' }} />
+                <Cube size={16} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 4px var(--secondary))' }} />
               </motion.div>
             </div>
             <motion.p 
-              className="text-4xl font-bold text-secondary neon-glow-intense hud-value"
-              animate={{
-                textShadow: [
-                  '0 0 10px var(--secondary), 0 0 20px var(--secondary)',
-                  '0 0 20px var(--secondary), 0 0 40px var(--secondary)',
-                  '0 0 10px var(--secondary), 0 0 20px var(--secondary)'
-                ]
+              className="text-4xl font-bold hud-value"
+              style={{
+                textShadow: '0 0 6px var(--secondary)',
+                color: '#e0e0ff'
               }}
-              transition={{ duration: 3, repeat: Infinity }}
             >
               {metrics.uptime}%
             </motion.p>

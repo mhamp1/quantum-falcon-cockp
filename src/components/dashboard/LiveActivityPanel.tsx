@@ -67,7 +67,8 @@ export default function LiveActivityPanel() {
 
   return (
     <div className="space-y-4">
-      {/* AI Thinking Indicator */}
+      {/* BEFORE: "BOT IS THINKING..." banner with massive 60px glow causing unreadable text
+          AFTER: Thin border + subtle gradient bg, icon with small drop-shadow, text with 6px glow max */}
       <AnimatePresence>
         {thinking && (
           <motion.div
@@ -76,29 +77,33 @@ export default function LiveActivityPanel() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
             style={{
-              background: 'linear-gradient(135deg, rgba(156, 39, 255, 0.2), rgba(20, 241, 149, 0.2))',
-              border: '2px solid var(--primary)',
-              boxShadow: '0 0 30px var(--primary), 0 0 60px var(--primary)'
+              background: 'linear-gradient(to right, rgba(0, 255, 255, 0.15), transparent)',
+              border: '1px solid rgba(0, 255, 255, 0.4)',
+              boxShadow: 'none'
             }}
           >
             <div className="flex items-center gap-4">
               <motion.div
                 animate={{
                   rotate: 360,
-                  scale: [1, 1.2, 1]
+                  scale: [1, 1.1, 1]
                 }}
                 transition={{
                   rotate: { duration: 2, repeat: Infinity, ease: 'linear' },
                   scale: { duration: 1, repeat: Infinity }
                 }}
               >
-                <Brain size={32} weight="duotone" className="text-primary" style={{ filter: 'drop-shadow(0 0 10px var(--primary))' }} />
+                <Brain size={32} weight="duotone" className="text-primary" style={{ filter: 'drop-shadow(0 0 6px var(--primary))' }} />
               </motion.div>
               <div className="flex-1">
                 <motion.h3 
-                  className="text-xl font-bold neon-glow-intense text-primary mb-1"
+                  className="text-xl font-bold mb-1"
+                  style={{
+                    color: '#e0e0ff',
+                    textShadow: '0 0 6px rgba(0, 255, 255, 0.3)'
+                  }}
                   animate={{
-                    opacity: [1, 0.6, 1]
+                    opacity: [1, 0.8, 1]
                   }}
                   transition={{ duration: 1, repeat: Infinity }}
                 >
@@ -117,9 +122,9 @@ export default function LiveActivityPanel() {
                   <motion.div
                     key={i}
                     className="w-2 h-2 rounded-full bg-primary"
-                    style={{ boxShadow: '0 0 10px var(--primary)' }}
+                    style={{ boxShadow: '0 0 6px var(--primary)' }}
                     animate={{
-                      scale: [1, 1.5, 1],
+                      scale: [1, 1.3, 1],
                       opacity: [0.3, 1, 0.3]
                     }}
                     transition={{
@@ -135,7 +140,8 @@ export default function LiveActivityPanel() {
         )}
       </AnimatePresence>
 
-      {/* Last Decision */}
+      {/* BEFORE: "Analyzing JUP pump" + confidence bar with massive pink/cyan bleed
+          AFTER: Sharp text with NO glow, clean progress bar with solid fill + thin border */}
       <motion.div
         className="p-4 cyber-card-accent relative overflow-hidden"
         initial={{ opacity: 0 }}
@@ -145,15 +151,15 @@ export default function LiveActivityPanel() {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">LAST DECISION</p>
-            <p className="text-base font-bold text-accent neon-glow-accent mb-1">{lastDecision.action}</p>
+            <p className="text-base font-bold mb-1" style={{ color: '#e0e0ff' }}>{lastDecision.action}</p>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <span className="text-xs text-muted-foreground">Confidence:</span>
                 <motion.span 
-                  className="text-sm font-bold text-secondary neon-glow-secondary"
+                  className="text-sm font-bold text-secondary"
                   key={lastDecision.confidence}
                   animate={{
-                    scale: [1, 1.1, 1]
+                    scale: [1, 1.05, 1]
                   }}
                   transition={{ duration: 0.3 }}
                 >
@@ -161,17 +167,19 @@ export default function LiveActivityPanel() {
                 </motion.span>
               </div>
               <div className="flex-1">
+                {/* Clean progress bar: solid gradient fill with 1px glowing border only */}
                 <motion.div 
-                  className="h-2 bg-muted/30 rounded-full overflow-hidden"
+                  className="h-2 bg-muted/30 rounded-full overflow-hidden border border-secondary/30"
                   initial={{ width: 0 }}
                   animate={{ width: '100%' }}
                   transition={{ duration: 0.5 }}
                 >
                   <motion.div
-                    className="h-full liquid-fill"
+                    className="h-full"
                     style={{
                       width: `${lastDecision.confidence}%`,
-                      boxShadow: '0 0 10px var(--secondary)'
+                      background: 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%)',
+                      boxShadow: 'none'
                     }}
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
@@ -183,7 +191,7 @@ export default function LiveActivityPanel() {
           </div>
           <motion.div
             animate={{
-              scale: [1, 1.2, 1],
+              scale: [1, 1.1, 1],
               rotate: [0, 360]
             }}
             transition={{
@@ -191,7 +199,7 @@ export default function LiveActivityPanel() {
               rotate: { duration: 3, repeat: Infinity, ease: 'linear' }
             }}
           >
-            <Lightning size={24} weight="fill" className="text-accent" style={{ filter: 'drop-shadow(0 0 8px var(--accent))' }} />
+            <Lightning size={24} weight="fill" className="text-accent" style={{ filter: 'drop-shadow(0 0 6px var(--accent))' }} />
           </motion.div>
         </div>
       </motion.div>

@@ -89,55 +89,31 @@
   --radius-full: 9999px;
 }
 
+/* BEFORE: text-shadow: 0 0 2px, 0 0 4px, 0 0 6px causing bleed
+   AFTER: maximum 0 0 8px with NO outer bloom - only subtle inner glow */
 .neon-glow {
-  text-shadow: 
-    0 0 2px var(--primary),
-    0 0 4px var(--primary),
-    0 0 6px var(--primary);
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
-  paint-order: stroke fill;
+  text-shadow: 0 0 6px var(--primary);
+  color: #e0e0ff;
 }
 
 .neon-glow-accent {
-  box-shadow: 
-    0 0 8px var(--accent),
-    0 0 16px var(--accent),
-    inset 0 0 8px oklch(0.68 0.18 330 / 0.2);
-  text-shadow: 
-    0 0 2px var(--accent),
-    0 0 4px var(--accent),
-    0 0 6px var(--accent);
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
-  paint-order: stroke fill;
+  box-shadow: 0 0 12px var(--accent);
+  text-shadow: 0 0 6px var(--accent);
+  color: #e0e0ff;
 }
 
 .neon-glow-destructive {
-  box-shadow: 
-    0 0 5px var(--destructive),
-    0 0 10px var(--destructive),
-    0 0 20px var(--destructive);
+  box-shadow: 0 0 10px var(--destructive);
 }
 
 .neon-glow-secondary {
-  text-shadow: 
-    0 0 2px var(--secondary),
-    0 0 4px var(--secondary),
-    0 0 6px var(--secondary);
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
-  paint-order: stroke fill;
+  text-shadow: 0 0 6px var(--secondary);
+  color: #e0e0ff;
 }
 
 .neon-glow-primary {
-  text-shadow: 
-    0 0 2px var(--primary),
-    0 0 4px var(--primary),
-    0 0 6px var(--primary);
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
-  paint-order: stroke fill;
+  text-shadow: 0 0 6px var(--primary);
+  color: #e0e0ff;
 }
 
 .holographic-glow {
@@ -349,12 +325,7 @@
   font-weight: 700;
   font-size: 0.65rem;
   color: var(--primary);
-  text-shadow: 
-    0 0 3px var(--primary),
-    0 0 1px oklch(0 0 0 / 0.8);
-  -webkit-text-stroke: 0.3px currentColor;
-  text-stroke: 0.3px currentColor;
-  paint-order: stroke fill;
+  text-shadow: 0 0 6px var(--primary);
 }
 
 .data-label {
@@ -681,18 +652,12 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 700;
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
-  paint-order: stroke fill;
 }
 
 .hud-value {
   font-family: 'Orbitron', sans-serif;
   letter-spacing: 0.05em;
   font-weight: 700;
-  -webkit-text-stroke: 0.5px currentColor;
-  text-stroke: 0.5px currentColor;
-  paint-order: stroke fill;
 }
 
 .grid-background {
@@ -844,10 +809,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 4px oklch(0.72 0.20 195 / 0.5)) drop-shadow(0 0 1px oklch(0 0 0));
-  -webkit-text-stroke: 0.3px oklch(0.72 0.20 195);
-  text-stroke: 0.3px oklch(0.72 0.20 195);
-  paint-order: stroke fill;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.3));
 }
 
 .wireframe-3d {
@@ -1315,22 +1277,22 @@
   }
 }
 
-/* Holographic Breathing Border */
+/* BEFORE: 60px glow causing massive halo on cards
+   AFTER: Controlled 15px max with subtle inner shadow */
 @keyframes holographic-breathe {
   0%, 100% {
     box-shadow: 
-      0 0 10px var(--primary),
-      0 0 20px var(--primary),
-      inset 0 0 10px oklch(0.72 0.20 195 / 0.2);
-    filter: brightness(0.8);
+      0 0 8px var(--primary),
+      0 0 12px var(--primary),
+      inset 0 0 8px oklch(0.72 0.20 195 / 0.1);
+    filter: brightness(0.95);
   }
   50% {
     box-shadow: 
-      0 0 20px var(--primary),
-      0 0 40px var(--primary),
-      0 0 60px var(--primary),
-      inset 0 0 20px oklch(0.72 0.20 195 / 0.4);
-    filter: brightness(1.2);
+      0 0 12px var(--primary),
+      0 0 15px var(--primary),
+      inset 0 0 12px oklch(0.72 0.20 195 / 0.15);
+    filter: brightness(1.05);
   }
 }
 
@@ -1593,21 +1555,11 @@
   animation: electric-crackle 0.8s ease-in-out infinite;
 }
 
-/* Intense Neon Glow - 10x effect */
+/* BEFORE: 80px bloom causing unreadable text
+   AFTER: Clean 8px max with NO stroke artifacts */
 .neon-glow-intense {
-  text-shadow: 
-    0 0 5px currentColor,
-    0 0 10px currentColor,
-    0 0 15px currentColor,
-    0 0 20px currentColor,
-    0 0 30px currentColor,
-    0 0 40px currentColor,
-    0 0 60px currentColor,
-    0 0 80px currentColor;
-  -webkit-text-stroke: 1px currentColor;
-  text-stroke: 1px currentColor;
-  paint-order: stroke fill;
-  filter: drop-shadow(0 0 10px currentColor);
+  text-shadow: 0 0 8px currentColor;
+  color: #e0e0ff;
 }
 
 /* Leaky Edge Effect */
@@ -1616,7 +1568,8 @@
   filter: url(#leaky-filter);
 }
 
-/* God-tier pulsing stat numbers */
+/* BEFORE: Massive text-shadow causing pink/cyan bleed on status bars
+   AFTER: Clean gradient with minimal 6px drop-shadow */
 .stat-number-godtier {
   background: linear-gradient(135deg, 
     var(--primary) 0%, 
@@ -1626,12 +1579,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 
-    0 0 10px var(--primary),
-    0 0 20px var(--accent),
-    0 0 30px var(--secondary);
-  filter: drop-shadow(0 0 5px var(--primary));
-  animation: holographic-breathe 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(153, 69, 255, 0.3));
 }
 
 /* Dangerous Slider Zones */
@@ -1762,42 +1710,31 @@
   }
 }
 
-/* Subtle neon-leak for readability */
+/* BEFORE: -webkit-text-stroke causing black lines around rainbow text
+   AFTER: Pure background-clip only, NO stroke */
 .neon-leak {
   background: linear-gradient(135deg, #00FFFF, #DC1FFF, #FF00FF);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.5)) drop-shadow(0 0 16px rgba(220, 31, 255, 0.3));
+  filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.3));
   font-weight: 900;
   letter-spacing: 0.05em;
 }
 
 .neon-leak-cyan {
   color: #00FFFF;
-  text-shadow: 
-    0 0 5px #00FFFF,
-    0 0 10px #00FFFF,
-    0 0 15px rgba(0, 255, 255, 0.5);
-  -webkit-text-stroke: 0.5px currentColor;
+  text-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
 }
 
 .neon-leak-purple {
   color: #DC1FFF;
-  text-shadow: 
-    0 0 5px #DC1FFF,
-    0 0 10px #DC1FFF,
-    0 0 15px rgba(220, 31, 255, 0.5);
-  -webkit-text-stroke: 0.5px currentColor;
+  text-shadow: 0 0 6px rgba(220, 31, 255, 0.3);
 }
 
 .neon-leak-pink {
   color: #FF00FF;
-  text-shadow: 
-    0 0 5px #FF00FF,
-    0 0 10px #FF00FF,
-    0 0 15px rgba(255, 0, 255, 0.5);
-  -webkit-text-stroke: 0.5px currentColor;
+  text-shadow: 0 0 6px rgba(255, 0, 255, 0.3);
 }
 
 /* Shimmer loading animation */
