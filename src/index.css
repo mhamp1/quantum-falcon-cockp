@@ -1710,6 +1710,111 @@
   }
 }
 
+/* ENHANCED: Premium data flow section animations - hedge fund war room quality */
+
+/* Subtle pulse animation for entire section when new activity arrives */
+@keyframes section-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.01);
+  }
+}
+
+.section-pulse-animation {
+  animation: section-pulse 0.4s ease-in-out;
+}
+
+/* Data flow connector lines */
+.data-flow-line-horizontal {
+  background: linear-gradient(90deg, rgba(0, 255, 255, 0.4), transparent);
+  border-top: 1px dashed rgba(0, 255, 255, 0.3);
+}
+
+.data-flow-line-vertical {
+  background: linear-gradient(180deg, rgba(0, 255, 255, 0.4), transparent);
+  border-left: 1px dashed rgba(0, 255, 255, 0.3);
+}
+
+/* Noise texture generator (procedural) */
+.noise-texture {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='4' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.05;
+}
+
+/* Agent progress bar enhancements */
+@keyframes agent-bar-pulse {
+  0%, 100% {
+    filter: brightness(100%);
+  }
+  50% {
+    filter: brightness(110%);
+  }
+}
+
+.agent-bar-active {
+  animation: agent-bar-pulse 4s ease-in-out infinite;
+}
+
+/* Terminal grid animation */
+@keyframes grid-flow {
+  0% {
+    background-position: 0px 0px;
+  }
+  100% {
+    background-position: 20px 20px;
+  }
+}
+
+.terminal-grid-animated {
+  background-image: 
+    linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: grid-flow 20s linear infinite;
+  opacity: 0.1;
+}
+
+/* Activity item hover lift */
+.activity-item-hover {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.activity-item-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+  filter: brightness(1.1);
+}
+
+/* Log entry fade-in */
+@keyframes log-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.log-entry-animate {
+  animation: log-fade-in 0.3s ease-out;
+}
+
+/* Shimmer loading animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 /* BEFORE: -webkit-text-stroke causing black lines around rainbow text
    AFTER: Pure background-clip only, NO stroke */
 .neon-leak {

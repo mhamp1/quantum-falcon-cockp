@@ -13,10 +13,13 @@ import { Label } from '@/components/ui/label'
 import LoginDialog from '@/components/shared/LoginDialog'
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
 import { toast } from 'sonner'
+import { motion } from 'framer-motion'
+import { AgentStatusCard } from './AgentStatusCard'
+import { ActivityFeed } from './ActivityFeed'
+import { LogicStream } from './LogicStream'
 
 // Lazy load heavy components for better performance
 const NewsTicker = lazy(() => import('@/components/shared/NewsTicker'))
-const BotLogs = lazy(() => import('@/components/shared/BotLogs'))
 const Wireframe3D = lazy(() => import('@/components/shared/Wireframe3D'))
 const QuickStatsCard = lazy(() => import('./QuickStatsCard').then(m => ({ default: m.QuickStatsCard })))
 const QuickActionButton = lazy(() => import('./QuickActionButton').then(m => ({ default: m.QuickActionButton })))
@@ -427,54 +430,19 @@ export default function EnhancedDashboard() {
         <AIAdvisor />
       </Suspense>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="cyber-card p-6 angled-corner-tl">
-          <div className="flex items-center gap-3 mb-4">
-            <Robot size={24} weight="fill" className="text-primary" />
-            <h2 className="text-xl font-bold uppercase tracking-wider text-primary">AI Agent Status</h2>
-          </div>
-          <div className="space-y-3">
-            {['Market Analysis', 'Strategy Execution', 'RL Optimizer'].map((agent, idx) => (
-              <div key={idx} className="p-3 bg-muted/20 border-l-2 border-primary cut-corner-br">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="status-indicator animate-pulse-glow" style={{ width: '6px', height: '6px' }} />
-                    <span className="text-sm font-bold uppercase tracking-wide">{agent}</span>
-                  </div>
-                  <span className="text-xs text-primary font-bold">ACTIVE</span>
-                </div>
-                <Progress value={65 + idx * 10} className="h-1" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="cyber-card p-6 angled-corner-tr">
-          <div className="flex items-center gap-3 mb-4">
-            <ChartLine size={24} weight="fill" className="text-accent" />
-            <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Recent Activity</h2>
-          </div>
-          <div className="space-y-2">
-            {[
-              { type: 'success', msg: 'Trade executed: +$45.20 profit', time: '2m ago' },
-              { type: 'info', msg: 'Market analysis completed', time: '5m ago' },
-              { type: 'success', msg: 'DCA order filled successfully', time: '12m ago' },
-              { type: 'info', msg: 'Portfolio rebalanced', time: '23m ago' }
-            ].map((activity, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-xs p-2 hover:bg-muted/10 transition-colors angled-corner-br">
-                <CheckCircle size={14} className={activity.type === 'success' ? 'text-primary' : 'text-accent'} weight="fill" />
-                <div className="flex-1">
-                  <div className="text-foreground">{activity.msg}</div>
-                  <div className="text-muted-foreground text-[10px]">{activity.time}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* ENHANCED: Agent Status section — premium data flow visuals, zero overwhelm */}
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <AgentStatusCard />
+        <ActivityFeed />
+      </motion.div>
 
       <Suspense fallback={<div className="animate-pulse h-64 bg-muted/20 rounded border border-accent/20" />}>
-        <BotLogs />
+        <LogicStream />
       </Suspense>
       </div>
     </ErrorBoundary>
