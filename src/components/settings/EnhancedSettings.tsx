@@ -1535,6 +1535,67 @@ export default function EnhancedSettings() {
             </div>
           </div>
 
+          <div className="glass-morph-card p-6 space-y-6 relative overflow-hidden group hover:shadow-[0_0_40px_oklch(0.72_0.20_195_/_0.3)] transition-all duration-500">
+            <div className="absolute inset-0 diagonal-stripes opacity-5" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 blur-3xl rounded-full" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/10 blur-3xl rounded-full" />
+            
+            <svg className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none" style={{ zIndex: 1 }}>
+              <circle cx="10%" cy="30%" r="30" stroke="var(--primary)" strokeWidth="2" fill="none" strokeDasharray="4,4" className="circuit-line" />
+              <circle cx="10%" cy="30%" r="3" fill="var(--primary)" className="animate-pulse" />
+              <path d="M 80% 20% L 90% 20% L 90% 40% L 80% 40% Z" stroke="var(--primary)" strokeWidth="2" fill="none" strokeDasharray="3,3" className="circuit-line" />
+            </svg>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-primary/20 border border-primary/40 jagged-corner-small relative">
+                  <GraduationCap size={24} weight="duotone" className="text-primary" />
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold uppercase tracking-[0.15em] hud-text text-primary">HELP_&_TUTORIAL</h3>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">LEARNING_CENTER</p>
+                </div>
+                <div className="ml-auto flex items-center gap-1">
+                  <div className="w-1 h-1 bg-primary rounded-full" />
+                  <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                  <div className="w-1 h-1 bg-primary rounded-full" />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="p-4 bg-background/40 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all group/item relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/50 group-hover/item:w-2 transition-all" />
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1">
+                      <ArrowsClockwise size={18} weight="duotone" className="text-primary" />
+                      <div>
+                        <Label className="font-bold uppercase text-xs tracking-wider">ONBOARDING_TOUR</Label>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Replay the welcome tutorial</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('restart-onboarding-tour'));
+                        toast.success('Launching Onboarding Tour', {
+                          description: 'Welcome back! Let\'s show you around again.',
+                        });
+                      }}
+                      className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                      style={{
+                        boxShadow: '0 0 15px rgba(0,255,255,0.3)',
+                      }}
+                    >
+                      <ArrowsClockwise size={16} weight="bold" className="mr-1" />
+                      RESTART_TOUR
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="glass-morph-card p-6 relative overflow-hidden">
             <div className="absolute inset-0 grid-background opacity-5" />
             <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 blur-3xl rounded-full" />

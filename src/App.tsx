@@ -82,6 +82,7 @@ import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -192,6 +193,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
   const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
@@ -265,6 +268,23 @@ export default function App() {
     return () => window.removeEventListener('open-legal-risk-disclosure', handler);
   }, []);
 
+  useEffect(() => {
+    if (!hasSeenOnboarding) {
+      const timer = setTimeout(() => {
+        setShowOnboarding(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasSeenOnboarding]);
+
+  useEffect(() => {
+    const handler = () => {
+      setShowOnboarding(true);
+    };
+    window.addEventListener('restart-onboarding-tour', handler);
+    return () => window.removeEventListener('restart-onboarding-tour', handler);
+  }, []);
+
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
   const showAggressionControl = activeTab === 'multi-agent';
@@ -287,12 +307,28 @@ export default function App() {
     { label: 'Aggressive', value: 75, icon: Flame, color: '#FF4444' },
   ];
 
+  const handleOnboardingComplete = () => {
+    setHasSeenOnboarding(true);
+    setShowOnboarding(false);
+  };
+
+  const handleOnboardingSkip = () => {
+    setShowOnboarding(false);
+  };
+
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
       <div className={cn('min-h-screen bg-background text-foreground flex', isMobile && 'flex-col')}>
         <DebugHelper />
         <AIBotAssistant />
         <RiskDisclosureBanner />
+        
+        <OnboardingTour
+          isOpen={showOnboarding}
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
+          setActiveTab={setActiveTab}
+        />
 
         {/* SIDEBAR UPGRADE: pro-level active indicator + cooler bot icon */}
         {!isMobile && (
@@ -517,7 +553,7 @@ export default function App() {
               exit={{ y: 100, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className={cn(
-                'fixed z-40 bg-card/95 backdrop-blur-2xl border rounded-3xl shadow-2xl shadow-black/50',
+                'fixed z-40 bg-card/95 backdrop-blur-2xl border rounded-3xl shadow-2xl shadow-black/50 aggression-control',
                 isMobile 
                   ? 'inset-x-0 bottom-0 pb-4 rounded-b-none border-b-0' 
                   : 'bottom-8 left-1/2 -translate-x-1/2 max-w-2xl w-full mx-4'

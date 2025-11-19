@@ -389,7 +389,7 @@ export default function AdvancedTradingHub() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="space-y-4 mt-6">
+        <TabsContent value="all" className="space-y-4 mt-6 strategy-cards">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {strategies?.map((strategy) => (
               <TradingStrategyCard
@@ -402,7 +402,7 @@ export default function AdvancedTradingHub() {
           </div>
         </TabsContent>
 
-        <TabsContent value="dca" className="space-y-4 mt-6">
+        <TabsContent value="dca" className="space-y-4 mt-6 strategy-cards">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {dca.map((strategy) => (
               <TradingStrategyCard
@@ -415,7 +415,7 @@ export default function AdvancedTradingHub() {
           </div>
         </TabsContent>
 
-        <TabsContent value="momentum" className="space-y-4 mt-6">
+        <TabsContent value="momentum" className="space-y-4 mt-6 strategy-cards">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {momentum.map((strategy) => (
               <TradingStrategyCard

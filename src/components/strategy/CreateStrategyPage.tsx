@@ -450,7 +450,7 @@ Return only improved code with comments explaining changes.`
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-8 py-16 relative min-h-[calc(100vh-6rem)]"
+          className="text-center space-y-8 py-16 relative min-h-[calc(100vh-6rem)] strategy-hero"
         >
           {/* REMOVED: Spinning Q logo - user hated it, replaced with clean static branding */}
           <motion.div
