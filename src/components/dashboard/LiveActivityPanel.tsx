@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TrendUp, TrendDown, Brain, Zap } from '@phosphor-icons/react'
+import { TrendUp, TrendDown, Brain, Lightning } from '@phosphor-icons/react'
 
 interface TradeActivity {
   id: string
@@ -191,7 +191,7 @@ export default function LiveActivityPanel() {
               rotate: { duration: 3, repeat: Infinity, ease: 'linear' }
             }}
           >
-            <Zap size={24} weight="fill" className="text-accent" style={{ filter: 'drop-shadow(0 0 8px var(--accent))' }} />
+            <Lightning size={24} weight="fill" className="text-accent" style={{ filter: 'drop-shadow(0 0 8px var(--accent))' }} />
           </motion.div>
         </div>
       </motion.div>

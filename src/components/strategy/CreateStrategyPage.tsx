@@ -5,9 +5,9 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
-import Editor from '@monaco-editor/react'
 import confetti from 'canvas-confetti'
 import { toast } from 'sonner'
+import { Textarea } from '@/components/ui/textarea'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -244,38 +244,21 @@ export default function CreateStrategyPage() {
   const userTier = auth?.license?.tier || 'free'
   const canCreate = ['starter', 'trader', 'pro', 'elite', 'lifetime'].includes(userTier)
 
-  const handleEditorDidMount = (editor: any, monaco: any) => {
-    editorRef.current = editor
-    
-    monaco.editor.defineTheme('quantum-falcon', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [
-        { token: 'comment', foreground: '9945FF', fontStyle: 'italic' },
-        { token: 'keyword', foreground: '14F195', fontStyle: 'bold' },
-        { token: 'string', foreground: 'DC1FFF' },
-        { token: 'number', foreground: 'B9F2FF' },
-        { token: 'function', foreground: '14F195' },
-      ],
-      colors: {
-        'editor.background': '#0A0E27',
-        'editor.foreground': '#B9F2FF',
-        'editor.lineHighlightBackground': '#1A1F3A',
-        'editorCursor.foreground': '#14F195',
-        'editor.selectionBackground': '#9945FF40',
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault()
+        handleSave()
       }
-    })
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault()
+        handleBacktest()
+      }
+    }
     
-    monaco.editor.setTheme('quantum-falcon')
-    
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-      handleSave()
-    })
-    
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-      handleBacktest()
-    })
-  }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [strategyName, code, category, description])
 
   const handleAISuggestion = async () => {
     if (!canCreate) {
@@ -286,14 +269,9 @@ export default function CreateStrategyPage() {
     setAiSuggestionLoading(true)
     
     try {
-      const selection = editorRef.current?.getSelection()
-      const selectedText = selection 
-        ? editorRef.current?.getModel()?.getValueInRange(selection)
-        : code
-
       const promptText = `You are an expert trading strategy developer. Analyze and improve this trading strategy code:
 
-${selectedText || code}
+${code}
 
 Category: ${category}
 
@@ -305,17 +283,7 @@ Please provide:
 Return only improved code with comments explaining changes.`
 
       const suggestion = await window.spark.llm(promptText, 'gpt-4o')
-      
-      if (selection && selectedText) {
-        const range = editorRef.current?.getSelection()
-        editorRef.current?.executeEdits('ai-suggestion', [{
-          range: range,
-          text: suggestion,
-          forceMoveMarkers: true
-        }])
-      } else {
-        setCode(suggestion)
-      }
+      setCode(suggestion)
       
       toast.success('AI suggestion applied!', {
         description: 'Strategy code has been improved',
@@ -850,34 +818,17 @@ Return only improved code with comments explaining changes.`
                   )}
                 </Button>
               </CardHeader>
-              <CardContent>
-                <div className="border border-accent/30 rounded-xl overflow-hidden shadow-xl">
-                  <Editor
-                    height="600px"
-                    defaultLanguage="javascript"
+              <CardContent className="relative">
+                <div className="border border-accent/30 rounded-xl overflow-hidden shadow-xl relative">
+                  <Textarea
                     value={code}
-                    onChange={(value) => {
-                      if (value !== undefined) {
-                        setCode(value)
-                      }
+                    onChange={(e) => setCode(e.target.value)}
+                    readOnly={!canCreate}
+                    className="min-h-[600px] font-mono text-sm bg-[#0A0E27] text-[#B9F2FF] border-0 focus:ring-0 focus:ring-offset-0 resize-none p-4"
+                    style={{
+                      fontFamily: "'Orbitron', monospace"
                     }}
-                    onMount={handleEditorDidMount}
-                    options={{
-                      readOnly: !canCreate,
-                      minimap: { enabled: true },
-                      fontSize: 14,
-                      fontFamily: "'Orbitron', monospace",
-                      wordWrap: 'on',
-                      automaticLayout: true,
-                      scrollBeyondLastLine: false,
-                      cursorBlinking: 'smooth',
-                      cursorSmoothCaretAnimation: 'on',
-                      smoothScrolling: true,
-                      suggestOnTriggerCharacters: true,
-                      quickSuggestions: true,
-                      formatOnPaste: true,
-                      formatOnType: true,
-                    }}
+                    placeholder="// Write your strategy code here..."
                   />
                 </div>
 

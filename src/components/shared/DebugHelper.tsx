@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChartLine, Database, Wifi, Cpu } from '@phosphor-icons/react';
+import { X, ChartLine, Database, WifiHigh, Cpu } from '@phosphor-icons/react';
 
 interface DebugStats {
   fps: number;
@@ -175,7 +175,7 @@ export default function DebugHelper() {
           {/* WebSocket */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Wifi size={14} className={stats.wsStatus === 'connected' ? 'text-green-400' : 'text-red-400'} />
+              <WifiHigh size={14} className={stats.wsStatus === 'connected' ? 'text-green-400' : 'text-red-400'} />
               <span className="text-gray-400">WebSocket</span>
             </div>
             <div className="flex items-center gap-2">
