@@ -266,7 +266,7 @@ export default function App() {
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
-  const showAggressionControl = ['bot-overview', 'multi-agent', 'trading'].includes(activeTab);
+  const showAggressionControl = activeTab === 'multi-agent';
 
   const getAggressionLabel = (value: number) => {
     if (value < 33) return 'CAUTIOUS';
