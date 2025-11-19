@@ -43,6 +43,8 @@ export default function APIIntegration() {
   const [connections, setConnections] = useKV<APIConnection[]>('api-connections', [
     { id: 'phantom', name: 'Phantom Wallet', type: 'wallet', connected: false, encrypted: true },
     { id: 'solflare', name: 'Solflare Wallet', type: 'wallet', connected: false, encrypted: true },
+    { id: 'binance', name: 'Binance', type: 'exchange', connected: false, encrypted: true },
+    { id: 'kraken', name: 'Kraken', type: 'exchange', connected: false, encrypted: true },
     { id: 'jupiter', name: 'Jupiter DEX', type: 'exchange', connected: false, encrypted: true },
     { id: 'raydium', name: 'Raydium', type: 'exchange', connected: false, encrypted: true },
     { id: 'helius', name: 'Helius RPC', type: 'rpc', connected: false, encrypted: true },
@@ -414,7 +416,7 @@ export default function APIIntegration() {
       </div>
 
       <Dialog open={editingConnection !== null} onOpenChange={() => setEditingConnection(null)}>
-        <DialogContent className="cyber-card border-2 border-primary max-w-md">
+        <DialogContent className="cyber-card border-2 border-primary max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl uppercase tracking-wide text-primary">
               Setup API Integration
@@ -425,14 +427,61 @@ export default function APIIntegration() {
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
+            {editingConnection === 'binance' && (
+              <div className="p-4 bg-primary/10 border border-primary/30 space-y-3">
+                <h4 className="text-sm font-bold uppercase tracking-wide text-primary flex items-center gap-2">
+                  <Warning size={16} weight="duotone" />
+                  Binance API Setup Instructions
+                </h4>
+                <ol className="text-xs text-muted-foreground space-y-2 list-decimal list-inside">
+                  <li>Log into your Binance account</li>
+                  <li>Navigate to <span className="text-primary font-mono">API Management</span> under your profile</li>
+                  <li>Create a new API key with label "Quantum Falcon"</li>
+                  <li><span className="text-accent font-bold">IMPORTANT:</span> Enable only <span className="text-primary font-mono">Read Info</span> and <span className="text-primary font-mono">Enable Spot & Margin Trading</span></li>
+                  <li><span className="text-destructive font-bold">DO NOT</span> enable withdrawal permissions</li>
+                  <li>Whitelist your IP address (recommended for security)</li>
+                  <li>Copy your API Key and Secret Key below</li>
+                </ol>
+                <div className="flex items-center gap-2 p-2 bg-destructive/10 border border-destructive/30">
+                  <ShieldCheck size={14} weight="fill" className="text-destructive" />
+                  <p className="text-xs text-foreground">Never share your Secret Key. It will be encrypted locally.</p>
+                </div>
+              </div>
+            )}
+
+            {editingConnection === 'kraken' && (
+              <div className="p-4 bg-primary/10 border border-primary/30 space-y-3">
+                <h4 className="text-sm font-bold uppercase tracking-wide text-primary flex items-center gap-2">
+                  <Warning size={16} weight="duotone" />
+                  Kraken API Setup Instructions
+                </h4>
+                <ol className="text-xs text-muted-foreground space-y-2 list-decimal list-inside">
+                  <li>Log into your Kraken account</li>
+                  <li>Navigate to <span className="text-primary font-mono">Settings → API</span></li>
+                  <li>Click <span className="text-primary font-mono">Generate New Key</span></li>
+                  <li>Set Key Description as "Quantum Falcon"</li>
+                  <li><span className="text-accent font-bold">Permissions:</span> Enable only <span className="text-primary font-mono">Query Funds</span>, <span className="text-primary font-mono">Query Open Orders</span>, and <span className="text-primary font-mono">Create & Modify Orders</span></li>
+                  <li><span className="text-destructive font-bold">DO NOT</span> enable <span className="text-primary font-mono">Withdraw Funds</span></li>
+                  <li>Set the Key Expiry (optional but recommended)</li>
+                  <li>Copy your API Key and Private Key below</li>
+                </ol>
+                <div className="flex items-center gap-2 p-2 bg-destructive/10 border border-destructive/30">
+                  <ShieldCheck size={14} weight="fill" className="text-destructive" />
+                  <p className="text-xs text-foreground">Kraken Private Keys are sensitive. They will be encrypted with AES-256.</p>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider font-bold">API Key *</Label>
+              <Label className="text-xs uppercase tracking-wider font-bold">
+                {editingConnection === 'kraken' ? 'API Key (Public Key)' : 'API Key'} *
+              </Label>
               <div className="relative">
                 <Input
                   type={showKeys[editingConnection || ''] ? 'text' : 'password'}
                   value={tempApiKey}
                   onChange={(e) => setTempApiKey(e.target.value)}
-                  placeholder="Enter your API key"
+                  placeholder={editingConnection === 'binance' ? 'Enter Binance API Key' : editingConnection === 'kraken' ? 'Enter Kraken API Public Key' : 'Enter your API key'}
                   className="pr-10 font-mono text-xs"
                 />
                 <button
@@ -450,34 +499,58 @@ export default function APIIntegration() {
 
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wider font-bold">
-                API Secret <span className="text-muted-foreground font-normal">(Optional)</span>
+                {editingConnection === 'kraken' ? 'Private Key *' : editingConnection === 'binance' ? 'Secret Key *' : 'API Secret'}
+                {!['binance', 'kraken'].includes(editingConnection || '') && (
+                  <span className="text-muted-foreground font-normal"> (Optional)</span>
+                )}
               </Label>
               <div className="relative">
                 <Input
                   type="password"
                   value={tempApiSecret}
                   onChange={(e) => setTempApiSecret(e.target.value)}
-                  placeholder="Enter your API secret (if required)"
+                  placeholder={editingConnection === 'binance' ? 'Enter Binance Secret Key' : editingConnection === 'kraken' ? 'Enter Kraken Private Key' : 'Enter your API secret (if required)'}
                   className="font-mono text-xs"
                 />
               </div>
             </div>
 
+            {(editingConnection === 'binance' || editingConnection === 'kraken') && (
+              <div className="p-3 bg-accent/10 border border-accent/30 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Lock size={14} weight="fill" className="text-accent" />
+                  <h5 className="text-xs font-bold uppercase tracking-wide text-accent">Security Best Practices</h5>
+                </div>
+                <ul className="text-xs text-muted-foreground space-y-1 ml-5 list-disc">
+                  <li>Use read-only keys when possible</li>
+                  <li>Never enable withdrawal permissions</li>
+                  <li>Whitelist IP addresses to restrict access</li>
+                  <li>Rotate API keys every 90 days</li>
+                  <li>Monitor API usage in exchange settings</li>
+                  <li>Revoke keys immediately if compromised</li>
+                </ul>
+              </div>
+            )}
+
             <div className="flex gap-2 pt-4">
               <Button
                 variant="outline"
-                onClick={() => setEditingConnection(null)}
+                onClick={() => {
+                  setEditingConnection(null)
+                  setTempApiKey('')
+                  setTempApiSecret('')
+                }}
                 className="flex-1"
               >
                 Cancel
               </Button>
               <Button
                 onClick={setupAPIConnection}
-                disabled={!tempApiKey}
+                disabled={!tempApiKey || (['binance', 'kraken'].includes(editingConnection || '') && !tempApiSecret)}
                 className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary"
               >
                 <CheckCircle size={16} weight="duotone" className="mr-2" />
-                Connect
+                Connect & Encrypt
               </Button>
             </div>
           </div>
