@@ -21,15 +21,36 @@ import { PulsingQLoader } from '@/components/shared/ShimmerCard';
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 
-// Lazy load all heavy components (code-splitting = instant startup)
-const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
-const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
-const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
-const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTradingHub'));
-const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
-const VaultView = lazy(() => import('@/components/vault/VaultView'));
-const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
-const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
+// Optimized lazy loading with timeout protection to prevent infinite spinners
+const lazyWithTimeout = (importFn: () => Promise<any>, timeout = 5000) => {
+  return lazy(() => {
+    return Promise.race([
+      importFn(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Component load timeout')), timeout)
+      )
+    ]).catch((err) => {
+      console.error('Component load failed:', err);
+      return { 
+        default: () => (
+          <div className="p-8 text-center text-muted-foreground">
+            Component temporarily unavailable. Please refresh.
+          </div>
+        ) 
+      };
+    }) as Promise<{ default: React.ComponentType<any> }>;
+  });
+};
+
+// Lazy load all heavy components with timeout protection
+const EnhancedDashboard = lazyWithTimeout(() => import('@/components/dashboard/EnhancedDashboard'));
+const BotOverview = lazyWithTimeout(() => import('@/components/dashboard/BotOverview'));
+const EnhancedAnalytics = lazyWithTimeout(() => import('@/components/dashboard/EnhancedAnalytics'));
+const AdvancedTradingHub = lazyWithTimeout(() => import('@/components/trade/AdvancedTradingHub'));
+const CreateStrategyPage = lazyWithTimeout(() => import('@/components/strategy/CreateStrategyPage'));
+const VaultView = lazyWithTimeout(() => import('@/components/vault/VaultView'));
+const SocialCommunity = lazyWithTimeout(() => import('@/components/community/SocialCommunity'));
+const MultiAgentSystem = lazyWithTimeout(() => import('@/components/agents/MultiAgentSystemWrapper'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -49,7 +70,7 @@ interface Tab {
   id: string;
   label: string;
   icon: any;
-  component: React.LazyExoticComponent<() => JSX.Element>;
+  component: React.LazyExoticComponent<React.ComponentType<any>>;
 }
 
 function LoadingFallback() {
@@ -133,7 +154,7 @@ export default function App() {
     email: null,
     avatar: null,
   });
-  const [isInitializing] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -146,20 +167,20 @@ export default function App() {
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
   ], []);
 
-  // App initialization
+  // Fast hydration with timeout
   useEffect(() => {
-    const timer = setTimeout(() => {}, 600); // no state needed anymore
+    const timer = setTimeout(() => setIsHydrated(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle payment success redirects (from license repo)
+  // Handle payment success redirects
   useEffect(() => {
     import('@/lib/webhooks/paymentWebhooks').then(({ handlePaymentSuccessRedirect }) => {
       handlePaymentSuccessRedirect();
-    });
+    }).catch(err => console.debug('Payment webhook module not available:', err));
   }, []);
 
-  // Global non-critical error suppression + proper logging
+  // Global non-critical error suppression
   useEffect(() => {
     const shouldSuppress = (text: string, extra = '') => isNonCriticalError(text) || isNonCriticalError(extra);
 
@@ -200,7 +221,7 @@ export default function App() {
     };
     window.addEventListener('navigate-tab', handler);
     return () => window.removeEventListener('navigate-tab', handler);
-  }, [tabs]);
+  }, [tabs, setActiveTab]);
 
   // Legal disclosure opener
   useEffect(() => {
@@ -224,6 +245,11 @@ export default function App() {
   };
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
+
+  // Show fast loading state during hydration
+  if (!isHydrated) {
+    return <PulsingQLoader />;
+  }
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
@@ -262,7 +288,6 @@ export default function App() {
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 transition-all text-left uppercase tracking-wider text-xs font-semibold rounded-lg",
-                    active:bg-primary/20 active:text-primary active:shadow-[0_0_15px_rgba(0,255,255,0.3)] active:border-l-2 active:border-primary",
                     activeTab === tab.id ? "bg-primary/20 text-primary shadow-[0_0_15px_rgba(0,255,255,0.3)] border-l-2 border-primary" : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                   )}
                 >
