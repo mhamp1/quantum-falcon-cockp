@@ -134,6 +134,12 @@ export default function CreateStrategyTeaser({ onUpgrade, isLocked = true }: Cre
       onUpgrade()
     } else {
       window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
+      setTimeout(() => {
+        const subscriptionSection = document.getElementById('subscription-tiers-section')
+        if (subscriptionSection) {
+          subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 300)
     }
   }
 

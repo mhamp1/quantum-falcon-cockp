@@ -12,7 +12,7 @@ import { FeatureCardWithTooltip } from '@/components/shared/FeatureCardWithToolt
 import { IconRSIDivergenceAnimated } from '@/components/icons/IconRSIDivergenceAnimated';
 
 interface LockedHUDProps {
-  onUpgradeClick: () => void;
+  onUpgradeClick?: () => void;
 }
 
 export default function CreateStrategyLockedHUD({ onUpgradeClick }: LockedHUDProps) {
@@ -25,6 +25,20 @@ export default function CreateStrategyLockedHUD({ onUpgradeClick }: LockedHUDPro
       origin: { y: 0.7 },
       colors: ['#DC1FFF', '#00FFFF', '#FF00FF', '#FFFF00']
     });
+  };
+
+  const handleUpgrade = () => {
+    if (onUpgradeClick) {
+      onUpgradeClick();
+    } else {
+      window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }));
+      setTimeout(() => {
+        const subscriptionSection = document.getElementById('subscription-tiers-section');
+        if (subscriptionSection) {
+          subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300);
+    }
   };
 
   return (
@@ -178,7 +192,7 @@ Copies: 2,847`
             <Button
               size="lg"
               onMouseEnter={handleUpgradeHover}
-              onClick={onUpgradeClick}
+              onClick={handleUpgrade}
               className="bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 hover:from-pink-500 hover:via-purple-500 hover:to-pink-500 text-white border-2 border-pink-400/50 text-3xl md:text-4xl px-12 md:px-16 py-8 md:py-10 font-black rounded-2xl shadow-2xl hover:scale-110 transition-all duration-300"
               style={{
                 fontFamily: 'Orbitron, sans-serif',

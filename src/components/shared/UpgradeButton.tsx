@@ -23,11 +23,14 @@ export default function UpgradeButton({
     if (onClick) {
       onClick();
     } else {
-      // Navigate to subscription page
+      // Navigate to Settings tab and scroll to subscription section
       window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }));
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('open-settings-billing-tab'));
-      }, 100);
+        const subscriptionSection = document.getElementById('subscription-tiers-section');
+        if (subscriptionSection) {
+          subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300);
     }
   };
 

@@ -81,6 +81,7 @@ import {
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
+import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -291,6 +292,7 @@ export default function App() {
       <div className={cn('min-h-screen bg-background text-foreground flex', isMobile && 'flex-col')}>
         <DebugHelper />
         <AIBotAssistant />
+        <RiskDisclosureBanner />
 
         {/* SIDEBAR UPGRADE: pro-level active indicator + cooler bot icon */}
         {!isMobile && (

@@ -1244,9 +1244,12 @@ Return only improved code with comments explaining changes.`
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
                 setShowUpgradeModal(false)
-                toast.info('Navigate to Billing', {
-                  description: 'Go to Settings > Billing to upgrade your plan'
-                })
+                setTimeout(() => {
+                  const subscriptionSection = document.getElementById('subscription-tiers-section')
+                  if (subscriptionSection) {
+                    subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                }, 300)
               }}
             >
               <Rocket size={24} className="mr-3" />
