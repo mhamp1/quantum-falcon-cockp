@@ -60,6 +60,7 @@ import { Slider } from '@/components/ui/slider';
 import { isNonCriticalError } from '@/lib/errorSuppression';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { logError } from '@/lib/errorLogger';
+import { soundEffects } from '@/lib/soundEffects';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   House,
@@ -253,7 +254,10 @@ export default function App() {
   useEffect(() => {
     const handler = (e: Event) => {
       const id = (e as CustomEvent<string>).detail;
-      if (tabs.some(t => t.id === id)) setActiveTab(id);
+      if (tabs.some(t => t.id === id)) {
+        soundEffects.playTabSwitch();
+        setActiveTab(id);
+      }
     };
     window.addEventListener('navigate-tab', handler);
     return () => window.removeEventListener('navigate-tab', handler);
@@ -319,7 +323,11 @@ export default function App() {
                 return (
                   <motion.button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => {
+                      soundEffects.playTabSwitch();
+                      setActiveTab(tab.id);
+                    }}
+                    onMouseEnter={() => soundEffects.playHover()}
                     className={cn(
                       "w-full flex items-center gap-3 py-3 pl-5 pr-4 transition-all duration-300 text-left uppercase tracking-wider text-xs font-semibold rounded-lg relative group",
                       isActive 
@@ -430,7 +438,10 @@ export default function App() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => {
+                      soundEffects.playTabSwitch();
+                      setActiveTab(tab.id);
+                    }}
                     className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-[60px]"
                   >
                     {isActive && (
@@ -463,7 +474,10 @@ export default function App() {
                 );
               })}
               <button
-                onClick={() => setActiveTab('strategy-builder')}
+                onClick={() => {
+                  soundEffects.playTabSwitch();
+                  setActiveTab('strategy-builder');
+                }}
                 className="flex flex-col items-center gap-1 px-4 py-3 rounded-2xl transition-all bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg"
                 style={{ transform: 'translateY(-8px)' }}
               >
@@ -477,7 +491,10 @@ export default function App() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => {
+                      soundEffects.playTabSwitch();
+                      setActiveTab(tab.id);
+                    }}
                     className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-[60px]"
                   >
                     {isActive && (
@@ -545,7 +562,10 @@ export default function App() {
                     </p>
                   </div>
                   <button
-                    onClick={() => setShowAggressionPanel(false)}
+                    onClick={() => {
+                      soundEffects.playClick();
+                      setShowAggressionPanel(false);
+                    }}
                     className="p-2 hover:bg-white/5 rounded-lg transition-colors"
                   >
                     <X size={20} className="text-muted-foreground hover:text-foreground" />
@@ -572,7 +592,10 @@ export default function App() {
                   <div className="relative px-2">
                     <Slider
                       value={[botAggression]}
-                      onValueChange={(value) => setBotAggression(value[0])}
+                      onValueChange={(value) => {
+                        soundEffects.playSliderChange();
+                        setBotAggression(value[0]);
+                      }}
                       min={0}
                       max={100}
                       step={1}
@@ -586,7 +609,11 @@ export default function App() {
                       return (
                         <button
                           key={preset.label}
-                          onClick={() => setBotAggression(preset.value)}
+                          onClick={() => {
+                            soundEffects.playClick();
+                            setBotAggression(preset.value);
+                          }}
+                          onMouseEnter={() => soundEffects.playHover()}
                           className={cn(
                             "p-4 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-2 hover:-translate-y-1",
                             isActive ? "border-current" : "border-white/10"
@@ -611,7 +638,10 @@ export default function App() {
 
         {showAggressionControl && !showAggressionPanel && (
           <button
-            onClick={() => setShowAggressionPanel(true)}
+            onClick={() => {
+              soundEffects.playClick();
+              setShowAggressionPanel(true);
+            }}
             className="fixed bottom-28 right-4 z-40 p-3 bg-cyan-500/20 border border-cyan-500/40 rounded-full hover:bg-cyan-500/30 transition-all"
             style={{ boxShadow: '0 0 12px rgba(0,255,255,0.2)' }}
           >

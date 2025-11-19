@@ -31,6 +31,7 @@ import DeviceManagement from './DeviceManagement'
 import { UserAuth } from '@/lib/auth'
 import { logSettingChange } from '@/lib/changeLogger'
 import { debounce } from '@/lib/debounce'
+import { soundEffects } from '@/lib/soundEffects'
 
 interface UserProfile {
   username: string
@@ -229,6 +230,12 @@ export default function EnhancedSettings() {
       }
     }
   }, [settings?.theme])
+
+  useEffect(() => {
+    if (settings?.audio) {
+      soundEffects.setMuted(!settings.audio.soundEffects);
+    }
+  }, [settings?.audio?.soundEffects]);
 
   const achievements: Achievement[] = [
     {
