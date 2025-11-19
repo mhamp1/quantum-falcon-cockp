@@ -3,7 +3,7 @@
 // Live strategy breakdowns with comprehensive analytics dashboard
 // Connected to /api/analytics for real-time trading data
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +22,7 @@ import {
   Pentagon,
   Polygon
 } from '@phosphor-icons/react'
+import { CircularProfitHUD } from './CircularProfitHUD'
 
 interface AnalyticsData {
   totalPnL: number
@@ -65,6 +66,28 @@ export default function EnhancedAnalytics() {
     { symbol: 'BONK', trades: 21, pnl: 234.8, pnlPercent: 24.5, winRate: 62 },
     { symbol: 'RAY', trades: 16, pnl: -97.6, pnlPercent: -8.3, winRate: 44 }
   ])
+
+  const profitHistory = useMemo(() => {
+    const data: Array<{ date: string; profit: number }> = [];
+    const baseDate = new Date();
+    baseDate.setDate(baseDate.getDate() - 30);
+    
+    let cumulativeProfit = 0;
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(baseDate);
+      date.setDate(date.getDate() + i);
+      
+      const dailyChange = (Math.random() - 0.3) * 100;
+      cumulativeProfit += dailyChange;
+      
+      data.push({
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        profit: cumulativeProfit
+      });
+    }
+    
+    return data;
+  }, [timeframe]);
 
   if (!analytics || !assetPerformance) return null
 
@@ -235,6 +258,14 @@ export default function EnhancedAnalytics() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* GOD-TIER HUD: Circular profit radar with sweeping beam — inspired by The Old Axolotl Allegro */}
+      <div className="cyber-card angled-corners-all p-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="relative z-10">
+          <CircularProfitHUD data={profitHistory} />
         </div>
       </div>
 
