@@ -26,7 +26,7 @@ export const QuickStatsCard = memo(({ stat, index }: QuickStatsCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
       whileHover={{ scale: 1.02 }}
-      className={`cyber-card group cursor-pointer relative overflow-hidden ${cornerClasses[index % 4]}`}
+      className={`cyber-card stat-card group cursor-pointer relative overflow-hidden ${cornerClasses[index % 4]}`}
       role="gridcell"
       aria-label={`${stat.label}: ${stat.value}, ${stat.change >= 0 ? 'up' : 'down'} ${Math.abs(stat.change).toFixed(2)}%`}
     >

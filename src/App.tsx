@@ -82,7 +82,7 @@ import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
-import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -327,7 +327,7 @@ export default function App() {
         <AIBotAssistant />
         <RiskDisclosureBanner />
         
-        <OnboardingTour
+        <InteractiveOnboardingTour
           isOpen={showOnboarding}
           onComplete={handleOnboardingComplete}
           onSkip={handleOnboardingSkip}

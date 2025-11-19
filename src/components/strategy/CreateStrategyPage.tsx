@@ -535,7 +535,7 @@ Return only improved code with comments explaining changes.`
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto mt-12 px-4"
           >
             {[
-              { icon: <Sparkle size={24} weight="fill" />, text: "Full Monaco Editor with AI code completion" },
+              { icon: <Sparkle size={24} weight="fill" />, text: "Full Monaco Editor with AI code completion", dataCard: "monaco-editor" },
               { icon: <ChartLine size={24} weight="duotone" />, text: "Real-time backtesting + live PNL tracking" },
               { icon: <ShareNetwork size={24} weight="fill" />, text: "One-click sharing (earn royalties)" },
               { icon: <Brain size={24} weight="duotone" />, text: "200+ premium indicators & on-chain data" },
@@ -547,6 +547,7 @@ Return only improved code with comments explaining changes.`
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.7 + i * 0.08, duration: 0.4 }}
+                data-card={feature.dataCard}
                 className="group relative flex items-center gap-3 text-left bg-gradient-to-br from-card/60 to-card/40 backdrop-blur-md border border-white/10 rounded-xl p-4 hover:border-primary/50 transition-all duration-300"
                 style={{
                   boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)'

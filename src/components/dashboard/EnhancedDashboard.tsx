@@ -413,6 +413,7 @@ export default function EnhancedDashboard() {
               <Button
                 key={action.id}
                 onClick={action.action}
+                data-action={action.id === 'toggle-bot' ? 'start-bot' : undefined}
                 className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />

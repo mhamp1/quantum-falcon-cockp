@@ -49,6 +49,7 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle, onUp
   return (
     <TooltipProvider delayDuration={200}>
       <div
+        data-strategy={strategy.id}
         className={`cyber-card angled-corners-dual-tl-br group relative overflow-hidden transition-all duration-300 ${
           isLocked ? 'opacity-60' : 'hover:scale-[1.01]'
         } ${showDetails ? 'ring-2 ring-accent' : ''}`}

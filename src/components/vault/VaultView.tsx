@@ -916,6 +916,7 @@ export default function VaultView() {
                 setDepositAmount('')
               }
             }}
+            data-action="deposit-btc"
             className="w-full mt-6 bg-accent hover:bg-accent/90 text-accent-foreground jagged-corner border-4 border-accent shadow-[0_0_25px_oklch(0.68_0.18_330_/_0.6)] hover:shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.8)] uppercase tracking-[0.15em] font-bold h-14 text-base"
           >
             <TrendUp size={24} weight="bold" className="mr-2" />
