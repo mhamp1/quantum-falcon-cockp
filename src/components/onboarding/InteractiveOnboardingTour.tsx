@@ -467,21 +467,33 @@ export default function InteractiveOnboardingTour({
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: isMobile ? 10 : -10 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               className="absolute flex flex-col items-center gap-2"
               style={{
                 left: targetRect.left + targetRect.width / 2,
-                top: isMobile ? targetRect.bottom + 40 : targetRect.top - 120,
+                top: targetRect.top - 120,
                 transform: 'translateX(-50%)',
                 pointerEvents: 'none',
                 zIndex: 10000,
               }}
             >
+              <div 
+                className="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-full whitespace-nowrap"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(153, 69, 255, 0.2))',
+                  border: '2px solid rgba(0, 255, 255, 0.6)',
+                  color: '#00FFFF',
+                  textShadow: '0 0 8px rgba(0, 255, 255, 0.8)',
+                  boxShadow: '0 0 20px rgba(0, 255, 255, 0.4)',
+                }}
+              >
+                Look here ↓
+              </div>
               <motion.div
                 animate={{
-                  y: isMobile ? [-4, 4, -4] : [4, -4, 4],
+                  y: [-4, 4, -4],
                 }}
                 transition={{
                   duration: 1.5,
@@ -493,34 +505,22 @@ export default function InteractiveOnboardingTour({
                   filter: 'drop-shadow(0 0 12px rgba(0, 255, 255, 0.8))',
                 }}
               >
-                {isMobile ? '↓' : '↑'}
+                ↓
               </motion.div>
-              <div 
-                className="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-full whitespace-nowrap"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(153, 69, 255, 0.2))',
-                  border: '2px solid rgba(0, 255, 255, 0.6)',
-                  color: '#00FFFF',
-                  textShadow: '0 0 8px rgba(0, 255, 255, 0.8)',
-                  boxShadow: '0 0 20px rgba(0, 255, 255, 0.4)',
-                }}
-              >
-                Look here {isMobile ? '↓' : '↑'}
-              </div>
             </motion.div>
           </>
         )}
 
         <motion.div
           key={currentStepIndex}
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          initial={{ opacity: 0, y: -20, scale: 0.95 }}
           animate={{ 
             opacity: 1, 
             y: 0, 
             scale: 1,
             x: shakeCard ? [-8, 8, -8, 8, 0] : 0,
           }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ 
             type: 'spring', 
             damping: 25, 
@@ -530,8 +530,8 @@ export default function InteractiveOnboardingTour({
           className={cn(
             'fixed cyber-card backdrop-blur-xl',
             isMobile
-              ? 'inset-x-4 bottom-24'
-              : 'bottom-8 left-1/2 -translate-x-1/2 max-w-2xl w-full mx-4'
+              ? 'inset-x-4 top-4'
+              : 'top-8 left-1/2 -translate-x-1/2 max-w-2xl w-full mx-4'
           )}
           style={{
             zIndex: 100000,
