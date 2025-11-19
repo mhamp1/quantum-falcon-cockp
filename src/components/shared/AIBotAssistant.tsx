@@ -1,11 +1,14 @@
 // AI Helper Bot - Bottom-right floating orb with chat panel
 // Purple-cyan gradient bubble, smooth animations
+// FIX: AI Bot no longer covers aggression slider - intelligent repositioning
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, PaperPlaneRight, Sparkle, Lightning, Robot } from '@phosphor-icons/react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useKV } from '@github/spark/hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Message {
   id: string;
@@ -42,6 +45,33 @@ export default function AIBotAssistant() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const isMobile = useIsMobile();
+  const [showAggressionPanel] = useKV<boolean>('show-aggression-panel', true);
+
+  const getOrbPosition = () => {
+    if (isMobile) {
+      return {
+        bottom: '90px',
+        right: '50%',
+        transform: 'translateX(50%)',
+        opacity: showAggressionPanel ? 0.8 : 1
+      };
+    }
+
+    if (showAggressionPanel) {
+      return {
+        bottom: '32px',
+        left: '32px',
+        right: 'auto'
+      };
+    }
+
+    return {
+      bottom: '24px',
+      right: '24px'
+    };
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -104,7 +134,16 @@ export default function AIBotAssistant() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999]">
+    <motion.div 
+      className="fixed z-[9999]"
+      animate={getOrbPosition()}
+      transition={{ 
+        type: 'spring', 
+        damping: 25, 
+        stiffness: 300,
+        duration: 0.4 
+      }}
+    >
       {/* Floating Orb Button */}
       <AnimatePresence>
         {!isOpen && (
@@ -115,7 +154,7 @@ export default function AIBotAssistant() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsOpen(true)}
-            className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 shadow-2xl flex items-center justify-center cursor-pointer group"
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 shadow-2xl flex items-center justify-center cursor-pointer group relative"
             style={{
               boxShadow: '0 0 30px rgba(168, 85, 247, 0.5), 0 0 60px rgba(168, 85, 247, 0.3)',
             }}
@@ -127,12 +166,22 @@ export default function AIBotAssistant() {
               <Sparkle size={28} weight="fill" className="text-white" />
             </motion.div>
             
-            {/* Pulse ring */}
+            {/* Pulse ring - extra visible when repositioned */}
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-purple-400"
               animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
+            
+            {/* Position indicator pulse when panel is open */}
+            {showAggressionPanel && !isMobile && (
+              <motion.div
+                className="absolute inset-0 rounded-full border-2 border-yellow-400"
+                initial={{ scale: 1, opacity: 0.8 }}
+                animate={{ scale: 1.5, opacity: 0 }}
+                transition={{ duration: 0.6 }}
+              />
+            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -267,6 +316,6 @@ export default function AIBotAssistant() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
