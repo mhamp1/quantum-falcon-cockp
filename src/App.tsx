@@ -83,6 +83,7 @@ import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
 import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
+import { SecurityManager } from '@/lib/security';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -202,6 +203,11 @@ export default function App() {
     email: null,
     avatar: null,
   });
+
+  useEffect(() => {
+    SecurityManager.initialize();
+    console.info('🔒 [App] Security systems online');
+  }, []);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },

@@ -34,6 +34,7 @@ A cyberpunk-themed progressive web app for crypto trading with AI-powered tradin
 - [Features](#-features)
 - [Prerequisites](#-prerequisites)
 - [Setup Instructions](#-setup-instructions)
+- [Security Features](#-security-features)
 - [Mobile Applications](#-mobile-applications)
 - [Firebase Push Notifications](#-firebase-push-notifications)
 - [Offline-First with LocalStorage](#-offline-first-with-localstorage)
@@ -54,6 +55,7 @@ A cyberpunk-themed progressive web app for crypto trading with AI-powered tradin
 
 - **Multi-Agent Trading System**: Three autonomous AI agents (Market Analysis, Strategy Execution, RL Optimizer)
 - **Advanced Analytics**: Real-time performance metrics, PnL charts, win rates, and strategy breakdowns
+- **Enterprise-Grade Security**: AES-256-GCM encryption, session management, rate limiting, CSRF protection, and comprehensive audit logging
 - **Gamification System**: XP progression (50 levels), achievements, streaks, and visual rewards
 - **Community Features**: Strategy marketplace, secure forum with comments/likes, rotating special offers
 - **BTC Profit Vault**: Automated profit-taking with secure deposit/withdrawal functionality
@@ -208,6 +210,57 @@ npm run build
 ```
 
 The optimized build will be in the `dist/` directory.
+
+## 🔒 Security Features
+
+Quantum Falcon Cockpit implements enterprise-grade security features to protect user data and trading operations.
+
+### Core Security Features
+
+- **AES-256-GCM Encryption**: Military-grade encryption for sensitive data storage
+- **PBKDF2 Key Derivation**: 100,000 iterations with SHA-256 hashing
+- **Session Management**: Fingerprint-based session tracking with auto-expiration
+- **Rate Limiting**: Progressive penalties with automatic blocking (100 req/min default)
+- **Input Sanitization**: XSS, SQL injection, and path traversal prevention
+- **CSRF Protection**: Token-based protection for state-changing operations
+- **Security Audit Logging**: Comprehensive logging of all security events
+- **CSP Monitoring**: Content Security Policy violation detection
+
+### Security Dashboard
+
+Access the Security Dashboard via **Settings → Security → Security Dashboard** to monitor:
+
+- Real-time security events
+- Active session tracking
+- Rate limit status
+- CSP violations
+- Audit log export
+- System health indicators
+
+### Using Security Features
+
+```typescript
+import { 
+  AdvancedEncryption, 
+  InputSanitizer, 
+  SecureStorage,
+  SessionManager 
+} from '@/lib/security';
+
+// Encrypt sensitive data
+const encrypted = await AdvancedEncryption.encrypt(apiKey, userPassword);
+
+// Sanitize user input
+const safe = InputSanitizer.sanitizeHTML(userInput);
+
+// Store encrypted data
+await SecureStorage.setItem('api-key', apiKey, true);
+
+// Create secure session
+const token = await SessionManager.createSession(userId);
+```
+
+📖 **[Complete Security Documentation](./SECURITY.md)** - Detailed security architecture and best practices
 
 ## 🔔 Firebase Push Notifications
 
@@ -1664,7 +1717,8 @@ The Spark Template files and resources from GitHub are licensed under the terms 
 - [Backend API Example](./BACKEND_API_EXAMPLE.md) - Flask server implementation
 - [Implementation Plan](./IMPLEMENTATION_PLAN.md) - Feature development roadmap
 - [PRD](./PRD.md) - Complete product requirements
-- [Security](./SECURITY.md) - Security guidelines
+- [Security Architecture](./SECURITY.md) - Enterprise-grade security documentation
+- [Theme Guide](./THEME_GUIDE.md) - Cyberpunk theme customization guide
 
 ## 📞 Support
 
