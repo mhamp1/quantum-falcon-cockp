@@ -533,6 +533,7 @@ Return only improved code with comments explaining changes.`
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6, duration: 0.5 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto mt-12 px-4"
+            data-tour="feature-cards"
           >
             {[
               { icon: <Sparkle size={24} weight="fill" />, text: "Full Monaco Editor with AI code completion", dataCard: "monaco-editor" },

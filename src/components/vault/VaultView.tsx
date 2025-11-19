@@ -841,7 +841,7 @@ export default function VaultView() {
         </div>
       </div>
 
-      <div className="border-4 border-accent/60 shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)] bg-gradient-to-br from-card to-background">
+      <div className="border-4 border-accent/60 shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)] bg-gradient-to-br from-card to-background" data-tour="vault-actions">
         <div className="p-8 relative z-10">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 jagged-corner-small bg-accent/30 border-3 border-accent shadow-[0_0_15px_oklch(0.68_0.18_330_/_0.5)]">

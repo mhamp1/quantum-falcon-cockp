@@ -588,6 +588,7 @@ export default function App() {
               style={{
                 borderColor: 'rgba(0, 255, 255, 0.2)',
               }}
+              data-tour="aggression-panel"
             >
               <div className="p-6 space-y-6">
                 {/* BEFORE: "BOT IS THINKING..." banner with massive glow halo

@@ -387,7 +387,7 @@ export default function EnhancedDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" role="grid" aria-label="Portfolio Quick Stats">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" role="grid" aria-label="Portfolio Quick Stats" data-tour="stat-cards">
         {statsGrid.map((stat, idx) => (
           <Suspense key={stat.id} fallback={<div className="animate-pulse h-32 bg-muted/20 rounded border border-primary/20" />}>
             <QuickStatsCard stat={stat} index={idx} />
@@ -395,7 +395,7 @@ export default function EnhancedDashboard() {
         ))}
       </div>
 
-      <div className="cyber-card p-6 angled-corners-dual-tl-br quick-actions">
+      <div className="cyber-card p-6 angled-corners-dual-tl-br quick-actions" data-tour="quick-actions">
         <div className="flex items-center gap-3 mb-4">
           <Lightning size={24} weight="fill" className="text-accent" />
           <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>

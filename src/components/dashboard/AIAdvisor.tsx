@@ -72,6 +72,7 @@ export function AIAdvisor() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className={`cyber-card p-6 angled-corner-tl relative overflow-hidden neural-forecast-card ${borderColor}`}
+      data-tour="neural-forecast"
     >
       <div className={`absolute inset-0 ${bgColor} opacity-50`} />
       <svg className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
