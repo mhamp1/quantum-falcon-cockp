@@ -2,7 +2,7 @@
 // Purple-cyan gradient bubble, smooth animations
 // FIX: AI Bot no longer covers aggression slider - intelligent repositioning
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, PaperPlaneRight, Sparkle, Lightning, Robot } from '@phosphor-icons/react';
 import { Input } from '@/components/ui/input';
@@ -49,7 +49,7 @@ export default function AIBotAssistant() {
   const isMobile = useIsMobile();
   const [showAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
 
-  const getOrbPosition = () => {
+  const getOrbPosition = useMemo(() => {
     if (isMobile) {
       return {
         bottom: '90px',
@@ -70,17 +70,17 @@ export default function AIBotAssistant() {
       bottom: '32px',
       right: '32px'
     };
-  };
+  }, [isMobile, showAggressionPanel]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  const getBotResponse = (userMessage: string): string => {
+  const getBotResponse = useCallback((userMessage: string): string => {
     const lower = userMessage.toLowerCase();
     if (lower.includes('strategy') || lower.includes('create') || lower.includes('build')) {
       return BOT_RESPONSES.strategy;
@@ -95,9 +95,9 @@ export default function AIBotAssistant() {
       return BOT_RESPONSES.upgrade;
     }
     return BOT_RESPONSES.default;
-  };
+  }, []);
 
-  const handleSendMessage = (text?: string) => {
+  const handleSendMessage = useCallback((text?: string) => {
     const messageText = text || inputValue.trim();
     if (!messageText) return;
 
@@ -123,7 +123,7 @@ export default function AIBotAssistant() {
       setMessages(prev => [...prev, botMessage]);
       setIsTyping(false);
     }, 1000 + Math.random() * 500);
-  };
+  }, [inputValue, getBotResponse]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -135,7 +135,7 @@ export default function AIBotAssistant() {
   return (
     <motion.div 
       className="fixed z-[9999]"
-      animate={getOrbPosition()}
+      animate={getOrbPosition}
       transition={{ 
         type: 'spring', 
         damping: 25, 

@@ -43,8 +43,11 @@ export function useKVSafe<T>(
           ? (newValue as (prev: T) => T)(prevValue)
           : newValue;
         
-        setKVValue(key, valueToSet).catch((error) => {
-          console.debug(`[useKVSafe] Failed to save key "${key}":`, error);
+        // Async save to KV without blocking UI
+        Promise.resolve().then(() => {
+          setKVValue(key, valueToSet).catch((error) => {
+            console.debug(`[useKVSafe] Failed to save key "${key}":`, error);
+          });
         });
         
         return valueToSet;

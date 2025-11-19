@@ -216,9 +216,13 @@ export default function App() {
   ], []);
 
   useEffect(() => {
+    let isMounted = true;
     import('@/lib/webhooks/paymentWebhooks').then(({ handlePaymentSuccessRedirect }) => {
-      handlePaymentSuccessRedirect();
+      if (isMounted) {
+        handlePaymentSuccessRedirect();
+      }
     }).catch(err => console.debug('Payment webhook module not available:', err));
+    return () => { isMounted = false; };
   }, []);
 
   useEffect(() => {

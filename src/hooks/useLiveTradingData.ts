@@ -17,7 +17,10 @@ export function useLiveTradingData() {
   }, [portfolioValue, dailyPnL, activeTrades]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const updateMetrics = () => {
+      if (!isMounted) return;
       const current = metricsRef.current;
       const metrics = tradingDataGenerator.updatePortfolioMetrics(
         current.portfolioValue ?? 9843.21,
@@ -31,6 +34,7 @@ export function useLiveTradingData() {
     };
 
     const addBotLog = () => {
+      if (!isMounted) return;
       const newLog = tradingDataGenerator.generateBotLog();
       setBotLogs((currentLogs) => {
         const logs = currentLogs || [];
@@ -40,6 +44,7 @@ export function useLiveTradingData() {
     };
 
     const addActivity = () => {
+      if (!isMounted) return;
       const newActivity = tradingDataGenerator.generateActivity();
       setRecentActivity((currentActivity) => {
         const activities = currentActivity || [];
@@ -56,6 +61,7 @@ export function useLiveTradingData() {
     addActivity();
 
     return () => {
+      isMounted = false;
       clearInterval(metricsInterval);
       clearInterval(logsInterval);
       clearInterval(activityInterval);
