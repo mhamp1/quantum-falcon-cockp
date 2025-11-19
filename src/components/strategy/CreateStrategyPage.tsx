@@ -50,7 +50,6 @@ import {
 } from '@phosphor-icons/react'
 import type { UserAuth } from '@/lib/auth'
 import CreateStrategyLockedHUD from './CreateStrategyLockedHUD'
-import UpgradeButton from '@/components/shared/UpgradeButton'
 
 interface Strategy {
   id: string
