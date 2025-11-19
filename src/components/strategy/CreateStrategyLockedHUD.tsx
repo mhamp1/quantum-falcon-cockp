@@ -169,7 +169,7 @@ Copies: 2,847`
             <Button 
               disabled 
               size="lg" 
-              className="bg-muted/80 text-muted-foreground border border-muted-foreground/30 hover:bg-muted/80"
+              className="bg-gradient-to-r from-pink-600/80 via-purple-600/80 to-pink-600/80 text-white border-2 border-pink-500/50 hover:bg-gradient-to-r hover:from-pink-600/80 hover:via-purple-600/80 hover:to-pink-600/80 shadow-lg shadow-pink-500/30"
             >
               <Lock className="mr-3" size={28} />
               Pro+ Tier Required
