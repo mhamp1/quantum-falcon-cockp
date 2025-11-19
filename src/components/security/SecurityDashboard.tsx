@@ -10,7 +10,6 @@ import {
   SecuritySeverity,
   SessionManager,
   AdvancedRateLimiter,
-  ContentSecurityPolicy,
 } from '@/lib/security';
 import {
   Shield,
@@ -29,14 +28,13 @@ export default function SecurityDashboard() {
   const [events, setEvents] = useState(SecurityAuditLogger.getEvents());
   const [selectedSeverity, setSelectedSeverity] = useState<SecuritySeverity | null>(null);
   const [activeSessions, setActiveSessions] = useState(SessionManager.getActiveSessionCount());
-  const [cspViolations, setCspViolations] = useState(ContentSecurityPolicy.getViolationCount());
+  const [cspViolations, setCspViolations] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setStats(SecurityAuditLogger.getEventStats());
       setEvents(SecurityAuditLogger.getEvents());
       setActiveSessions(SessionManager.getActiveSessionCount());
-      setCspViolations(ContentSecurityPolicy.getViolationCount());
     }, 5000);
 
     return () => clearInterval(interval);

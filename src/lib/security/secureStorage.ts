@@ -111,6 +111,10 @@ export class SecureStorage {
     }
   }
 
+  static async deleteItem(key: string, wasEncrypted: boolean = true): Promise<void> {
+    return this.removeItem(key, wasEncrypted);
+  }
+
   static async clearAll(): Promise<void> {
     try {
       const keys = await window.spark.kv.keys();

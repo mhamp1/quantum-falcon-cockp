@@ -4,7 +4,6 @@ export { InputSanitizer } from './inputSanitizer';
 export { SessionManager } from './sessionManager';
 export { CSRFProtection } from './csrfProtection';
 export { SecureStorage } from './secureStorage';
-export { ContentSecurityPolicy } from './contentSecurityPolicy';
 export {
   SecurityAuditLogger,
   SecurityEventType,
@@ -21,12 +20,6 @@ export class SecurityManager {
     }
 
     if (typeof window !== 'undefined') {
-      try {
-        ContentSecurityPolicy.initialize();
-      } catch (error) {
-        console.warn('[SecurityManager] CSP initialization skipped:', error);
-      }
-
       window.addEventListener('security:critical-alert', (e) => {
         const event = e as CustomEvent;
         console.error('🚨🚨🚨 CRITICAL SECURITY ALERT:', event.detail);
