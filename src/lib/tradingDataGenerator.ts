@@ -108,10 +108,20 @@ export class TradingDataGenerator {
   
   private totalTrades = 0;
   private winningTrades = 0;
+  
+  // Cache for message templates to avoid repeated array access
+  private messageCache: Map<string, string[]> = new Map()
+
+  constructor() {
+    // Pre-cache message templates for performance
+    Object.keys(AGENT_MESSAGES).forEach(agent => {
+      this.messageCache.set(agent, AGENT_MESSAGES[agent as keyof typeof AGENT_MESSAGES])
+    })
+  }
 
   generateBotLog(): BotLog {
     const agent = AGENTS[Math.floor(Math.random() * AGENTS.length)];
-    const messages = AGENT_MESSAGES[agent as keyof typeof AGENT_MESSAGES];
+    const messages = this.messageCache.get(agent) || []
     let message = messages[Math.floor(Math.random() * messages.length)];
     
     message = message

@@ -222,7 +222,7 @@ export default function MultiAgentSystem() {
           latency: Math.max(5, Math.min(50, a.metrics.latency + (Math.random() - 0.5) * 5))
         }
       })));
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);

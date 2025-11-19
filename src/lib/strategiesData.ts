@@ -1080,13 +1080,20 @@ export const ALL_STRATEGIES: StrategyData[] = [
 ]
 
 /**
- * Get strategies filtered by user's tier
+ * Get strategies filtered by user's tier with memoization
  */
+const tierCache = new Map<string, StrategyData[]>()
+
 export function getStrategiesForTier(userTier: string): StrategyData[] {
+  // Check cache
+  if (tierCache.has(userTier)) {
+    return tierCache.get(userTier)!
+  }
+  
   const tierHierarchy = ['free', 'starter', 'trader', 'pro', 'elite', 'lifetime']
   const userLevel = tierHierarchy.indexOf(userTier)
   
-  return ALL_STRATEGIES.map(strategy => {
+  const strategies = ALL_STRATEGIES.map(strategy => {
     const strategyLevel = tierHierarchy.indexOf(strategy.tier_required)
     const is_unlocked = userLevel >= strategyLevel
     
@@ -1096,6 +1103,11 @@ export function getStrategiesForTier(userTier: string): StrategyData[] {
       status: is_unlocked ? (strategy.status || 'paused') : 'locked'
     }
   })
+  
+  // Cache result
+  tierCache.set(userTier, strategies)
+  
+  return strategies
 }
 
 /**

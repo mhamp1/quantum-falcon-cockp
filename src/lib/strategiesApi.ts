@@ -1,19 +1,33 @@
 /**
  * Mock API Service for Strategies
- * Simulates /api/user/strategies endpoint
+ * Simulates /api/user/strategies endpoint with caching optimization
  */
 
 import { StrategyData, getStrategiesForTier, ALL_STRATEGIES } from './strategiesData'
 
+const strategyCache = new Map<string, { data: StrategyData[], timestamp: number }>()
+const CACHE_TTL = 30000 // 30 seconds
+
 /**
- * Simulates API call to get user's strategies
+ * Simulates API call to get user's strategies with intelligent caching
  * In production, this would be a real API endpoint
  */
 export async function fetchUserStrategies(userTier: string = 'free'): Promise<StrategyData[]> {
+  // Check cache first
+  const cached = strategyCache.get(userTier)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data
+  }
+  
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  return getStrategiesForTier(userTier)
+  const strategies = getStrategiesForTier(userTier)
+  
+  // Update cache
+  strategyCache.set(userTier, { data: strategies, timestamp: Date.now() })
+  
+  return strategies
 }
 
 /**
