@@ -16,7 +16,8 @@ interface LicenseData {
 }
 
 export class LicenseAuthority {
-  private static readonly API_ENDPOINT = 'https://your-secure-api.com/api/verify'
+  private static readonly API_ENDPOINT = import.meta.env.VITE_LICENSE_API_ENDPOINT || 'https://your-secure-api.com/api/verify'
+  private static readonly LICENSE_REPO_URL = import.meta.env.VITE_LICENSE_AUTHORITY_REPO || 'https://github.com/mhamp1/LicenseAuthority'
   
   static async verifyLicense(licenseKey: string): Promise<LicenseVerificationResult> {
     try {
@@ -131,6 +132,14 @@ export class LicenseAuthority {
 
   static async clearLicense(): Promise<void> {
     localStorage.removeItem('qf_license')
+  }
+
+  static getLicenseRepoUrl(): string {
+    return this.LICENSE_REPO_URL
+  }
+
+  static getApiEndpoint(): string {
+    return this.API_ENDPOINT
   }
 }
 

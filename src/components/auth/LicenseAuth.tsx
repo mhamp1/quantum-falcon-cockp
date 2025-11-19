@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Key, ShieldCheck, Warning } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { verifyAndStoreLicense } from '@/lib/license-auth'
+import { verifyAndStoreLicense, LicenseAuthority } from '@/lib/license-auth'
 import { toast } from 'sonner'
 
 interface LicenseAuthProps {
@@ -127,7 +127,7 @@ export default function LicenseAuth({ onSuccess }: LicenseAuthProps) {
                 <Button
                   variant="outline"
                   className="w-full border-primary/30 hover:bg-primary/10 text-foreground uppercase tracking-wide text-xs"
-                  onClick={() => window.open('https://github.com/mhamp1/LicenseAuthority', '_blank')}
+                  onClick={() => window.open(LicenseAuthority.getLicenseRepoUrl(), '_blank')}
                 >
                   Get License Key
                 </Button>

@@ -152,6 +152,13 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Handle payment success redirects
+  useEffect(() => {
+    import('@/lib/webhooks/paymentWebhooks').then(({ handlePaymentSuccessRedirect }) => {
+      handlePaymentSuccessRedirect();
+    });
+  }, []);
+
   // Global non-critical error suppression + proper logging
   useEffect(() => {
     const shouldSuppress = (text: string, extra = '') => isNonCriticalError(text) || isNonCriticalError(extra);
