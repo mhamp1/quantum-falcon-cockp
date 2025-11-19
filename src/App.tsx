@@ -141,7 +141,7 @@ export default function App() {
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
-    { id: 'strategy-builder', label: 'Settings', icon: Code, component: CreateStrategyPage },
+    { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
   ], []);
 
   // Global non-critical error suppression + proper logging
