@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import confetti from 'canvas-confetti'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
@@ -121,12 +120,7 @@ export default function CreateStrategyTeaser({ onUpgrade, isLocked = true }: Cre
   }, [])
 
   const handleUpgradeHover = () => {
-    confetti({
-      particleCount: 80,
-      spread: 60,
-      origin: { y: 0.7 },
-      colors: ['#DC1FFF', '#14F195', '#9945FF', '#B9F2FF']
-    })
+    // Confetti effect removed - package not installed
   }
 
   const handleCardClick = () => {
