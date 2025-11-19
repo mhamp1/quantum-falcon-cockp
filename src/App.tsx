@@ -1,4 +1,4 @@
-import { useEffect, useMemo, Suspense, lazy, useState } from 'react';
+import { useEffect, useMemo, Suspense, lazy } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { cn } from '@/lib/utils';
@@ -21,36 +21,14 @@ import { PulsingQLoader } from '@/components/shared/ShimmerCard';
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 
-// Optimized lazy loading with timeout protection to prevent infinite spinners
-const lazyWithTimeout = (importFn: () => Promise<any>, timeout = 5000) => {
-  return lazy(() => {
-    return Promise.race([
-      importFn(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Component load timeout')), timeout)
-      )
-    ]).catch((err) => {
-      console.error('Component load failed:', err);
-      return { 
-        default: () => (
-          <div className="p-8 text-center text-muted-foreground">
-            Component temporarily unavailable. Please refresh.
-          </div>
-        ) 
-      };
-    }) as Promise<{ default: React.ComponentType<any> }>;
-  });
-};
-
-// Lazy load all heavy components with timeout protection
-const EnhancedDashboard = lazyWithTimeout(() => import('@/components/dashboard/EnhancedDashboard'));
-const BotOverview = lazyWithTimeout(() => import('@/components/dashboard/BotOverview'));
-const EnhancedAnalytics = lazyWithTimeout(() => import('@/components/dashboard/EnhancedAnalytics'));
-const AdvancedTradingHub = lazyWithTimeout(() => import('@/components/trade/AdvancedTradingHub'));
-const CreateStrategyPage = lazyWithTimeout(() => import('@/components/strategy/CreateStrategyPage'));
-const VaultView = lazyWithTimeout(() => import('@/components/vault/VaultView'));
-const SocialCommunity = lazyWithTimeout(() => import('@/components/community/SocialCommunity'));
-const MultiAgentSystem = lazyWithTimeout(() => import('@/components/agents/MultiAgentSystemWrapper'));
+const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
+const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
+const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
+const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTradingHub'));
+const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
+const VaultView = lazy(() => import('@/components/vault/VaultView'));
+const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
+const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -154,7 +132,6 @@ export default function App() {
     email: null,
     avatar: null,
   });
-  const [isHydrated, setIsHydrated] = useState(false);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -166,12 +143,6 @@ export default function App() {
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
   ], []);
-
-  // Fast hydration with timeout
-  useEffect(() => {
-    const timer = setTimeout(() => setIsHydrated(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Handle payment success redirects
   useEffect(() => {
@@ -246,41 +217,28 @@ export default function App() {
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
-  // Show fast loading state during hydration
-  if (!isHydrated) {
-    return <PulsingQLoader />;
-  }
-
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
       <div className={cn('min-h-screen bg-background text-foreground flex', isMobile && 'flex-col')}>
 
-        {/* Debug Helper (Ctrl+Shift+D) */}
         <DebugHelper />
 
-        {/* AI Bot Assistant (bottom-right) */}
         <AIBotAssistant />
 
-        {/* Desktop Left Sidebar Navigation */}
         {!isMobile && (
           <div className="fixed left-0 top-0 bottom-0 w-[240px] bg-card/95 backdrop-blur border-r border-primary/30 z-50 flex flex-col">
-            {/* Header with Solana-purple logo and scanline effect */}
             <div className="p-6 border-b border-primary/30">
               <div className="scanline-effect mb-2">
-                <h1 className="text-2xl font-bold tracking-tight mb-1" style={{
-                  color: '#9945FF',
-                  textShadow: '0 0 10px rgba(153, 69, 255, 0.8), 0 0 20px rgba(153, 69, 255, 0.4)'
-                }}>
+                <h1 className="text-2xl font-bold tracking-tight mb-1 text-primary neon-glow-primary">
                   QUANTUM<br />FALCON
                 </h1>
               </div>
-              <p className="text-xs uppercase tracking-widest flex items-center gap-2" style={{ color: '#9945FF' }}>
-                <span className="w-2 h-2 rounded-full animate-pulse bg-green-500"></span>
+              <p className="text-xs uppercase tracking-widest text-primary flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full animate-pulse bg-primary"></span>
                 SYSTEM ONLINE
               </p>
             </div>
 
-            {/* Navigation Tabs */}
             <nav className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-1">
               {tabs.map(tab => (
                 <button
@@ -288,7 +246,9 @@ export default function App() {
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 transition-all text-left uppercase tracking-wider text-xs font-semibold rounded-lg",
-                    activeTab === tab.id ? "bg-primary/20 text-primary shadow-[0_0_15px_rgba(0,255,255,0.3)] border-l-2 border-primary" : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    activeTab === tab.id 
+                      ? "bg-primary/20 text-primary shadow-[0_0_15px_rgba(0,255,255,0.3)] border-l-2 border-primary" 
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                   )}
                 >
                   <tab.icon size={18} weight={activeTab === tab.id ? "fill" : "regular"} />
@@ -297,7 +257,6 @@ export default function App() {
               ))}
             </nav>
 
-            {/* Footer with version and tier */}
             <div className="p-4 border-t border-primary/30 space-y-2">
               <div className="flex items-center justify-center gap-2">
                 <Crown size={14} weight="fill" className="text-yellow-400" />
@@ -312,14 +271,12 @@ export default function App() {
           </div>
         )}
 
-        {/* Main Content Area */}
         <div className={cn('flex-1', !isMobile && 'ml-[240px]')}>
           <Suspense fallback={<LoadingFallback />}>
             <ActiveComponent />
           </Suspense>
         </div>
 
-        {/* Mobile Bottom Navigation */}
         {isMobile && (
           <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur border-t border-border z-50">
             <div className="flex justify-around py-2">
