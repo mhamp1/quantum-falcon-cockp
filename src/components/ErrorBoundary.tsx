@@ -13,6 +13,7 @@ interface ErrorBoundaryState {
   hasError: boolean
   error?: Error
   errorInfo?: { componentStack: string }
+  retryCount: number
 }
 
 function DefaultErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
@@ -59,19 +60,21 @@ function DefaultErrorFallback({ error, resetErrorBoundary }: { error: Error; res
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  private retryTimeoutId?: ReturnType<typeof setTimeout>
+
   constructor(props: ErrorBoundaryProps) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, retryCount: 0 }
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     if (isNonCriticalError(error)) {
       console.debug('[ErrorBoundary] Suppressed non-critical error:', error.message);
-      return { hasError: false }
+      return { hasError: false, retryCount: 0 }
     }
     
     console.error('[ErrorBoundary] Critical error caught:', error);
-    return { hasError: true, error }
+    return { hasError: true, error, retryCount: 0 }
   }
 
   componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
@@ -91,11 +94,37 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         console.error('[ErrorBoundary] Error in onError handler:', handlerError);
       }
     }
+
+    // Auto-retry up to 3 times with exponential backoff
+    if (this.state.retryCount < 3) {
+      const retryDelay = Math.min(1000 * Math.pow(2, this.state.retryCount), 5000);
+      console.log(`[ErrorBoundary] Auto-retry ${this.state.retryCount + 1}/3 in ${retryDelay}ms`);
+      
+      this.retryTimeoutId = setTimeout(() => {
+        this.setState(prev => ({
+          hasError: false,
+          error: undefined,
+          errorInfo: undefined,
+          retryCount: prev.retryCount + 1,
+        }));
+      }, retryDelay);
+    } else {
+      console.error('[ErrorBoundary] Max retry attempts reached');
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.retryTimeoutId) {
+      clearTimeout(this.retryTimeoutId);
+    }
   }
 
   resetErrorBoundary = () => {
-    console.log('[ErrorBoundary] Resetting error boundary');
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined })
+    console.log('[ErrorBoundary] Manual reset');
+    if (this.retryTimeoutId) {
+      clearTimeout(this.retryTimeoutId);
+    }
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined, retryCount: 0 })
   }
 
   render() {

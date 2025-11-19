@@ -45,10 +45,13 @@ import {
   Rocket,
   Star,
   Brain,
-  Cube
+  Cube,
+  Crown
 } from '@phosphor-icons/react'
 import type { UserAuth } from '@/lib/auth'
 import CreateStrategyLockedHUD from './CreateStrategyLockedHUD'
+import RotatingQLogo from '@/components/shared/RotatingQLogo'
+import UpgradeButton from '@/components/shared/UpgradeButton'
 
 interface Strategy {
   id: string
@@ -483,7 +486,7 @@ Return only improved code with comments explaining changes.`
           className="text-center space-y-8 py-16 relative"
         >
           <motion.div
-            className="inline-flex items-center justify-center w-24 h-24 mb-8 relative"
+            className="inline-flex items-center justify-center mb-8 relative"
             animate={{ 
               y: [0, -8, 0],
             }}
@@ -493,19 +496,7 @@ Return only improved code with comments explaining changes.`
               ease: "easeInOut"
             }}
           >
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-[#00FFFF] to-[#DC1FFF] rounded-2xl opacity-20 blur-xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.2, 0.4, 0.2]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
-            <Code size={48} weight="duotone" className="text-primary relative z-10" />
+            <RotatingQLogo size={120} />
           </motion.div>
           
           <motion.h1 
@@ -717,21 +708,11 @@ Return only improved code with comments explaining changes.`
                   <Lock className="mr-3" size={20} />
                   Pro Tier Required
                 </Button>
-                <Button
-                  size="lg"
+                <UpgradeButton 
+                  size="lg" 
+                  text="UPGRADE TO PRO+"
                   onClick={() => setShowUpgradeModal(true)}
-                  className="group relative bg-gradient-to-r from-[#DC1FFF] via-[#9945FF] to-[#00FFFF] hover:shadow-2xl text-white rounded-xl px-12 py-7 text-xl font-black uppercase transition-all duration-300 hover:scale-105 overflow-hidden"
-                  style={{
-                    fontFamily: 'Orbitron, sans-serif',
-                    letterSpacing: '0.1em',
-                    boxShadow: '0 0 40px rgba(220, 31, 255, 0.5), 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-                  }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                  <Rocket size={28} weight="duotone" className="mr-4 relative z-10 group-hover:animate-bounce" />
-                  <span className="relative z-10">UPGRADE TO PRO</span>
-                  <ArrowRight size={28} weight="bold" className="ml-4 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
-                </Button>
+                />
               </div>
             </motion.div>
           )}
