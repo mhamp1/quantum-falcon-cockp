@@ -676,11 +676,19 @@ Return only improved code with comments explaining changes.`
                   <Lock className="mr-3" size={20} />
                   Pro Tier Required
                 </Button>
-                <UpgradeButton 
-                  size="lg" 
-                  text="UPGRADE TO PRO+"
+                <Button
+                  size="lg"
                   onClick={() => setShowUpgradeModal(true)}
-                />
+                  className="bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 hover:from-pink-500 hover:via-purple-500 hover:to-pink-500 text-white border-2 border-pink-400/50 shadow-lg shadow-pink-500/30 rounded-xl px-8 py-6 text-lg font-black uppercase tracking-wider transition-all duration-300 hover:scale-105"
+                  style={{
+                    fontFamily: 'Orbitron, sans-serif',
+                    boxShadow: '0 0 30px rgba(236, 72, 153, 0.4), 0 8px 32px rgba(0, 0, 0, 0.4)'
+                  }}
+                >
+                  <Crown size={24} weight="fill" className="mr-3" />
+                  UPGRADE TO PRO+
+                  <Lightning size={24} weight="fill" className="ml-3" />
+                </Button>
               </div>
             </motion.div>
           )}
@@ -853,7 +861,10 @@ Return only improved code with comments explaining changes.`
                       </p>
                       <Button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-300 rounded-xl px-8 py-3"
+                        className="bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 hover:from-pink-500 hover:via-purple-500 hover:to-pink-500 text-white border-2 border-pink-400/50 hover:scale-105 transition-all duration-300 rounded-xl px-8 py-3 font-bold uppercase tracking-wide"
+                        style={{
+                          boxShadow: '0 0 20px rgba(236, 72, 153, 0.4)'
+                        }}
                       >
                         <Rocket size={20} className="mr-2" />
                         Upgrade Now
@@ -1228,10 +1239,10 @@ Return only improved code with comments explaining changes.`
 
             <Button
               size="lg"
-              className="w-full bg-gradient-to-r from-primary via-accent to-primary hover:shadow-2xl text-white rounded-xl py-6 text-lg uppercase font-black tracking-wider transition-all duration-300 hover:scale-105"
+              className="w-full bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 hover:from-pink-500 hover:via-purple-500 hover:to-pink-500 text-white border-2 border-pink-400/50 rounded-xl py-6 text-lg uppercase font-black tracking-wider transition-all duration-300 hover:scale-105"
               style={{
                 fontFamily: 'Orbitron, sans-serif',
-                boxShadow: '0 0 40px rgba(220, 31, 255, 0.4), 0 8px 32px rgba(0, 0, 0, 0.4)'
+                boxShadow: '0 0 40px rgba(236, 72, 153, 0.5), 0 8px 32px rgba(0, 0, 0, 0.4)'
               }}
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))

@@ -179,7 +179,11 @@ Copies: 2,847`
               size="lg"
               onMouseEnter={handleUpgradeHover}
               onClick={onUpgradeClick}
-              className="bg-gradient-to-r from-purple-600 via-pink-600 to-primary text-3xl md:text-4xl px-12 md:px-16 py-8 md:py-10 font-black rounded-2xl shadow-2xl hover:scale-110 transition-all duration-300 hover:shadow-primary/50"
+              className="bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 hover:from-pink-500 hover:via-purple-500 hover:to-pink-500 text-white border-2 border-pink-400/50 text-3xl md:text-4xl px-12 md:px-16 py-8 md:py-10 font-black rounded-2xl shadow-2xl hover:scale-110 transition-all duration-300"
+              style={{
+                fontFamily: 'Orbitron, sans-serif',
+                boxShadow: '0 0 40px rgba(236, 72, 153, 0.5), 0 8px 32px rgba(0, 0, 0, 0.4)'
+              }}
             >
               <Crown className="mr-4" size={48} />
               UPGRADE TO PRO+
