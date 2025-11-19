@@ -17,7 +17,6 @@ import {
   Robot,
   Crown
 } from '@phosphor-icons/react';
-import { PulsingQLoader } from '@/components/shared/ShimmerCard';
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 
@@ -52,7 +51,18 @@ interface Tab {
 }
 
 function LoadingFallback() {
-  return <PulsingQLoader />;
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
+        </div>
+        <p className="text-sm text-muted-foreground uppercase tracking-wider">Loading...</p>
+      </div>
+    </div>
+  );
 }
 
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
