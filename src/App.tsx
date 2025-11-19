@@ -56,14 +56,6 @@ function LoadingFallback() {
 }
 
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
-  if (isNonCriticalError(error)) {
-    console.debug('[ComponentErrorFallback] Auto-recovering from non-critical error:', error.message);
-    setTimeout(resetErrorBoundary, 0);
-    return null;
-  }
-
-  console.error('[ComponentErrorFallback] Critical component error:', error);
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="cyber-card p-8 max-w-2xl w-full space-y-6">
@@ -104,7 +96,6 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
           <Button
             onClick={() => {
               navigator.clipboard.writeText(`Error: ${error.message}\n\nStack: ${error.stack || 'N/A'}`);
-              alert('Error report copied to clipboard');
             }}
             variant="secondary"
             size="lg"
@@ -115,7 +106,7 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
         </div>
 
         <p className="text-xs text-muted-foreground text-center pt-4 border-t border-border/50">
-          Quantum Falcon Cockpit v2025.1.0 — Production Build — November 18, 2025
+          Quantum Falcon Cockpit v2025.1.0 — Production Build
         </p>
       </div>
     </div>

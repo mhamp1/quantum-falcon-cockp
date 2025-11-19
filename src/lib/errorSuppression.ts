@@ -22,14 +22,19 @@ export const SUPPRESSED_ERROR_PATTERNS = [
   'Failed to set key',
   'KV storage',
   '_spark/kv',
+  'canvas',
+  'WebGL context',
+  'orbitron.json',
+  'Text3D',
+  'Font',
+  'Cannot read properties of undefined',
+  'reading \'object\'',
 ] as const;
 
 export const CRITICAL_ERROR_PATTERNS = [
-  'Failed to fetch',
-  'Network request failed',
-  'Syntax error',
   'Module not found',
   'Unexpected token',
+  'Syntax error',
 ] as const;
 
 export function isNonCriticalError(error: Error | string): boolean {

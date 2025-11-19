@@ -1,10 +1,7 @@
-// MultiAgentSystem Wrapper with ErrorBoundary and 2D Fallback
-// If 3D Canvas fails, falls back to beautiful 2D visualization
-
 import { Component, ReactNode, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { ShimmerCard } from '@/components/shared/ShimmerCard';
-import MultiAgentSystem from './MultiAgentSystem';
+import { Robot } from '@phosphor-icons/react';
 
 interface Props {
   children?: ReactNode;
@@ -16,7 +13,6 @@ interface State {
   retryCount: number;
 }
 
-// 2D Fallback View when 3D fails
 function MultiAgentSystem2DFallback() {
   const agents = [
     { id: '1', name: 'MARKET ANALYST', role: 'Real-time scanning', color: '#00FFFF', confidence: 87, actions: 241 },
@@ -25,30 +21,34 @@ function MultiAgentSystem2DFallback() {
   ];
 
   return (
-    <div className="min-h-screen bg-black overflow-hidden relative">
-      {/* Animated grid background */}
-      <div className="absolute inset-0 opacity-20">
+    <div className="min-h-screen bg-background overflow-hidden relative p-6">
+      <div className="absolute inset-0 opacity-10">
         <div className="technical-grid w-full h-full" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 p-12">
-        {/* Title */}
-        <motion.h1
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="neon-leak text-8xl font-black text-center mb-16"
+          className="text-center mb-12"
         >
-          MULTI-AGENT SYSTEM
-        </motion.h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <Robot size={64} weight="duotone" className="text-primary" />
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black text-primary neon-glow-primary mb-4">
+            MULTI-AGENT SYSTEM
+          </h1>
+          <p className="text-lg text-muted-foreground uppercase tracking-wider">
+            Live Coordination • Real-Time Intelligence
+          </p>
+        </motion.div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           {[
-            { label: 'UPTIME', value: '94.1%', color: 'cyan' },
-            { label: 'TRADES', value: '1,247', color: 'purple' },
-            { label: 'SUCCESS', value: '87.3%', color: 'pink' },
-            { label: 'PROFIT', value: '+$2,835', color: 'green' },
+            { label: 'UPTIME', value: '94.1%', color: 'text-primary' },
+            { label: 'TRADES', value: '1,247', color: 'text-secondary' },
+            { label: 'SUCCESS', value: '87.3%', color: 'text-accent' },
+            { label: 'PROFIT', value: '+$2,835', color: 'text-primary' },
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -58,13 +58,12 @@ function MultiAgentSystem2DFallback() {
               className="cyber-card p-6 text-center"
             >
               <p className="text-sm text-muted-foreground mb-2 uppercase tracking-wider">{stat.label}</p>
-              <p className={`text-5xl font-black neon-leak-${stat.color}`}>{stat.value}</p>
+              <p className={`text-4xl md:text-5xl font-black ${stat.color} neon-glow`}>{stat.value}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* Agent Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {agents.map((agent, i) => (
             <motion.div
               key={agent.id}
@@ -73,7 +72,6 @@ function MultiAgentSystem2DFallback() {
               transition={{ delay: 0.5 + i * 0.2 }}
               className="cyber-card-accent p-8 relative overflow-hidden group"
             >
-              {/* Animated glow */}
               <div
                 className="absolute top-0 left-0 w-full h-1"
                 style={{
@@ -82,7 +80,6 @@ function MultiAgentSystem2DFallback() {
                 }}
               />
 
-              {/* Agent icon/status */}
               <div className="flex items-center gap-4 mb-6">
                 <div
                   className="w-16 h-16 rounded-full border-2 flex items-center justify-center text-3xl font-black"
@@ -102,15 +99,14 @@ function MultiAgentSystem2DFallback() {
                 </div>
               </div>
 
-              {/* Stats */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-black/50 rounded-lg">
+                <div className="text-center p-4 bg-background/50 rounded-lg">
                   <div className="text-3xl font-black" style={{ color: agent.color }}>
                     {agent.confidence}%
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">Confidence</div>
                 </div>
-                <div className="text-center p-4 bg-black/50 rounded-lg">
+                <div className="text-center p-4 bg-background/50 rounded-lg">
                   <div className="text-3xl font-black" style={{ color: agent.color }}>
                     {agent.actions}
                   </div>
@@ -118,7 +114,6 @@ function MultiAgentSystem2DFallback() {
                 </div>
               </div>
 
-              {/* Status indicator */}
               <div className="flex items-center gap-2 mt-6">
                 <motion.div
                   className="w-3 h-3 rounded-full"
@@ -137,53 +132,51 @@ function MultiAgentSystem2DFallback() {
             </motion.div>
           ))}
         </div>
-
-        {/* Notice about 3D fallback */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="mt-16 text-center"
-        >
-          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-            ⚠️ 3D visualization unavailable. Displaying 2D fallback mode. All agent functionality is still operational.
-          </p>
-        </motion.div>
       </div>
     </div>
   );
 }
 
 class MultiAgentSystemErrorBoundary extends Component<Props, State> {
+  private retryTimeoutId?: ReturnType<typeof setTimeout>;
+
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, retryCount: 0 };
   }
 
   static getDerivedStateFromError(error: Error): State {
+    console.error('[MultiAgentSystem] Error caught:', error);
     return { hasError: true, error, retryCount: 0 };
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error('[MultiAgentSystem] Error caught:', error, errorInfo);
+    console.error('[MultiAgentSystem] Component stack:', errorInfo.componentStack);
     
-    // Auto-retry up to 3 times
-    if (this.state.retryCount < 3) {
-      const retryDelay = Math.min(1000 * Math.pow(2, this.state.retryCount), 5000);
-      console.log(`[MultiAgentSystem] Auto-retry ${this.state.retryCount + 1}/3 in ${retryDelay}ms`);
+    if (this.state.retryCount < 2) {
+      const retryDelay = 1000;
+      console.log(`[MultiAgentSystem] Auto-retry ${this.state.retryCount + 1}/2 in ${retryDelay}ms`);
       
-      setTimeout(() => {
+      this.retryTimeoutId = setTimeout(() => {
         this.setState(prev => ({
           hasError: false,
           error: undefined,
           retryCount: prev.retryCount + 1,
         }));
       }, retryDelay);
+    } else {
+      console.log('[MultiAgentSystem] Falling back to 2D view');
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.retryTimeoutId) {
+      clearTimeout(this.retryTimeoutId);
     }
   }
 
   render() {
-    if (this.state.hasError && this.state.retryCount >= 3) {
+    if (this.state.hasError && this.state.retryCount >= 2) {
       return <MultiAgentSystem2DFallback />;
     }
 
@@ -192,10 +185,19 @@ class MultiAgentSystemErrorBoundary extends Component<Props, State> {
 }
 
 export default function MultiAgentSystemWrapper() {
+  let MultiAgentSystem3D: React.ComponentType | null = null;
+  
+  try {
+    MultiAgentSystem3D = require('./MultiAgentSystem').default;
+  } catch (err) {
+    console.warn('[MultiAgentSystemWrapper] Failed to load 3D view, using 2D fallback:', err);
+    return <MultiAgentSystem2DFallback />;
+  }
+
   return (
     <MultiAgentSystemErrorBoundary>
       <Suspense fallback={<ShimmerCard variant="large" count={3} />}>
-        <MultiAgentSystem />
+        {MultiAgentSystem3D ? <MultiAgentSystem3D /> : <MultiAgentSystem2DFallback />}
       </Suspense>
     </MultiAgentSystemErrorBoundary>
   );

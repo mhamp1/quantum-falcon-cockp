@@ -95,10 +95,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
     }
 
-    // Auto-retry up to 3 times with exponential backoff
-    if (this.state.retryCount < 3) {
-      const retryDelay = Math.min(1000 * Math.pow(2, this.state.retryCount), 5000);
-      console.log(`[ErrorBoundary] Auto-retry ${this.state.retryCount + 1}/3 in ${retryDelay}ms`);
+    if (this.state.retryCount < 2) {
+      const retryDelay = 1000;
+      console.log(`[ErrorBoundary] Auto-retry ${this.state.retryCount + 1}/2 in ${retryDelay}ms`);
       
       this.retryTimeoutId = setTimeout(() => {
         this.setState(prev => ({
@@ -109,7 +108,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }));
       }, retryDelay);
     } else {
-      console.error('[ErrorBoundary] Max retry attempts reached');
+      console.error('[ErrorBoundary] Max retry attempts reached, showing error UI');
     }
   }
 

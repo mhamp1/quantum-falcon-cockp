@@ -1,10 +1,10 @@
 // Multi-Agent System 3D Visualization Component
 // Live command center with data flow lines and real-time stats
 
-import React, { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
-import { Float, Text3D, OrbitControls } from '@react-three/drei';
+import { Float, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface AgentNode {
@@ -68,15 +68,14 @@ function Agent3DNode({ agent }: Agent3DNodeProps) {
             emissiveIntensity={3} 
           />
         </mesh>
-        <Text3D
-          font="/fonts/orbitron.json"
-          size={0.8}
-          position={[0, 3, 0]}
-          height={0.2}
-        >
-          {agent.name}
-          <meshStandardMaterial color={agent.color} emissive={agent.color} />
-        </Text3D>
+        <mesh position={[0, 3.5, 0]}>
+          <sphereGeometry args={[0.5, 16, 16]} />
+          <meshStandardMaterial 
+            color={agent.color} 
+            emissive={agent.color} 
+            emissiveIntensity={2} 
+          />
+        </mesh>
       </group>
     </Float>
   );
