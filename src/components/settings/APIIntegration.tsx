@@ -1,3 +1,5 @@
+// EXCHANGES: Binance + Kraken API integration complete — matches live app — November 19, 2025
+
 import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
@@ -20,6 +22,10 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { settingsAPI } from '@/lib/api/settings-api'
+import BinanceConnectModal from './modals/BinanceConnectModal'
+import KrakenConnectModal from './modals/KrakenConnectModal'
+import { BinanceService } from '@/lib/exchanges/binance'
+import { KrakenService } from '@/lib/exchanges/kraken'
 
 interface APIConnection {
   id: string
@@ -59,6 +65,8 @@ export default function APIIntegration() {
   const [isTesting, setIsTesting] = useState<{ [key: string]: boolean }>({})
   const [securityDismissed, setSecurityDismissed] = useState(false)
   const [dismissCountdown, setDismissCountdown] = useState(5)
+  const [showBinanceModal, setShowBinanceModal] = useState(false)
+  const [showKrakenModal, setShowKrakenModal] = useState(false)
 
   useEffect(() => {
     if (!securityDismissed && dismissCountdown > 0) {
@@ -243,6 +251,66 @@ export default function APIIntegration() {
     }
   }
 
+  const handleBinanceSuccess = (credentials: { apiKey: string; secretKey: string }) => {
+    const encryptedApiKey = BinanceService.encrypt(credentials.apiKey)
+    const encryptedSecretKey = BinanceService.encrypt(credentials.secretKey)
+
+    setCredentials((current) => ({
+      ...(current || {}),
+      binance: {
+        apiKey: encryptedApiKey,
+        apiSecret: encryptedSecretKey,
+        enabled: true
+      }
+    }))
+
+    setConnections((current) =>
+      (current || []).map((conn) =>
+        conn.id === 'binance'
+          ? { ...conn, connected: true, lastUsed: Date.now() }
+          : conn
+      )
+    )
+
+    BinanceService.auditLog('credentials-saved', { apiKey: credentials.apiKey })
+  }
+
+  const handleKrakenSuccess = (credentials: { apiKey: string; privateKey: string }) => {
+    const encryptedApiKey = KrakenService.encrypt(credentials.apiKey)
+    const encryptedPrivateKey = KrakenService.encrypt(credentials.privateKey)
+
+    setCredentials((current) => ({
+      ...(current || {}),
+      kraken: {
+        apiKey: encryptedApiKey,
+        apiSecret: encryptedPrivateKey,
+        enabled: true
+      }
+    }))
+
+    setConnections((current) =>
+      (current || []).map((conn) =>
+        conn.id === 'kraken'
+          ? { ...conn, connected: true, lastUsed: Date.now() }
+          : conn
+      )
+    )
+
+    KrakenService.auditLog('credentials-saved', { apiKey: credentials.apiKey })
+  }
+
+  const handleSetupClick = (connectionId: string) => {
+    if (connectionId === 'binance') {
+      setShowBinanceModal(true)
+    } else if (connectionId === 'kraken') {
+      setShowKrakenModal(true)
+    } else {
+      setEditingConnection(connectionId)
+      setTempApiKey('')
+      setTempApiSecret('')
+    }
+  }
+
   return (
     <div className="space-y-6">
       {!securityDismissed && (
@@ -395,11 +463,7 @@ export default function APIIntegration() {
                       ) : (
                         <Button
                           size="sm"
-                          onClick={() => {
-                            setEditingConnection(connection.id)
-                            setTempApiKey('')
-                            setTempApiSecret('')
-                          }}
+                          onClick={() => handleSetupClick(connection.id)}
                           className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary text-xs"
                         >
                           <Key size={14} weight="duotone" className="mr-1" />
@@ -556,6 +620,18 @@ export default function APIIntegration() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <BinanceConnectModal
+        isOpen={showBinanceModal}
+        onClose={() => setShowBinanceModal(false)}
+        onSuccess={handleBinanceSuccess}
+      />
+
+      <KrakenConnectModal
+        isOpen={showKrakenModal}
+        onClose={() => setShowKrakenModal(false)}
+        onSuccess={handleKrakenSuccess}
+      />
     </div>
   )
 }

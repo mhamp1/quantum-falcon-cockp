@@ -1,9 +1,11 @@
+// EXCHANGES: Binance + Kraken API integration complete — matches live app — November 19, 2025
+
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon, CaretLeft, CaretRight, Play, ChartLine, Check } from '@phosphor-icons/react'
+import { Vault, ArrowUp, TrendUp, CurrencyBtc, Lightning, ShieldCheck, ArrowsClockwise, Lock, Question, Star, Flame, Rocket, Cube, Hexagon, Pentagon, CaretLeft, CaretRight, Play, ChartLine, Check, LinkSimple } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import SolanaLogo from '@/components/shared/SolanaLogo'
@@ -11,6 +13,7 @@ import VaultTutorial from './VaultTutorial'
 import useEmblaCarousel from 'embla-carousel-react'
 import { generateIntelligentOffers, getTimeUntilNextRotation, type IntelligentOffer } from '@/lib/intelligentOffers'
 import type { UserAuth } from '@/lib/auth'
+import { useExchangeBalances } from '@/hooks/useExchangeBalances'
 
 interface VaultTransaction {
   id: string
@@ -52,6 +55,8 @@ export default function VaultView() {
     license: null
   })
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  
+  const { balances: exchangeBalances, isLoading: exchangeBalancesLoading, lastUpdated: exchangeBalancesLastUpdated, refresh: refreshExchangeBalances } = useExchangeBalances(30000)
   
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true, 
@@ -768,6 +773,93 @@ export default function VaultView() {
           </div>
         </motion.div>
       </div>
+
+      {/* EXCHANGES: Binance + Kraken API integration complete — matches live app — November 19, 2025 */}
+      {exchangeBalances.length > 0 && (
+        <div className="relative overflow-hidden border-4 border-primary/60 shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.4)] bg-gradient-to-br from-card to-background">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+          <div className="p-8 relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 jagged-corner bg-primary/30 border-4 border-primary shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.5)]">
+                  <LinkSimple size={40} weight="duotone" className="text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.15em] hud-text font-black" style={{
+                    textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
+                    WebkitTextStroke: '0.5px oklch(0.12 0.03 280)',
+                    color: 'oklch(0.95 0.08 195)'
+                  }}>
+                    EXCHANGE BALANCES
+                  </p>
+                  <p className="text-sm uppercase tracking-wide mt-1 font-bold bg-card/90 px-2 py-1 inline-block border-2 border-primary/50" style={{
+                    textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                    color: 'oklch(0.90 0.08 195)'
+                  }}>
+                    Connected Exchanges
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={refreshExchangeBalances}
+                disabled={exchangeBalancesLoading}
+                size="sm"
+                className="bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary"
+              >
+                <ArrowsClockwise size={16} weight="duotone" className={`mr-2 ${exchangeBalancesLoading ? 'animate-spin' : ''}`} />
+                {exchangeBalancesLoading ? 'Refreshing...' : 'Refresh'}
+              </Button>
+            </div>
+            
+            {exchangeBalancesLastUpdated && (
+              <p className="text-xs text-muted-foreground mb-4">
+                Last updated: {new Date(exchangeBalancesLastUpdated).toLocaleTimeString()}
+              </p>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {exchangeBalances.map((balance, index) => (
+                <motion.div
+                  key={`${balance.exchange}-${balance.asset}-${index}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="relative overflow-hidden group border-2 border-primary/30 p-4 jagged-corner-small bg-gradient-to-br from-card/90 to-background/90 hover:border-primary/60 transition-all"
+                >
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-all" />
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className={`px-2 py-1 text-[10px] uppercase tracking-wider font-bold rounded ${
+                        balance.exchange === 'binance' 
+                          ? 'bg-[#F0B90B]/20 text-[#F0B90B] border border-[#F0B90B]/50'
+                          : 'bg-[#5741D9]/20 text-[#5741D9] border border-[#5741D9]/50'
+                      }`}>
+                        {balance.exchange}
+                      </div>
+                      <ShieldCheck size={14} weight="fill" className="text-primary" />
+                    </div>
+                    <p className="text-sm uppercase tracking-wide text-muted-foreground font-bold mb-1">
+                      {balance.asset}
+                    </p>
+                    <p className="text-2xl font-black text-primary neon-glow-primary" style={{
+                      textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 0 10px oklch(0.72 0.20 195 / 0.8)',
+                      WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
+                    }}>
+                      {parseFloat(balance.balance).toFixed(8)}
+                    </p>
+                    {balance.usdValue && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ≈ ${balance.usdValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="relative overflow-hidden border-4 border-secondary/60 shadow-[0_0_30px_oklch(0.68_0.18_330_/_0.4)] bg-gradient-to-br from-card to-background vault-balance" id="vault-balance-section">
         <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent" />
