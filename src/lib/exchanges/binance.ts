@@ -1,4 +1,4 @@
-// EXCHANGES: Binance + Kraken API integration complete — matches live app — November 19, 2025
+// CRITICAL FIX: Kraken + Binance API integration added — CEX trading now live — November 20, 2025
 
 import CryptoJS from 'crypto-js'
 
