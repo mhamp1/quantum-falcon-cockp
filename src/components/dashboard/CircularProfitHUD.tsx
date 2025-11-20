@@ -177,17 +177,17 @@ export function CircularProfitHUD({ data, className }: CircularProfitHUDProps) {
         const x2 = Math.cos(nextPoint.angle - Math.PI / 2) * radius2;
         const y2 = Math.sin(nextPoint.angle - Math.PI / 2) * radius2;
 
-        const progress = i / endIndex;
+        const progress = Math.min(i / Math.max(endIndex, 1), 1);
         const isRecent = i > endIndex - 10;
         
         const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
         
         if (point.profit < 0) {
-          gradient.addColorStop(0, `rgba(255, 68, 68, ${0.6 * progress})`);
-          gradient.addColorStop(1, `rgba(255, 68, 68, ${0.8 * progress})`);
+          gradient.addColorStop(0, `rgba(255, 68, 68, ${Math.max(0.6 * progress, 0.1)})`);
+          gradient.addColorStop(1, `rgba(255, 68, 68, ${Math.max(0.8 * progress, 0.2)})`);
         } else {
-          gradient.addColorStop(0, `rgba(0, 255, 255, ${0.6 * progress})`);
-          gradient.addColorStop(1, `rgba(153, 69, 255, ${0.8 * progress})`);
+          gradient.addColorStop(0, `rgba(0, 255, 255, ${Math.max(0.6 * progress, 0.1)})`);
+          gradient.addColorStop(1, `rgba(153, 69, 255, ${Math.max(0.8 * progress, 0.2)})`);
         }
 
         ctx.strokeStyle = gradient;
