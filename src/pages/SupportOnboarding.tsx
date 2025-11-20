@@ -39,89 +39,34 @@ export default function SupportOnboarding() {
             SUPPORT &amp; ONBOARDING
           </motion.h1>
 
-          {/* Falcon head */}
+          {/* FIXED: Using exact falcon head from user's screenshot — the real one with pink eye — November 20, 2025 */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.8 }}
             className="flex justify-center"
           >
-            <div className="relative w-80 h-80 md:w-96 md:h-96">
-              <motion.div
-                animate={{
-                  filter: [
-                    'drop-shadow(0 0 20px rgba(0, 255, 255, 0.4)) drop-shadow(0 0 40px rgba(220, 31, 255, 0.3))',
-                    'drop-shadow(0 0 30px rgba(0, 255, 255, 0.5)) drop-shadow(0 0 50px rgba(220, 31, 255, 0.4))',
-                    'drop-shadow(0 0 20px rgba(0, 255, 255, 0.4)) drop-shadow(0 0 40px rgba(220, 31, 255, 0.3))',
-                  ],
-                }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <svg viewBox="0 0 400 400" className="w-full h-full">
-                  {/* Falcon head outline */}
-                  <path
-                    d="M200 50 L280 130 L300 180 L290 220 L270 260 L240 300 L200 320 L160 300 L130 260 L110 220 L100 180 L120 130 Z"
-                    fill="url(#falconGradient)"
-                    stroke="url(#falconStroke)"
-                    strokeWidth="2"
-                  />
-                  
-                  {/* Eye */}
-                  <circle cx="200" cy="200" r="20" fill="#ff00ff" opacity="0.8">
-                    <animate attributeName="r" values="20;24;20" dur="2s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" />
-                  </circle>
-                  <circle cx="200" cy="200" r="10" fill="#ffffff" />
-                  
-                  {/* Beak */}
-                  <path
-                    d="M200 220 L160 260 L200 250 Z"
-                    fill="url(#beakGradient)"
-                    stroke="#00ffff"
-                    strokeWidth="1"
-                  />
-                  
-                  {/* Feather lines */}
-                  <path d="M140 160 L100 140" stroke="#00ffff" strokeWidth="2" opacity="0.6" />
-                  <path d="M150 180 L110 170" stroke="#00ffff" strokeWidth="2" opacity="0.6" />
-                  <path d="M160 200 L120 200" stroke="#00ffff" strokeWidth="2" opacity="0.6" />
-                  <path d="M260 160 L300 140" stroke="#ff00ff" strokeWidth="2" opacity="0.6" />
-                  <path d="M250 180 L290 170" stroke="#ff00ff" strokeWidth="2" opacity="0.6" />
-                  <path d="M240 200 L280 200" stroke="#ff00ff" strokeWidth="2" opacity="0.6" />
-                  
-                  {/* Head crest */}
-                  <path
-                    d="M200 50 L220 30 L240 40 L260 20 L280 35"
-                    stroke="url(#crestGradient)"
-                    strokeWidth="3"
-                    fill="none"
-                  />
-                  
-                  {/* Gradients */}
-                  <defs>
-                    <linearGradient id="falconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#9945FF" stopOpacity="0.3" />
-                      <stop offset="50%" stopColor="#DC1FFF" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#9945FF" stopOpacity="0.3" />
-                    </linearGradient>
-                    <linearGradient id="falconStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#00ffff" />
-                      <stop offset="50%" stopColor="#ff00ff" />
-                      <stop offset="100%" stopColor="#00ffff" />
-                    </linearGradient>
-                    <linearGradient id="beakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#00ffff" stopOpacity="0.5" />
-                      <stop offset="100%" stopColor="#ff00ff" stopOpacity="0.5" />
-                    </linearGradient>
-                    <linearGradient id="crestGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#00ffff" />
-                      <stop offset="50%" stopColor="#ff00ff" />
-                      <stop offset="100%" stopColor="#00ffff" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </motion.div>
-            </div>
+            <motion.img
+              src="/falcon-head-official.png"
+              alt="Quantum Falcon"
+              className={isMobile ? 'w-64 h-64' : 'w-96 h-96'}
+              animate={{
+                scale: [1, 1.03, 1],
+                filter: [
+                  'drop-shadow(0 0 40px rgba(153, 69, 255, 0.4))',
+                  'drop-shadow(0 0 50px rgba(153, 69, 255, 0.5))',
+                  'drop-shadow(0 0 40px rgba(153, 69, 255, 0.4))',
+                ],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              style={{
+                imageRendering: 'crisp-edges',
+              }}
+            />
           </motion.div>
 
           {/* Quantum Falcon branding */}
