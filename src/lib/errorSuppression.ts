@@ -77,9 +77,9 @@ export function suppressError(error: Error | string | unknown, context: string =
       } else if (error instanceof Error) {
         message = error.message || '';
       } else {
-        message = String(error);
+        message = String(error || '');
       }
-      console.debug(`[${context}] Suppressed:`, message.substring(0, 100));
+      console.debug(`[${context}] Suppressed:`, String(message).substring(0, 100));
     }
     return;
   }
@@ -90,7 +90,7 @@ export function suppressError(error: Error | string | unknown, context: string =
   } else if (error instanceof Error) {
     message = error.message || '';
   } else {
-    message = String(error);
+    message = String(error || '');
   }
   console.error(`[${context}] Error:`, message);
 }

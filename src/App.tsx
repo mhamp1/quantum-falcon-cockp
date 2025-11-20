@@ -228,20 +228,23 @@ export default function App() {
     const shouldSuppress = (text: string, extra = '') => isNonCriticalError(text) || isNonCriticalError(extra);
 
     const handleWindowError = (e: ErrorEvent) => {
-      if (shouldSuppress(e.message, e.filename || '')) {
-        console.debug('[App] Suppressed non-critical error:', e.message.substring(0, 100));
+      const message = e.message || '';
+      const filename = e.filename || '';
+      
+      if (shouldSuppress(message, filename)) {
+        console.debug('[App] Suppressed non-critical error:', String(message).substring(0, 100));
         e.preventDefault();
         return;
       }
-      const errorToLog = e.error || e.message || 'Unknown error';
-      logError(errorToLog, `Window Error: ${e.filename || 'unknown'}:${e.lineno || 0}`);
+      const errorToLog = e.error || message || 'Unknown error';
+      logError(errorToLog, `Window Error: ${filename || 'unknown'}:${e.lineno || 0}`);
       console.error('[App] Uncaught window error:', e);
     };
 
     const handleRejection = (e: PromiseRejectionEvent) => {
-      const reason = e.reason?.toString?.() || String(e.reason) || 'Unknown rejection';
+      const reason = e.reason?.toString?.() || String(e.reason || '') || 'Unknown rejection';
       if (shouldSuppress(reason)) {
-        console.debug('[App] Suppressed promise rejection:', reason.substring(0, 100));
+        console.debug('[App] Suppressed promise rejection:', String(reason).substring(0, 100));
         e.preventDefault();
         return;
       }
