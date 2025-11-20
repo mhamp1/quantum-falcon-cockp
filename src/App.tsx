@@ -45,7 +45,8 @@ import {
   Flame,
   Brain,
   Gear,
-  MagnifyingGlass
+  MagnifyingGlass,
+  Lifebuoy
 } from '@phosphor-icons/react';
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
@@ -65,6 +66,7 @@ const VaultView = lazy(() => import('@/components/vault/VaultView'));
 const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
 const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
 const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
+const SupportOnboarding = lazy(() => import('@/pages/SupportOnboarding'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -207,6 +209,7 @@ export default function App() {
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
+    { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
   ], []);
 

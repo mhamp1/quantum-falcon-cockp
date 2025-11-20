@@ -1631,6 +1631,35 @@ export default function EnhancedSettings() {
                     </Button>
                   </div>
                 </div>
+
+                <div className="p-4 bg-background/40 backdrop-blur-sm border border-secondary/20 hover:border-secondary/40 transition-all group/item relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary/50 group-hover/item:w-2 transition-all" />
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1">
+                      <Users size={18} weight="duotone" className="text-secondary" />
+                      <div>
+                        <Label className="font-bold uppercase text-xs tracking-wider">JOIN_THE_TEAM</Label>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Contribute code, tests, or docs for perks</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'support' }));
+                        toast.success('Opening Support & Onboarding', {
+                          description: 'Learn how to join the Quantum Falcon team',
+                        });
+                      }}
+                      className="bg-gradient-to-r from-secondary to-accent hover:opacity-90"
+                      style={{
+                        boxShadow: '0 0 15px rgba(153, 69, 255, 0.3)',
+                      }}
+                    >
+                      <Users size={16} weight="bold" className="mr-1" />
+                      CONTRIBUTE
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
