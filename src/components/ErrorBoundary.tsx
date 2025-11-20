@@ -17,6 +17,9 @@ interface ErrorBoundaryState {
 }
 
 function DefaultErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  const errorMessage = error?.message || 'Unknown error occurred';
+  const errorStack = error?.stack || 'No stack trace available';
+
   return (
     <div className="cyber-card p-8 text-center space-y-4 m-4" role="alert">
       <div className="inline-flex p-6 jagged-corner bg-destructive/20 border-2 border-destructive">
@@ -34,8 +37,8 @@ function DefaultErrorFallback({ error, resetErrorBoundary }: { error: Error; res
             Technical Details
           </summary>
           <pre className="text-xs mt-2 p-4 bg-muted/20 rounded overflow-auto max-h-64 scrollbar-thin font-mono">
-            {error.message}
-            {error.stack && `\n\n${error.stack}`}
+            {errorMessage}
+            {errorStack && `\n\n${errorStack}`}
           </pre>
         </details>
       </div>
@@ -67,29 +70,47 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     this.state = { hasError: false, retryCount: 0 }
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    if (isNonCriticalError(error)) {
-      console.debug('[ErrorBoundary] Suppressed non-critical error:', error.message);
+  static getDerivedStateFromError(error: Error | unknown): ErrorBoundaryState {
+    // Handle undefined/null errors
+    if (!error) {
+      console.debug('[ErrorBoundary] Suppressed null/undefined error');
+      return { hasError: false, retryCount: 0 }
+    }
+
+    // Convert to Error if needed
+    const actualError = error instanceof Error ? error : new Error(String(error));
+
+    if (isNonCriticalError(actualError)) {
+      console.debug('[ErrorBoundary] Suppressed non-critical error:', actualError.message);
       return { hasError: false, retryCount: 0 }
     }
     
-    console.error('[ErrorBoundary] Critical error caught:', error);
-    return { hasError: true, error, retryCount: 0 }
+    console.error('[ErrorBoundary] Critical error caught:', actualError);
+    return { hasError: true, error: actualError, retryCount: 0 }
   }
 
-  componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
-    if (isNonCriticalError(error)) {
+  componentDidCatch(error: Error | unknown, errorInfo: { componentStack: string }) {
+    // Handle undefined/null errors
+    if (!error) {
+      console.debug('[ErrorBoundary] Null/undefined error caught, skipping');
+      return
+    }
+
+    // Convert to Error if needed
+    const actualError = error instanceof Error ? error : new Error(String(error));
+
+    if (isNonCriticalError(actualError)) {
       console.debug('[ErrorBoundary] Non-critical error details suppressed');
       return
     }
     
     console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
     
-    this.setState({ errorInfo });
+    this.setState({ error: actualError, errorInfo });
     
     if (this.props.onError) {
       try {
-        this.props.onError(error, errorInfo);
+        this.props.onError(actualError, errorInfo);
       } catch (handlerError) {
         console.error('[ErrorBoundary] Error in onError handler:', handlerError);
       }

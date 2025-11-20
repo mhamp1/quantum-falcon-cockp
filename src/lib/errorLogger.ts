@@ -14,16 +14,36 @@ class ErrorLogger {
   private errors: ErrorLogEntry[] = [];
   private maxErrors = 50;
 
-  log(error: Error | string, context?: string, componentStack?: string) {
+  log(error: Error | string | unknown, context?: string, componentStack?: string) {
+    // Handle undefined/null errors
+    if (!error) {
+      console.debug('[ErrorLogger] Skipping null/undefined error');
+      return;
+    }
+
     // Filter out KV errors and other non-critical errors
     if (isNonCriticalError(error)) {
       return;
     }
 
+    let message: string;
+    let stack: string | undefined;
+
+    if (typeof error === 'string') {
+      message = error;
+      stack = undefined;
+    } else if (error instanceof Error) {
+      message = error.message || 'Unknown error';
+      stack = error.stack;
+    } else {
+      message = String(error);
+      stack = undefined;
+    }
+
     const entry: ErrorLogEntry = {
       timestamp: Date.now(),
-      message: typeof error === 'string' ? error : error.message,
-      stack: typeof error === 'string' ? undefined : error.stack,
+      message,
+      stack,
       context,
       componentStack
     };
@@ -58,7 +78,7 @@ class ErrorLogger {
 
 export const errorLogger = new ErrorLogger();
 
-export function logError(error: Error | string, context?: string, componentStack?: string) {
+export function logError(error: Error | string | unknown, context?: string, componentStack?: string) {
   errorLogger.log(error, context, componentStack);
 }
 

@@ -37,9 +37,22 @@ export const CRITICAL_ERROR_PATTERNS = [
   'Syntax error',
 ] as const;
 
-export function isNonCriticalError(error: Error | string): boolean {
-  const message = typeof error === 'string' ? error : (error.message || '');
-  const stack = typeof error === 'string' ? '' : (error.stack || '');
+export function isNonCriticalError(error: Error | string | unknown): boolean {
+  if (!error) {
+    return true; // Treat null/undefined as non-critical
+  }
+
+  let message = '';
+  let stack = '';
+
+  if (typeof error === 'string') {
+    message = error;
+  } else if (error instanceof Error) {
+    message = error.message || '';
+    stack = error.stack || '';
+  } else {
+    message = String(error);
+  }
   
   const isCritical = CRITICAL_ERROR_PATTERNS.some(pattern =>
     message.includes(pattern) || stack.includes(pattern)
@@ -55,16 +68,30 @@ export function isNonCriticalError(error: Error | string): boolean {
   );
 }
 
-export function suppressError(error: Error | string, context: string = ''): void {
+export function suppressError(error: Error | string | unknown, context: string = ''): void {
   if (isNonCriticalError(error)) {
     if (IS_DEV) {
-      const message = typeof error === 'string' ? error : error.message;
+      let message = '';
+      if (typeof error === 'string') {
+        message = error;
+      } else if (error instanceof Error) {
+        message = error.message || '';
+      } else {
+        message = String(error);
+      }
       console.debug(`[${context}] Suppressed:`, message.substring(0, 100));
     }
     return;
   }
   
-  const message = typeof error === 'string' ? error : error.message;
+  let message = '';
+  if (typeof error === 'string') {
+    message = error;
+  } else if (error instanceof Error) {
+    message = error.message || '';
+  } else {
+    message = String(error);
+  }
   console.error(`[${context}] Error:`, message);
 }
 

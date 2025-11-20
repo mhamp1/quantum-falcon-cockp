@@ -105,6 +105,9 @@ function LoadingFallback() {
 }
 
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  const errorMessage = error?.message || 'Unknown error occurred';
+  const errorStack = error?.stack || 'No stack trace available';
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="cyber-card p-8 max-w-2xl w-full space-y-6">
@@ -121,18 +124,16 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
         </div>
 
         <div className="space-y-3">
-          <p className="text-foreground font-mono text-sm break-all">{error.message}</p>
+          <p className="text-foreground font-mono text-sm break-all">{errorMessage}</p>
 
-          {error.stack && (
-            <details className="mt-3">
-              <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground uppercase tracking-wide font-semibold">
-                View Stack Trace
-              </summary>
-              <pre className="mt-3 p-4 bg-muted/30 rounded-lg overflow-auto max-h-64 scrollbar-thin text-xs font-mono text-muted-foreground">
-                {error.stack}
-              </pre>
-            </details>
-          )}
+          <details className="mt-3">
+            <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground uppercase tracking-wide font-semibold">
+              View Stack Trace
+            </summary>
+            <pre className="mt-3 p-4 bg-muted/30 rounded-lg overflow-auto max-h-64 scrollbar-thin text-xs font-mono text-muted-foreground">
+              {errorStack}
+            </pre>
+          </details>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
@@ -144,7 +145,7 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
           </Button>
           <Button
             onClick={() => {
-              navigator.clipboard.writeText(`Error: ${error.message}\n\nStack: ${error.stack || 'N/A'}`);
+              navigator.clipboard.writeText(`Error: ${errorMessage}\n\nStack: ${errorStack}`);
             }}
             variant="secondary"
             size="lg"
@@ -232,18 +233,19 @@ export default function App() {
         e.preventDefault();
         return;
       }
-      logError(e.error || e.message, `Window Error: ${e.filename}:${e.lineno}`);
+      const errorToLog = e.error || e.message || 'Unknown error';
+      logError(errorToLog, `Window Error: ${e.filename || 'unknown'}:${e.lineno || 0}`);
       console.error('[App] Uncaught window error:', e);
     };
 
     const handleRejection = (e: PromiseRejectionEvent) => {
-      const reason = e.reason?.toString() || '';
+      const reason = e.reason?.toString?.() || String(e.reason) || 'Unknown rejection';
       if (shouldSuppress(reason)) {
         console.debug('[App] Suppressed promise rejection:', reason.substring(0, 100));
         e.preventDefault();
         return;
       }
-      logError(e.reason, 'Unhandled Promise Rejection');
+      logError(e.reason || 'Unknown rejection', 'Unhandled Promise Rejection');
       console.error('[App] Unhandled rejection:', e.reason);
     };
 
