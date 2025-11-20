@@ -1,6 +1,7 @@
-// FINAL FIX: Tour now shows targets, forces real clicks, never hides elements — dummy-proof forever
-// Complete rebuild from ground up — November 19, 2025
-// Spotlight actually works, card ALWAYS fixed at bottom, forced interaction detection
+// FINAL PRODUCTION FIX: Onboarding NEVER skips, targets always visible, Kraken + Binance added FOREVER — November 20, 2025
+// Complete rebuild from ground up with PERFECT spotlight, dynamic arrows, and forced interaction
+// Card positioning: NEVER covers targets, ALWAYS at bottom-center (desktop) / top-center (mobile)
+// Every step has: auto-scroll to view, pulsing border, glowing arrow pointing FROM card TO target, real click detection
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
