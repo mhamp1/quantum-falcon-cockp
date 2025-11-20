@@ -13,6 +13,12 @@
  * Production: November 20, 2025
  */
 
+// Import types for internal use
+import type { LicenseTier } from './types'
+import { isLicenseExpired as checkExpired } from './validation'
+import { getTierFeatures as getFeatures, getAllTierDefinitions as getAllDefs } from './features'
+import { generateActivationDeepLink as genDeepLink, parseDeepLink as parseLink } from './deeplinks'
+
 // Export all types
 export type {
   LicenseTier,
@@ -135,40 +141,35 @@ export class LicenseHub {
    * Get tier features
    */
   getTierFeatures(tier: LicenseTier) {
-    const { getTierFeatures } = require('./features')
-    return getTierFeatures(tier)
+    return getFeatures(tier)
   }
 
   /**
    * Check if license is expired
    */
   isLicenseExpired(expiresAt: number) {
-    const { isLicenseExpired } = require('./validation')
-    return isLicenseExpired(expiresAt)
+    return checkExpired(expiresAt)
   }
 
   /**
    * Generate activation deep link
    */
   generateActivationDeepLink(licenseKey: string, userId?: string) {
-    const { generateActivationDeepLink } = require('./deeplinks')
-    return generateActivationDeepLink(licenseKey, userId)
+    return genDeepLink(licenseKey, userId)
   }
 
   /**
    * Parse deep link
    */
   parseDeepLink(url: string) {
-    const { parseDeepLink } = require('./deeplinks')
-    return parseDeepLink(url)
+    return parseLink(url)
   }
 
   /**
    * Get all tier definitions
    */
   getAllTiers() {
-    const { getAllTierDefinitions } = require('./features')
-    return getAllTierDefinitions()
+    return getAllDefs()
   }
 
   /**
