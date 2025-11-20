@@ -267,6 +267,7 @@ export default function EnhancedDashboard() {
   return (
     <ErrorBoundary>
       <div className="space-y-6" role="main" aria-label="Quantum Falcon Dashboard">
+        {/* AESTHETIC REVERTED: Restored superior cyberpunk look from user's screenshot — stronger glows, angled cards, dramatic stats — November 20, 2025 */}
         <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
           <NewsTicker />
         </Suspense>
@@ -275,34 +276,54 @@ export default function EnhancedDashboard() {
         className="cyber-card relative overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300"
       >
         <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
-        <div className="p-6 relative z-10">
+        <div className="p-8 relative z-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-[0.15em] uppercase mb-2">
-                <span className="text-primary" style={{
-                  textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)',
-                  WebkitTextStroke: '0.5px currentColor',
-                  paintOrder: 'stroke fill'
-                }}>Welcome Back,</span>
-                <span className="text-foreground ml-2">{auth.username}</span>
+              {/* Enhanced Header: Large rainbow gradient welcome text */}
+              <h1 className="text-3xl md:text-5xl font-black tracking-[0.2em] uppercase mb-4">
+                <span className="rainbow-gradient-text" style={{
+                  textShadow: '0 0 20px rgba(255,0,255,0.4), 0 0 30px rgba(0,255,255,0.3)',
+                  WebkitTextStroke: '1px currentColor',
+                  paintOrder: 'stroke fill',
+                  fontWeight: 900
+                }}>WELCOME BACK, {auth.username?.toUpperCase() || 'TRADER'}</span>
               </h1>
-              <div className="flex flex-wrap items-center gap-3 mt-2">
-                <div className="px-3 py-1 bg-accent/20 border border-accent jagged-corner-small">
-                  <span className="text-xs font-bold text-accent uppercase tracking-wider">
-                    {auth.license?.tier.toUpperCase()} Tier
-                  </span>
-                </div>
-                <div className="px-3 py-1 bg-primary/20 border border-primary jagged-corner-small">
-                  <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                    Bot: {botRunning ? 'RUNNING' : 'STOPPED'}
-                  </span>
-                </div>
-                <div className="px-3 py-1 border jagged-corner-small" style={{ 
-                  backgroundColor: paperTradingMode ? 'oklch(0.68 0.18 330 / 0.2)' : 'oklch(0.65 0.25 25 / 0.2)',
-                  borderColor: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
+              {/* Sharp angled pill badges with glow */}
+              <div className="flex flex-wrap items-center gap-3 mt-4">
+                <div className="px-4 py-2 angled-corner-tr" style={{ 
+                  backgroundColor: 'rgba(255, 20, 147, 0.15)',
+                  border: '2px solid rgba(255, 20, 147, 0.6)',
+                  boxShadow: '0 0 20px rgba(255, 20, 147, 0.3), inset 0 0 15px rgba(255, 20, 147, 0.1)'
                 }}>
-                  <span className="text-xs font-bold uppercase tracking-wider" style={{
-                    color: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
+                  <span className="text-sm font-black uppercase tracking-widest" style={{
+                    color: '#ff69b4',
+                    textShadow: '0 0 10px rgba(255, 105, 180, 0.6)'
+                  }}>
+                    {auth.license?.tier.toUpperCase() || 'FREE'} TIER
+                  </span>
+                </div>
+                <div className="px-4 py-2 angled-corner-tr" style={{ 
+                  backgroundColor: botRunning ? 'rgba(20, 241, 149, 0.15)' : 'rgba(255, 68, 68, 0.15)',
+                  border: botRunning ? '2px solid rgba(20, 241, 149, 0.6)' : '2px solid rgba(255, 68, 68, 0.6)',
+                  boxShadow: botRunning 
+                    ? '0 0 20px rgba(20, 241, 149, 0.3), inset 0 0 15px rgba(20, 241, 149, 0.1)'
+                    : '0 0 20px rgba(255, 68, 68, 0.3), inset 0 0 15px rgba(255, 68, 68, 0.1)'
+                }}>
+                  <span className="text-sm font-black uppercase tracking-widest" style={{
+                    color: botRunning ? '#14F195' : '#ff4444',
+                    textShadow: botRunning ? '0 0 10px rgba(20, 241, 149, 0.6)' : '0 0 10px rgba(255, 68, 68, 0.6)'
+                  }}>
+                    BOT: {botRunning ? 'RUNNING' : 'STOPPED'}
+                  </span>
+                </div>
+                <div className="px-4 py-2 angled-corner-tr" style={{ 
+                  backgroundColor: 'rgba(153, 69, 255, 0.15)',
+                  border: '2px solid rgba(153, 69, 255, 0.6)',
+                  boxShadow: '0 0 20px rgba(153, 69, 255, 0.3), inset 0 0 15px rgba(153, 69, 255, 0.1)'
+                }}>
+                  <span className="text-sm font-black uppercase tracking-widest" style={{
+                    color: '#9945FF',
+                    textShadow: '0 0 10px rgba(153, 69, 255, 0.6)'
                   }}>
                     {paperTradingMode ? 'PAPER MODE' : 'LIVE TRADING'}
                   </span>
@@ -325,10 +346,13 @@ export default function EnhancedDashboard() {
                   toast.info('Logged out successfully - Bot stopped')
                 })
               }}
-              className="border-primary/50 hover:border-primary hover:bg-primary/10 jagged-corner-small"
+              className="border-primary/50 hover:border-primary hover:bg-primary/10 angled-corner-tr text-base font-bold px-6 py-3"
               disabled={isPending}
+              style={{
+                boxShadow: '0 0 15px rgba(0, 255, 255, 0.2)'
+              }}
             >
-              {isPending ? 'Logging out...' : 'Logout'}
+              {isPending ? 'LOGGING OUT...' : 'LOGOUT'}
             </Button>
           </div>
         </div>
