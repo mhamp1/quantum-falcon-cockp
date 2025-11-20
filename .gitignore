@@ -26,10 +26,14 @@ dist-ssr
 
 .env
 **/agent-eval-report*
-packages
 pids
 .file-manifest
 .devcontainer/
+
+# Package build artifacts
+packages/*/dist
+packages/*/node_modules
+packages/*/*.tsbuildinfo
 
 .spark-workbench-id
 
