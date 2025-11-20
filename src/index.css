@@ -1906,6 +1906,33 @@
   pointer-events: none;
 }
 
+/* PRODUCTION FIX: Global interactive card hover effects — November 20, 2025 */
+/* Hover lift + scale on every interactive card/button */
+.cyber-card:not(.no-hover):hover,
+.glass-morph-card:not(.no-hover):hover,
+.cyber-card-accent:not(.no-hover):hover,
+button:not(:disabled):not(.no-hover):hover,
+[role="button"]:not(:disabled):not(.no-hover):hover {
+  transform: translateY(-2px) scale(1.01);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Crown pulse animation for Free tier badge */
+@keyframes crown-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.3));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+  }
+}
+
+.crown-pulse {
+  animation: crown-pulse 2s ease-in-out infinite;
+}
+
 /* Aggression Control Panel Slider Styles */
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }

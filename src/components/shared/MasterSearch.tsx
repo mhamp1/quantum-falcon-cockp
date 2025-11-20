@@ -349,9 +349,12 @@ export default function MasterSearch({ isOpen, onClose }: MasterSearchProps) {
                     boxShadow: 'none',
                   }}
                 />
-                <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs bg-muted/30 rounded border border-border/50 text-muted-foreground">
+                <button
+                  onClick={onClose}
+                  className="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs bg-muted/30 rounded border border-border/50 text-muted-foreground hover:bg-muted/50 hover:border-primary/30 transition-all cursor-pointer"
+                >
                   ESC
-                </kbd>
+                </button>
               </div>
 
               <div className="max-h-[400px] overflow-y-auto scrollbar-thin space-y-1">

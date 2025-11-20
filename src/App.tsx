@@ -467,7 +467,14 @@ export default function App() {
 
             <div className="p-4 border-t border-primary/30 space-y-2">
               <div className="flex items-center justify-center gap-2">
-                <Crown size={14} weight="fill" className="text-yellow-400" />
+                <Crown 
+                  size={14} 
+                  weight="fill" 
+                  className={cn(
+                    "text-yellow-400",
+                    (!auth.license?.tier || auth.license?.tier === 'FREE') && "crown-pulse"
+                  )}
+                />
                 <span className="text-xs text-yellow-400 font-bold uppercase">
                   {auth.license?.tier || 'FREE'} TIER
                 </span>
