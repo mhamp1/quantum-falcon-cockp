@@ -1,4 +1,5 @@
 // Security, Notifications & Preferences — LIVE (Production 2025)
+// FINAL ELITE FEATURES: Master Search (Cmd+K) + Discord Integration — 100% live app match — November 20, 2025
 // 2FA support, session management, and notification controls
 // Comprehensive security settings with audit trail
 // Connected to /api/settings for real-time preference sync
@@ -29,6 +30,7 @@ import SettingsSearchBar from './SettingsSearchBar'
 import ChangeLog from './ChangeLog'
 import DeviceManagement from './DeviceManagement'
 import SecuritySettings from './SecuritySettings'
+import DiscordIntegration from './DiscordIntegration'
 import { UserAuth } from '@/lib/auth'
 import { logSettingChange } from '@/lib/changeLogger'
 import { debounce } from '@/lib/debounce'
@@ -145,8 +147,29 @@ export default function EnhancedSettings() {
       }, 150)
     }
 
+    const handleOpenSettingsCommunityTab = () => {
+      setActiveTab('community')
+    }
+
+    const handleOpenSettingsApiTab = () => {
+      setActiveTab('api')
+    }
+
+    const handleOpenSettingsRiskTab = () => {
+      setActiveTab('app')
+    }
+
     window.addEventListener('open-settings-legal-tab', handleOpenSettingsLegalTab)
-    return () => window.removeEventListener('open-settings-legal-tab', handleOpenSettingsLegalTab)
+    window.addEventListener('open-settings-community-tab', handleOpenSettingsCommunityTab)
+    window.addEventListener('open-settings-api-tab', handleOpenSettingsApiTab)
+    window.addEventListener('open-settings-risk-tab', handleOpenSettingsRiskTab)
+    
+    return () => {
+      window.removeEventListener('open-settings-legal-tab', handleOpenSettingsLegalTab)
+      window.removeEventListener('open-settings-community-tab', handleOpenSettingsCommunityTab)
+      window.removeEventListener('open-settings-api-tab', handleOpenSettingsApiTab)
+      window.removeEventListener('open-settings-risk-tab', handleOpenSettingsRiskTab)
+    }
   }, [])
 
   const handleLogout = () => {
@@ -464,6 +487,10 @@ export default function EnhancedSettings() {
           <TabsTrigger value="devices" className="data-label gap-2">
             <Users size={16} weight="duotone" />
             DEVICES
+          </TabsTrigger>
+          <TabsTrigger value="community" className="data-label gap-2">
+            <Users size={16} weight="duotone" />
+            COMMUNITY
           </TabsTrigger>
           <TabsTrigger value="subscription" className="data-label gap-2">
             <Crown size={16} weight="duotone" />
@@ -792,6 +819,10 @@ export default function EnhancedSettings() {
               </div>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="community" className="space-y-6">
+          <DiscordIntegration />
         </TabsContent>
 
         <TabsContent value="app" className="space-y-6">

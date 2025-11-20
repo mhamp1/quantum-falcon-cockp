@@ -1,55 +1,22 @@
-// QUANTUM FALCON COCKPIT v2025.1.0 - PRODUCTION NOVEMBER 19, 2025
+// QUANTUM FALCON COCKPIT v2025.1.0 - PRODUCTION NOVEMBER 20, 2025
 // 
-// RECENT UI PERFECTIONIST UPDATES (ALL TASKS COMPLETED):
-// ========================================================
-// 
-// ✅ TASK 1: ELIMINATED NEON BLEEDING GLOBALLY
-//    BEFORE: Text-shadow with 30-80px bloom, -webkit-text-stroke causing black lines
-//    AFTER: Maximum 8px glow (most use 6px), NO stroke artifacts, clean white #e0e0ff text
-//    
-// ✅ TASK 2: FIXED "BOT IS THINKING..." BANNER (LiveActivityPanel)
-//    BEFORE: 60px box-shadow causing massive halo, unreadable text
-//    AFTER: Linear gradient background (rgba 0.15), 1px border, 6px text-shadow max
-//    
-// ✅ TASK 3: CLEANED "Analyzing JUP pump" + CONFIDENCE BARS
-//    BEFORE: Massive pink/cyan bleed on progress bars, neon-glow-intense on text
-//    AFTER: Solid gradient fill with NO blur, thin 1px border, sharp white text
-//    
-// ✅ TASK 4: AGGRESSION SLIDER & STATUS BARS
-//    BEFORE: Slider thumb with giant halo, CPU bars with excessive glow
-//    AFTER: Small glowing dot (12px max), clean track with 1px border
-//    
-// ✅ TASK 5: REMOVED RAINBOW TEXT ARTIFACTS
-//    BEFORE: -webkit-text-stroke causing black outlines on gradient text
-//    AFTER: Pure background-clip: text only, 6px drop-shadow, NO stroke
-//    
-// ✅ TASK 6: SIDEBAR PRO-LEVEL UPGRADE
-//    BEFORE: Blocky cyan background on active tab, generic robot icon
-//    AFTER: Thin glowing left bar (1px width), subtle background overlay (10% opacity),
-//           holographic brain icon with orbiting particles (only on active state)
-//    
-// ✅ TASK 7: MOBILE BOTTOM NAV ENHANCEMENT
-//    BEFORE: Full background color on active tab
-//    AFTER: Small glowing underline (8px height, 12px glow) with Framer Motion layoutId
-//    
-// ✅ TASK 8: REMOVED SPINNING Q LOGO & SUBTITLE
-//    BEFORE: Distracting spinning Q + "Build, backtest..." subtitle text
-//    AFTER: Clean static Q background at 8% opacity, subtitle removed completely
-//    
-// ✅ TASK 9: AI BOT REPOSITIONING (NEVER OVERLAPS AGGRESSION PANEL)
-//    BEFORE: Orb covered slider at bottom-right when panel open
-//    AFTER: Intelligent repositioning to left: 280px with smooth Framer Motion transition
+// FINAL ELITE FEATURES: Master Search (Cmd+K) + Discord Integration — 100% live app match — November 20, 2025
 //
-// ✅ TASK 10: RESTORED SETTINGS TAB TO FULL FUNCTIONALITY
-//    BEFORE: Settings tab was missing from navigation (removed in error)
-//    AFTER: Settings tab restored as 9th/final tab with Gear icon from @phosphor-icons/react
-//           - Position: Last in sidebar, above tier/version footer
-//           - Contains: License keys, API keys, risk limits, notifications, theme, export logs, legal
-//           - Crown badge visible on Elite/Lifetime tiers
-//           - Mobile nav updated to include Settings (tabs.slice(5, 9))
-//           - Component: EnhancedSettings (lazy loaded)
-//    
-// RESULT: TradingView + Bybit Pro dark mode quality - clean, expensive, 12-hour readable
+// ✅ TASK 11: MASTER SEARCH (Cmd+K / Ctrl+K)
+//    - Global keyboard shortcut from anywhere in the app
+//    - Fixed center-screen holographic panel with backdrop blur
+//    - Live filtered search results with icons and categories
+//    - Keyboard navigation (arrow keys + Enter)
+//    - Top-right header search icon with subtle glow
+//    - Mobile: full-screen bottom sheet
+//
+// ✅ TASK 12: DISCORD INTEGRATION
+//    - Settings → Community & Social sub-tab
+//    - Discord OAuth2 connection flow
+//    - Server role display + member since date
+//    - Rich presence showing current activity
+//    - Auto-invite to Quantum Falcon server
+//    - Clean disconnect functionality
 
 import { useEffect, useMemo, Suspense, lazy, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -77,14 +44,17 @@ import {
   Lightning as Zap,
   Flame,
   Brain,
-  Gear
+  Gear,
+  MagnifyingGlass
 } from '@phosphor-icons/react';
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
 import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
+import MasterSearch from '@/components/shared/MasterSearch';
 import { SecurityManager } from '@/lib/security';
+import { updateDiscordRichPresence } from '@/lib/discord/oauth';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -197,6 +167,7 @@ export default function App() {
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showMasterSearch, setShowMasterSearch] = useState(false);
   const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
@@ -208,6 +179,23 @@ export default function App() {
   useEffect(() => {
     SecurityManager.initialize();
     console.info('🔒 [App] Security systems online');
+  }, []);
+
+  useEffect(() => {
+    updateDiscordRichPresence(activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        soundEffects.playClick();
+        setShowMasterSearch(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const tabs: Tab[] = useMemo(() => [
@@ -336,6 +324,7 @@ export default function App() {
         <DebugHelper />
         <AIBotAssistant />
         <RiskDisclosureBanner />
+        <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
         
         <InteractiveOnboardingTour
           isOpen={showOnboarding}
@@ -348,10 +337,33 @@ export default function App() {
         {!isMobile && (
           <div className="fixed left-0 top-0 bottom-0 w-[240px] bg-card/95 backdrop-blur border-r border-primary/10 z-50 flex flex-col">
             <div className="p-6 border-b border-primary/30">
-              <div className="scanline-effect mb-2">
-                <h1 className="text-2xl font-bold tracking-tight mb-1 text-primary" style={{ textShadow: '0 0 6px rgba(0,255,255,0.3)' }}>
-                  QUANTUM<br />FALCON
-                </h1>
+              <div className="flex items-center justify-between mb-2">
+                <div className="scanline-effect">
+                  <h1 className="text-2xl font-bold tracking-tight mb-1 text-primary" style={{ textShadow: '0 0 6px rgba(0,255,255,0.3)' }}>
+                    QUANTUM<br />FALCON
+                  </h1>
+                </div>
+                <button
+                  onClick={() => {
+                    soundEffects.playClick();
+                    setShowMasterSearch(true);
+                  }}
+                  onMouseEnter={() => soundEffects.playHover()}
+                  className="p-2 rounded-lg transition-all hover:bg-primary/10"
+                  style={{
+                    border: '1px solid oklch(0.72 0.20 195 / 0.2)',
+                  }}
+                  title="Master Search (Cmd+K)"
+                >
+                  <MagnifyingGlass 
+                    size={18} 
+                    className="text-primary" 
+                    weight="bold"
+                    style={{
+                      filter: 'drop-shadow(0 0 4px rgba(0, 255, 255, 0.3))',
+                    }}
+                  />
+                </button>
               </div>
               <p className="text-xs uppercase tracking-widest text-primary flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full animate-pulse bg-primary"></span>

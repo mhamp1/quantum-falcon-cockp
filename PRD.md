@@ -232,3 +232,61 @@ Animations should feel like holographic projections materializing in 3D space—
   - Unlocked for Pro/Elite/Lifetime with "Start Building" CTA
 - **Purpose**: Convert Free tier users to Pro+ by showing the immense value and FOMO of strategy creation feature
 - **Integration**: Replaces plain "Create Your Own Strategy" card in Community → Create tab
+
+### Master Search (Cmd+K) & Discord Integration (Latest - November 20, 2025)
+- **Component**: MasterSearch.tsx global component + DiscordIntegration.tsx in Settings
+- **Master Search Features**:
+  - Global keyboard shortcut: `Cmd+K` (Mac) or `Ctrl+K` (Windows) from anywhere in app
+  - Fixed center-screen holographic panel with angled corners (angled-corners-dual-tr-bl)
+  - Backdrop blur overlay (bg-black/70 backdrop-blur-xl) with smooth fade animation
+  - Instant-focus search input with cyan underline on focus
+  - Live filtered results across 5 categories: navigation, strategy, log, setting, action
+  - 18+ searchable items (all tabs, key actions, settings sections, strategies)
+  - Keyboard navigation with arrow keys + Enter to select result
+  - Visual category badges (cyan/purple/yellow/pink/green) with uppercase labels
+  - No results state shows "Create New Strategy" CTA button
+  - Hover states with horizontal slide animation (x: 4px)
+  - Keyboard hints at bottom (↑↓ Navigate, ↵ Select, ESC to close)
+  - Top-right header search icon (magnifying glass) with subtle glow on hover
+  - Mobile: full-screen view from top with responsive padding
+- **Discord Integration Features**:
+  - Settings → Community & Social tab (new tab added)
+  - Discord OAuth2 authentication flow with state validation
+  - Connection card with Discord purple gradient background
+  - Status badges: "Not Connected" (red) or "Connected as @username#1234" (green)
+  - Avatar display with fallback to Discord embed avatars
+  - Server role display (e.g., "Elite Member") with purple neon text
+  - Member since date formatting
+  - Auto-invite to Quantum Falcon Discord server
+  - Benefits list: exclusive channels, real-time alerts, rich presence, direct support
+  - Connect/Disconnect buttons with loading states
+  - OAuth callback handler with error recovery
+  - Persists connection data in KV storage (discord-connection, discord-access-token)
+  - Rich Presence integration showing current tab activity
+  - Activity map: "Viewing Dashboard", "Monitoring Bots", "Building Strategy", etc.
+- **Visual Design**:
+  - Master Search uses same angled holographic card style as all other cards
+  - Cyan/purple accents consistent with app aesthetic
+  - Search icon in header has 4px cyan glow drop-shadow on hover
+  - Discord card uses glass-morph-card with purple gradient for branding
+  - Both components fully mobile-responsive
+  - Smooth Framer Motion animations (spring physics)
+- **Integration Points**:
+  - App.tsx: Global Cmd+K keyboard listener added
+  - App.tsx: MasterSearch component rendered at root level
+  - App.tsx: Search icon added to sidebar header with hover sound effect
+  - App.tsx: Discord rich presence updates on tab change
+  - EnhancedSettings.tsx: New "Community" tab added to TabsList
+  - EnhancedSettings.tsx: Event listeners for open-settings-community-tab, open-settings-api-tab, open-settings-risk-tab
+  - DiscordIntegration.tsx: Full OAuth flow with server join and role detection
+  - oauth.ts: Complete Discord API integration with token management
+- **Success Criteria**:
+  - Master Search opens instantly (<100ms) on Cmd+K
+  - Search results filter in real-time as user types
+  - Keyboard navigation works smoothly without focus issues
+  - Selected result navigates correctly and closes search
+  - Discord OAuth completes successfully with valid credentials
+  - Connection status persists across page refreshes
+  - Rich presence updates reflect current user activity
+  - All UI elements match existing holographic aesthetic
+  - Mobile experience optimized for touch interactions
