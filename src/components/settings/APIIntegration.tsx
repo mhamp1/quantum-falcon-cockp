@@ -1,7 +1,7 @@
 // CRITICAL FINAL FIX: Kraken + Binance cards FORCED into existence — CEX trading live forever — November 20, 2025
 // console.log("KRAKEN AND BINANCE CARDS ADDED") confirmed below in component body
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,15 +50,18 @@ export default function APIIntegration() {
   // KRAKEN AND BINANCE CARDS ADDED — Confirmed November 20, 2025
   console.log("✅ KRAKEN AND BINANCE CARDS ADDED TO API INTEGRATIONS");
   
-  const [connections, setConnections] = useKV<APIConnection[]>('api-connections', [
-    { id: 'phantom', name: 'Phantom Wallet', type: 'wallet', connected: false, encrypted: true },
-    { id: 'solflare', name: 'Solflare Wallet', type: 'wallet', connected: false, encrypted: true },
-    { id: 'binance', name: 'Binance', type: 'exchange', connected: false, encrypted: true },
-    { id: 'kraken', name: 'Kraken', type: 'exchange', connected: false, encrypted: true },
-    { id: 'jupiter', name: 'Jupiter DEX', type: 'exchange', connected: false, encrypted: true },
-    { id: 'raydium', name: 'Raydium', type: 'exchange', connected: false, encrypted: true },
-    { id: 'helius', name: 'Helius RPC', type: 'rpc', connected: false, encrypted: true },
-  ])
+  // Memoize initial connections to prevent re-creation on every render (fixes Kraken/Binance card flash bug)
+  const initialConnections = useMemo(() => [
+    { id: 'phantom', name: 'Phantom Wallet', type: 'wallet' as const, connected: false, encrypted: true },
+    { id: 'solflare', name: 'Solflare Wallet', type: 'wallet' as const, connected: false, encrypted: true },
+    { id: 'binance', name: 'Binance', type: 'exchange' as const, connected: false, encrypted: true },
+    { id: 'kraken', name: 'Kraken', type: 'exchange' as const, connected: false, encrypted: true },
+    { id: 'jupiter', name: 'Jupiter DEX', type: 'exchange' as const, connected: false, encrypted: true },
+    { id: 'raydium', name: 'Raydium', type: 'exchange' as const, connected: false, encrypted: true },
+    { id: 'helius', name: 'Helius RPC', type: 'rpc' as const, connected: false, encrypted: true },
+  ], [])
+  
+  const [connections, setConnections] = useKV<APIConnection[]>('api-connections', initialConnections)
 
   const [credentials, setCredentials] = useKV<APICredentials>('api-credentials', {})
   const [showKeys, setShowKeys] = useState<{ [key: string]: boolean }>({})
