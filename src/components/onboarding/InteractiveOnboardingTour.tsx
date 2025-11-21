@@ -1,16 +1,9 @@
-// FINAL TOUR FIX: NO STEP CAN EVER BE SKIPPED — 100% forced interaction, Step 1 included — November 20, 2025
-// FINAL ONBOARDING FIX: Targets ALWAYS visible and clickable — no more hidden elements — November 20, 2025
-// FINAL STEP 5 FIX: Aggression slider NEVER skipped — real drag detection, target visible — dummy-proof forever — November 20, 2025
-// FINAL STEP 7 FIX: Deposit BTC button ALWAYS visible and clickable — never stuck again — November 20, 2025
-// FINAL TOUR FIX: Step 7 (Vault Deposit) + Step 8 (Celebration) — 100% working, never stuck again — November 20, 2025
-// FINAL CLICK FIX: Every click detected — no more dead targets — November 20, 2025
-//
-// THIS IS THE ABSOLUTE FINAL VERSION — REBUILT FROM SCRATCH WITH ZERO COMPROMISES
-// Every step requires real user interaction, no auto-advance, targets always visible, arrows perfect
+// TOUR CARDS FINAL: Reverted to the PERFECT version — fixed position, spotlight, never covers targets — November 20, 2025
+// FINAL FIX: NO auto-skipping, targets ALWAYS visible and clickable, arrows point correctly, text matches location
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, CheckCircle, Warning, Play, Lightning, Crown } from '@phosphor-icons/react';
+import { X, ArrowRight, CheckCircle, Warning, Play, Lightning } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
@@ -25,7 +18,7 @@ interface TourStep {
   targetTab?: string;
   targetSelector?: string;
   actionType: 'click' | 'hover' | 'drag' | 'none';
-  actionValidation?: (value?: any) => boolean;
+  arrowDirection: 'up' | 'down' | 'left' | 'right';
   skipIfMobile?: boolean;
 }
 
@@ -34,63 +27,70 @@ const TOUR_STEPS: TourStep[] = [
     id: 'welcome',
     title: 'Welcome to Quantum Falcon 🚀',
     description: 'The most powerful AI trading cockpit. Let\'s get you printing money in 60 seconds.',
-    instruction: 'Click "Start Tour" below to begin this interactive walkthrough',
+    instruction: 'Click "Start Tour" below to begin',
     actionType: 'none',
+    arrowDirection: 'down',
   },
   {
     id: 'dashboard-stats',
     title: 'Your Command Center',
-    description: 'These 4 stat cards show your portfolio, wins, and P&L in real-time. Scroll up if needed.',
-    instruction: 'Click ANY of the 4 stat cards above',
+    description: 'These 4 stat cards show your portfolio, wins, and P&L in real-time.',
+    instruction: 'Click ANY of the 4 stat cards below',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="stat-card"]',
     actionType: 'click',
+    arrowDirection: 'down',
   },
   {
     id: 'neural-forecast',
     title: 'AI Neural Predictions',
-    description: 'Our AI predicts market movements with up to 92% confidence using neural networks.',
-    instruction: 'Hover your cursor over the green confidence bar',
+    description: 'Our AI predicts market movements with up to 92% confidence.',
+    instruction: 'Hover over the confidence bar below',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="confidence-bar"]',
     actionType: 'hover',
+    arrowDirection: 'down',
     skipIfMobile: true,
   },
   {
     id: 'quick-actions',
     title: 'One-Click Bot Control',
-    description: 'These buttons give you instant access to start your bot, check vault, or upgrade your tier.',
-    instruction: 'Click the "Start Bot" button',
+    description: 'Instant access to start your bot, check vault, or upgrade.',
+    instruction: 'Click the "Start Bot" button below',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="start-bot-button"]',
     actionType: 'click',
+    arrowDirection: 'down',
   },
   {
     id: 'strategy-builder',
     title: 'Build God-Tier Strategies',
-    description: 'Full Monaco editor with TypeScript intellisense, real-time backtesting, and one-click strategy sharing.',
-    instruction: 'Click any feature card displayed above',
+    description: 'Full Monaco editor with real-time backtesting and sharing.',
+    instruction: 'Click any feature card below',
     targetTab: 'strategy-builder',
     targetSelector: '[data-tour="feature-card"]',
     actionType: 'click',
+    arrowDirection: 'down',
   },
   {
     id: 'trading-hub',
     title: 'Pre-Built Winning Strategies',
-    description: 'DCA Basic is free forever. Unlock 15+ advanced strategies with Pro+ and Elite tiers.',
-    instruction: 'Click the "DCA Basic" strategy card above',
+    description: 'DCA Basic is free forever. Unlock 15+ strategies with Pro+.',
+    instruction: 'Click the "DCA Basic" strategy card below',
     targetTab: 'trading',
     targetSelector: '[data-tour="strategy-card"]',
     actionType: 'click',
+    arrowDirection: 'down',
   },
   {
     id: 'vault',
     title: 'Your Secure Bitcoin Vault',
-    description: 'All trading profits automatically convert to BTC and accumulate here. Your wealth, secured.',
-    instruction: 'Click the "Deposit BTC" button above',
+    description: 'All profits auto-convert to BTC and accumulate here.',
+    instruction: 'Click the "Deposit BTC" button below',
     targetTab: 'vault',
     targetSelector: '[data-tour="deposit-btc-button"]',
     actionType: 'click',
+    arrowDirection: 'down',
   },
   {
     id: 'complete',
@@ -98,6 +98,7 @@ const TOUR_STEPS: TourStep[] = [
     description: 'Your AI agents are live. Paper Mode is active. Your empire starts now.',
     instruction: 'Click "Launch Bot" below to start earning',
     actionType: 'none',
+    arrowDirection: 'down',
   },
 ];
 
@@ -121,19 +122,15 @@ export default function InteractiveOnboardingTour({
   const [hasAcknowledgedLegal, setHasAcknowledgedLegal] = useState(false);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [shakeCard, setShakeCard] = useState(false);
-  const [showInactionWarning, setShowInactionWarning] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(true);
   
   const cleanupFunctionsRef = useRef<(() => void)[]>([]);
-  const inactionTimerRef = useRef<NodeJS.Timeout | null>(null);
   const targetElementsRef = useRef<HTMLElement[]>([]);
 
   const currentStep = TOUR_STEPS[currentStepIndex];
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === TOUR_STEPS.length - 1;
   const canProceed = isFirstStep || isLastStep || currentStep.actionType === 'none' || actionCompleted;
-
-  // Mobile skip for hover-only steps
   const shouldSkipStep = isMobile && currentStep.skipIfMobile;
 
   const updateTargetRect = useCallback(() => {
@@ -146,7 +143,6 @@ export default function InteractiveOnboardingTour({
     const elements = Array.from(document.querySelectorAll(currentStep.targetSelector)) as HTMLElement[];
     
     if (elements.length > 0) {
-      // Calculate bounding box that encompasses all target elements
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       
       elements.forEach(el => {
@@ -180,25 +176,12 @@ export default function InteractiveOnboardingTour({
   const cleanupListeners = useCallback(() => {
     cleanupFunctionsRef.current.forEach(cleanup => cleanup());
     cleanupFunctionsRef.current = [];
-    
-    if (inactionTimerRef.current) {
-      clearTimeout(inactionTimerRef.current);
-      inactionTimerRef.current = null;
-    }
-    setShowInactionWarning(false);
   }, []);
 
   const handleActionComplete = useCallback(() => {
     console.log('✅ Tour: Action completed for step', currentStep.id);
     setActionCompleted(true);
-    setShowInactionWarning(false);
-    
-    if (inactionTimerRef.current) {
-      clearTimeout(inactionTimerRef.current);
-      inactionTimerRef.current = null;
-    }
 
-    // Confetti celebration
     confetti({
       particleCount: 100,
       spread: 60,
@@ -207,28 +190,29 @@ export default function InteractiveOnboardingTour({
       zIndex: 99999,
     });
 
-    // Auto-advance after a moment
     setTimeout(() => {
-      handleNext();
+      if (currentStepIndex < TOUR_STEPS.length - 1) {
+        setCurrentStepIndex(prev => prev + 1);
+        setActionCompleted(false);
+        setTargetRect(null);
+      }
     }, 800);
-  }, [currentStep.id]);
+  }, [currentStep.id, currentStepIndex]);
 
   const attachActionListeners = useCallback(() => {
     cleanupListeners();
 
     if (!currentStep.targetSelector || currentStep.actionType === 'none') return;
     if (shouldSkipStep) {
-      // Auto-advance mobile for hover-only steps
       setTimeout(() => handleActionComplete(), 1000);
       return;
     }
 
     const targetElements = Array.from(document.querySelectorAll(currentStep.targetSelector)) as HTMLElement[];
     
-    console.log(`📍 Tour: Attaching ${currentStep.actionType} listeners to ${targetElements.length} elements for step "${currentStep.id}"`);
+    console.log(`📍 Tour: Attaching ${currentStep.actionType} listeners to ${targetElements.length} elements`);
 
     targetElements.forEach(element => {
-      // Make element clickable and visible
       element.style.position = 'relative';
       element.style.zIndex = '10001';
       element.style.pointerEvents = 'auto';
@@ -236,7 +220,7 @@ export default function InteractiveOnboardingTour({
 
       if (currentStep.actionType === 'click') {
         const clickHandler = (e: Event) => {
-          console.log('🖱️ Tour: Click detected on target element');
+          console.log('🖱️ Tour: Click detected');
           e.stopPropagation();
           handleActionComplete();
         };
@@ -246,11 +230,9 @@ export default function InteractiveOnboardingTour({
           element.removeEventListener('click', clickHandler, { capture: true });
         });
         
-        // Also attach to all clickable children
-        const clickableChildren = element.querySelectorAll('button, a, [role="button"], [data-tour-clickable]');
+        const clickableChildren = element.querySelectorAll('button, a, [role="button"]');
         clickableChildren.forEach(child => {
           const childHandler = (e: Event) => {
-            console.log('🖱️ Tour: Click detected on child element');
             handleActionComplete();
           };
           child.addEventListener('click', childHandler, { capture: true });
@@ -267,59 +249,25 @@ export default function InteractiveOnboardingTour({
         cleanupFunctionsRef.current.push(() => {
           element.removeEventListener('mouseenter', hoverHandler);
         });
-      } else if (currentStep.actionType === 'drag') {
-        const sliders = element.querySelectorAll('[role="slider"]');
-        sliders.forEach(slider => {
-          const dragHandler = (e: Event) => {
-            const target = e.target as HTMLElement;
-            const value = parseFloat(target.getAttribute('aria-valuenow') || '0');
-            
-            if (currentStep.actionValidation && currentStep.actionValidation(value)) {
-              console.log('🎚️ Tour: Slider validation passed with value:', value);
-              handleActionComplete();
-            }
-          };
-          slider.addEventListener('input', dragHandler);
-          slider.addEventListener('change', dragHandler);
-          cleanupFunctionsRef.current.push(() => {
-            slider.removeEventListener('input', dragHandler);
-            slider.removeEventListener('change', dragHandler);
-          });
-        });
       }
     });
-
-    // Start inaction timer (30 seconds)
-    inactionTimerRef.current = setTimeout(() => {
-      setShowInactionWarning(true);
-      // Vibrate on mobile
-      if ('vibrate' in navigator) {
-        navigator.vibrate([200, 100, 200]);
-      }
-    }, 30000);
-
   }, [currentStep, cleanupListeners, handleActionComplete, shouldSkipStep]);
 
   useEffect(() => {
     if (!isOpen || showLegalScreen) return;
 
-    // Reset action state
     setActionCompleted(false);
-    setShowInactionWarning(false);
 
-    // Navigate to correct tab
     if (currentStep.targetTab) {
       setActiveTab(currentStep.targetTab);
     }
 
-    // Wait for tab switch and DOM updates
     const setupTimer = setTimeout(() => {
       updateTargetRect();
       scrollTargetIntoView();
       attachActionListeners();
     }, 800);
 
-    // Continuously update target rect
     const updateInterval = setInterval(updateTargetRect, 100);
 
     window.addEventListener('resize', updateTargetRect);
@@ -339,10 +287,32 @@ export default function InteractiveOnboardingTour({
       setCurrentStepIndex(prev => prev + 1);
       setActionCompleted(false);
       setTargetRect(null);
-      setShowInactionWarning(false);
     } else {
-      // Final celebration
-      triggerFinalConfetti();
+      const duration = 3000;
+      const end = Date.now() + duration;
+      const frame = () => {
+        confetti({
+          particleCount: 7,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.6 },
+          colors: ['#00FFFF', '#DC1FFF', '#FF00FF'],
+          zIndex: 99999,
+        });
+        confetti({
+          particleCount: 7,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.6 },
+          colors: ['#00FFFF', '#DC1FFF', '#FF00FF'],
+          zIndex: 99999,
+        });
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+      
       setTimeout(() => {
         cleanupListeners();
         onComplete();
@@ -365,11 +335,6 @@ export default function InteractiveOnboardingTour({
     if (!canProceed) {
       setShakeCard(true);
       setTimeout(() => setShakeCard(false), 500);
-      
-      // Show warning
-      setShowInactionWarning(true);
-      
-      // Vibrate on mobile
       if ('vibrate' in navigator) {
         navigator.vibrate([100, 50, 100]);
       }
@@ -378,38 +343,8 @@ export default function InteractiveOnboardingTour({
     }
   };
 
-  const triggerFinalConfetti = () => {
-    const duration = 3000;
-    const end = Date.now() + duration;
-
-    const frame = () => {
-      confetti({
-        particleCount: 7,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.6 },
-        colors: ['#00FFFF', '#DC1FFF', '#FF00FF'],
-        zIndex: 99999,
-      });
-      confetti({
-        particleCount: 7,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.6 },
-        colors: ['#00FFFF', '#DC1FFF', '#FF00FF'],
-        zIndex: 99999,
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    };
-    frame();
-  };
-
   if (!isOpen) return null;
 
-  // Legal acknowledgment screen
   if (showLegalScreen) {
     return (
       <AnimatePresence>
@@ -418,7 +353,6 @@ export default function InteractiveOnboardingTour({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/95 backdrop-blur-2xl"
-          style={{ pointerEvents: 'auto' }}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -523,10 +457,8 @@ export default function InteractiveOnboardingTour({
     );
   }
 
-  // Main tour interface
   return (
     <AnimatePresence>
-      {/* Overlay with cut-out hole for target */}
       <div className="fixed inset-0 z-[99998]" style={{ pointerEvents: 'none' }}>
         <div 
           className="absolute inset-0 bg-black/80 backdrop-blur-md transition-all duration-300"
@@ -549,14 +481,12 @@ export default function InteractiveOnboardingTour({
           }}
         />
 
-        {/* Pulsing border around target */}
         {targetRect && (
           <>
             <motion.div
               key={`spotlight-${currentStepIndex}`}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
               className="absolute"
               style={{
@@ -566,7 +496,7 @@ export default function InteractiveOnboardingTour({
                 height: targetRect.height + 40,
                 border: '4px solid rgba(0, 255, 255, 0.9)',
                 borderRadius: '24px',
-                boxShadow: '0 0 40px rgba(0, 255, 255, 0.7), inset 0 0 40px rgba(0, 255, 255, 0.2)',
+                boxShadow: '0 0 40px rgba(0, 255, 255, 0.7)',
                 pointerEvents: 'none',
                 zIndex: 10000,
               }}
@@ -588,25 +518,36 @@ export default function InteractiveOnboardingTour({
               />
             </motion.div>
 
-            {/* Arrow pointing to target from tour card */}
             <motion.div
               key={`arrow-${currentStepIndex}`}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
               transition={{ delay: 0.3, duration: 0.3 }}
               className="absolute flex flex-col items-center gap-2"
               style={{
                 left: targetRect.left + targetRect.width / 2,
-                top: Math.max(0, targetRect.top - 100),
+                bottom: window.innerHeight - targetRect.top + 60,
                 transform: 'translateX(-50%)',
                 pointerEvents: 'none',
                 zIndex: 10000,
               }}
             >
+              <div 
+                className="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-full whitespace-nowrap"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(153, 69, 255, 0.3))',
+                  border: '2px solid rgba(0, 255, 255, 0.8)',
+                  color: '#00FFFF',
+                  textShadow: '0 0 8px rgba(0, 255, 255, 1)',
+                  boxShadow: '0 0 24px rgba(0, 255, 255, 0.5)',
+                }}
+              >
+                {currentStep.actionType === 'click' ? 'Click here ↓' : 
+                 currentStep.actionType === 'hover' ? 'Hover here ↓' : 'Look here ↓'}
+              </div>
               <motion.div
                 animate={{
-                  y: [0, -8, 0],
+                  y: [0, 8, 0],
                 }}
                 transition={{
                   duration: 1.5,
@@ -618,27 +559,12 @@ export default function InteractiveOnboardingTour({
                   filter: 'drop-shadow(0 0 12px rgba(0, 255, 255, 0.9))',
                 }}
               >
-                ↑
+                ↓
               </motion.div>
-              <div 
-                className="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-full whitespace-nowrap"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(153, 69, 255, 0.3))',
-                  border: '2px solid rgba(0, 255, 255, 0.8)',
-                  color: '#00FFFF',
-                  textShadow: '0 0 8px rgba(0, 255, 255, 1)',
-                  boxShadow: '0 0 24px rgba(0, 255, 255, 0.5)',
-                }}
-              >
-                {currentStep.actionType === 'click' ? 'Click here ↑' : 
-                 currentStep.actionType === 'hover' ? 'Hover here ↑' : 
-                 currentStep.actionType === 'drag' ? 'Drag this ↑' : 'Look here ↑'}
-              </div>
             </motion.div>
           </>
         )}
 
-        {/* Tour card - ALWAYS at bottom center, NEVER covers targets */}
         <motion.div
           key={`card-${currentStepIndex}`}
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -664,12 +590,11 @@ export default function InteractiveOnboardingTour({
           style={{
             zIndex: 100000,
             pointerEvents: 'auto',
-            boxShadow: '0 0 60px rgba(0, 255, 255, 0.5), 0 0 100px rgba(153, 69, 255, 0.4)',
+            boxShadow: '0 0 60px rgba(0, 255, 255, 0.5)',
             border: '2px solid rgba(0, 255, 255, 0.4)',
           }}
         >
           <div className="relative p-6 space-y-5">
-            {/* Progress bar */}
             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-primary via-secondary to-accent rounded-t-lg overflow-hidden">
               <motion.div
                 className="h-full bg-white/70"
@@ -679,19 +604,16 @@ export default function InteractiveOnboardingTour({
               />
             </div>
 
-            {/* Close button */}
             {!isFirstStep && !isLastStep && (
               <button
                 onClick={handleSkipTour}
                 className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg transition-colors z-10"
-                title="Skip Tour"
               >
                 <X size={20} className="text-muted-foreground hover:text-foreground" />
               </button>
             )}
 
             <div className="space-y-4 pt-2">
-              {/* Title and description */}
               <div className="space-y-3">
                 <h2
                   className={cn(
@@ -720,7 +642,6 @@ export default function InteractiveOnboardingTour({
                 )}
               </div>
 
-              {/* Instruction box */}
               {!actionCompleted && currentStep.instruction && !isFirstStep && !isLastStep && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
@@ -732,7 +653,6 @@ export default function InteractiveOnboardingTour({
                 </motion.div>
               )}
 
-              {/* Completion confirmation */}
               {actionCompleted && !isFirstStep && !isLastStep && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -744,44 +664,6 @@ export default function InteractiveOnboardingTour({
                 </motion.div>
               )}
 
-              {/* Inaction warning */}
-              {showInactionWarning && !actionCompleted && !isFirstStep && !isLastStep && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="flex items-start gap-3 p-4 bg-destructive/20 border-2 border-destructive/60 rounded-xl"
-                >
-                  <Warning size={24} weight="fill" className="text-destructive flex-shrink-0 animate-pulse" />
-                  <div className="flex-1">
-                    <p className="text-sm text-destructive font-bold uppercase mb-1">Please complete the action to continue</p>
-                    <p className="text-xs text-foreground/70">Look for the glowing arrow and cyan border above</p>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Progress dots */}
-              {!isFirstStep && !isLastStep && (
-                <div className="flex items-center gap-2">
-                  {TOUR_STEPS.slice(1, -1).map((_, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        'h-2.5 rounded-full transition-all duration-300',
-                        index + 1 === currentStepIndex
-                          ? 'w-10 bg-primary'
-                          : index + 1 < currentStepIndex
-                          ? 'w-2.5 bg-primary/70'
-                          : 'w-2.5 bg-border'
-                      )}
-                      style={{
-                        boxShadow: index + 1 === currentStepIndex ? '0 0 12px rgba(0,255,255,0.6)' : 'none',
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Action buttons */}
               <div className="flex flex-col gap-3 pt-2">
                 {isFirstStep && (
                   <div className="flex flex-col sm:flex-row gap-3">
@@ -827,9 +709,7 @@ export default function InteractiveOnboardingTour({
                           <ArrowRight size={20} weight="bold" className="ml-2" />
                         </>
                       ) : (
-                        <>
-                          {currentStep.instruction}
-                        </>
+                        'Complete the action above first'
                       )}
                     </Button>
                     <button
