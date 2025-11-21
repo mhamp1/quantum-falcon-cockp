@@ -54,6 +54,7 @@ import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
 import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
 import MasterSearch from '@/components/shared/MasterSearch';
+import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import { SecurityManager } from '@/lib/security';
 import { updateDiscordRichPresence } from '@/lib/discord/oauth';
 
@@ -500,103 +501,13 @@ export default function App() {
           </Suspense>
         </div>
 
-        {/* SIDEBAR UPGRADE: Mobile bottom nav with glowing underline */}
+        {/* MOBILE NAV 10X: Premium mobile bottom navigation - smoother than Bybit Pro + TradingView Mobile 2025 */}
         {isMobile && (
-          <nav className="fixed bottom-0 left-0 right-0 h-20 bg-card/95 backdrop-blur border-t border-border z-50">
-            <div className="flex justify-around items-center h-full px-2">
-              {tabs.slice(0, 4).map(tab => {
-                const isActive = activeTab === tab.id;
-                const IconComponent = tab.icon;
-                
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      soundEffects.playTabSwitch();
-                      setActiveTab(tab.id);
-                    }}
-                    className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-[60px]"
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="mobileActiveTab"
-                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full"
-                        style={{
-                          boxShadow: '0 0 8px var(--primary), 0 -2px 12px var(--primary)'
-                        }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                    
-                    {tab.id === 'multi-agent' ? (
-                      <HolographicBotIcon isActive={isActive} size={32} />
-                    ) : (
-                      <IconComponent 
-                        size={32} 
-                        weight={isActive ? "fill" : "regular"}
-                        className={isActive ? "text-primary" : "text-muted-foreground"}
-                      />
-                    )}
-                    <span className={cn(
-                      "text-xs font-semibold",
-                      isActive ? "text-primary" : "text-muted-foreground"
-                    )}>
-                      {tab.label.split(' ')[0]}
-                    </span>
-                  </button>
-                );
-              })}
-              <button
-                onClick={() => {
-                  soundEffects.playTabSwitch();
-                  setActiveTab('strategy-builder');
-                }}
-                className="flex flex-col items-center gap-1 px-4 py-3 rounded-2xl transition-all bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg"
-                style={{ transform: 'translateY(-8px)' }}
-              >
-                <Code size={32} weight="fill" />
-                <span className="text-xs font-bold">Strategy</span>
-              </button>
-              {tabs.slice(5, 9).map(tab => {
-                const isActive = activeTab === tab.id;
-                const IconComponent = tab.icon;
-                
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      soundEffects.playTabSwitch();
-                      setActiveTab(tab.id);
-                    }}
-                    className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-[60px]"
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="mobileActiveTab2"
-                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full"
-                        style={{
-                          boxShadow: '0 0 8px var(--primary), 0 -2px 12px var(--primary)'
-                        }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                    
-                    <IconComponent 
-                      size={32} 
-                      weight={isActive ? "fill" : "regular"}
-                      className={isActive ? "text-primary" : "text-muted-foreground"}
-                    />
-                    <span className={cn(
-                      "text-xs font-semibold",
-                      isActive ? "text-primary" : "text-muted-foreground"
-                    )}>
-                      {tab.label.split(' ')[0]}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
+          <MobileBottomNav 
+            tabs={tabs} 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab}
+          />
         )}
 
         <AnimatePresence>
