@@ -5,7 +5,7 @@
  * Provides reactive state management for first-time user status.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { isFirstTimeUser, markFirstTimeComplete } from '@/lib/firstTimeUser';
 
 interface UseFirstTimeUserReturn {
@@ -36,10 +36,7 @@ export function useFirstTimeUser(): UseFirstTimeUserReturn {
     return isFirstTimeUser();
   });
 
-  useEffect(() => {
-    // Recheck on mount in case localStorage changed
-    setIsFirstTime(isFirstTimeUser());
-  }, []);
+  // No need for additional useEffect - useState initializer already reads from localStorage
 
   const complete = useCallback(() => {
     markFirstTimeComplete();

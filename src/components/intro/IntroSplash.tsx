@@ -22,6 +22,7 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
   const { isFirstTime, complete } = useFirstTimeUser();
   const [isVisible, setIsVisible] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -50,10 +51,18 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
     // finish();
   };
 
+  const handleVideoReady = () => {
+    setVideoReady(true);
+  };
+
   const handlePlayVideo = () => {
     if (videoRef.current) {
-      videoRef.current.play();
-      setVideoPlaying(true);
+      videoRef.current.play().then(() => {
+        setVideoPlaying(true);
+      }).catch(() => {
+        // Autoplay failed - user will see play button
+        setVideoPlaying(false);
+      });
     }
   };
 
@@ -126,18 +135,18 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
                 <video
                   ref={videoRef}
                   className="qf-intro-video"
-                  autoPlay
                   muted
                   playsInline
                   onEnded={handleVideoEnded}
+                  onLoadedData={handleVideoReady}
                   poster="/falcon-head-official.png"
                 >
                   <source src="/intro.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
                 
-                {/* Play button overlay if video isn't playing */}
-                {!videoPlaying && (
+                {/* Play button overlay - shows until video is manually started */}
+                {videoReady && !videoPlaying && (
                   <button
                     onClick={handlePlayVideo}
                     className="qf-intro-play-btn"
