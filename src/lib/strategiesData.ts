@@ -20,6 +20,7 @@ export interface StrategyData {
   pnlPercent?: number
   benefits: string[]
   status?: 'active' | 'paused' | 'locked'
+  icon?: string // Phosphor icon name for unique strategy icons
 }
 
 export const ALL_STRATEGIES: StrategyData[] = [
@@ -37,6 +38,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
     thumbnail: '/assets/strategies/paper-trading.png',
     badge: 'LIVE',
     risk: 'low',
+    icon: 'Notebook',
     benefits: [
       'Zero risk learning',
       'Real-time market data',
@@ -57,6 +59,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
     thumbnail: '/assets/strategies/dca-basic.png',
     badge: 'POPULAR',
     risk: 'low',
+    icon: 'CalendarPlus',
     pnl: 89.20,
     pnlPercent: 3.2,
     benefits: [
@@ -71,6 +74,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'ema-cross-basic',
     name: 'EMA Cross Basic',
+    icon: 'TrendUp',
     category: 'Trend Following',
     tier_required: 'starter',
     is_unlocked: false,
@@ -100,6 +104,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
     longDescription: 'RSI indicator identifies extreme conditions. Enters counter-trend positions when RSI shows overbought or oversold levels.',
     thumbnail: '/assets/strategies/rsi-basic.png',
     risk: 'medium',
+    icon: 'ChartLineUp',
     benefits: [
       'Catches reversals',
       'Works in ranging markets',
@@ -110,6 +115,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'volume-spike',
     name: 'Volume Spike Detector',
+    icon: 'SpeakerHigh',
     category: 'Volume',
     tier_required: 'starter',
     is_unlocked: false,
@@ -130,6 +136,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'support-resistance',
     name: 'Support/Resistance Bounces',
+    icon: 'ArrowsDownUp',
     category: 'Mean Reversion',
     tier_required: 'starter',
     is_unlocked: false,
@@ -151,6 +158,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'golden-cross-pro',
     name: 'Golden Cross Pro',
+    icon: 'Crosshair',
     category: 'Trend Following',
     tier_required: 'trader',
     is_unlocked: false,
@@ -171,6 +179,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'macd-divergence',
     name: 'MACD Divergence Hunter',
+    icon: 'ArrowsLeftRight',
     category: 'Oscillator',
     tier_required: 'trader',
     is_unlocked: false,
@@ -191,6 +200,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'bollinger-squeeze',
     name: 'Bollinger Band Squeeze',
+    icon: 'Brackets',
     category: 'Mean Reversion',
     tier_required: 'trader',
     is_unlocked: false,
@@ -210,6 +220,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'stochastic-cross',
     name: 'Stochastic Crossover',
+    icon: 'Infinity',
     category: 'Oscillator',
     tier_required: 'trader',
     is_unlocked: false,
@@ -229,6 +240,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'volume-breakout',
     name: 'Volume Breakout Pro',
+    icon: 'ArrowUp',
     category: 'Volume',
     tier_required: 'trader',
     is_unlocked: false,
@@ -249,6 +261,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'mean-reversion-basic',
     name: 'Mean Reversion Classic',
+    icon: 'ArrowsCounterClockwise',
     category: 'Mean Reversion',
     tier_required: 'trader',
     is_unlocked: false,
@@ -268,6 +281,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'triple-ema',
     name: 'Triple EMA System',
+    icon: 'FlowArrow',
     category: 'Trend Following',
     tier_required: 'trader',
     is_unlocked: false,
@@ -287,6 +301,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'parabolic-sar',
     name: 'Parabolic SAR Trend',
+    icon: 'CursorClick',
     category: 'Trend Following',
     tier_required: 'trader',
     is_unlocked: false,
@@ -306,6 +321,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'adx-trend-strength',
     name: 'ADX Trend Strength',
+    icon: 'Gauge',
     category: 'Trend Following',
     tier_required: 'trader',
     is_unlocked: false,
@@ -325,6 +341,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'keltner-channel',
     name: 'Keltner Channel Breakout',
+    icon: 'Funnel',
     category: 'Mean Reversion',
     tier_required: 'trader',
     is_unlocked: false,
@@ -344,6 +361,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'ichimoku-cloud',
     name: 'Ichimoku Cloud Strategy',
+    icon: 'Cloud',
     category: 'Advanced',
     tier_required: 'trader',
     is_unlocked: false,
@@ -363,6 +381,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'fibonacci-retracement',
     name: 'Fibonacci Retracement',
+    icon: 'Spiral',
     category: 'Mean Reversion',
     tier_required: 'trader',
     is_unlocked: false,
@@ -384,6 +403,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'ml-price-predictor',
     name: 'ML Price Predictor',
+    icon: 'Brain',
     category: 'AI/ML',
     tier_required: 'pro',
     is_unlocked: false,
@@ -404,6 +424,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'sentiment-analyzer',
     name: 'Social Sentiment Analyzer',
+    icon: 'ChatCenteredDots',
     category: 'AI/ML',
     tier_required: 'pro',
     is_unlocked: false,
@@ -424,6 +445,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'order-flow-imbalance',
     name: 'Order Flow Imbalance',
+    icon: 'Scales',
     category: 'Volume',
     tier_required: 'pro',
     is_unlocked: false,
@@ -444,6 +466,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'smart-money-divergence',
     name: 'Smart Money Divergence',
+    icon: 'Wallet',
     category: 'Volume',
     tier_required: 'pro',
     is_unlocked: false,
@@ -464,6 +487,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'multi-timeframe-momentum',
     name: 'Multi-Timeframe Momentum',
+    icon: 'ClockCounterClockwise',
     category: 'Trend Following',
     tier_required: 'pro',
     is_unlocked: false,
@@ -483,6 +507,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'volatility-arbitrage',
     name: 'Volatility Arbitrage',
+    icon: 'Lightning',
     category: 'Arbitrage',
     tier_required: 'pro',
     is_unlocked: false,
@@ -503,6 +528,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'market-maker-strategy',
     name: 'Market Maker Strategy',
+    icon: 'Activity',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -523,6 +549,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'triangular-arbitrage',
     name: 'Triangular Arbitrage',
+    icon: 'Triangle',
     category: 'Arbitrage',
     tier_required: 'pro',
     is_unlocked: false,
@@ -542,6 +569,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'statistical-arbitrage',
     name: 'Statistical Arbitrage',
+    icon: 'MathOperations',
     category: 'Arbitrage',
     tier_required: 'pro',
     is_unlocked: false,
@@ -562,6 +590,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'harmonic-patterns',
     name: 'Harmonic Pattern Scanner',
+    icon: 'Waveform',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -581,6 +610,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'elliott-wave',
     name: 'Elliott Wave Counter',
+    icon: 'Waveform',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -600,6 +630,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'wyckoff-accumulation',
     name: 'Wyckoff Accumulation',
+    icon: 'Package',
     category: 'Volume',
     tier_required: 'pro',
     is_unlocked: false,
@@ -620,6 +651,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'vwap-strategy',
     name: 'VWAP Reversion Pro',
+    icon: 'ChartBar',
     category: 'Mean Reversion',
     tier_required: 'pro',
     is_unlocked: false,
@@ -639,6 +671,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'options-flow',
     name: 'Options Flow Tracker',
+    icon: 'ArrowsOut',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -659,6 +692,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'gamma-squeeze',
     name: 'Gamma Squeeze Detector',
+    icon: 'Lightning',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -679,6 +713,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'correlation-trading',
     name: 'Cross-Asset Correlation',
+    icon: 'Graph',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -708,6 +743,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
     thumbnail: '/assets/strategies/liquidity-hunt.png',
     badge: 'EXCLUSIVE',
     risk: 'medium',
+    icon: 'Waves',
     benefits: [
       'Market maker insights',
       'Stop-loss sweep detection',
@@ -718,6 +754,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'supply-demand-zones',
     name: 'Supply/Demand Zones',
+    icon: 'ChartLineDown',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -737,6 +774,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'market-profile',
     name: 'Market Profile Analysis',
+    icon: 'ChartPolar',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -757,6 +795,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'order-block-strategy',
     name: 'Order Block Strategy',
+    icon: 'Cube',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,
@@ -788,6 +827,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
     thumbnail: '/assets/strategies/whale-tracker.png',
     badge: 'ELITE ONLY',
     risk: 'medium',
+    icon: 'FishSimple',
     benefits: [
       'Blockchain transparency',
       'Whale wallet tracking',
@@ -798,6 +838,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'exchange-netflow',
     name: 'Exchange Netflow Strategy',
+    icon: 'ArrowsLeftRight',
     category: 'On-Chain',
     tier_required: 'elite',
     is_unlocked: false,
@@ -818,6 +859,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'defi-yield-optimizer',
     name: 'DeFi Yield Optimizer',
+    icon: 'CoinsSwap',
     category: 'On-Chain',
     tier_required: 'elite',
     is_unlocked: false,
@@ -838,6 +880,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'nft-floor-sweep',
     name: 'NFT Floor Sweep Bot',
+    icon: 'Image',
     category: 'On-Chain',
     tier_required: 'elite',
     is_unlocked: false,
@@ -857,7 +900,8 @@ export const ALL_STRATEGIES: StrategyData[] = [
   },
   {
     id: 'mev-front-running',
-    name: 'MEV Protection & Capture',
+    name: 'MEV Protection name: 'MEV Protection & Capture', Capture',
+    icon: 'ShieldCheck',
     category: 'On-Chain',
     tier_required: 'elite',
     is_unlocked: false,
@@ -878,6 +922,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'custom-strategy-builder',
     name: 'Custom Strategy Builder',
+    icon: 'PencilLine',
     category: 'Advanced',
     tier_required: 'elite',
     is_unlocked: false,
@@ -898,6 +943,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'quantum-ml-ensemble',
     name: 'Quantum ML Ensemble',
+    icon: 'Atom',
     category: 'AI/ML',
     tier_required: 'elite',
     is_unlocked: false,
@@ -918,6 +964,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'reinforcement-learning',
     name: 'RL Adaptive Trader',
+    icon: 'Robot',
     category: 'AI/ML',
     tier_required: 'elite',
     is_unlocked: false,
@@ -938,6 +985,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'gpt4-news-trader',
     name: 'GPT-4 News Trader',
+    icon: 'Newspaper',
     category: 'AI/ML',
     tier_required: 'elite',
     is_unlocked: false,
@@ -958,6 +1006,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'multi-strategy-portfolio',
     name: 'Multi-Strategy Portfolio',
+    icon: 'Stack',
     category: 'Advanced',
     tier_required: 'elite',
     is_unlocked: false,
@@ -980,6 +1029,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'white-label-deployment',
     name: 'White-Label Deployment',
+    icon: 'Tag',
     category: 'Advanced',
     tier_required: 'lifetime',
     is_unlocked: false,
@@ -1000,6 +1050,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'api-strategy-publisher',
     name: 'API Strategy Publisher',
+    icon: 'Code',
     category: 'Advanced',
     tier_required: 'lifetime',
     is_unlocked: false,
@@ -1020,6 +1071,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'institutional-hft',
     name: 'Institutional HFT Engine',
+    icon: 'Rocket',
     category: 'Advanced',
     tier_required: 'lifetime',
     is_unlocked: false,
@@ -1040,6 +1092,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'custom-ai-training',
     name: 'Custom AI Model Training',
+    icon: 'GraduationCap',
     category: 'AI/ML',
     tier_required: 'lifetime',
     is_unlocked: false,
@@ -1060,6 +1113,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'unlimited-strategies',
     name: 'Unlimited Custom Strategies',
+    icon: 'Infinity',
     category: 'Advanced',
     tier_required: 'lifetime',
     is_unlocked: false,

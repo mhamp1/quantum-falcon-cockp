@@ -17,7 +17,53 @@ import {
   Brain,
   ChartLine,
   TrendUp,
-  Sparkle
+  Sparkle,
+  Notebook,
+  CalendarPlus,
+  FishSimple,
+  ChartLineUp,
+  Waves,
+  SpeakerHigh,
+  ArrowsDownUp,
+  Crosshair,
+  ArrowsLeftRight,
+  Brackets,
+  Infinity,
+  ArrowUp,
+  ArrowsCounterClockwise,
+  FlowArrow,
+  CursorClick,
+  Gauge,
+  Funnel as FunnelIcon,
+  Cloud,
+  Spiral,
+  ChatCenteredDots,
+  Scales,
+  Wallet,
+  ClockCounterClockwise,
+  Activity,
+  Triangle,
+  MathOperations,
+  Waveform,
+  Package,
+  ChartBar,
+  ArrowsOut,
+  Graph,
+  ChartLineDown,
+  ChartPolar,
+  Cube,
+  CoinsSwap,
+  Image,
+  ShieldCheck,
+  PencilLine,
+  Atom,
+  Robot,
+  Newspaper,
+  Stack,
+  Tag,
+  Code,
+  Rocket,
+  GraduationCap
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -32,6 +78,63 @@ function StrategyCard({ strategy, onActivate, onUpgrade }: StrategyCardProps) {
   const [isActive, setIsActive] = useState(strategy.status === 'active')
   const isLocked = !strategy.is_unlocked
 
+  // FINAL ICON FIX: All strategy cards have real, beautiful icons — no more gray placeholders — November 20, 2025
+  const iconMap: Record<string, any> = {
+    'Notebook': Notebook,
+    'CalendarPlus': CalendarPlus,
+    'FishSimple': FishSimple,
+    'ChartLineUp': ChartLineUp,
+    'Waves': Waves,
+    'SpeakerHigh': SpeakerHigh,
+    'ArrowsDownUp': ArrowsDownUp,
+    'Crosshair': Crosshair,
+    'ArrowsLeftRight': ArrowsLeftRight,
+    'Brackets': Brackets,
+    'Infinity': Infinity,
+    'ArrowUp': ArrowUp,
+    'ArrowsCounterClockwise': ArrowsCounterClockwise,
+    'FlowArrow': FlowArrow,
+    'CursorClick': CursorClick,
+    'Gauge': Gauge,
+    'Funnel': FunnelIcon,
+    'Cloud': Cloud,
+    'Spiral': Spiral,
+    'Brain': Brain,
+    'ChatCenteredDots': ChatCenteredDots,
+    'Scales': Scales,
+    'Wallet': Wallet,
+    'ClockCounterClockwise': ClockCounterClockwise,
+    'Lightning': Lightning,
+    'Activity': Activity,
+    'Triangle': Triangle,
+    'MathOperations': MathOperations,
+    'Waveform': Waveform,
+    'Package': Package,
+    'ChartBar': ChartBar,
+    'ArrowsOut': ArrowsOut,
+    'Graph': Graph,
+    'ChartLineDown': ChartLineDown,
+    'ChartPolar': ChartPolar,
+    'Cube': Cube,
+    'CoinsSwap': CoinsSwap,
+    'Image': Image,
+    'ShieldCheck': ShieldCheck,
+    'PencilLine': PencilLine,
+    'Atom': Atom,
+    'Robot': Robot,
+    'Newspaper': Newspaper,
+    'Stack': Stack,
+    'Tag': Tag,
+    'Code': Code,
+    'Rocket': Rocket,
+    'GraduationCap': GraduationCap,
+    'TrendUp': TrendUp,
+    'Target': Target,
+    'ChartLine': ChartLine,
+    'Sparkle': Sparkle,
+    'Crown': Crown
+  }
+
   const categoryIcons = {
     'Trend Following': <TrendUp size={16} weight="duotone" />,
     'Mean Reversion': <Target size={16} weight="duotone" />,
@@ -42,6 +145,15 @@ function StrategyCard({ strategy, onActivate, onUpgrade }: StrategyCardProps) {
     'Arbitrage': <Sparkle size={16} weight="duotone" />,
     'DCA': <Target size={16} weight="duotone" />,
     'Advanced': <Crown size={16} weight="duotone" />
+  }
+
+  // Get the specific icon for this strategy or fall back to category icon
+  const getStrategyIcon = (size: number = 48, weight: "thin" | "light" | "regular" | "bold" | "fill" | "duotone" = "duotone") => {
+    if (strategy.icon && iconMap[strategy.icon]) {
+      const IconComponent = iconMap[strategy.icon]
+      return <IconComponent size={size} weight={weight} />
+    }
+    return categoryIcons[strategy.category] || <Target size={size} weight={weight} />
   }
 
   const riskColors = {
@@ -124,12 +236,20 @@ function StrategyCard({ strategy, onActivate, onUpgrade }: StrategyCardProps) {
         </div>
       )}
 
-      {/* Thumbnail Area with Neon Border */}
+      {/* Thumbnail Area with Real Icon — NO MORE GRAY SQUARES */}
       <div className="relative h-32 bg-gradient-to-br from-primary/10 via-background to-accent/10 border-b-2 border-primary/30">
         <div className="absolute inset-0 diagonal-stripes opacity-10" />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-6xl opacity-20">
-            {categoryIcons[strategy.category]}
+          <div 
+            className="text-[48px] bg-gradient-to-br from-purple-500 to-cyan-500 bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-110"
+            style={{ 
+              filter: 'drop-shadow(0 0 20px #9945FF)',
+              WebkitTextFillColor: 'transparent',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text'
+            }}
+          >
+            {getStrategyIcon(48, "duotone")}
           </div>
         </div>
         {/* Active Indicator */}
