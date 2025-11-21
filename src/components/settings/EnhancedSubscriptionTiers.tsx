@@ -20,7 +20,7 @@ export default function EnhancedSubscriptionTiers() {
   })
 
   const [checkoutOpen, setCheckoutOpen] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime'>('free')
+  const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro-trader' | 'elite-trader' | 'lifetime'>('free')
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [paymentProvider, setPaymentProvider] = useState<'stripe' | 'paddle'>('stripe')
 

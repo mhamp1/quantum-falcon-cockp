@@ -2,40 +2,41 @@
 
 interface TradingData {
   price: number;
-  volume: number;
   timestamp: number;
+  volume?: number;
 }
 
 interface CalculationMessage {
-  type: 'CALCULATE_INDICATORS' | 'ANALYZE_PATTERNS' | 'BACKTEST_STRATEGY' | 'CALCULATE_PORTFOLIO';
+  type: string;
   data: any;
   id: string;
 }
 
 interface CalculationResult {
   type: string;
-  result: any;
+  data: any;
   id: string;
 }
 
-// Technical Indicators
 function calculateSMA(data: number[], period: number): number[] {
   const result: number[] = [];
+  
   for (let i = 0; i < data.length; i++) {
     if (i < period - 1) {
       result.push(NaN);
       continue;
     }
+    
     const sum = data.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
     result.push(sum / period);
   }
+  
   return result;
 }
 
 function calculateEMA(data: number[], period: number): number[] {
   const result: number[] = [];
   const multiplier = 2 / (period + 1);
-  
   let ema = data.slice(0, period).reduce((a, b) => a + b, 0) / period;
   result.push(ema);
   
@@ -112,14 +113,12 @@ function calculateBollingerBands(data: number[], period: number = 20, stdDev: nu
   return { upper, middle, lower };
 }
 
-// Pattern Recognition
 function detectPatterns(data: TradingData[]): string[] {
   const patterns: string[] = [];
   const prices = data.map(d => d.price);
   
   if (prices.length < 5) return patterns;
   
-  // Detect double top
   for (let i = 2; i < prices.length - 2; i++) {
     if (
       prices[i] > prices[i - 1] &&
@@ -131,7 +130,6 @@ function detectPatterns(data: TradingData[]): string[] {
     }
   }
   
-  // Detect double bottom
   for (let i = 2; i < prices.length - 2; i++) {
     if (
       prices[i] < prices[i - 1] &&
@@ -146,7 +144,6 @@ function detectPatterns(data: TradingData[]): string[] {
   return patterns;
 }
 
-// Backtesting Engine
 function backtestStrategy(
   data: TradingData[],
   strategy: {
@@ -174,25 +171,23 @@ function backtestStrategy(
   let maxCapital = initialCapital;
   let maxDrawdown = 0;
   const returns: number[] = [];
-  
+
   for (let i = 50; i < data.length; i++) {
     const indicators = {
       price: prices[i],
       rsi: rsi[i],
       macd: macd.macd[i],
-      signal: macd.signal[i],
+      macdSignal: macd.signal[i],
       sma20: sma20[i],
       sma50: sma50[i],
     };
-    
-    // Buy signal
+
     if (position === 0 && !isNaN(indicators.rsi) && indicators.rsi < 30) {
       position = capital / prices[i];
       capital = 0;
       trades++;
     }
-    
-    // Sell signal
+
     if (position > 0 && !isNaN(indicators.rsi) && indicators.rsi > 70) {
       capital = position * prices[i];
       const profit = capital - initialCapital;
@@ -200,26 +195,25 @@ function backtestStrategy(
       returns.push((capital / initialCapital - 1) * 100);
       position = 0;
     }
-    
+
     const currentValue = capital + (position * prices[i]);
-    maxCapital = Math.max(maxCapital, currentValue);
+    if (currentValue > maxCapital) maxCapital = currentValue;
     const drawdown = ((maxCapital - currentValue) / maxCapital) * 100;
     maxDrawdown = Math.max(maxDrawdown, drawdown);
   }
-  
-  // Close any open position
+
   if (position > 0) {
     capital = position * prices[prices.length - 1];
     position = 0;
   }
-  
+
   const winRate = trades > 0 ? (wins / trades) * 100 : 0;
   const avgReturn = returns.length > 0 ? returns.reduce((a, b) => a + b, 0) / returns.length : 0;
   const stdReturn = returns.length > 0 
     ? Math.sqrt(returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length)
     : 0;
   const sharpeRatio = stdReturn > 0 ? (avgReturn / stdReturn) : 0;
-  
+
   return {
     finalCapital: capital,
     totalTrades: trades,
@@ -229,7 +223,6 @@ function backtestStrategy(
   };
 }
 
-// Portfolio Calculations
 function calculatePortfolioMetrics(positions: {
   symbol: string;
   quantity: number;
@@ -248,13 +241,12 @@ function calculatePortfolioMetrics(positions: {
   let worstPnL = Infinity;
   let bestPerformer = '';
   let worstPerformer = '';
-  
+
   positions.forEach(pos => {
     const value = pos.quantity * pos.currentPrice;
     const cost = pos.quantity * pos.entryPrice;
-    const pnl = value - cost;
     const pnlPercent = ((pos.currentPrice - pos.entryPrice) / pos.entryPrice) * 100;
-    
+
     totalValue += value;
     totalCost += cost;
     
@@ -268,7 +260,7 @@ function calculatePortfolioMetrics(positions: {
       worstPerformer = `${pos.symbol} (${pnlPercent.toFixed(2)}%)`;
     }
   });
-  
+
   const totalPnL = totalValue - totalCost;
   const totalPnLPercent = totalCost > 0 ? (totalPnL / totalCost) * 100 : 0;
   
@@ -281,10 +273,9 @@ function calculatePortfolioMetrics(positions: {
   };
 }
 
-// Message Handler
 self.onmessage = (event: MessageEvent<CalculationMessage>) => {
   const { type, data, id } = event.data;
-  
+
   try {
     let result: any;
     
@@ -302,7 +293,7 @@ self.onmessage = (event: MessageEvent<CalculationMessage>) => {
         };
         break;
       }
-      
+
       case 'ANALYZE_PATTERNS': {
         const { tradingData } = data;
         result = {
@@ -330,7 +321,7 @@ self.onmessage = (event: MessageEvent<CalculationMessage>) => {
     
     const response: CalculationResult = {
       type,
-      result,
+      data: result,
       id,
     };
     
@@ -338,7 +329,7 @@ self.onmessage = (event: MessageEvent<CalculationMessage>) => {
   } catch (error) {
     self.postMessage({
       type: 'ERROR',
-      result: {
+      data: {
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
       },

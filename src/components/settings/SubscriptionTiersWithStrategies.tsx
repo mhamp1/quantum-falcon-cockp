@@ -21,7 +21,7 @@ export default function SubscriptionTiersWithStrategies() {
   })
 
   const [checkoutOpen, setCheckoutOpen] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime'>('free')
+  const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro-trader' | 'elite-trader' | 'lifetime'>('free')
 
   const currentTier = auth?.license?.tier || 'free'
 
