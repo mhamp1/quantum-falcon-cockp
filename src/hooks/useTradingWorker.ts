@@ -3,15 +3,15 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 
 interface WorkerMessage {
-  type: 'CALCULATE_INDICATORS' | 'ANALYZE_PATTERNS' | 'BACKTEST_STRATEGY' | 'CALCULATE_PORTFOLIO';
+  type: 'CALCULATE_INDICATORS' | 'DETECT_PATTERNS' | 'BACKTEST_STRATEGY' | 'CALCULATE_PORTFOLIO';
   data: any;
-  id: string;
+  id?: string;
 }
 
 interface WorkerResponse {
   type: string;
-  result: any;
-  id: string;
+  data: any;
+  id?: string;
 }
 
 type PendingRequest = {
@@ -32,14 +32,20 @@ export function useTradingWorker() {
       workerRef.current = new Worker(workerUrl, { type: 'module' });
 
       workerRef.current.onmessage = (event: MessageEvent<WorkerResponse>) => {
-        const { id, type, result } = event.data;
+        const { id, type, data } = event.data;
+        
+        if (!id) {
+          console.warn('[useTradingWorker] Received message without ID');
+          return;
+        }
+        
         const pending = pendingRequests.current.get(id);
 
         if (pending) {
-          if (type === 'ERROR') {
-            pending.reject(new Error(result.message));
+          if (type.endsWith('_ERROR')) {
+            pending.reject(new Error(data.error || 'Worker error'));
           } else {
-            pending.resolve(result);
+            pending.resolve(data);
           }
           pendingRequests.current.delete(id);
         }
@@ -107,7 +113,7 @@ export function useTradingWorker() {
 
   const analyzePatterns = useCallback(
     (tradingData: Array<{ price: number; volume: number; timestamp: number }>) => {
-      return sendMessage('ANALYZE_PATTERNS', { tradingData });
+      return sendMessage('DETECT_PATTERNS', { tradingData });
     },
     [sendMessage]
   );

@@ -6,16 +6,16 @@ interface TradingData {
   volume?: number;
 }
 
-interface CalculationMessage {
+interface WorkerMessage {
   type: string;
   data: any;
-  id: string;
+  id?: string;
 }
 
-interface CalculationResult {
+interface WorkerResponse {
   type: string;
   data: any;
-  id: string;
+  id?: string;
 }
 
 function calculateSMA(data: number[], period: number): number[] {
@@ -37,6 +37,9 @@ function calculateSMA(data: number[], period: number): number[] {
 function calculateEMA(data: number[], period: number): number[] {
   const result: number[] = [];
   const multiplier = 2 / (period + 1);
+  
+  if (data.length === 0) return result;
+  
   let ema = data.slice(0, period).reduce((a, b) => a + b, 0) / period;
   result.push(ema);
   
@@ -128,9 +131,7 @@ function detectPatterns(data: TradingData[]): string[] {
     ) {
       patterns.push(`Double Top at index ${i}`);
     }
-  }
-  
-  for (let i = 2; i < prices.length - 2; i++) {
+    
     if (
       prices[i] < prices[i - 1] &&
       prices[i] < prices[i - 2] &&
@@ -146,10 +147,6 @@ function detectPatterns(data: TradingData[]): string[] {
 
 function backtestStrategy(
   data: TradingData[],
-  strategy: {
-    buyCondition: (indicators: any) => boolean;
-    sellCondition: (indicators: any) => boolean;
-  },
   initialCapital: number = 10000
 ): {
   finalCapital: number;
@@ -172,7 +169,7 @@ function backtestStrategy(
   let maxDrawdown = 0;
   const returns: number[] = [];
 
-  for (let i = 50; i < data.length; i++) {
+  for (let i = 50; i < prices.length; i++) {
     const indicators = {
       price: prices[i],
       rsi: rsi[i],
@@ -204,7 +201,6 @@ function backtestStrategy(
 
   if (position > 0) {
     capital = position * prices[prices.length - 1];
-    position = 0;
   }
 
   const winRate = trades > 0 ? (wins / trades) * 100 : 0;
@@ -230,6 +226,7 @@ function calculatePortfolioMetrics(positions: {
   currentPrice: number;
 }[]): {
   totalValue: number;
+  totalCost: number;
   totalPnL: number;
   totalPnLPercent: number;
   bestPerformer: string;
@@ -263,9 +260,10 @@ function calculatePortfolioMetrics(positions: {
 
   const totalPnL = totalValue - totalCost;
   const totalPnLPercent = totalCost > 0 ? (totalPnL / totalCost) * 100 : 0;
-  
+
   return {
     totalValue,
+    totalCost,
     totalPnL,
     totalPnLPercent,
     bestPerformer,
@@ -273,68 +271,57 @@ function calculatePortfolioMetrics(positions: {
   };
 }
 
-self.onmessage = (event: MessageEvent<CalculationMessage>) => {
-  const { type, data, id } = event.data;
+self.onmessage = (e: MessageEvent<WorkerMessage>) => {
+  const { type, data, id } = e.data;
 
   try {
     let result: any;
-    
-    switch (type) {
-      case 'CALCULATE_INDICATORS': {
-        const { prices, indicators } = data;
-        result = {
-          sma20: indicators.includes('sma20') ? calculateSMA(prices, 20) : null,
-          sma50: indicators.includes('sma50') ? calculateSMA(prices, 50) : null,
-          ema12: indicators.includes('ema12') ? calculateEMA(prices, 12) : null,
-          ema26: indicators.includes('ema26') ? calculateEMA(prices, 26) : null,
-          rsi: indicators.includes('rsi') ? calculateRSI(prices) : null,
-          macd: indicators.includes('macd') ? calculateMACD(prices) : null,
-          bollinger: indicators.includes('bollinger') ? calculateBollingerBands(prices) : null,
-        };
-        break;
-      }
 
-      case 'ANALYZE_PATTERNS': {
-        const { tradingData } = data;
+    switch (type) {
+      case 'CALCULATE_INDICATORS':
+        const prices = data.prices as number[];
         result = {
-          patterns: detectPatterns(tradingData),
-          timestamp: Date.now(),
+          sma20: calculateSMA(prices, 20),
+          sma50: calculateSMA(prices, 50),
+          ema12: calculateEMA(prices, 12),
+          ema26: calculateEMA(prices, 26),
+          rsi: calculateRSI(prices),
+          macd: calculateMACD(prices),
+          bollingerBands: calculateBollingerBands(prices),
         };
         break;
-      }
-      
-      case 'BACKTEST_STRATEGY': {
-        const { tradingData, strategy, initialCapital } = data;
-        result = backtestStrategy(tradingData, strategy, initialCapital);
+
+      case 'DETECT_PATTERNS':
+        result = detectPatterns(data.tradingData as TradingData[]);
         break;
-      }
-      
-      case 'CALCULATE_PORTFOLIO': {
-        const { positions } = data;
-        result = calculatePortfolioMetrics(positions);
+
+      case 'BACKTEST_STRATEGY':
+        result = backtestStrategy(data.tradingData as TradingData[], data.initialCapital);
         break;
-      }
-      
+
+      case 'CALCULATE_PORTFOLIO':
+        result = calculatePortfolioMetrics(data.positions);
+        break;
+
       default:
-        throw new Error(`Unknown calculation type: ${type}`);
+        throw new Error(`Unknown message type: ${type}`);
     }
-    
-    const response: CalculationResult = {
-      type,
+
+    const response: WorkerResponse = {
+      type: `${type}_SUCCESS`,
       data: result,
       id,
     };
-    
+
     self.postMessage(response);
   } catch (error) {
-    self.postMessage({
-      type: 'ERROR',
-      data: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+    const errorResponse: WorkerResponse = {
+      type: `${type}_ERROR`,
+      data: { error: error instanceof Error ? error.message : 'Unknown error' },
       id,
-    });
+    };
+
+    self.postMessage(errorResponse);
   }
 };
 
