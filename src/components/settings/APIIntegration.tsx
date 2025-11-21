@@ -75,6 +75,39 @@ export default function APIIntegration() {
   const [showBinanceModal, setShowBinanceModal] = useState(false)
   const [showKrakenModal, setShowKrakenModal] = useState(false)
 
+  // FINAL FIX: Enforce Binance and Kraken cards are ALWAYS present — merge on mount
+  // Note: Empty dependency array is intentional - we only want to run this once on mount
+  // to merge initialConnections into persisted state. Using dependencies would cause
+  // infinite loops since setConnections updates the connections state.
+  useEffect(() => {
+    const connectionMap = new Map<string, APIConnection>();
+    
+    // Build map from current connections
+    if (connections && connections.length > 0) {
+      connections.forEach(conn => connectionMap.set(conn.id, conn));
+    }
+    
+    // Check if we need to add any required connections
+    let needsUpdate = false;
+    const requiredIds = ['binance', 'kraken'];
+    
+    requiredIds.forEach(id => {
+      const required = initialConnections.find(c => c.id === id);
+      if (required && !connectionMap.has(id)) {
+        connectionMap.set(id, required);
+        needsUpdate = true;
+        console.info(`✅ APIIntegration: Adding missing ${required.name} card`);
+      }
+    });
+    
+    // Update if we added any
+    if (needsUpdate) {
+      const mergedConnections = Array.from(connectionMap.values());
+      setConnections(mergedConnections);
+      console.info('✓ APIIntegration: Binance and Kraken cards enforced', mergedConnections.filter(c => requiredIds.includes(c.id)).map(c => c.name));
+    }
+  }, []); // Run once on mount
+
   useEffect(() => {
     if (!securityDismissed && dismissCountdown > 0) {
       const timer = setTimeout(() => {

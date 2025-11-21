@@ -164,13 +164,25 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
   );
 }
 
+// Utility function to check if onboarding has been seen
+const getOnboardingSeenStatus = (): boolean => {
+  try {
+    const stored = typeof window !== 'undefined'
+      ? window.localStorage.getItem('hasSeenOnboarding')
+      : null;
+    return stored === 'true';
+  } catch {
+    return false;
+  }
+};
+
 export default function App() {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
   const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !getOnboardingSeenStatus());
   const [showMasterSearch, setShowMasterSearch] = useState(false);
   const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
@@ -283,7 +295,7 @@ export default function App() {
     if (!hasSeenOnboarding) {
       const timer = setTimeout(() => {
         setShowOnboarding(true);
-      }, 500);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [hasSeenOnboarding]);
@@ -320,10 +332,16 @@ export default function App() {
 
   const handleOnboardingComplete = () => {
     setHasSeenOnboarding(true);
+    try {
+      window.localStorage.setItem('hasSeenOnboarding', 'true');
+    } catch (e) {
+      console.warn('Failed to save onboarding state to localStorage', e);
+    }
     setShowOnboarding(false);
   };
 
   const handleOnboardingSkip = () => {
+    // Hide tour for this session but don't mark as seen
     setShowOnboarding(false);
   };
 
