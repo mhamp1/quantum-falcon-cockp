@@ -44,11 +44,12 @@ export default function LiveArenaPage() {
     loadLeaderboard(timeframe)
   }, [timeframe])
 
-  // Auto-refresh every 10 seconds
+  // Auto-refresh every 30 seconds (reduced from 10s to avoid excessive API load)
   useEffect(() => {
+    const REFRESH_INTERVAL = 30000 // 30 seconds
     const interval = setInterval(() => {
       loadLeaderboard(timeframe)
-    }, 10000)
+    }, REFRESH_INTERVAL)
     
     return () => clearInterval(interval)
   }, [timeframe])

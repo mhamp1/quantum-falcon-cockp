@@ -731,10 +731,15 @@ const GridMasterAgent: EliteAgentInstance = {
     const { current, bestBid, bestAsk, mid } = data.price
     const { volatility1h } = data.volatility
     
+    // Grid trading constants
+    const GRID_LOWER_THRESHOLD = 0.98 // 2% below mid
+    const GRID_UPPER_THRESHOLD = 1.02 // 2% above mid
+    const LOW_VOLATILITY_THRESHOLD = 5
+    
     // Low volatility range trading
-    if (volatility1h < 5) {
+    if (volatility1h < LOW_VOLATILITY_THRESHOLD) {
       // Buy at lower grid
-      if (current < mid * 0.98) {
+      if (current < mid * GRID_LOWER_THRESHOLD) {
         return {
           signal: 'BUY',
           confidence: 'high',
@@ -744,7 +749,7 @@ const GridMasterAgent: EliteAgentInstance = {
       }
       
       // Sell at upper grid
-      if (current > mid * 1.02) {
+      if (current > mid * GRID_UPPER_THRESHOLD) {
         return {
           signal: 'SELL',
           confidence: 'high',
