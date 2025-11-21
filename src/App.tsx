@@ -55,6 +55,7 @@ import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
 import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
 import MasterSearch from '@/components/shared/MasterSearch';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
+import IntroSplash from '@/components/intro/IntroSplash';
 import { SecurityManager } from '@/lib/security';
 import { updateDiscordRichPresence } from '@/lib/discord/oauth';
 
@@ -352,6 +353,9 @@ export default function App() {
         <AIBotAssistant />
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
+        
+        {/* First-time user intro splash - appears before onboarding */}
+        <IntroSplash />
         
         <InteractiveOnboardingTour
           isOpen={showOnboarding}
