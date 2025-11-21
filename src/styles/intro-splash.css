@@ -1,0 +1,312 @@
+/**
+ * Intro Splash Styles
+ * 
+ * Cyberpunk neon HUD theme styling for the first-time user intro splash.
+ * Uses existing color tokens and typography patterns from the theme.
+ */
+
+/* Main overlay - full screen with backdrop blur */
+.qf-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Background gradient */
+.qf-intro-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    oklch(0.08 0.04 280) 0%,
+    oklch(0.06 0.03 280) 50%,
+    oklch(0.10 0.05 195) 100%
+  );
+  z-index: -2;
+}
+
+/* Cyberpunk grid overlay */
+.qf-intro-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(oklch(0.72 0.20 195 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.72 0.20 195 / 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: -1;
+  animation: grid-scan 20s linear infinite;
+}
+
+@keyframes grid-scan {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(50px);
+  }
+}
+
+/* Main content container */
+.qf-intro-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  padding: 2rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Logo section */
+.qf-intro-logo {
+  text-align: center;
+}
+
+.qf-intro-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.qf-intro-title-quantum {
+  color: oklch(0.72 0.20 195);
+  text-shadow: 
+    0 0 10px oklch(0.72 0.20 195 / 0.6),
+    0 0 20px oklch(0.72 0.20 195 / 0.4),
+    0 0 40px oklch(0.72 0.20 195 / 0.2);
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+.qf-intro-title-falcon {
+  color: oklch(0.80 0.20 70);
+  text-shadow: 
+    0 0 10px oklch(0.80 0.20 70 / 0.6),
+    0 0 20px oklch(0.80 0.20 70 / 0.4),
+    0 0 40px oklch(0.80 0.20 70 / 0.2);
+  animation: neon-pulse 2s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.qf-intro-tagline {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(0.875rem, 2vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: oklch(0.85 0.12 195);
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.85;
+    filter: brightness(1.2);
+  }
+}
+
+/* Video section */
+.qf-intro-media {
+  width: 100%;
+  max-width: 800px;
+}
+
+.qf-intro-video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: oklch(0.10 0.04 280);
+  border: 2px solid oklch(0.72 0.20 195 / 0.3);
+  box-shadow: 
+    0 0 20px oklch(0.72 0.20 195 / 0.3),
+    0 0 40px oklch(0.72 0.20 195 / 0.1),
+    inset 0 0 40px oklch(0.72 0.20 195 / 0.05);
+}
+
+.qf-intro-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.qf-intro-play-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0.08 0.04 280 / 0.6);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  color: oklch(0.72 0.20 195);
+}
+
+.qf-intro-play-btn:hover {
+  background: oklch(0.08 0.04 280 / 0.8);
+  color: oklch(0.80 0.20 70);
+}
+
+.qf-intro-play-btn svg {
+  filter: drop-shadow(0 0 10px currentColor);
+  transition: transform 0.3s ease;
+}
+
+.qf-intro-play-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* CTA section */
+.qf-intro-cta-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.qf-intro-cta {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 3rem;
+  border: 2px solid oklch(0.72 0.20 195);
+  background: linear-gradient(
+    135deg,
+    oklch(0.72 0.20 195 / 0.15) 0%,
+    oklch(0.80 0.20 70 / 0.15) 100%
+  );
+  color: oklch(0.95 0.05 195);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 0 20px oklch(0.72 0.20 195 / 0.4),
+    0 4px 12px oklch(0 0 0 / 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.qf-intro-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.72 0.20 195 / 0.3),
+    transparent
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.qf-intro-cta:hover {
+  transform: translateY(-2px);
+  border-color: oklch(0.80 0.20 70);
+  box-shadow: 
+    0 0 30px oklch(0.72 0.20 195 / 0.6),
+    0 0 60px oklch(0.80 0.20 70 / 0.3),
+    0 6px 20px oklch(0 0 0 / 0.4);
+}
+
+.qf-intro-cta:hover::before {
+  transform: translateX(100%);
+}
+
+.qf-intro-cta:active {
+  transform: translateY(0);
+}
+
+.qf-intro-skip {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: oklch(0.65 0.08 195);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.qf-intro-skip kbd {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid oklch(0.72 0.20 195 / 0.3);
+  border-radius: 0.25rem;
+  background: oklch(0.10 0.04 280);
+  color: oklch(0.72 0.20 195);
+  box-shadow: 0 0 8px oklch(0.72 0.20 195 / 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .qf-intro-content {
+    gap: 2rem;
+    padding: 1.5rem;
+  }
+
+  .qf-intro-title {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .qf-intro-tagline {
+    font-size: clamp(0.75rem, 3vw, 1rem);
+  }
+
+  .qf-intro-cta {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Single column layout on narrow screens */
+@media (max-width: 640px) {
+  .qf-intro-content {
+    gap: 1.5rem;
+  }
+  
+  .qf-intro-video-container {
+    border-radius: 0.5rem;
+  }
+}
+
+/* Ensure accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .qf-intro-overlay *,
+  .qf-intro-overlay *::before,
+  .qf-intro-overlay *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

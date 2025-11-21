@@ -3,7 +3,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChartLine, Database, WifiHigh, Cpu } from '@phosphor-icons/react';
+import { X, ChartLine, Database, WifiHigh, Cpu, ArrowClockwise } from '@phosphor-icons/react';
+import { resetFirstTimeStatus } from '@/lib/firstTimeUser';
 
 interface DebugStats {
   fps: number;
@@ -90,7 +91,7 @@ export default function DebugHelper() {
           k.startsWith('kv:') || k.startsWith('active-') || k.startsWith('user-')
         ).length;
         setStats(prev => ({ ...prev, kvEntries: count }));
-      } catch (e) {
+      } catch {
         console.debug('[DebugHelper] Could not count KV entries');
       }
     };
@@ -220,6 +221,20 @@ export default function DebugHelper() {
               )}
             </motion.div>
           )}
+
+          {/* Developer Tools */}
+          <div className="mt-3 pt-2 border-t border-primary/20">
+            <button
+              onClick={() => {
+                resetFirstTimeStatus();
+                window.location.reload();
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-primary/10 hover:bg-primary/20 text-primary rounded transition-colors"
+            >
+              <ArrowClockwise size={14} />
+              <span className="text-xs uppercase font-semibold">Reset Intro Splash</span>
+            </button>
+          </div>
         </div>
 
         <div className="mt-3 pt-2 border-t border-primary/20 text-center text-gray-500">
