@@ -1,4 +1,5 @@
 // EXCHANGES: Binance + Kraken API integration complete — matches live app — November 19, 2025
+// FINAL STEP 7 FIX: Deposit BTC button ALWAYS visible and clickable — never stuck again — November 20, 2025
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
@@ -1009,10 +1010,11 @@ export default function VaultView() {
               }
             }}
             data-action="deposit-btc"
+            data-tour-clickable="deposit-btc-button"
             className="w-full mt-6 bg-accent hover:bg-accent/90 text-accent-foreground jagged-corner border-4 border-accent shadow-[0_0_25px_oklch(0.68_0.18_330_/_0.6)] hover:shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.8)] uppercase tracking-[0.15em] font-bold h-14 text-base"
           >
             <TrendUp size={24} weight="bold" className="mr-2" />
-            Secure Deposit
+            Deposit BTC
           </Button>
         </div>
       </div>
