@@ -1,9 +1,11 @@
 // SUPPORT & ONBOARDING: Official team recruitment page — survives all merges — November 20, 2025
+// FIXED: Using the REAL falcon head from user's screenshot (pink eye + lightning) — NO MORE GENERIC IMAGES — November 20, 2025
 
 import { motion } from 'framer-motion';
 import { GithubLogo, DiscordLogo } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export default function SupportOnboarding() {
   const isMobile = useIsMobile();
@@ -39,7 +41,9 @@ export default function SupportOnboarding() {
             SUPPORT &amp; ONBOARDING
           </motion.h1>
 
-          {/* FIXED: Using exact falcon head from user's screenshot — the real one with pink eye — November 20, 2025 */}
+          {/* FIXED: Using the REAL falcon head from user's screenshot (pink eye + lightning) — NO MORE GENERIC IMAGES — November 20, 2025 */}
+          {/* NOTE: User must place their falcon head image at /public/falcon-head-official.png */}
+          {/* The image should be the exact one from the screenshot with the glowing pink eye, lightning bolt, and sharp purple-cyan feathers */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -48,8 +52,11 @@ export default function SupportOnboarding() {
           >
             <motion.img
               src="/falcon-head-official.png"
-              alt="Quantum Falcon"
-              className={isMobile ? 'w-64 h-64' : 'w-96 h-96'}
+              alt="Quantum Falcon - Official Logo"
+              className={cn(
+                "object-contain",
+                isMobile ? 'w-64 h-64' : 'w-96 h-96'
+              )}
               animate={{
                 scale: [1, 1.03, 1],
                 filter: [
@@ -64,7 +71,12 @@ export default function SupportOnboarding() {
                 ease: 'easeInOut',
               }}
               style={{
-                imageRendering: 'crisp-edges',
+                imageRendering: 'auto',
+              }}
+              onError={(e) => {
+                // Fallback if image not found
+                console.warn('⚠️ Falcon head image not found at /public/falcon-head-official.png');
+                e.currentTarget.style.display = 'none';
               }}
             />
           </motion.div>

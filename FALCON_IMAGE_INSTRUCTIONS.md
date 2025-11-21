@@ -1,67 +1,57 @@
-# CRITICAL: Add Official Falcon Head Image
+# Falcon Head Image Instructions
 
-## The Issue
-The Support & Onboarding page is currently using a generic SVG falcon instead of the **EXACT, OFFICIAL** neon falcon head from your screenshot (the beautiful one with the glowing pink eye, sharp purple-cyan feathers, and lightning bolt).
+## CRITICAL: Manual Image Placement Required
 
-## What You Need to Do
+The Support & Onboarding page (`/src/pages/SupportOnboarding.tsx`) is configured to display the **official Quantum Falcon logo** from the user's screenshot.
 
-### Step 1: Get the Exact Image
-You need the **exact falcon head image** that's circled in your screenshot - the one that looks like this:
-- Glowing pink/magenta eye in the center
-- Sharp angular purple and cyan feathers
-- Lightning bolt accent on the head
-- Dark background with neon glow effects
+### Image Requirements
 
-This image should be from:
-- Your original design files
-- The Quantum Falcon repository
-- Extracted from the reference screenshot you have
+**Source:** The exact falcon head image from the user's screenshot showing:
+- Glowing pink/magenta eye
+- Lightning bolt accent
+- Sharp purple and cyan feathers
+- Cyberpunk/neon aesthetic
 
-### Step 2: Save It Here
-Save the image file as:
-```
-/workspaces/spark-template/public/falcon-head-official.png
-```
+### Installation Steps
 
-**Requirements:**
-- Format: PNG (with transparent background if possible)
-- Size: At least 800x800px (high resolution)
-- File name: EXACTLY `falcon-head-official.png`
+1. **Create the public directory** (if it doesn't exist):
+   ```bash
+   mkdir -p /workspaces/spark-template/public
+   ```
 
-### Step 3: Verify It's There
-After saving, the file should be at:
-```
-/workspaces/spark-template/public/falcon-head-official.png
-```
+2. **Save the falcon head image** as:
+   ```
+   /workspaces/spark-template/public/falcon-head-official.png
+   ```
 
-## What I've Already Done
+3. **Image specifications:**
+   - Format: PNG with transparent background preferred
+   - Minimum size: 512x512px
+   - Recommended: 1024x1024px or higher for sharp display
+   - File name: MUST be exactly `falcon-head-official.png`
 
-I've updated `/workspaces/spark-template/src/pages/SupportOnboarding.tsx` to:
-- Use `<img src="/falcon-head-official.png" />` instead of the generic SVG
-- Add subtle pulse animation (scale 1 → 1.03 → 1 over 4s)
-- Add faint purple glow (drop-shadow 0 0 40px #9945FF)
-- Responsive sizing (w-96 h-96 desktop, w-64 h-64 mobile)
-- Perfect centering
+### Current Behavior
 
-## Result After You Add the Image
+- If the image is **found**: Displays with pulsing animation and purple glow
+- If the image is **missing**: Hidden with console warning, page still functional
 
-Once you place the correct image at `/workspaces/spark-template/public/falcon-head-official.png`, the Support & Onboarding page will display:
-- ✅ The EXACT falcon head from your screenshot
-- ✅ Subtle breathing pulse animation
-- ✅ Purple/pink neon glow
-- ✅ Perfect centering
-- ✅ Mobile responsive
+### Visual Effects Applied
 
-## Why I Can't Do This for You
+The image will automatically receive:
+- Subtle scale pulse animation (1.0 → 1.03 → 1.0) over 4 seconds
+- Purple drop-shadow glow effect
+- Responsive sizing (96x96 on desktop, 64x64 on mobile)
+- Smooth infinite loop animation
 
-I cannot directly extract or save images from screenshots - I can only work with text files and code. You need to provide the actual image file from your original source.
+### Testing
 
-## Next Steps
-
-1. Locate the official falcon head image from your design files or repo
-2. Save it as `public/falcon-head-official.png`
-3. Refresh the app - the Support page will now show the correct image
+After placing the image, verify:
+1. Navigate to Support & Onboarding page
+2. Falcon head should be centered and glowing
+3. Animation should be smooth
+4. No console errors
 
 ---
 
-**The code is ready. Just add the image file and it will work perfectly.**
+**Last Updated:** November 20, 2025
+**Component:** `/src/pages/SupportOnboarding.tsx`
