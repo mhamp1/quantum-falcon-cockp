@@ -931,6 +931,15 @@
   background: var(--secondary);
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .glass-morph-card {
   background: linear-gradient(135deg, 
     oklch(0.10 0.02 280 / 0.75) 0%,
