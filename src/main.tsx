@@ -29,6 +29,8 @@ function isR3FError(error: Error | string): boolean {
     message.includes('Failed to set key') ||
     message.includes('KV storage') ||
     message.includes('_spark/kv') ||
+    message.includes('RefreshRuntime.register') ||
+    message.includes('RefreshRuntime') && message.includes('not a function') ||
     stack.includes('@react-three/fiber') ||
     stack.includes('react-three') ||
     stack.includes('spark/hooks')

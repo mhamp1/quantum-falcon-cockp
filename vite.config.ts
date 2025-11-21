@@ -1,5 +1,5 @@
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import { defineConfig, PluginOption } from "vite";
 
 import sparkPlugin from "@github/spark/spark-vite-plugin";
@@ -16,7 +16,10 @@ if (!process.env.SPARK_DIR) {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      fastRefresh: true,
+      jsxRuntime: 'automatic',
+    }),
     tailwindcss(),
     // DO NOT REMOVE
     createIconImportProxy() as PluginOption,
