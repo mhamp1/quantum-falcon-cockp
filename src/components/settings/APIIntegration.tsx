@@ -76,6 +76,9 @@ export default function APIIntegration() {
   const [showKrakenModal, setShowKrakenModal] = useState(false)
 
   // FINAL FIX: Enforce Binance and Kraken cards are ALWAYS present — merge on mount
+  // Note: Empty dependency array is intentional - we only want to run this once on mount
+  // to merge initialConnections into persisted state. Using dependencies would cause
+  // infinite loops since setConnections updates the connections state.
   useEffect(() => {
     const connectionMap = new Map<string, APIConnection>();
     
