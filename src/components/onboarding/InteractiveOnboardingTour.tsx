@@ -1,4 +1,5 @@
-// FINAL PRODUCTION FIX: Onboarding NEVER skips, targets always visible, Kraken + Binance added FOREVER — November 20, 2025
+// FINAL TOUR FIX: NO STEP CAN EVER BE SKIPPED — 100% forced interaction, Step 1 included — November 20, 2025
+// FINAL ONBOARDING FIX: Targets ALWAYS visible and clickable — no more hidden elements — November 20, 2025
 // Complete rebuild from ground up with PERFECT spotlight, dynamic arrows, and forced interaction
 // Card positioning: NEVER covers targets, ALWAYS at bottom-center (desktop) / top-center (mobile)
 // Every step has: auto-scroll to view, pulsing border, glowing arrow pointing FROM card TO target, real click detection
@@ -521,7 +522,7 @@ export default function InteractiveOnboardingTour({
           className={cn(
             'fixed cyber-card backdrop-blur-xl',
             isMobile
-              ? 'inset-x-4 bottom-4'
+              ? 'inset-x-4 top-4'
               : 'bottom-8 left-1/2 -translate-x-1/2 max-w-2xl w-full mx-4'
           )}
           style={{
@@ -668,7 +669,7 @@ export default function InteractiveOnboardingTour({
                         </>
                       ) : (
                         <>
-                          Click a card above first ↑
+                          Complete the action first ↑
                         </>
                       )}
                     </Button>

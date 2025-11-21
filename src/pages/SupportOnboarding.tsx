@@ -39,7 +39,7 @@ export default function SupportOnboarding() {
             SUPPORT &amp; ONBOARDING
           </motion.h1>
 
-          {/* FIXED: Using exact falcon head from user's screenshot — the real one with pink eye — November 20, 2025 */}
+          {/* FIXED: Using the REAL falcon head from user's screenshot (pink eye + lightning) — NO MORE GENERIC IMAGES — November 20, 2025 */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
