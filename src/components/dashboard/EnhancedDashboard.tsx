@@ -387,11 +387,13 @@ export default function EnhancedDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" role="grid" aria-label="Portfolio Quick Stats" data-tour="stat-cards">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" role="grid" aria-label="Portfolio Quick Stats">
         {statsGrid.map((stat, idx) => (
-          <Suspense key={stat.id} fallback={<div className="animate-pulse h-32 bg-muted/20 rounded border border-primary/20" />}>
-            <QuickStatsCard stat={stat} index={idx} />
-          </Suspense>
+          <div key={stat.id} data-tour="stat-card">
+            <Suspense fallback={<div className="animate-pulse h-32 bg-muted/20 rounded border border-primary/20" />}>
+              <QuickStatsCard stat={stat} index={idx} />
+            </Suspense>
+          </div>
         ))}
       </div>
 
@@ -414,6 +416,7 @@ export default function EnhancedDashboard() {
                 key={action.id}
                 onClick={action.action}
                 data-action={action.id === 'toggle-bot' ? 'start-bot' : undefined}
+                data-tour="quick-action"
                 className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
