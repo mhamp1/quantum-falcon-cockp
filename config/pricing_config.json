@@ -1,0 +1,214 @@
+{
+  "version": "v2025.1.0",
+  "effectiveDate": "2025-11-21",
+  "currency": "USD",
+  "tiers": [
+    {
+      "id": "free",
+      "name": "Free",
+      "price": 0,
+      "billingPeriod": "month",
+      "priceDisplay": "$0",
+      "strategyLibrary": {
+        "count": 1,
+        "label": "1 strategy (DCA Basic)"
+      },
+      "aiAgents": {
+        "count": 1,
+        "label": "1 agent"
+      },
+      "multiplier": {
+        "value": 1,
+        "label": "1x"
+      },
+      "keyPerks": [
+        "Paper trading",
+        "Basic dashboard",
+        "Community read-only"
+      ],
+      "totalPower": {
+        "value": 2,
+        "label": "2 items"
+      },
+      "isMostPopular": false,
+      "isWhaleTier": false,
+      "isLifetime": false,
+      "isVisibleOnPricingPage": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "starter",
+      "name": "Starter",
+      "price": 29,
+      "billingPeriod": "month",
+      "priceDisplay": "$29/month",
+      "strategyLibrary": {
+        "count": 6,
+        "label": "6 strategies"
+      },
+      "aiAgents": {
+        "count": 4,
+        "label": "4 agents"
+      },
+      "multiplier": {
+        "value": 5,
+        "label": "5x"
+      },
+      "keyPerks": [
+        "Live trading",
+        "Basic analytics",
+        "RSI strategy"
+      ],
+      "totalPower": {
+        "value": 10,
+        "label": "10 items"
+      },
+      "isMostPopular": false,
+      "isWhaleTier": false,
+      "isLifetime": false,
+      "isVisibleOnPricingPage": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "trader",
+      "name": "Trader",
+      "price": 79,
+      "billingPeriod": "month",
+      "priceDisplay": "$79/month",
+      "strategyLibrary": {
+        "count": 18,
+        "label": "18 strategies"
+      },
+      "aiAgents": {
+        "count": 8,
+        "label": "8 agents"
+      },
+      "multiplier": {
+        "value": 15,
+        "label": "15x"
+      },
+      "keyPerks": [
+        "Volume Spike Pro",
+        "MACD",
+        "Priority support"
+      ],
+      "totalPower": {
+        "value": 26,
+        "label": "26 items"
+      },
+      "isMostPopular": true,
+      "isWhaleTier": false,
+      "isLifetime": false,
+      "isVisibleOnPricingPage": true,
+      "sortOrder": 3
+    },
+    {
+      "id": "pro-trader",
+      "name": "Pro Trader",
+      "price": 197,
+      "billingPeriod": "month",
+      "priceDisplay": "$197/month",
+      "strategyLibrary": {
+        "count": 33,
+        "label": "33 strategies"
+      },
+      "aiAgents": {
+        "count": 12,
+        "label": "12 agents"
+      },
+      "multiplier": {
+        "value": 25,
+        "label": "25x"
+      },
+      "keyPerks": [
+        "Statistical Arbitrage",
+        "Volatility Arbitrage",
+        "3 AI agents full suite"
+      ],
+      "totalPower": {
+        "value": 45,
+        "label": "45 items"
+      },
+      "isMostPopular": false,
+      "isWhaleTier": false,
+      "isLifetime": false,
+      "isVisibleOnPricingPage": true,
+      "sortOrder": 4
+    },
+    {
+      "id": "elite-trader",
+      "name": "Elite Trader",
+      "price": 497,
+      "billingPeriod": "month",
+      "priceDisplay": "$497/month",
+      "strategyLibrary": {
+        "count": 45,
+        "label": "45 strategies"
+      },
+      "aiAgents": {
+        "count": 15,
+        "label": "15 agents"
+      },
+      "multiplier": {
+        "value": 40,
+        "label": "40x"
+      },
+      "keyPerks": [
+        "Dev Yield Optimizer",
+        "MEV Protection & Capture",
+        "Quantum Ensemble"
+      ],
+      "totalPower": {
+        "value": 60,
+        "label": "60 items"
+      },
+      "isMostPopular": false,
+      "isWhaleTier": true,
+      "isLifetime": false,
+      "isVisibleOnPricingPage": true,
+      "sortOrder": 5
+    },
+    {
+      "id": "lifetime",
+      "name": "Lifetime Access",
+      "price": 8000,
+      "billingPeriod": "once",
+      "priceDisplay": "$8,000 once",
+      "strategyLibrary": {
+        "count": null,
+        "label": "ALL 53+ strategies (forever)"
+      },
+      "aiAgents": {
+        "count": null,
+        "label": "ALL 15 agents + all future agents"
+      },
+      "multiplier": {
+        "value": null,
+        "label": "Unlimited"
+      },
+      "keyPerks": [
+        "White-label deployment",
+        "API strategy publisher",
+        "Unlimited custom strategies",
+        "Personal dev support"
+      ],
+      "totalPower": {
+        "value": null,
+        "label": "∞"
+      },
+      "isMostPopular": false,
+      "isWhaleTier": true,
+      "isLifetime": true,
+      "isVisibleOnPricingPage": true,
+      "sortOrder": 6
+    }
+  ],
+  "notes": {
+    "freeTierRole": "high_conversion_hook",
+    "starterNarrative": "\"I want to make money now\" — impulse buy at $29",
+    "traderNarrative": "Most popular tier (~70% of paid users)",
+    "proTraderNarrative": "For serious traders who want edge",
+    "eliteNarrative": "Whale tier — status symbol",
+    "lifetimeNarrative": "One-time payment for legends; $8k sweet spot"
+  }
+}
