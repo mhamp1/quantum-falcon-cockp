@@ -1,6 +1,47 @@
-# LicenseAuthority Hub - Updates Summary
+# Quantum Falcon Cockpit - Updates Summary
 
 **Quick reference with impact assessment**
+
+---
+
+## 🆕 Latest Update: Canonical Pricing Configuration System (v2025.1.0 - November 21, 2025)
+
+### Overview
+Implemented a centralized pricing configuration system that eliminates all hard-coded pricing throughout the application. All pricing data is now controlled by a single JSON file and accessed via a strongly-typed React hook.
+
+### Key Achievements
+- ✅ Created `config/pricing_config.json` with final 6-tier structure
+- ✅ Built TypeScript type system (`src/lib/pricingTypes.ts`)
+- ✅ Implemented `usePricingConfig()` React hook
+- ✅ Refactored SubscriptionTiers and SubscriptionUpgrade components
+- ✅ Added premium whale tier styling for Elite Trader and Lifetime Access
+- ✅ Removed all hard-coded pricing from React components
+
+### The Final Tier Structure
+
+| Tier | Price | Strategies | AI Agents | Multiplier | Status |
+|------|-------|------------|-----------|------------|--------|
+| Free | $0 | 1 | 1 | 1x | Standard |
+| Starter | $29/mo | 6 | 4 | 5x | Standard |
+| **Trader** | $79/mo | 18 | 8 | 15x | **Most Popular** |
+| Pro Trader | $197/mo | 33 | 12 | 25x | Standard |
+| **Elite Trader** | $497/mo | 45 | 15 | 40x | **Whale Tier** 👑 |
+| **Lifetime Access** | $8,000 once | ALL 53+ | ALL 15+ | Unlimited | **Whale Tier** 👑 |
+
+### Benefits
+1. **Single Source of Truth**: All pricing lives in `config/pricing_config.json`
+2. **Easy Updates**: Change prices in one place, updates everywhere instantly
+3. **Type Safety**: Full TypeScript support prevents pricing errors
+4. **A/B Testing Ready**: Swap configs without touching code
+5. **Premium Styling**: Whale tiers get purple/gold gradient treatment
+
+### Documentation
+See `PRICING_CONFIG_SYSTEM.md` for complete documentation on:
+- Architecture and file structure
+- Usage examples for developers
+- How to update prices for product teams
+- Visual design specifications
+- Configuration reference
 
 ---
 
