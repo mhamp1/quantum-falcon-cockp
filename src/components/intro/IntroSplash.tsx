@@ -5,7 +5,7 @@
  * Features the cyberpunk neon HUD theme with Quantum Falcon branding.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFirstTimeUser } from '@/hooks/useFirstTimeUser';
 import { Lightning, Play } from '@phosphor-icons/react';
@@ -31,7 +31,7 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
     }
   }, [isFirstTime]);
 
-  const finish = () => {
+  const finish = useCallback(() => {
     // Mark as complete in localStorage
     complete();
     
@@ -42,7 +42,7 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
     if (onFinished) {
       onFinished();
     }
-  };
+  }, [complete, onFinished]);
 
   const handleVideoEnded = () => {
     setVideoPlaying(false);
@@ -67,7 +67,7 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isVisible]);
+  }, [isVisible, finish]);
 
   // Don't render anything if not visible
   if (!isVisible) {
