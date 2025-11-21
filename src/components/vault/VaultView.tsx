@@ -1001,6 +1001,7 @@ export default function VaultView() {
               </div>
             </div>
           </div>
+          {/* Enhanced button visibility for onboarding tour step 6 completion — November 21, 2025 */}
           <Button 
             onClick={() => {
               const amount = parseFloat(depositAmount)
@@ -1010,10 +1011,27 @@ export default function VaultView() {
               }
             }}
             data-tour="deposit-btc-button"
-            className="w-full mt-6 bg-accent hover:bg-accent/90 text-accent-foreground jagged-corner border-4 border-accent shadow-[0_0_25px_oklch(0.68_0.18_330_/_0.6)] hover:shadow-[0_0_35px_oklch(0.68_0.18_330_/_0.8)] uppercase tracking-[0.15em] font-bold h-14 text-base"
+            className="w-full mt-6 jagged-corner border-4 uppercase tracking-[0.15em] font-black h-16 text-xl relative z-50"
+            style={{
+              background: 'linear-gradient(135deg, #00FFFF 0%, #DC1FFF 50%, #FF00FF 100%)',
+              color: '#000000',
+              boxShadow: '0 0 40px rgba(0, 255, 255, 0.8), 0 0 60px rgba(220, 31, 255, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.3)',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+              border: '4px solid rgba(0, 255, 255, 0.9)',
+              transform: 'scale(1)',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 0 60px rgba(0, 255, 255, 1), 0 0 80px rgba(220, 31, 255, 0.8)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 0 40px rgba(0, 255, 255, 0.8), 0 0 60px rgba(220, 31, 255, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.3)';
+            }}
           >
-            <TrendUp size={24} weight="bold" className="mr-2" />
-            Deposit BTC
+            <TrendUp size={32} weight="bold" className="mr-3" />
+            DEPOSIT BTC
           </Button>
         </div>
       </div>
