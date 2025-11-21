@@ -19,8 +19,8 @@ import { soundEffects } from '@/lib/soundEffects';
 interface Tab {
   id: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; weight?: string; className?: string }>;
-  component: React.LazyExoticComponent<React.ComponentType<unknown>>;
+  icon: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  component: React.LazyExoticComponent<React.ComponentType<any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 interface MobileBottomNavProps {
