@@ -70,7 +70,10 @@ export default function MobileBottomNav({ tabs, activeTab, onTabChange }: Mobile
       {/* Floating Action Button (FAB) for Strategy Builder */}
       <motion.button
         onClick={handleStrategyClick}
-        className="fixed bottom-[96px] left-1/2 -translate-x-1/2 z-[60] w-16 h-16 rounded-full flex items-center justify-center shadow-2xl"
+        className="fixed left-1/2 -translate-x-1/2 z-[60] w-16 h-16 rounded-full flex items-center justify-center shadow-2xl"
+        style={{
+          bottom: 'calc(80px + env(safe-area-inset-bottom) + 16px)',
+        }}
         style={{
           background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
           boxShadow: '0 8px 32px rgba(236, 72, 153, 0.4), 0 0 0 4px rgba(139, 92, 246, 0.2)',
@@ -123,7 +126,7 @@ export default function MobileBottomNav({ tabs, activeTab, onTabChange }: Mobile
             WebkitOverflowScrolling: 'touch',
           }}
           drag="x"
-          dragConstraints={{ left: -1000, right: 0 }}
+          dragConstraints={scrollContainerRef}
           dragElastic={0.1}
           dragMomentum={true}
         >
@@ -202,7 +205,7 @@ export default function MobileBottomNav({ tabs, activeTab, onTabChange }: Mobile
                     textShadow: isActive ? '0 0 8px rgba(6, 182, 212, 0.4)' : 'none',
                   }}
                 >
-                  {tab.label.split(' ')[0]}
+                  {tab.label.trim().split(/\s+/)[0]}
                 </span>
               </motion.button>
             );
