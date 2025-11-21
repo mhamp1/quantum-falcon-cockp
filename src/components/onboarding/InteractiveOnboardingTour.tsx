@@ -17,8 +17,7 @@ interface TourStep {
   instruction: string;
   targetTab?: string;
   targetSelector?: string;
-  actionType: 'click' | 'hover' | 'drag' | 'none';
-  arrowDirection: 'up' | 'down' | 'left' | 'right';
+  actionType: 'click' | 'hover' | 'none';
 }
 
 const TOUR_STEPS: TourStep[] = [
@@ -28,7 +27,6 @@ const TOUR_STEPS: TourStep[] = [
     description: 'The most powerful AI trading cockpit. Let\'s get you printing money in 60 seconds.',
     instruction: 'Click "Start Tour" below to begin',
     actionType: 'none',
-    arrowDirection: 'up',
   },
   {
     id: 'dashboard-stats',
@@ -38,7 +36,6 @@ const TOUR_STEPS: TourStep[] = [
     targetTab: 'dashboard',
     targetSelector: '[data-tour="stat-card"]',
     actionType: 'click',
-    arrowDirection: 'up',
   },
   {
     id: 'neural-forecast',
@@ -48,7 +45,6 @@ const TOUR_STEPS: TourStep[] = [
     targetTab: 'dashboard',
     targetSelector: '[data-tour="confidence-bar"]',
     actionType: 'hover',
-    arrowDirection: 'up',
   },
   {
     id: 'quick-actions',
@@ -58,7 +54,6 @@ const TOUR_STEPS: TourStep[] = [
     targetTab: 'dashboard',
     targetSelector: '[data-tour="quick-action"]',
     actionType: 'click',
-    arrowDirection: 'up',
   },
   {
     id: 'strategy',
@@ -68,7 +63,6 @@ const TOUR_STEPS: TourStep[] = [
     targetTab: 'trading',
     targetSelector: '[data-tour="strategy-card"]',
     actionType: 'click',
-    arrowDirection: 'up',
   },
   {
     id: 'vault',
@@ -78,7 +72,6 @@ const TOUR_STEPS: TourStep[] = [
     targetTab: 'vault',
     targetSelector: '[data-tour="deposit-btc-button"]',
     actionType: 'click',
-    arrowDirection: 'up',
   },
   {
     id: 'complete',
@@ -86,7 +79,6 @@ const TOUR_STEPS: TourStep[] = [
     description: 'Your AI agents are live. Paper Mode is active. Your empire starts now.',
     instruction: 'Click "Launch Bot" below to start earning',
     actionType: 'none',
-    arrowDirection: 'up',
   },
 ];
 
