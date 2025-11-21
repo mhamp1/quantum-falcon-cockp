@@ -57,6 +57,9 @@ export default function LockedAgentPopup({
 
   // Handle escape key
   useEffect(() => {
+    // SSR safety check
+    if (typeof document === 'undefined') return
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose()
@@ -70,8 +73,10 @@ export default function LockedAgentPopup({
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape)
-      document.body.style.overflow = ''
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('keydown', handleEscape)
+        document.body.style.overflow = ''
+      }
     }
   }, [isOpen, onClose])
 

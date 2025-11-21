@@ -63,9 +63,9 @@ export default function AgentCard({
     if (onUpgradeClick) {
       onUpgradeClick()
     } else {
-      // Fallback to navigating to settings/billing
+      // Fallback to navigating to settings using the app's navigation system
       if (typeof window !== 'undefined') {
-        window.location.href = '/settings?tab=billing'
+        window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
       }
     }
   }
