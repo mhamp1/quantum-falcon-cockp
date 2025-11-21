@@ -2,8 +2,8 @@
 // November 21, 2025 — Quantum Falcon Cockpit
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Crown, Trophy, TrendUp, Target, Flame, Medal, Zap } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Crown, Trophy, Target, Flame, Medal, Zap } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -25,15 +25,15 @@ export default function LiveArenaPage() {
       let data: ArenaLeaderboardResponse
       try {
         data = await fetchArenaLeaderboard(tf)
-      } catch (error) {
+      } catch {
         console.warn('Using mock leaderboard data')
         data = createMockLeaderboard(tf)
       }
       
       setLeaderboard(data)
       setLastUpdate(new Date())
-    } catch (error) {
-      console.error('Failed to load leaderboard:', error)
+    } catch (err) {
+      console.error('Failed to load leaderboard:', err)
     } finally {
       setIsLoading(false)
     }

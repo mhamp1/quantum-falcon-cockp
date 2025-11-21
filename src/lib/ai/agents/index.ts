@@ -3,7 +3,7 @@
 
 import { 
   Brain, FishSimple, Waves, Shield, Eye, Sparkle, Atom, 
-  Crown, Zap, Flame, TrendUp, Clock, RocketLaunch, 
+  Zap, Flame, Clock, RocketLaunch, 
   ArrowsCounterClockwise, Cube, CalendarPlus
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
@@ -113,7 +113,7 @@ export interface AgentDecision {
   signal: AgentSignal
   confidence: AgentConfidence
   reason: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 /**

@@ -4,8 +4,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Target, Play, Lightning, Shield, CheckCircle, XCircle, 
-  Warning, Info, TrendUp, Clock 
+  Target, Lightning, CheckCircle, XCircle, 
+  Warning, Info 
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

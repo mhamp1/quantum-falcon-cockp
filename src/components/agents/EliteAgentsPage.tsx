@@ -1,12 +1,11 @@
 // Elite AI Agents Page — 15 Elite Agents with Tier Gating
 // November 21, 2025 — Quantum Falcon Cockpit
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useKV } from '@github/spark/hooks'
 import { Robot, Play, Info, Crown } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import AgentCard from '@/components/ai/AgentCard'
@@ -46,7 +45,7 @@ export default function EliteAgentsPage() {
     : ELITE_AGENTS.filter(agent => agent.tier === tierFilter)
 
   // Run analysis for selected agent
-  const runAgentAnalysis = async (agentName: string) => {
+  const runAgentAnalysis = useCallback(async (agentName: string) => {
     if (!snapshot) {
       toast.error('No market data available', {
         description: 'Waiting for market feed connection...',
@@ -91,14 +90,14 @@ export default function EliteAgentsPage() {
     } finally {
       setIsAnalyzing(false)
     }
-  }
+  }, [snapshot])
 
   // Auto-analyze when agent is selected
   useEffect(() => {
     if (activeAgentName && snapshot) {
       runAgentAnalysis(activeAgentName)
     }
-  }, [activeAgentName])
+  }, [activeAgentName, snapshot, runAgentAnalysis])
 
   // Stats
   const totalAgents = ELITE_AGENTS.length
