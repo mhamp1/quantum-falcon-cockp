@@ -133,85 +133,8 @@ const DEFAULT_CODE = `// Quantum Falcon Strategy Template
 // - indicators.atr(period) - Average True Range
 `
 
-function CodeParticles() {
-  const [particles] = useState(() => {
-    const codeSnippets = [
-      'if', 'buy', 'sell', 'RSI', 'volume', 'whale', 'DCA', 'AI',
-      'EMA', 'MACD', 'trend', 'signal', 'profit', 'loss', 'entry',
-      'exit', 'stop', 'limit', '>', '<', '==', '&&', '||', 'return',
-      'func', 'const', 'let', 'price', 'data', 'chart'
-    ]
-    return Array.from({ length: 25 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: 24 + Math.random() * 32,
-      delay: Math.random() * 5,
-      duration: 10 + Math.random() * 15,
-      code: codeSnippets[i % codeSnippets.length]
-    }))
-  })
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 1,
-        pointerEvents: 'none',
-        overflow: 'hidden'
-      }}
-    >
-      {particles.map((particle) => (
-        <motion.div
-          key={particle.id}
-          initial={{ 
-            x: `${particle.x}%`, 
-            y: `${particle.y}%`,
-            opacity: 0,
-            scale: 0.8,
-            rotate: 0
-          }}
-          animate={{
-            x: [`${particle.x}%`, `${particle.x + (Math.random() - 0.5) * 15}%`, `${particle.x}%`],
-            y: [`${particle.y}%`, `${particle.y + (Math.random() - 0.5) * 15}%`, `${particle.y}%`],
-            opacity: [0, 0.4, 0.2, 0.4, 0],
-            scale: [0.8, 1, 0.9, 1, 0.8],
-            rotate: [0, 90, 180, 270, 360]
-          }}
-          transition={{
-            duration: particle.duration,
-            delay: particle.delay,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          style={{
-            position: 'absolute',
-            width: particle.size,
-            height: particle.size,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, rgba(220, 31, 255, 0.15) 0%, rgba(153, 69, 255, 0.1) 100%)',
-            border: '1px solid rgba(20, 241, 149, 0.3)',
-            boxShadow: '0 0 16px rgba(220, 31, 255, 0.2)',
-            fontSize: Math.max(9, particle.size * 0.35),
-            fontFamily: 'Orbitron, monospace',
-            fontWeight: '700',
-            color: 'rgba(20, 241, 149, 0.8)',
-            borderRadius: '8px',
-            backdropFilter: 'blur(4px)'
-          }}
-        >
-          {particle.code}
-        </motion.div>
-      ))}
-    </div>
-  )
-}
+// SPINNING Q DELETED FOREVER — NO ANIMATION, NO PARTICLES, NO GARBAGE
+// FINAL HERO FIX: Spinning image DELETED forever — title SOLID PINK — November 21, 2025
 
 export default function CreateStrategyPage() {
   const [codeValue, setCodeValue] = useKV<string>('strategy-editor-code', DEFAULT_CODE)
@@ -443,7 +366,6 @@ Return only improved code with comments explaining changes.`
           WebkitMaskImage: 'radial-gradient(ellipse at center, black 0%, transparent 70%)'
         }}
       />
-      <CodeParticles />
       
       <div className="relative z-10 container mx-auto p-6 space-y-8">
         <motion.div
@@ -451,7 +373,8 @@ Return only improved code with comments explaining changes.`
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-8 py-16 relative min-h-[calc(100vh-6rem)] strategy-hero"
         >
-          {/* FINAL HERO FIX: Spinning image DELETED forever — title SOLID PINK, no effects — November 20, 2025 */}
+          {/* SPINNING Q DELETED FOREVER — NO ANIMATION, NO PARTICLES, NO GARBAGE */}
+          {/* FINAL HERO FIX: Spinning image DELETED forever — title SOLID PINK — November 21, 2025 */}
           
           <motion.h1 
             initial={{ opacity: 0, scale: 0.95 }}

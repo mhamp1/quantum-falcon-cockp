@@ -19,13 +19,12 @@ interface TourStep {
   targetSelector?: string;
   actionType: 'click' | 'hover' | 'drag' | 'none';
   arrowDirection: 'up' | 'down' | 'left' | 'right';
-  skipIfMobile?: boolean;
 }
 
 const TOUR_STEPS: TourStep[] = [
   {
     id: 'welcome',
-    title: 'Welcome to Quantum Falcon 🚀',
+    title: 'Welcome to Quantum Falcon',
     description: 'The most powerful AI trading cockpit. Let\'s get you printing money in 60 seconds.',
     instruction: 'Click "Start Tour" below to begin',
     actionType: 'none',
@@ -43,40 +42,29 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'neural-forecast',
-    title: 'AI Neural Predictions',
+    title: 'AI Forecasts and Confidence',
     description: 'Our AI predicts market movements with up to 92% confidence.',
     instruction: 'Hover over the confidence bar above',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="confidence-bar"]',
     actionType: 'hover',
     arrowDirection: 'up',
-    skipIfMobile: true,
   },
   {
     id: 'quick-actions',
     title: 'One-Click Bot Control',
     description: 'Instant access to start your bot, check vault, or upgrade.',
-    instruction: 'Click the "Start Bot" button above',
+    instruction: 'Click any quick action button above',
     targetTab: 'dashboard',
-    targetSelector: '[data-tour="start-bot-button"]',
+    targetSelector: '[data-tour="quick-action"]',
     actionType: 'click',
     arrowDirection: 'up',
   },
   {
-    id: 'strategy-builder',
+    id: 'strategy',
     title: 'Build God-Tier Strategies',
     description: 'Full Monaco editor with real-time backtesting and sharing.',
-    instruction: 'Click any feature card above',
-    targetTab: 'strategy-builder',
-    targetSelector: '[data-tour="feature-card"]',
-    actionType: 'click',
-    arrowDirection: 'up',
-  },
-  {
-    id: 'trading-hub',
-    title: 'Pre-Built Winning Strategies',
-    description: 'DCA Basic is free forever. Unlock 15+ strategies with Pro+.',
-    instruction: 'Click the "DCA Basic" strategy card above',
+    instruction: 'Click any strategy card above',
     targetTab: 'trading',
     targetSelector: '[data-tour="strategy-card"]',
     actionType: 'click',
@@ -131,7 +119,6 @@ export default function InteractiveOnboardingTour({
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === TOUR_STEPS.length - 1;
   const canProceed = isFirstStep || isLastStep || currentStep.actionType === 'none' || actionCompleted;
-  const shouldSkipStep = isMobile && currentStep.skipIfMobile;
 
   const updateTargetRect = useCallback(() => {
     if (!currentStep.targetSelector) {
@@ -203,10 +190,6 @@ export default function InteractiveOnboardingTour({
     cleanupListeners();
 
     if (!currentStep.targetSelector || currentStep.actionType === 'none') return;
-    if (shouldSkipStep) {
-      setTimeout(() => handleActionComplete(), 1000);
-      return;
-    }
 
     const targetElements = Array.from(document.querySelectorAll(currentStep.targetSelector)) as HTMLElement[];
     
@@ -251,7 +234,7 @@ export default function InteractiveOnboardingTour({
         });
       }
     });
-  }, [currentStep, cleanupListeners, handleActionComplete, shouldSkipStep]);
+  }, [currentStep, cleanupListeners, handleActionComplete]);
 
   useEffect(() => {
     if (!isOpen || showLegalScreen) return;

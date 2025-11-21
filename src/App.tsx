@@ -170,7 +170,17 @@ export default function App() {
   const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try {
+      const stored = typeof window !== 'undefined'
+        ? window.localStorage.getItem('hasSeenOnboarding')
+        : null;
+      const hasSeen = stored === 'true';
+      return !hasSeen; // show tour if never seen
+    } catch {
+      return true;
+    }
+  });
   const [showMasterSearch, setShowMasterSearch] = useState(false);
   const [auth, setAuth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
@@ -283,7 +293,7 @@ export default function App() {
     if (!hasSeenOnboarding) {
       const timer = setTimeout(() => {
         setShowOnboarding(true);
-      }, 500);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [hasSeenOnboarding]);
@@ -320,10 +330,16 @@ export default function App() {
 
   const handleOnboardingComplete = () => {
     setHasSeenOnboarding(true);
+    try {
+      window.localStorage.setItem('hasSeenOnboarding', 'true');
+    } catch (e) {
+      console.warn('Failed to save onboarding state to localStorage', e);
+    }
     setShowOnboarding(false);
   };
 
   const handleOnboardingSkip = () => {
+    // Hide tour for this session but don't mark as seen
     setShowOnboarding(false);
   };
 

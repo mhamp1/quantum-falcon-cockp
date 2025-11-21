@@ -5,7 +5,6 @@ import { GithubLogo, DiscordLogo, Crown } from '@phosphor-icons/react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { soundEffects } from '@/lib/soundEffects';
-import falconHeadImage from '@/assets/images/quantum-falcon-logo.png';
 
 export default function SupportOnboarding() {
   const isMobile = useIsMobile();
@@ -37,7 +36,7 @@ export default function SupportOnboarding() {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url(${falconHeadImage})`,
+            backgroundImage: 'url(/falcon-head-official.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
