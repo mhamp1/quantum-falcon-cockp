@@ -278,7 +278,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
     let result: any;
 
     switch (type) {
-      case 'CALCULATE_INDICATORS':
+      case 'CALCULATE_INDICATORS': {
         const prices = data.prices as number[];
         result = {
           sma20: calculateSMA(prices, 20),
@@ -290,6 +290,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
           bollingerBands: calculateBollingerBands(prices),
         };
         break;
+      }
 
       case 'DETECT_PATTERNS':
         result = detectPatterns(data.tradingData as TradingData[]);

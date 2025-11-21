@@ -80,7 +80,7 @@ export class InputSanitizer {
   }
 
   static validateEmail(email: string): boolean {
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     return emailRegex.test(email) && email.length <= 254;
   }
 
@@ -139,7 +139,7 @@ export class InputSanitizer {
     
     if (apiKey.length < 32 || apiKey.length > 128) return false;
     
-    const validPattern = /^[A-Za-z0-9_\-\.]+$/;
+    const validPattern = /^[A-Za-z0-9_\-.]+$/;
     return validPattern.test(apiKey);
   }
 

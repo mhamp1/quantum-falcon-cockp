@@ -21,14 +21,13 @@
  */
 
 import { 
-  Lightning, Target, Brain, GitBranch, Rocket, Star, Fire, 
-  ShieldCheck, Atom, ChartLineUp, Sparkle, Crown, Trophy,
-  Eye, ChartBar, Crosshair, Graph, TrendUp, MagnifyingGlass,
-  Cpu, Gauge, Coin, Wallet, Lock, Bell, Users, ChatCircle,
+  Lightning, Target, Brain, GitBranch, Rocket, Star, 
+  ShieldCheck, ChartLineUp, Sparkle, Crown, Trophy,
+  ChartBar, Crosshair, Graph, TrendUp, MagnifyingGlass,
+  Gauge, Coin, Wallet, Lock, Users,
   GameController, Gift, Medal, Broadcast, Palette, MusicNotes,
-  Camera, Heart, Fingerprint, CloudArrowDown, Database, Key,
-  Infinity, Rocket as RocketIcon, Planet, Alien, Sword, Confetti,
-  Megaphone, Diamond, Hammer, Wrench, Gear, Bug
+  Camera, CloudArrowDown, Database, Key,
+  Planet, Alien, Diamond
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
 
