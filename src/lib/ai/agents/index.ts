@@ -3,7 +3,7 @@
 
 import { 
   Brain, FishSimple, Waves, Shield, Eye, Sparkle, Atom, 
-  Zap, Flame, Clock, RocketLaunch, 
+  Lightning, Flame, Clock, RocketLaunch, 
   ArrowsCounterClockwise, Cube, CalendarPlus
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
@@ -783,7 +783,7 @@ const GridMasterAgent: EliteAgentInstance = {
  */
 const ArbitragePhantomAgent: EliteAgentInstance = {
   name: 'Arbitrage Phantom',
-  icon: Zap,
+  icon: Lightning,
   color: '#FF00FF',
   description: 'Cross-DEX arbitrage',
   personality: 'opportunistic',

@@ -95,9 +95,9 @@ function LoadingFallback() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
+          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0ms' }} />
+          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
+          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
         </div>
         <p className="text-sm text-muted-foreground uppercase tracking-wider">Loading...</p>
       </div>

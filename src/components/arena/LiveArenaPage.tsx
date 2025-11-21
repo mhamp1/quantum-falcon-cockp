@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Crown, Trophy, Target, Flame, Medal, Zap } from '@phosphor-icons/react'
+import { Crown, Trophy, Target, Flame, Medal, Lightning } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -231,7 +231,7 @@ export default function LiveArenaPage() {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
               >
-                <Zap size={64} weight="duotone" className="text-primary mx-auto mb-4" />
+                <Lightning size={64} weight="duotone" className="text-primary mx-auto mb-4" />
               </motion.div>
               <p className="text-xl text-muted-foreground">
                 Loading leaderboard...
