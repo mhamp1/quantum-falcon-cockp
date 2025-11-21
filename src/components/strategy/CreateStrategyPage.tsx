@@ -451,23 +451,7 @@ Return only improved code with comments explaining changes.`
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-8 py-16 relative min-h-[calc(100vh-6rem)] strategy-hero"
         >
-          {/* REMOVED: Spinning Q logo - user hated it, replaced with clean static branding */}
-          <motion.div
-            initial={{ opacity: 0, scale: 1.2 }}
-            animate={{ opacity: 0.08, scale: 1 }}
-            transition={{ duration: 1.5 }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-            style={{
-              fontSize: '32rem',
-              fontFamily: 'Orbitron, sans-serif',
-              fontWeight: 900,
-              color: '#9945FF',
-              textShadow: '0 0 100px rgba(153, 69, 255, 0.5)',
-              zIndex: 0
-            }}
-          >
-            Q
-          </motion.div>
+          {/* FINAL HERO FIX: Spinning image DELETED forever — title SOLID PINK, no effects — November 20, 2025 */}
           
           <motion.h1 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -476,57 +460,30 @@ Return only improved code with comments explaining changes.`
             className="text-7xl md:text-9xl font-black uppercase leading-[0.9] mb-6 relative z-10"
             style={{
               fontFamily: 'Orbitron, sans-serif',
-              letterSpacing: '0.08em'
+              letterSpacing: '0.08em',
+              color: '#FF1493'
             }}
           >
-            <motion.span 
-              className="block mb-3"
-              animate={{
-                backgroundPosition: ['0% 50%', '200% 50%']
-              }}
-              transition={{
-                duration: 12,
-                repeat: Infinity,
-                ease: 'linear'
-              }}
-              style={{
-                background: 'linear-gradient(90deg, #DC1FFF 0%, #9945FF 25%, #7C3AED 50%, #9945FF 75%, #DC1FFF 100%)',
-                backgroundSize: '200% 100%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textShadow: 'none',
-                filter: 'drop-shadow(0 0 12px rgba(153, 69, 255, 0.6))',
-                fontWeight: 900
-              }}
-            >
+            <span className="block mb-3">
               CREATE GOD-TIER
-            </motion.span>
-            <motion.span 
-              className="block"
-              animate={{
-                backgroundPosition: ['0% 50%', '200% 50%']
-              }}
-              transition={{
-                duration: 12,
-                repeat: Infinity,
-                ease: 'linear',
-                delay: 0.5
-              }}
-              style={{
-                background: 'linear-gradient(90deg, #7C3AED 0%, #9945FF 25%, #DC1FFF 50%, #9945FF 75%, #7C3AED 100%)',
-                backgroundSize: '200% 100%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textShadow: 'none',
-                filter: 'drop-shadow(0 0 12px rgba(220, 31, 255, 0.6))',
-                fontWeight: 900
-              }}
-            >
+            </span>
+            <span className="block">
               STRATEGIES
-            </motion.span>
+            </span>
           </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="text-xl md:text-2xl max-w-4xl mx-auto mb-8 relative z-10"
+            style={{
+              color: '#8892b0',
+              fontFamily: 'Rajdhani, sans-serif'
+            }}
+          >
+            Build, backtest, and share custom bots with the community — the same tools Elite traders use to print money.
+          </motion.p>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
