@@ -21,10 +21,10 @@ interface LockedAgentPopupProps {
 const AGENT_TEASER_COPY: Record<string, string> = {
   'Quantum Ensemble': 'The smartest agent in crypto — runs all 15 and votes.',
   'Arbitrage Phantom': 'Cross-DEX arb — prints money on spreads.',
-  'Sentiment Oracle': 'Reads X + Discord in real-time.',
+  'Sentiment Oracle': 'Reads Twitter/X + Discord in real-time.',
 }
 
-// Profit teaser values for specific agents
+// Profit teaser values for specific agents (simulated for marketing purposes)
 const AGENT_PROFIT_TEASER: Record<string, string> = {
   'Quantum Ensemble': '+$42,700 avg/mo',
   'Arbitrage Phantom': '+$35,900 avg/mo',
@@ -32,6 +32,9 @@ const AGENT_PROFIT_TEASER: Record<string, string> = {
 }
 
 const DEFAULT_PROFIT_TEASER = '+$18,500 avg/mo'
+
+// Disclaimer for profit claims
+const PROFIT_DISCLAIMER = 'Simulated results. Past performance does not guarantee future results.'
 
 // Tier display names
 const TIER_DISPLAY_NAME: Record<AgentTier, string> = {
@@ -223,8 +226,11 @@ export default function LockedAgentPopup({
                       <div className="text-3xl md:text-4xl font-black text-accent mb-2">
                         {profitTeaser}
                       </div>
-                      <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
                         Average Monthly Profit (Elite Users)
+                      </div>
+                      <div className="text-[10px] text-muted-foreground/70 italic">
+                        {PROFIT_DISCLAIMER}
                       </div>
                     </div>
                   </div>
