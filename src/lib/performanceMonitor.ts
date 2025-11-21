@@ -1,290 +1,211 @@
-/**
- * Performance Monitoring & Profiling Utilities
- * Quantum Falcon Cockpit v2025.1.0
- * 
- * Tracks component load times, identifies bottlenecks, and reports metrics.
- * Production-safe with zero overhead when disabled.
- */
-
-import { useCallback, useEffect, useRef } from 'react';
+// PERFORMANCE MONITOR: Tracks and logs performance bottlenecks — November 21, 2025
 
 interface PerformanceMetric {
   name: string;
   duration: number;
   timestamp: number;
-}
-
-interface ComponentMetric {
-  component: string;
-  renderTime: number;
-  mountTime: number;
-  updateCount: number;
+  type: 'render' | 'calculation' | 'network' | 'storage';
 }
 
 class PerformanceMonitor {
   private metrics: PerformanceMetric[] = [];
-  private componentMetrics: Map<string, ComponentMetric> = new Map();
-  private enabled: boolean = false;
+  private maxMetrics = 100;
+  private thresholds = {
+    render: 16, // 60fps = 16ms per frame
+    calculation: 50,
+    network: 1000,
+    storage: 100,
+  };
 
-  constructor() {
-    // Enable only in development or when ?perf=true query param is present
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      this.enabled = params.get('perf') === 'true' || import.meta.env.DEV;
-    }
-  }
-
-  /**
-   * Mark the start of a performance measurement
-   */
-  mark(name: string): void {
-    if (!this.enabled || typeof performance === 'undefined') return;
+  startMeasure(name: string): () => void {
+    const startTime = performance.now();
     
-    try {
-      performance.mark(`${name}-start`);
-    } catch (error) {
-      // Silently fail
-    }
+    return () => {
+      const duration = performance.now() - startTime;
+      this.recordMetric(name, duration);
+    };
   }
 
-  /**
-   * Mark the end and calculate duration
-   */
-  measure(name: string): number | null {
-    if (!this.enabled || typeof performance === 'undefined') return null;
+  private recordMetric(name: string, duration: number) {
+    const type = this.inferType(name);
+    const metric: PerformanceMetric = {
+      name,
+      duration,
+      timestamp: Date.now(),
+      type,
+    };
 
-    try {
-      performance.mark(`${name}-end`);
-      const measureName = `${name}-duration`;
-      performance.measure(measureName, `${name}-start`, `${name}-end`);
-      
-      const entries = performance.getEntriesByName(measureName);
-      if (entries.length > 0) {
-        const duration = entries[entries.length - 1].duration;
-        
-        this.metrics.push({
-          name,
+    this.metrics.push(metric);
+    
+    if (this.metrics.length > this.maxMetrics) {
+      this.metrics.shift();
+    }
+
+    const threshold = this.thresholds[type];
+    if (duration > threshold) {
+      console.warn(
+        `⚠️ [Performance] ${name} took ${duration.toFixed(2)}ms (threshold: ${threshold}ms)`,
+        {
+          type,
           duration,
-          timestamp: Date.now(),
-        });
-
-        // Log slow operations (>100ms)
-        if (duration > 100) {
-          console.warn(`[Perf] Slow operation detected: ${name} took ${duration.toFixed(2)}ms`);
+          threshold,
+          overage: ((duration / threshold - 1) * 100).toFixed(1) + '%',
         }
-
-        return duration;
-      }
-    } catch (error) {
-      // Silently fail
-    }
-
-    return null;
-  }
-
-  /**
-   * Track component render time
-   */
-  trackComponent(
-    component: string,
-    phase: 'mount' | 'update',
-    actualDuration: number
-  ): void {
-    if (!this.enabled) return;
-
-    const existing = this.componentMetrics.get(component);
-    
-    if (existing) {
-      existing.updateCount++;
-      existing.renderTime += actualDuration;
-      if (phase === 'mount') {
-        existing.mountTime = actualDuration;
-      }
-    } else {
-      this.componentMetrics.set(component, {
-        component,
-        renderTime: actualDuration,
-        mountTime: phase === 'mount' ? actualDuration : 0,
-        updateCount: 1,
-      });
-    }
-
-    // Warn on slow renders (>16ms = 60fps threshold)
-    if (actualDuration > 16) {
-      console.warn(`[Perf] Slow render: ${component} took ${actualDuration.toFixed(2)}ms`);
+      );
     }
   }
 
-  /**
-   * Get all metrics for reporting
-   */
-  getMetrics(): PerformanceMetric[] {
+  private inferType(name: string): PerformanceMetric['type'] {
+    if (name.includes('render') || name.includes('paint') || name.includes('layout')) {
+      return 'render';
+    }
+    if (name.includes('calculate') || name.includes('compute') || name.includes('process')) {
+      return 'calculation';
+    }
+    if (name.includes('fetch') || name.includes('request') || name.includes('api')) {
+      return 'network';
+    }
+    if (name.includes('storage') || name.includes('kv') || name.includes('cache')) {
+      return 'storage';
+    }
+    return 'calculation';
+  }
+
+  getMetrics(type?: PerformanceMetric['type']): PerformanceMetric[] {
+    if (type) {
+      return this.metrics.filter(m => m.type === type);
+    }
     return [...this.metrics];
   }
 
-  /**
-   * Get component metrics
-   */
-  getComponentMetrics(): ComponentMetric[] {
-    return Array.from(this.componentMetrics.values());
+  getAverageDuration(name: string): number {
+    const filtered = this.metrics.filter(m => m.name === name);
+    if (filtered.length === 0) return 0;
+    
+    const sum = filtered.reduce((acc, m) => acc + m.duration, 0);
+    return sum / filtered.length;
   }
 
-  /**
-   * Get slowest operations
-   */
-  getSlowestOperations(limit: number = 10): PerformanceMetric[] {
+  getSlowOperations(limit = 10): PerformanceMetric[] {
     return [...this.metrics]
       .sort((a, b) => b.duration - a.duration)
       .slice(0, limit);
   }
 
-  /**
-   * Get slowest components
-   */
-  getSlowestComponents(limit: number = 10): ComponentMetric[] {
-    return Array.from(this.componentMetrics.values())
-      .sort((a, b) => b.renderTime - a.renderTime)
-      .slice(0, limit);
+  getSummary() {
+    const byType = {
+      render: this.metrics.filter(m => m.type === 'render'),
+      calculation: this.metrics.filter(m => m.type === 'calculation'),
+      network: this.metrics.filter(m => m.type === 'network'),
+      storage: this.metrics.filter(m => m.type === 'storage'),
+    };
+
+    const summary = {
+      total: this.metrics.length,
+      byType: Object.entries(byType).map(([type, metrics]) => ({
+        type,
+        count: metrics.length,
+        avgDuration: metrics.length > 0
+          ? metrics.reduce((sum, m) => sum + m.duration, 0) / metrics.length
+          : 0,
+        maxDuration: metrics.length > 0
+          ? Math.max(...metrics.map(m => m.duration))
+          : 0,
+      })),
+      slowOperations: this.getSlowOperations(5),
+    };
+
+    return summary;
   }
 
-  /**
-   * Clear all metrics
-   */
-  clear(): void {
-    this.metrics = [];
-    this.componentMetrics.clear();
+  logSummary() {
+    const summary = this.getSummary();
     
-    if (typeof performance !== 'undefined') {
-      try {
-        performance.clearMarks();
-        performance.clearMeasures();
-      } catch (error) {
-        // Silently fail
-      }
-    }
-  }
-
-  /**
-   * Generate performance report
-   */
-  generateReport(): string {
-    if (!this.enabled) return 'Performance monitoring is disabled';
-
-    const lines: string[] = [
-      '=== QUANTUM FALCON PERFORMANCE REPORT ===',
-      '',
-      `Total operations tracked: ${this.metrics.length}`,
-      `Total components tracked: ${this.componentMetrics.size}`,
-      '',
-      '--- SLOWEST OPERATIONS ---',
-    ];
-
-    this.getSlowestOperations(5).forEach((metric, index) => {
-      lines.push(`${index + 1}. ${metric.name}: ${metric.duration.toFixed(2)}ms`);
-    });
-
-    lines.push('');
-    lines.push('--- SLOWEST COMPONENTS ---');
-
-    this.getSlowestComponents(5).forEach((metric, index) => {
-      lines.push(
-        `${index + 1}. ${metric.component}: ${metric.renderTime.toFixed(2)}ms total (${metric.updateCount} renders)`
+    console.group('📊 Performance Summary');
+    console.log(`Total metrics recorded: ${summary.total}`);
+    console.table(summary.byType);
+    
+    if (summary.slowOperations.length > 0) {
+      console.group('🐌 Slowest Operations');
+      console.table(
+        summary.slowOperations.map(op => ({
+          name: op.name,
+          duration: `${op.duration.toFixed(2)}ms`,
+          type: op.type,
+        }))
       );
-    });
+      console.groupEnd();
+    }
+    
+    console.groupEnd();
+  }
 
-    lines.push('');
-    lines.push('--- WEB VITALS ---');
+  clear() {
+    this.metrics = [];
+  }
 
-    if (typeof performance !== 'undefined' && performance.getEntriesByType) {
+  // Monitor long tasks (>50ms)
+  observeLongTasks() {
+    if ('PerformanceObserver' in window) {
       try {
-        const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-        if (navigation) {
-          lines.push(`DOM Content Loaded: ${navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart}ms`);
-          lines.push(`Load Complete: ${navigation.loadEventEnd - navigation.loadEventStart}ms`);
-        }
-
-        const paint = performance.getEntriesByType('paint');
-        paint.forEach((entry) => {
-          lines.push(`${entry.name}: ${entry.startTime.toFixed(2)}ms`);
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.duration > 50) {
+              console.warn(
+                `⚠️ [Long Task] ${entry.name} blocked main thread for ${entry.duration.toFixed(2)}ms`
+              );
+            }
+          }
         });
-      } catch (error) {
-        lines.push('Web Vitals unavailable');
+
+        observer.observe({ entryTypes: ['longtask', 'measure'] });
+        
+        return () => observer.disconnect();
+      } catch (e) {
+        console.debug('[PerformanceMonitor] Long task observation not supported');
       }
     }
-
-    lines.push('');
-    lines.push('=== END REPORT ===');
-
-    return lines.join('\n');
   }
 
-  /**
-   * Log report to console
-   */
-  logReport(): void {
-    if (!this.enabled) return;
-    console.log(this.generateReport());
-  }
+  // Monitor layout shifts
+  observeLayoutShifts() {
+    if ('PerformanceObserver' in window) {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if ((entry as any).hadRecentInput) continue;
+            
+            const clsValue = (entry as any).value;
+            if (clsValue > 0.1) {
+              console.warn(
+                `⚠️ [Layout Shift] CLS score: ${clsValue.toFixed(4)}`,
+                entry
+              );
+            }
+          }
+        });
 
-  /**
-   * Check if monitoring is enabled
-   */
-  isEnabled(): boolean {
-    return this.enabled;
+        observer.observe({ type: 'layout-shift', buffered: true });
+        
+        return () => observer.disconnect();
+      } catch (e) {
+        console.debug('[PerformanceMonitor] Layout shift observation not supported');
+      }
+    }
   }
 }
 
-// Singleton instance
 export const performanceMonitor = new PerformanceMonitor();
 
-/**
- * Hook for measuring async operations
- */
-export function usePerformanceMeasure() {
-  const measure = useCallback(async <T,>(
-    name: string,
-    fn: () => Promise<T>
-  ): Promise<T> => {
-    performanceMonitor.mark(name);
-    try {
-      const result = await fn();
-      performanceMonitor.measure(name);
-      return result;
-    } catch (error) {
-      performanceMonitor.measure(name);
-      throw error;
-    }
-  }, []);
-
-  return measure;
-}
-
-/**
- * Hook for tracking component updates
- */
-export function useRenderTracking(componentName: string) {
-  const renderCount = useRef(0);
-  const startTime = useRef(performance.now());
-
-  useEffect(() => {
-    renderCount.current++;
-    const duration = performance.now() - startTime.current;
-    
-    performanceMonitor.trackComponent(
-      componentName,
-      renderCount.current === 1 ? 'mount' : 'update',
-      duration
-    );
-
-    startTime.current = performance.now();
-  });
-
-  return renderCount.current;
-}
-
-// Make available on window for debugging
+// Auto-initialize observers
 if (typeof window !== 'undefined') {
-  (window as any).__perfMonitor = performanceMonitor;
+  performanceMonitor.observeLongTasks();
+  performanceMonitor.observeLayoutShifts();
+  
+  // Log summary every 60 seconds in development
+  if (import.meta.env.DEV) {
+    setInterval(() => {
+      performanceMonitor.logSummary();
+    }, 60000);
+  }
 }
-
-export default performanceMonitor;

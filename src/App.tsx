@@ -90,7 +90,7 @@ interface Tab {
   component: React.LazyExoticComponent<React.ComponentType<any>>;
 }
 
-function LoadingFallback() {
+function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-4">
@@ -99,7 +99,7 @@ function LoadingFallback() {
           <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
           <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
         </div>
-        <p className="text-sm text-muted-foreground uppercase tracking-wider">Loading...</p>
+        <p className="text-sm text-muted-foreground uppercase tracking-wider">{message}</p>
       </div>
     </div>
   );
@@ -514,9 +514,11 @@ export default function App() {
         )}
 
         <div className={cn('flex-1', !isMobile && 'ml-[240px]')}>
-          <Suspense fallback={<LoadingFallback />}>
-            <ActiveComponent />
-          </Suspense>
+          <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+            <Suspense fallback={<LoadingFallback message={`Loading ${activeTab}...`} />}>
+              <ActiveComponent />
+            </Suspense>
+          </ErrorBoundary>
         </div>
 
         {/* MOBILE NAV 10X: Premium mobile bottom navigation - smoother than Bybit Pro + TradingView Mobile 2025 */}
