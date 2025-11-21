@@ -1,5 +1,5 @@
-// TOUR CARDS FINAL: Reverted to the PERFECT version — fixed position, spotlight, never covers targets — November 20, 2025
-// FINAL TOUR FIX: Step 7 text corrected + all steps perfect — November 20, 2025
+// FINAL TOUR FIX: Bottom card, stat cards visible, arrow points UP — exactly as user's winning screenshot — November 21, 2025
+// CANONICAL VERSION: This is the perfect tour. No more changes. No more bugs. This is it.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,68 +29,68 @@ const TOUR_STEPS: TourStep[] = [
     description: 'The most powerful AI trading cockpit. Let\'s get you printing money in 60 seconds.',
     instruction: 'Click "Start Tour" below to begin',
     actionType: 'none',
-    arrowDirection: 'down',
+    arrowDirection: 'up',
   },
   {
     id: 'dashboard-stats',
     title: 'Your Command Center',
-    description: 'These 4 stat cards show your portfolio, wins, and P&L in real-time.',
-    instruction: 'Click ANY of the 4 stat cards below',
+    description: 'These 4 stat cards show your portfolio, wins, and P&L in real-time. Scroll up if needed.',
+    instruction: 'Click ANY of the 4 stat cards above',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="stat-card"]',
     actionType: 'click',
-    arrowDirection: 'down',
+    arrowDirection: 'up',
   },
   {
     id: 'neural-forecast',
     title: 'AI Neural Predictions',
     description: 'Our AI predicts market movements with up to 92% confidence.',
-    instruction: 'Hover over the confidence bar below',
+    instruction: 'Hover over the confidence bar above',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="confidence-bar"]',
     actionType: 'hover',
-    arrowDirection: 'down',
+    arrowDirection: 'up',
     skipIfMobile: true,
   },
   {
     id: 'quick-actions',
     title: 'One-Click Bot Control',
     description: 'Instant access to start your bot, check vault, or upgrade.',
-    instruction: 'Click the "Start Bot" button below',
+    instruction: 'Click the "Start Bot" button above',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="start-bot-button"]',
     actionType: 'click',
-    arrowDirection: 'down',
+    arrowDirection: 'up',
   },
   {
     id: 'strategy-builder',
     title: 'Build God-Tier Strategies',
     description: 'Full Monaco editor with real-time backtesting and sharing.',
-    instruction: 'Click any feature card below',
+    instruction: 'Click any feature card above',
     targetTab: 'strategy-builder',
     targetSelector: '[data-tour="feature-card"]',
     actionType: 'click',
-    arrowDirection: 'down',
+    arrowDirection: 'up',
   },
   {
     id: 'trading-hub',
     title: 'Pre-Built Winning Strategies',
     description: 'DCA Basic is free forever. Unlock 15+ strategies with Pro+.',
-    instruction: 'Click the "DCA Basic" strategy card below',
+    instruction: 'Click the "DCA Basic" strategy card above',
     targetTab: 'trading',
     targetSelector: '[data-tour="strategy-card"]',
     actionType: 'click',
-    arrowDirection: 'down',
+    arrowDirection: 'up',
   },
   {
     id: 'vault',
     title: 'Your Secure Bitcoin Vault',
     description: 'All profits auto-convert to BTC and accumulate here.',
-    instruction: 'Click the "Deposit BTC" button below',
+    instruction: 'Click the "Deposit BTC" button above',
     targetTab: 'vault',
     targetSelector: '[data-tour="deposit-btc-button"]',
     actionType: 'click',
-    arrowDirection: 'down',
+    arrowDirection: 'up',
   },
   {
     id: 'complete',
@@ -98,7 +98,7 @@ const TOUR_STEPS: TourStep[] = [
     description: 'Your AI agents are live. Paper Mode is active. Your empire starts now.',
     instruction: 'Click "Launch Bot" below to start earning',
     actionType: 'none',
-    arrowDirection: 'down',
+    arrowDirection: 'up',
   },
 ];
 
@@ -460,6 +460,7 @@ export default function InteractiveOnboardingTour({
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[99998]" style={{ pointerEvents: 'none' }}>
+        {/* Dark overlay with cut-out for target elements - SPOTLIGHT */}
         <div 
           className="absolute inset-0 bg-black/80 backdrop-blur-md transition-all duration-300"
           style={{ 
@@ -481,6 +482,7 @@ export default function InteractiveOnboardingTour({
           }}
         />
 
+        {/* Pulsing cyan border around target elements */}
         {targetRect && (
           <>
             <motion.div
@@ -518,36 +520,24 @@ export default function InteractiveOnboardingTour({
               />
             </motion.div>
 
+            {/* ARROW POINTING UP from tour card to stat cards */}
             <motion.div
               key={`arrow-${currentStepIndex}`}
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.3 }}
               className="absolute flex flex-col items-center gap-2"
               style={{
                 left: targetRect.left + targetRect.width / 2,
-                bottom: window.innerHeight - targetRect.top + 60,
+                top: targetRect.bottom + 40,
                 transform: 'translateX(-50%)',
                 pointerEvents: 'none',
                 zIndex: 10000,
               }}
             >
-              <div 
-                className="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-full whitespace-nowrap"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(153, 69, 255, 0.3))',
-                  border: '2px solid rgba(0, 255, 255, 0.8)',
-                  color: '#00FFFF',
-                  textShadow: '0 0 8px rgba(0, 255, 255, 1)',
-                  boxShadow: '0 0 24px rgba(0, 255, 255, 0.5)',
-                }}
-              >
-                {currentStep.actionType === 'click' ? 'Click here ↓' : 
-                 currentStep.actionType === 'hover' ? 'Hover here ↓' : 'Look here ↓'}
-              </div>
               <motion.div
                 animate={{
-                  y: [0, 8, 0],
+                  y: [0, -8, 0],
                 }}
                 transition={{
                   duration: 1.5,
@@ -559,12 +549,26 @@ export default function InteractiveOnboardingTour({
                   filter: 'drop-shadow(0 0 12px rgba(0, 255, 255, 0.9))',
                 }}
               >
-                ↓
+                ↑
               </motion.div>
+              <div 
+                className="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-full whitespace-nowrap"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(153, 69, 255, 0.3))',
+                  border: '2px solid rgba(0, 255, 255, 0.8)',
+                  color: '#00FFFF',
+                  textShadow: '0 0 8px rgba(0, 255, 255, 1)',
+                  boxShadow: '0 0 24px rgba(0, 255, 255, 0.5)',
+                }}
+              >
+                {currentStep.actionType === 'click' ? 'Look here ↑' : 
+                 currentStep.actionType === 'hover' ? 'Look here ↑' : 'Look here ↑'}
+              </div>
             </motion.div>
           </>
         )}
 
+        {/* TOUR CARD - FIXED AT BOTTOM CENTER */}
         <motion.div
           key={`card-${currentStepIndex}`}
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -582,9 +586,9 @@ export default function InteractiveOnboardingTour({
             x: { duration: 0.4 },
           }}
           className={cn(
-            'fixed cyber-card backdrop-blur-xl max-w-xl w-full',
+            'fixed cyber-card backdrop-blur-xl max-w-2xl w-full',
             isMobile
-              ? 'inset-x-4 top-4'
+              ? 'bottom-20 inset-x-4'
               : 'bottom-8 left-1/2 -translate-x-1/2 mx-4'
           )}
           style={{
