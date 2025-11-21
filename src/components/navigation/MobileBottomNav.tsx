@@ -10,7 +10,7 @@
 // - Smooth inertia scrolling with Framer Motion
 
 import { useRef, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, animate } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Code, Crown } from '@phosphor-icons/react';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
@@ -19,8 +19,8 @@ import { soundEffects } from '@/lib/soundEffects';
 interface Tab {
   id: string;
   label: string;
-  icon: any;
-  component: React.LazyExoticComponent<React.ComponentType<any>>;
+  icon: React.ComponentType<{ size?: number; weight?: string; className?: string }>;
+  component: React.LazyExoticComponent<React.ComponentType<unknown>>;
 }
 
 interface MobileBottomNavProps {
@@ -31,7 +31,6 @@ interface MobileBottomNavProps {
 
 export default function MobileBottomNav({ tabs, activeTab, onTabChange }: MobileBottomNavProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
   
   // Filter out strategy-builder from tabs (will be FAB)
   const navTabs = tabs.filter(tab => tab.id !== 'strategy-builder');
@@ -128,7 +127,7 @@ export default function MobileBottomNav({ tabs, activeTab, onTabChange }: Mobile
           dragElastic={0.1}
           dragMomentum={true}
         >
-          {navTabs.map((tab, index) => {
+          {navTabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const IconComponent = tab.icon;
             

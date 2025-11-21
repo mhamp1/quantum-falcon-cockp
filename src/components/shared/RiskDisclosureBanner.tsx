@@ -134,7 +134,10 @@ export default function RiskDisclosureBanner() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-0 left-0 right-0 z-[100] pointer-events-auto"
+            className="fixed left-0 right-0 z-[100] pointer-events-auto"
+            style={{ 
+              bottom: 'calc(80px + env(safe-area-inset-bottom))',
+            }}
           >
             <button
               onClick={handleOpenModal}
