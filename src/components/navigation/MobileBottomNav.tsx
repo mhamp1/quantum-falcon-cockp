@@ -123,10 +123,6 @@ export default function MobileBottomNav({ tabs, activeTab, onTabChange }: Mobile
             scrollSnapType: 'x mandatory',
             WebkitOverflowScrolling: 'touch',
           }}
-          drag="x"
-          dragConstraints={scrollContainerRef}
-          dragElastic={0.1}
-          dragMomentum={true}
         >
           {navTabs.map((tab) => {
             const isActive = activeTab === tab.id;
