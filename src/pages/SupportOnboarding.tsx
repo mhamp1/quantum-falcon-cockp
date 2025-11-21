@@ -1,203 +1,212 @@
-// SUPPORT & ONBOARDING: Official team recruitment page — survives all merges — November 20, 2025
-// FIXED: Using the REAL falcon head from user's screenshot (pink eye + lightning) — NO MORE GENERIC IMAGES — November 20, 2025
+// SUPPORT PAGE FINAL: Full-screen falcon background, no redundancy, huge functional buttons — elite Dribbble style — November 20, 2025
 
 import { motion } from 'framer-motion';
-import { GithubLogo, DiscordLogo } from '@phosphor-icons/react';
-import { Button } from '@/components/ui/button';
+import { GithubLogo, DiscordLogo, Crown } from '@phosphor-icons/react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { soundEffects } from '@/lib/soundEffects';
+import falconHeadImage from '@/assets/images/quantum-falcon-logo.png';
 
 export default function SupportOnboarding() {
   const isMobile = useIsMobile();
 
-  return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Subtle grid background */}
-      <div className="absolute inset-0 technical-grid opacity-5" />
+  const handleDiscordClick = () => {
+    soundEffects.playClick();
+    window.open('https://discord.gg/quantumfalcon', '_blank', 'noopener,noreferrer');
+  };
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-8">
-        {/* Main content card */}
+  const handleGitHubClick = () => {
+    soundEffects.playClick();
+    window.open('https://github.com/mhamp1', '_blank', 'noopener,noreferrer');
+  };
+
+  const handlePerksClick = () => {
+    soundEffects.playClick();
+    window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }));
+  };
+
+  return (
+    <div className="relative min-h-screen w-full overflow-hidden">
+      {/* MASSIVE FALCON HEAD BACKGROUND - covers entire screen */}
+      <motion.div
+        initial={{ scale: 1.1, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.5, ease: 'easeOut' }}
+        className="absolute inset-0 z-0"
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url(${falconHeadImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        {/* Dark overlay for text readability - 70% opacity */}
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
+      </motion.div>
+
+      {/* SUPERIMPOSED CONTENT - Dribbble poster style */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl w-full space-y-12 text-center"
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className={cn(
+            'flex flex-col items-center gap-8 max-w-5xl w-full',
+            isMobile ? 'gap-6' : 'gap-10'
+          )}
         >
-          {/* Title */}
+          {/* BIG CENTERED "QUANTUM FALCON" - rainbow gradient */}
           <motion.h1
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-5xl md:text-7xl font-black uppercase tracking-tight"
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className={cn(
+              'font-black uppercase text-center leading-none',
+              isMobile ? 'text-6xl' : 'text-8xl lg:text-9xl'
+            )}
             style={{
-              background: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 50%, #00ffff 100%)',
+              background: 'linear-gradient(135deg, #00ffff 0%, #9945FF 25%, #DC1FFF 50%, #00ffff 100%)',
               backgroundSize: '200% auto',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              animation: 'shimmer 3s linear infinite',
+              filter: 'drop-shadow(0 0 20px rgba(0, 255, 255, 0.4))',
+              animation: 'shimmer 6s linear infinite',
             }}
           >
-            SUPPORT &amp; ONBOARDING
+            QUANTUM
+            <br />
+            FALCON
           </motion.h1>
 
-          {/* FIXED: Using the REAL falcon head from user's screenshot (pink eye + lightning) — NO MORE GENERIC IMAGES — November 20, 2025 */}
-          {/* NOTE: User must place their falcon head image at /public/falcon-head-official.png */}
-          {/* The image should be the exact one from the screenshot with the glowing pink eye, lightning bolt, and sharp purple-cyan feathers */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="flex justify-center"
-          >
-            <motion.img
-              src="/falcon-head-official.png"
-              alt="Quantum Falcon - Official Logo"
-              className={cn(
-                "object-contain",
-                isMobile ? 'w-64 h-64' : 'w-96 h-96'
-              )}
-              animate={{
-                scale: [1, 1.03, 1],
-                filter: [
-                  'drop-shadow(0 0 40px rgba(153, 69, 255, 0.4))',
-                  'drop-shadow(0 0 50px rgba(153, 69, 255, 0.5))',
-                  'drop-shadow(0 0 40px rgba(153, 69, 255, 0.4))',
-                ],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              style={{
-                imageRendering: 'auto',
-              }}
-              onError={(e) => {
-                // Fallback if image not found
-                console.warn('⚠️ Falcon head image not found at /public/falcon-head-official.png');
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          </motion.div>
-
-          {/* Quantum Falcon branding */}
+          {/* CONTACT EMAIL - cyan with glow */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="space-y-4"
-          >
-            <h2
-              className="text-6xl md:text-8xl font-black uppercase tracking-tighter"
-              style={{
-                color: '#00ffff',
-                textShadow: '0 0 20px rgba(0, 255, 255, 0.5)',
-              }}
-            >
-              QUANTUM
-            </h2>
-            <h2
-              className="text-6xl md:text-8xl font-black uppercase tracking-tighter"
-              style={{
-                color: '#ff00ff',
-                textShadow: '0 0 20px rgba(255, 0, 255, 0.5)',
-              }}
-            >
-              FALCON
-            </h2>
-          </motion.div>
-
-          {/* Contact section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="space-y-6"
-          >
-            <div className="text-2xl md:text-3xl">
-              <span className="text-primary font-bold">Contact: </span>
-              <a
-                href="mailto:mhamp1trading@yahoo.com"
-                className="text-foreground hover:text-primary transition-colors"
-                style={{
-                  textDecoration: 'none',
-                  textShadow: '0 0 10px rgba(0, 255, 255, 0.3)',
-                }}
-              >
-                mhamp1trading@yahoo.com
-              </a>
-            </div>
-
-            {/* Bullet points */}
-            <div className="space-y-4 text-xl md:text-2xl text-foreground/90 max-w-2xl mx-auto">
-              <div className="flex items-start gap-3 justify-center">
-                <span className="text-primary text-3xl">•</span>
-                <span>Validate your license in app settings.</span>
-              </div>
-              <div className="flex items-start gap-3 justify-center">
-                <span className="text-secondary text-3xl">•</span>
-                <span>Contribute code, tests, or docs for perks.</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Discord invite (bonus) */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.6 }}
-            className="space-y-4"
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className={cn('text-center', isMobile ? 'text-xl' : 'text-3xl')}
           >
             <a
-              href="https://discord.gg/quantumfalcon"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#5865F2]/20 border border-[#5865F2]/40 hover:bg-[#5865F2]/30 transition-all hover:-translate-y-1"
+              href="mailto:mhamp1trading@yahoo.com"
+              className="font-bold hover:brightness-125 transition-all"
               style={{
-                boxShadow: '0 0 20px rgba(88, 101, 242, 0.2)',
+                color: '#00ffff',
+                textShadow: '0 0 20px rgba(0, 255, 255, 0.6)',
               }}
+              onMouseEnter={() => soundEffects.playHover()}
             >
-              <DiscordLogo size={32} weight="fill" className="text-[#5865F2]" />
-              <span className="text-lg font-semibold">Join Our Discord</span>
+              Contact: mhamp1trading@yahoo.com
             </a>
           </motion.div>
 
-          {/* GitHub button */}
-          <motion.div
+          {/* SUBTITLE - smaller text */}
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+            className={cn(
+              'text-center font-semibold text-foreground/90',
+              isMobile ? 'text-base px-4' : 'text-xl'
+            )}
           >
-            <Button
-              size="lg"
-              className="text-xl px-12 py-8 rounded-3xl angled-corner-tr angled-corner-bl"
+            Validate license • Contribute code for perks
+          </motion.p>
+
+          {/* LARGE GLOWING FUNCTIONAL BUTTONS - overlaid */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.1 }}
+            className={cn(
+              'flex gap-6 mt-8',
+              isMobile ? 'flex-col w-full' : 'flex-row'
+            )}
+          >
+            {/* JOIN OUR DISCORD - purple-pink gradient */}
+            <motion.button
+              onClick={handleDiscordClick}
+              onMouseEnter={() => soundEffects.playHover()}
+              whileHover={{ scale: 1.05, y: -4 }}
+              whileTap={{ scale: 0.98 }}
+              className={cn(
+                'relative group rounded-2xl font-black uppercase tracking-wider flex items-center justify-center gap-4 transition-all',
+                isMobile ? 'w-full py-6 text-lg' : 'w-80 py-7 text-xl'
+              )}
               style={{
-                background: 'linear-gradient(135deg, #9945FF 0%, #DC1FFF 50%, #9945FF 100%)',
-                border: '2px solid #ff00ff',
-                boxShadow: '0 0 30px rgba(220, 31, 255, 0.4), inset 0 0 20px rgba(220, 31, 255, 0.2)',
+                background: 'linear-gradient(135deg, #9945FF 0%, #DC1FFF 100%)',
+                border: '2px solid #DC1FFF',
+                boxShadow: '0 0 30px rgba(220, 31, 255, 0.5), inset 0 0 20px rgba(220, 31, 255, 0.2)',
               }}
-              onClick={() => window.open('https://github.com/quantum-falcon', '_blank')}
             >
-              <GithubLogo size={32} weight="fill" className="mr-3" />
-              <span className="font-bold uppercase tracking-wider">Explore on GitHub</span>
-            </Button>
+              <DiscordLogo size={isMobile ? 32 : 40} weight="fill" />
+              <span>Join Our Discord</span>
+              <div
+                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{
+                  boxShadow: '0 0 50px rgba(220, 31, 255, 0.8), 0 0 80px rgba(220, 31, 255, 0.4)',
+                }}
+              />
+            </motion.button>
+
+            {/* EXPLORE ON GITHUB - cyan gradient */}
+            <motion.button
+              onClick={handleGitHubClick}
+              onMouseEnter={() => soundEffects.playHover()}
+              whileHover={{ scale: 1.05, y: -4 }}
+              whileTap={{ scale: 0.98 }}
+              className={cn(
+                'relative group rounded-2xl font-black uppercase tracking-wider flex items-center justify-center gap-4 transition-all',
+                isMobile ? 'w-full py-6 text-lg' : 'w-80 py-7 text-xl'
+              )}
+              style={{
+                background: 'linear-gradient(135deg, #00ffff 0%, #0088ff 100%)',
+                border: '2px solid #00ffff',
+                boxShadow: '0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.2)',
+                color: '#000000',
+              }}
+            >
+              <GithubLogo size={isMobile ? 32 : 40} weight="fill" />
+              <span>Explore on GitHub</span>
+              <div
+                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{
+                  boxShadow: '0 0 50px rgba(0, 255, 255, 0.8), 0 0 80px rgba(0, 255, 255, 0.4)',
+                }}
+              />
+            </motion.button>
           </motion.div>
 
-          {/* Perks badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1.4, duration: 0.6 }}
-            className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/40"
+          {/* PERKS FOR CONTRIBUTORS - gold gradient */}
+          <motion.button
+            onClick={handlePerksClick}
+            onMouseEnter={() => soundEffects.playHover()}
+            whileHover={{ scale: 1.05, y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.3 }}
+            className={cn(
+              'relative group rounded-2xl font-black uppercase tracking-wider flex items-center justify-center gap-4 transition-all',
+              isMobile ? 'w-full py-6 text-lg' : 'w-80 py-7 text-xl'
+            )}
             style={{
-              boxShadow: '0 0 20px rgba(0, 255, 255, 0.2)',
+              background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+              border: '2px solid #FFD700',
+              boxShadow: '0 0 30px rgba(255, 215, 0, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.2)',
+              color: '#000000',
             }}
           >
-            <span className="text-lg font-semibold uppercase tracking-wider text-primary">
-              🎁 Perks for Contributors
-            </span>
-          </motion.div>
+            <Crown size={isMobile ? 32 : 40} weight="fill" />
+            <span>Perks for Contributors</span>
+            <div
+              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{
+                boxShadow: '0 0 50px rgba(255, 215, 0, 0.8), 0 0 80px rgba(255, 215, 0, 0.4)',
+              }}
+            />
+          </motion.button>
         </motion.div>
       </div>
     </div>
