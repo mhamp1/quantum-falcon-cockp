@@ -1001,7 +1001,7 @@ export default function VaultView() {
               </div>
             </div>
           </div>
-          {/* FINAL VAULT FIX: Deposit BTC button FORCED visible and clickable — tour never stuck again — November 21, 2025 */}
+          {/* Enhanced button visibility for onboarding tour step 6 completion — November 21, 2025 */}
           <Button 
             onClick={() => {
               const amount = parseFloat(depositAmount)
@@ -1011,7 +1011,7 @@ export default function VaultView() {
               }
             }}
             data-tour="deposit-btc-button"
-            className="w-full mt-6 jagged-corner border-4 uppercase tracking-[0.15em] font-black h-16 text-xl relative z-[100]"
+            className="w-full mt-6 jagged-corner border-4 uppercase tracking-[0.15em] font-black h-16 text-xl relative z-50"
             style={{
               background: 'linear-gradient(135deg, #00FFFF 0%, #DC1FFF 50%, #FF00FF 100%)',
               color: '#000000',
