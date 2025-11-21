@@ -53,9 +53,7 @@ export default function SubscriptionTiers() {
 
       try {
         // Get user info from storage
-        const storedLicense = await LicenseAuthority.getStoredLicense()
-        const userId = storedLicense?.userId || `user_${Date.now()}`
-        const userEmail = 'user@example.com' // Should come from actual user auth
+        await LicenseAuthority.getStoredLicense()
 
         // Show toast with info about license generation
         toast.info('Redirecting to Payment', {
