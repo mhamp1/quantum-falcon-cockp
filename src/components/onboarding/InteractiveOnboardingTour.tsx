@@ -17,8 +17,7 @@ interface TourStep {
   instruction: string;
   targetTab?: string;
   targetSelector?: string;
-  actionType: 'click' | 'hover' | 'drag' | 'none';
-  arrowDirection: 'up' | 'down' | 'left' | 'right';
+  actionType: 'click' | 'hover' | 'none';
 }
 
 const TOUR_STEPS: TourStep[] = [
@@ -28,57 +27,51 @@ const TOUR_STEPS: TourStep[] = [
     description: 'The most powerful AI trading cockpit. Let\'s get you printing money in 60 seconds.',
     instruction: 'Click "Start Tour" below to begin',
     actionType: 'none',
-    arrowDirection: 'up',
   },
   {
     id: 'dashboard-stats',
     title: 'Your Command Center',
-    description: 'These 4 stat cards show your portfolio, wins, and P&L in real-time. Scroll up if needed.',
-    instruction: 'Click ANY of the 4 stat cards above',
+    description: 'These 4 stat cards show your portfolio, wins, and P&L in real-time.',
+    instruction: 'Click any of the highlighted stat cards',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="stat-card"]',
     actionType: 'click',
-    arrowDirection: 'up',
   },
   {
     id: 'neural-forecast',
     title: 'AI Forecasts and Confidence',
     description: 'Our AI predicts market movements with up to 92% confidence.',
-    instruction: 'Hover over the confidence bar above',
+    instruction: 'Hover over the highlighted confidence bar',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="confidence-bar"]',
     actionType: 'hover',
-    arrowDirection: 'up',
   },
   {
     id: 'quick-actions',
     title: 'One-Click Bot Control',
     description: 'Instant access to start your bot, check vault, or upgrade.',
-    instruction: 'Click any quick action button above',
+    instruction: 'Click the highlighted "Start Bot" button',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="quick-action"]',
     actionType: 'click',
-    arrowDirection: 'up',
   },
   {
     id: 'strategy',
     title: 'Build God-Tier Strategies',
     description: 'Full Monaco editor with real-time backtesting and sharing.',
-    instruction: 'Click any strategy card above',
+    instruction: 'Click any of the highlighted strategy cards',
     targetTab: 'trading',
     targetSelector: '[data-tour="strategy-card"]',
     actionType: 'click',
-    arrowDirection: 'up',
   },
   {
     id: 'vault',
     title: 'Your Secure Bitcoin Vault',
     description: 'All profits auto-convert to BTC and accumulate here.',
-    instruction: 'Click the "Deposit BTC" button above',
+    instruction: 'Click the highlighted "Deposit BTC" button',
     targetTab: 'vault',
     targetSelector: '[data-tour="deposit-btc-button"]',
     actionType: 'click',
-    arrowDirection: 'up',
   },
   {
     id: 'complete',
@@ -86,7 +79,6 @@ const TOUR_STEPS: TourStep[] = [
     description: 'Your AI agents are live. Paper Mode is active. Your empire starts now.',
     instruction: 'Click "Launch Bot" below to start earning',
     actionType: 'none',
-    arrowDirection: 'up',
   },
 ];
 
@@ -535,17 +527,9 @@ export default function InteractiveOnboardingTour({
                 ↑
               </motion.div>
               <div 
-                className="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-full whitespace-nowrap"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(153, 69, 255, 0.3))',
-                  border: '2px solid rgba(0, 255, 255, 0.8)',
-                  color: '#00FFFF',
-                  textShadow: '0 0 8px rgba(0, 255, 255, 1)',
-                  boxShadow: '0 0 24px rgba(0, 255, 255, 0.5)',
-                }}
+                className="px-4 py-2 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 border-2 border-cyan-400 rounded-full text-cyan-300 font-bold text-sm"
               >
-                {currentStep.actionType === 'click' ? 'Look here ↑' : 
-                 currentStep.actionType === 'hover' ? 'Look here ↑' : 'Look here ↑'}
+                Click here
               </div>
             </motion.div>
           </>
