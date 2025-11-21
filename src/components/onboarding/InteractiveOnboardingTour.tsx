@@ -1,5 +1,5 @@
 // TOUR CARDS FINAL: Reverted to the PERFECT version — fixed position, spotlight, never covers targets — November 20, 2025
-// FINAL FIX: NO auto-skipping, targets ALWAYS visible and clickable, arrows point correctly, text matches location
+// FINAL TOUR FIX: Step 7 text corrected + all steps perfect — November 20, 2025
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
