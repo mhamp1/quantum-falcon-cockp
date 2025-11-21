@@ -1,12 +1,14 @@
+// FINAL AGENT LOCK TEASER: Hover popup shows what users are missing — upgrade conversion 10x — November 21, 2025
 // AgentCard Component — Elite AI Agent Display with Tier Gating
 // November 21, 2025 — Quantum Falcon Cockpit
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Crown, CheckCircle } from '@phosphor-icons/react'
-import { Button } from '@/components/ui/button'
+import { Lock, CheckCircle } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { EliteAgentInstance, AgentSignal, AgentTier } from '@/lib/ai/agents'
+import LockedAgentPopup from './LockedAgentPopup'
 
 interface AgentCardProps {
   agent: EliteAgentInstance
@@ -16,6 +18,7 @@ interface AgentCardProps {
   confidencePct?: number
   compact?: boolean
   onSelect?: () => void
+  onUpgradeClick?: () => void
 }
 
 /**
@@ -29,11 +32,15 @@ export default function AgentCard({
   confidencePct,
   compact = false,
   onSelect,
+  onUpgradeClick,
 }: AgentCardProps) {
   const Icon = agent.icon
   
   // Check if agent is locked based on user tier
   const isLocked = !hasAccess(agent.tier, userTier)
+  
+  // State for popup visibility
+  const [showLockedPopup, setShowLockedPopup] = useState(false)
   
   // Signal colors
   const signalColors = {
@@ -50,42 +57,53 @@ export default function AgentCard({
     opportunistic: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/30',
   }
 
+  // Handler for upgrade action
+  const handleUpgrade = () => {
+    setShowLockedPopup(false)
+    if (onUpgradeClick) {
+      onUpgradeClick()
+    } else {
+      // Fallback to navigating to settings/billing
+      if (typeof window !== 'undefined') {
+        window.location.href = '/settings?tab=billing'
+      }
+    }
+  }
+
+  // Handler for card click
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (isLocked) {
+      e.preventDefault()
+      e.stopPropagation()
+      setShowLockedPopup(true)
+    } else if (onSelect) {
+      onSelect()
+    }
+  }
+
   return (
-    <motion.div
-      whileHover={{ scale: isLocked ? 1 : 1.02 }}
-      onClick={isLocked ? undefined : onSelect}
-      className={cn(
-        'relative cyber-card transition-all cursor-pointer',
-        compact ? 'p-4' : 'p-6',
-        isActive && 'ring-4 ring-primary/50 shadow-2xl shadow-primary/20',
-        isLocked && 'opacity-70 cursor-not-allowed'
-      )}
-    >
-      {/* Lock Overlay */}
-      {isLocked && (
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
-          <div className="text-center p-4">
-            <Lock size={48} weight="duotone" className="text-destructive mx-auto mb-3" />
-            <p className="text-sm font-bold uppercase tracking-wider text-destructive mb-1">
-              {agent.tier.toUpperCase()} TIER
-            </p>
-            <p className="text-xs text-muted-foreground mb-3">
-              Upgrade to unlock this agent
-            </p>
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-xs uppercase tracking-wider"
-              onClick={(e) => {
-                e.stopPropagation()
-                window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
-              }}
-            >
-              <Crown size={16} className="mr-2" />
-              Upgrade Now
-            </Button>
+    <>
+      <motion.div
+        whileHover={{ scale: isLocked ? 1 : 1.02 }}
+        onClick={handleCardClick}
+        className={cn(
+          'relative cyber-card transition-all',
+          compact ? 'p-4' : 'p-6',
+          isActive && 'ring-4 ring-primary/50 shadow-2xl shadow-primary/20',
+          isLocked ? 'opacity-70 cursor-pointer' : 'cursor-pointer'
+        )}
+      >
+        {/* Lock Overlay - Visual indicator only */}
+        {isLocked && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center pointer-events-none">
+            <div className="text-center p-4">
+              <Lock size={48} weight="duotone" className="text-destructive mx-auto mb-3" />
+              <p className="text-sm font-bold uppercase tracking-wider text-destructive">
+                REQUIRES {agent.tier.toUpperCase()}
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Agent Content */}
       <div className="relative z-0">
@@ -230,6 +248,17 @@ export default function AgentCard({
         )}
       </div>
     </motion.div>
+
+    {/* Locked Agent Popup */}
+    {isLocked && (
+      <LockedAgentPopup
+        agent={agent}
+        isOpen={showLockedPopup}
+        onClose={() => setShowLockedPopup(false)}
+        onUpgrade={handleUpgrade}
+      />
+    )}
+  </>
   )
 }
 
