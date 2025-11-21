@@ -900,7 +900,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   },
   {
     id: 'mev-front-running',
-    name: 'MEV Protection name: 'MEV Protection & Capture', Capture',
+    name: 'MEV Protection & Capture',
     icon: 'ShieldCheck',
     category: 'On-Chain',
     tier_required: 'elite',
