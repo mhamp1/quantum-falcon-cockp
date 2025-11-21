@@ -73,8 +73,6 @@ export default function MobileBottomNav({ tabs, activeTab, onTabChange }: Mobile
         className="fixed left-1/2 -translate-x-1/2 z-[60] w-16 h-16 rounded-full flex items-center justify-center shadow-2xl"
         style={{
           bottom: 'calc(80px + env(safe-area-inset-bottom) + 16px)',
-        }}
-        style={{
           background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
           boxShadow: '0 8px 32px rgba(236, 72, 153, 0.4), 0 0 0 4px rgba(139, 92, 246, 0.2)',
         }}
