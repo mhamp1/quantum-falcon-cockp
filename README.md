@@ -30,7 +30,7 @@ This app features a custom Solana-inspired cyberpunk theme with neon aesthetics,
 - Custom notification toasts and badges
 - Fully responsive design (mobile-first)
 
-📖 **[Complete Theme Guide](./THEME_GUIDE.md)** - Learn how to customize and extend the theme
+📖 **[Complete Theme Guide](./docs/THEME_GUIDE.md)** - Learn how to customize and extend the theme
 
 **Quick Start:**
 ```tsx
@@ -92,9 +92,9 @@ Built with **React 19**, **TypeScript**, **Vite**, and modern web technologies f
 - [Project Structure](#-project-structure)
 - [License](#-license)
 
-> **Note**: Recent merge resolution - See [MERGE_RESOLUTION_SUMMARY.md](./MERGE_RESOLUTION_SUMMARY.md) for details on resolved conflicts and mobile implementation options.
+> **Note**: Recent merge resolution - See [MERGE_RESOLUTION_SUMMARY.md](./docs/MERGE_RESOLUTION_SUMMARY.md) for details on resolved conflicts and mobile implementation options.
 > 
-> **Code Quality**: See [CODE_QUALITY_IMPROVEMENTS.md](./CODE_QUALITY_IMPROVEMENTS.md) for details on recent code quality improvements and linting setup.
+> **Code Quality**: See [CODE_QUALITY_IMPROVEMENTS.md](./docs/CODE_QUALITY_IMPROVEMENTS.md) for details on recent code quality improvements and linting setup.
 
 ## ✨ Features
 
@@ -191,7 +191,7 @@ flutter run
 
 📖 See [mobile_app/QUICKSTART.md](./mobile_app/QUICKSTART.md) for quick start
 
-📋 **Choosing Between Implementations**: See [MERGE_RESOLUTION_SUMMARY.md](./MERGE_RESOLUTION_SUMMARY.md#integration-strategy) for detailed comparison and integration options.
+📋 **Choosing Between Implementations**: See [MERGE_RESOLUTION_SUMMARY.md](./docs/MERGE_RESOLUTION_SUMMARY.md#integration-strategy) for detailed comparison and integration options.
 
 ### 2. Install Dependencies
 
