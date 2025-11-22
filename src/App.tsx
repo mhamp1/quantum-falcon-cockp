@@ -225,14 +225,26 @@ const getOnboardingSeenStatus = (): boolean => {
 
 export default function App() {
   // Production build safety - ensure client-side only rendering
-  const [isClient, setIsClient] = useState(false);
+  // Initialize immediately to prevent hooks from running before client is ready
+  const [isClient, setIsClient] = useState(() => typeof window !== 'undefined');
   
   useEffect(() => {
-    setIsClient(true);
-    console.log('Quantum Falcon — Production build loaded');
-  }, []);
+    if (typeof window !== 'undefined' && !isClient) {
+      setIsClient(true);
+      console.log('Quantum Falcon — Production build loaded');
+    }
+  }, [isClient]);
   
+  // All hooks must be called unconditionally (React rules)
+  // But they should be safe to call even before client is ready
   const isMobile = useIsMobile();
+  
+  // Initialize daily learning system (safe - handles localStorage errors)
+  useDailyLearning();
+  const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
+  const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
+  const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
   
   // Prevent white screen in production - show loading state until client is ready
   if (!isClient) {
@@ -245,13 +257,6 @@ export default function App() {
       </div>
     );
   }
-  
-  // Initialize daily learning system
-  useDailyLearning();
-  const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
-  const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
-  const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
