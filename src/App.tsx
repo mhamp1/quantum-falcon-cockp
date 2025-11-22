@@ -189,7 +189,27 @@ const getOnboardingSeenStatus = (): boolean => {
 };
 
 export default function App() {
+  // Production build safety - ensure client-side only rendering
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+    console.log('Quantum Falcon — Production build loaded');
+  }, []);
+  
   const isMobile = useIsMobile();
+  
+  // Prevent white screen in production - show loading state until client is ready
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="premium-spinner w-12 h-12 mx-auto rounded-full"></div>
+          <p className="text-primary font-bold uppercase tracking-wider">Loading Quantum Falcon...</p>
+        </div>
+      </div>
+    );
+  }
   
   // Initialize daily learning system
   useDailyLearning();
