@@ -78,6 +78,15 @@ class LicenseGenerationService {
         timestamp: paymentData.timestamp
       }
 
+      // Get device fingerprint for hardware binding
+      let deviceFingerprint = null
+      try {
+        const { generateDeviceFingerprint } = await import('../license-authority/integration/deviceFingerprint')
+        deviceFingerprint = await generateDeviceFingerprint()
+      } catch (error) {
+        console.warn('[LicenseGeneration] Device fingerprint not available:', error)
+      }
+
       const response = await fetch(this.LICENSE_GENERATION_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -85,7 +94,10 @@ class LicenseGenerationService {
           'X-Origin': 'quantum-falcon-cockpit',
           'X-Payment-Provider': paymentData.paymentProvider
         },
-        body: JSON.stringify(request)
+        body: JSON.stringify({
+          ...request,
+          device_fingerprint: deviceFingerprint
+        })
       })
 
       if (!response.ok) {

@@ -17,6 +17,19 @@ import { motion } from 'framer-motion'
 import { AgentStatusCard } from './AgentStatusCard'
 import { ActivityFeed } from './ActivityFeed'
 import { LogicStream } from './LogicStream'
+import BestPerformingAgentBadge from '@/components/shared/BestPerformingAgentBadge'
+import ProfitMilestoneCelebration from '@/components/shared/ProfitMilestoneCelebration'
+import LearningMetricsDisplay from '@/components/shared/LearningMetricsDisplay'
+import { useAchievements } from '@/hooks/useAchievements'
+import TaxDashboardCard from '@/components/dashboard/TaxDashboardCard'
+import { useTaxReserve } from '@/lib/tax/TaxReserveEngine'
+import { useProfitOptimizer } from '@/lib/profit/ProfitOptimizer'
+import { useBearMarketDetector } from '@/lib/market/BearMarketDetector'
+import { useLiveTradingData } from '@/hooks/useLiveTradingData'
+import { useAutonomousTradingLoop } from '@/lib/bot/AutonomousTradingLoop'
+import { useLegalProtection } from '@/lib/legal/LegalProtection'
+import AutonomousBotDisclaimer from '@/components/legal/AutonomousBotDisclaimer'
+import NewsOpportunitiesDisplay from '@/components/intelligence/NewsOpportunitiesDisplay'
 
 // Lazy load heavy components for better performance
 const NewsTicker = lazy(() => import('@/components/shared/NewsTicker'))
@@ -64,6 +77,82 @@ export default function EnhancedDashboard() {
     activeAgents: 3
   })
 
+  const [previousProfit, setPreviousProfit] = useState<number>(0)
+  
+  // Track profit for milestone celebrations
+  useEffect(() => {
+    const currentProfit = portfolio.totalValue - 5000 // Assuming starting capital
+    if (previousProfit !== currentProfit) {
+      setPreviousProfit(currentProfit)
+    }
+  }, [portfolio.totalValue, previousProfit])
+
+  const currentProfit = portfolio.totalValue - 5000 // Assuming starting capital
+
+  // Get live trading data for achievements
+  const liveTradingData = useLiveTradingData()
+
+  // Track achievements with LIVE data
+  useAchievements({
+    userStats: {
+      totalProfit: currentProfit,
+      portfolioValue: portfolio.totalValue,
+      weeklyWinRate: liveTradingData.weeklyWinRate || 0,
+      totalTrades: liveTradingData.totalTrades || 0,
+      dailyStreak: liveTradingData.dailyStreak || 0,
+    },
+    auth,
+  })
+
+  // Tax Reserve System
+  const { getTaxSummary } = useTaxReserve()
+
+  // Profit Optimizer
+  const profitOptimizer = useProfitOptimizer()
+  const optimizerStats = profitOptimizer.getStats(portfolio.totalValue)
+
+  // Bear Market Detector
+  const { bearState, calculateBearConfidence } = useBearMarketDetector()
+  
+  // Autonomous Bot System — Self-sufficient AI with internal $600/day goal
+  const userTier = auth?.license?.tier || 'free'
+  const autonomousBot = useAutonomousTradingLoop(userTier)
+  const { hasAcknowledgedBot } = useLegalProtection()
+  const [showBotDisclaimer, setShowBotDisclaimer] = useState(false)
+  
+  // Update bear market detection with LIVE market data
+  useEffect(() => {
+    const updateBearMarketData = async () => {
+      try {
+        const { fetchLiveMarketData } = await import('@/lib/market/liveMarketData')
+        const liveData = await fetchLiveMarketData()
+        
+        calculateBearConfidence({
+          btcDominance: liveData.btcDominance,
+          btcDominanceChange7d: liveData.btcDominanceChange7d,
+          fearGreedIndex: liveData.fearGreedIndex,
+          btcPrice: liveData.btcPrice,
+          btc200WeekMA: liveData.btc200WeekMA,
+          altcoinSeasonIndex: liveData.altcoinSeasonIndex,
+          volumeChange14d: liveData.volumeChange14d,
+          avgFundingRate: liveData.avgFundingRate,
+          sp500Change30d: liveData.sp500Change30d,
+        })
+      } catch (error) {
+        console.error('❌ Failed to update bear market data:', error)
+        // Don't update if fetch fails - keep last known state
+      }
+    }
+
+    // Initial fetch
+    updateBearMarketData()
+
+    // Update every 60 seconds with live data
+    const interval = setInterval(updateBearMarketData, 60000)
+
+    return () => clearInterval(interval)
+  }, [calculateBearConfidence])
+
   const [quickStats, setQuickStats] = useState<QuickStat[]>([
     {
       id: 'total-value',
@@ -109,11 +198,31 @@ export default function EnhancedDashboard() {
       icon: botRunning ? <Stop size={20} weight="fill" /> : <Play size={20} weight="fill" />,
       color: botRunning ? 'destructive' : 'primary',
       action: () => {
+        if (!botRunning) {
+          // Check if user has acknowledged autonomous bot disclaimer
+          if (!hasAcknowledgedBot()) {
+            setShowBotDisclaimer(true)
+            return
+          }
+        }
+
         startTransition(() => {
-          setBotRunning(!botRunning)
-          toast.success(botRunning ? 'Bot stopped - will persist until manually restarted' : 'Bot started - will continue running even after sign off', {
-            description: botRunning ? 'All trading activities paused' : `Running in ${paperTradingMode ? 'PAPER' : 'LIVE'} mode`
-          })
+          const newRunningState = !botRunning
+          setBotRunning(newRunningState)
+          
+          // Activate/deactivate autonomous trading
+          if (newRunningState) {
+            autonomousBot.setIsActive(true)
+            toast.success('🤖 Autonomous Bot Activated', {
+              description: 'Bot is now self-sufficient and making autonomous trading decisions',
+              duration: 3000,
+            })
+          } else {
+            autonomousBot.setIsActive(false)
+            toast.success('Bot stopped - will persist until manually restarted', {
+              description: 'All trading activities paused'
+            })
+          }
         })
       }
     },
@@ -267,9 +376,131 @@ export default function EnhancedDashboard() {
   return (
     <ErrorBoundary>
       <div className="space-y-6" role="main" aria-label="Quantum Falcon Dashboard">
+        {/* Profit Milestone Celebration */}
+        <ProfitMilestoneCelebration
+          currentProfit={currentProfit}
+          previousProfit={previousProfit}
+        />
+        
+        {/* First Profit Celebration (small milestones) */}
+        <Suspense fallback={null}>
+          {(() => {
+            const FirstProfitCelebration = lazy(() => import('@/components/shared/FirstProfitCelebration').then(m => ({ default: m.default })));
+            return (
+              <FirstProfitCelebration
+                currentProfit={currentProfit}
+                previousProfit={previousProfit}
+              />
+            );
+          })()}
+        </Suspense>
+        
+        {/* Progress to First Profit Indicator */}
+        <Suspense fallback={null}>
+          {(() => {
+            const ProgressToFirstProfit = lazy(() => import('@/components/shared/ProgressToFirstProfit').then(m => ({ default: m.default })));
+            return (
+              <ProgressToFirstProfit
+                currentProfit={currentProfit}
+                targetProfit={10}
+              />
+            );
+          })()}
+        </Suspense>
+
+        {/* News Ticker - Top of Dashboard */}
         <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
           <NewsTicker />
         </Suspense>
+
+        {/* Tax Dashboard Card */}
+        <TaxDashboardCard />
+
+        {/* Profit Optimizer Card */}
+        <div className="cyber-card p-6 border-2 border-yellow-500/50 relative overflow-hidden">
+          <div className="absolute inset-0 grid-background opacity-5" />
+          <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/10 blur-3xl rounded-full" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-yellow-500/20 border border-yellow-500/40 rounded-lg">
+                <TrendingUp size={32} weight="duotone" className="text-yellow-400" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-wider text-yellow-400">
+                  Profit Optimization Engine
+                </h3>
+                <p className="text-sm text-muted-foreground">Auto-compounding • Tax optimization • Kelly sizing</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-center">
+                <p className="text-muted-foreground text-sm uppercase tracking-wider mb-2">Avg Position Size</p>
+                <p className="text-3xl font-bold text-cyan-400">{optimizerStats.avgPositionSize.toFixed(1)}%</p>
+              </div>
+              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-center">
+                <p className="text-muted-foreground text-sm uppercase tracking-wider mb-2">Tax Reserved YTD</p>
+                <p className="text-3xl font-bold text-green-400">${optimizerStats.taxReservedYTD.toFixed(0)}</p>
+              </div>
+              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-center">
+                <p className="text-muted-foreground text-sm uppercase tracking-wider mb-2">Compounded</p>
+                <p className="text-3xl font-bold text-purple-400">+${optimizerStats.compoundedProfits.toFixed(0)}</p>
+              </div>
+              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-center">
+                <p className="text-muted-foreground text-sm uppercase tracking-wider mb-2">Status</p>
+                <p className="text-2xl font-black text-yellow-400 uppercase">
+                  {optimizerStats.status === 'active' ? 'ACTIVE 🔥' : 'PAUSED'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* News Intelligence Display */}
+        <NewsOpportunitiesDisplay userTier={userTier} />
+
+        {/* Bear Market Detection Card */}
+        {bearState.confidence > 0 && (
+          <div className={`cyber-card p-6 border-2 ${
+            bearState.status === 'extreme_bear' ? 'border-red-500/50' :
+            bearState.status === 'bear' ? 'border-orange-500/50' :
+            'border-yellow-500/50'
+          } relative overflow-hidden`}>
+            <div className="absolute inset-0 grid-background opacity-5" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <AlertCircle 
+                    size={32} 
+                    weight="duotone" 
+                    className={bearState.status === 'extreme_bear' ? 'text-red-400' : 'text-orange-400'} 
+                  />
+                  <div>
+                    <h3 className="text-xl font-black uppercase tracking-wider">
+                      Bear Market Detection
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {bearState.status === 'extreme_bear' ? 'EXTREME BEAR MODE' :
+                       bearState.status === 'bear' ? 'BEAR MODE ACTIVE' :
+                       'Monitoring Market Conditions'}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-black text-red-400">{bearState.confidence}%</p>
+                  <p className="text-xs text-muted-foreground">Bear Confidence</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {bearState.signals.filter(s => s.active).map((signal, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2 bg-muted/20 rounded">
+                    <span className="text-sm">{signal.name}</span>
+                    <span className="text-sm font-bold text-red-400">+{signal.points} pts</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       
       <div 
         className="cyber-card relative overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300"
@@ -307,6 +538,7 @@ export default function EnhancedDashboard() {
                     {paperTradingMode ? 'PAPER MODE' : 'LIVE TRADING'}
                   </span>
                 </div>
+                <BestPerformingAgentBadge />
               </div>
             </div>
             <Button
@@ -445,10 +677,33 @@ export default function EnhancedDashboard() {
         <ActivityFeed />
       </motion.div>
 
+      {/* Learning Metrics Display */}
+      <Suspense fallback={<div className="animate-pulse h-32 bg-muted/20 rounded border border-primary/20" />}>
+        <LearningMetricsDisplay />
+      </Suspense>
+
       <Suspense fallback={<div className="animate-pulse h-64 bg-muted/20 rounded border border-accent/20" />}>
         <LogicStream />
       </Suspense>
       </div>
+
+      {/* Autonomous Bot Legal Disclaimer */}
+      <AutonomousBotDisclaimer
+        isOpen={showBotDisclaimer}
+        onClose={() => setShowBotDisclaimer(false)}
+        onAccept={() => {
+          setShowBotDisclaimer(false)
+          // Now allow bot to start
+          startTransition(() => {
+            setBotRunning(true)
+            autonomousBot.setIsActive(true)
+            toast.success('🤖 Autonomous Bot Activated', {
+              description: 'Bot is now self-sufficient and making autonomous trading decisions',
+              duration: 3000,
+            })
+          })
+        }}
+      />
     </ErrorBoundary>
   )
 }

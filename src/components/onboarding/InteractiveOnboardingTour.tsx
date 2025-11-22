@@ -25,7 +25,7 @@ const TOUR_STEPS: TourStep[] = [
     id: 'welcome',
     title: 'Welcome to Quantum Falcon',
     description: 'The most powerful AI trading cockpit. Let\'s get you printing money in 60 seconds.',
-    instruction: 'Click "Start Tour" below to begin',
+    instruction: 'Click the highlighted "Start Tour" button',
     actionType: 'none',
   },
   {
@@ -41,7 +41,7 @@ const TOUR_STEPS: TourStep[] = [
     id: 'neural-forecast',
     title: 'AI Forecasts and Confidence',
     description: 'Our AI predicts market movements with up to 92% confidence.',
-    instruction: 'Hover over the highlighted confidence bar',
+    instruction: 'Click the highlighted confidence bar',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="confidence-bar"]',
     actionType: 'hover',
@@ -77,7 +77,7 @@ const TOUR_STEPS: TourStep[] = [
     id: 'complete',
     title: '🔥 You\'re Ready. The Falcon Is Hunting. 🔥',
     description: 'Your AI agents are live. Paper Mode is active. Your empire starts now.',
-    instruction: 'Click "Launch Bot" below to start earning',
+    instruction: 'Click the highlighted "Launch Bot" button',
     actionType: 'none',
   },
 ];
@@ -695,7 +695,14 @@ export default function InteractiveOnboardingTour({
                 {isLastStep && (
                   <>
                     <Button
-                      onClick={handleNext}
+                      onClick={() => {
+                        // Actually start the bot
+                        const startBotEvent = new CustomEvent('start-bot-from-tour')
+                        window.dispatchEvent(startBotEvent)
+                        
+                        // Complete tour
+                        handleNext()
+                      }}
                       size="lg"
                       className="w-full bg-gradient-to-r from-primary via-secondary to-accent hover:opacity-90 text-lg font-black uppercase py-7"
                       style={{ boxShadow: '0 0 40px rgba(0,255,255,0.6)' }}

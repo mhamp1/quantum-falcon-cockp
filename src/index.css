@@ -155,13 +155,13 @@
     oklch(0.12 0.03 280 / 0.85) 100%
   );
   backdrop-filter: blur(8px);
-  border-left: 3px solid var(--primary);
-  border-top: 1px solid oklch(0.35 0.12 195 / 0.5);
-  border-right: 1px solid oklch(0.35 0.12 195 / 0.3);
-  border-bottom: 1px solid oklch(0.35 0.12 195 / 0.3);
+  border-left: 3px solid #00FFFF;
+  border-top: 1px solid rgba(0, 255, 255, 0.5);
+  border-right: 1px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
   box-shadow: 
-    -3px 0 12px oklch(0.72 0.20 195 / 0.3),
-    inset 0 1px 0 oklch(0.72 0.20 195 / 0.1);
+    -3px 0 12px rgba(0, 255, 255, 0.3),
+    inset 0 1px 0 rgba(0, 255, 255, 0.1);
   position: relative;
   clip-path: polygon(
     0 0,
@@ -181,7 +181,7 @@
   right: 0;
   height: 1px;
   background: linear-gradient(90deg, 
-    var(--primary) 0%,
+    #00FFFF 0%,
     transparent 50%
   );
   opacity: 0.6;
@@ -195,7 +195,7 @@
   width: 1px;
   height: 40px;
   background: linear-gradient(180deg, 
-    var(--primary) 0%,
+    #00FFFF 0%,
     transparent 100%
   );
   opacity: 0.4;
@@ -1915,15 +1915,34 @@
   pointer-events: none;
 }
 
-/* PRODUCTION FIX: Global interactive card hover effects — November 20, 2025 */
-/* Hover lift + scale on every interactive card/button */
+/* FINAL POLISH: Global interactive hover effects — November 21, 2025 */
+/* Every hover has micro-lift + glow */
 .cyber-card:not(.no-hover):hover,
 .glass-morph-card:not(.no-hover):hover,
 .cyber-card-accent:not(.no-hover):hover,
 button:not(:disabled):not(.no-hover):hover,
-[role="button"]:not(:disabled):not(.no-hover):hover {
-  transform: translateY(-2px) scale(1.01);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+[role="button"]:not(:disabled):not(.no-hover):hover,
+a:not(.no-hover):hover,
+[data-hover]:hover {
+  transform: translateY(-2px) scale(1.02);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  box-shadow: 
+    0 4px 12px oklch(0.72 0.20 195 / 0.3),
+    0 0 20px oklch(0.72 0.20 195 / 0.2),
+    inset 0 0 20px oklch(0.72 0.20 195 / 0.1);
+}
+
+/* Cyan text selection with glow */
+::selection {
+  background-color: oklch(0.72 0.20 195 / 0.3);
+  color: oklch(0.95 0.05 195);
+  text-shadow: 0 0 8px oklch(0.72 0.20 195 / 0.8);
+}
+
+::-moz-selection {
+  background-color: oklch(0.72 0.20 195 / 0.3);
+  color: oklch(0.95 0.05 195);
+  text-shadow: 0 0 8px oklch(0.72 0.20 195 / 0.8);
 }
 
 /* Crown pulse animation for Free tier badge */
@@ -1969,4 +1988,72 @@ button:not(:disabled):not(.no-hover):hover,
   background: linear-gradient(135deg, #ffffff, #e0e0ff) !important;
   border: 3px solid #9333ea !important;
   box-shadow: 0 0 15px rgba(147, 51, 234, 0.8), 0 0 30px rgba(147, 51, 234, 0.4) !important;
+}
+
+/* GOD MODE — Rainbow Background Animation */
+body.god-mode {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #ff00ff, #00ffff) !important;
+  background-size: 400% 400% !important;
+  animation: rainbowShift 8s ease infinite !important;
+  position: relative;
+}
+
+body.god-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #ff00ff, #00ffff);
+  background-size: 400% 400%;
+  animation: rainbowShift 8s ease infinite;
+  z-index: -1;
+  opacity: 0.9;
+}
+
+@keyframes rainbowShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* God Mode Crown */
+.god-mode-crown {
+  position: fixed;
+  top: 12px;
+  right: 80px;
+  z-index: 99999;
+  animation: pulseGlow 2s infinite;
+  font-size: 32px;
+  filter: drop-shadow(0 0 20px gold) drop-shadow(0 0 40px rgba(255, 215, 0, 0.6));
+  cursor: pointer;
+  user-select: none;
+  pointer-events: none;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px gold) drop-shadow(0 0 40px rgba(255, 215, 0, 0.6));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 30px gold) drop-shadow(0 0 60px rgba(255, 215, 0, 0.9));
+  }
+}
+
+/* Rainbow border for rainbow tier achievements */
+.rainbow-border {
+  border: 4px solid;
+  border-image: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff1493, #00ff00) 1;
+  animation: rainbowBorder 3s linear infinite;
+}
+
+@keyframes rainbowBorder {
+  0% { border-image-source: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff1493, #00ff00); }
+  25% { border-image-source: linear-gradient(45deg, #00ffff, #ffff00, #ff1493, #00ff00, #ff00ff); }
+  50% { border-image-source: linear-gradient(45deg, #ffff00, #ff1493, #00ff00, #ff00ff, #00ffff); }
+  75% { border-image-source: linear-gradient(45deg, #ff1493, #00ff00, #ff00ff, #00ffff, #ffff00); }
+  100% { border-image-source: linear-gradient(45deg, #00ff00, #ff00ff, #00ffff, #ffff00, #ff1493); }
 }

@@ -59,7 +59,7 @@ export default function RiskDisclosureBanner() {
           setIsBannerVisible(true)
         }
       } catch (error) {
-        console.error('[Risk Banner] Error checking acknowledgment:', error)
+        // Silent error handling
         setIsBannerVisible(true)
       }
     }
@@ -71,7 +71,7 @@ export default function RiskDisclosureBanner() {
   }, [acknowledgment, CURRENT_VERSION])
 
   const handleOpenModal = () => {
-    console.log('[Risk Banner] 📖 Opening Risk Disclosure modal...')
+    // Opening Risk Disclosure modal
     setShowModal(true)
   }
 
@@ -83,40 +83,29 @@ export default function RiskDisclosureBanner() {
       sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     }
     
-    console.log('[Risk Banner] 💾 ACCEPTING RISK DISCLOSURE - Version:', CURRENT_VERSION)
-    
+    // Store acceptance locally
     localStorage.setItem(`risk_accepted_${CURRENT_VERSION}`, 'true')
-    console.log('[Risk Banner] 💾 Stored in localStorage key:', `risk_accepted_${CURRENT_VERSION}`)
-    
     clearOldVersions()
     
     setShowModal(false)
     setIsBannerVisible(false)
     
-    console.log('[Risk Banner] ✅ BANNER HIDDEN IMMEDIATELY')
-    
     await setAcknowledgment(acknowledgmentData)
     
     await setAuditLog((currentLog) => {
       const newLog = [...(currentLog || []), acknowledgmentData]
-      console.log('[Risk Banner] 📋 Audit log updated - Total entries:', newLog.length)
       return newLog
     })
-
-    console.log('[Risk Banner] ✅ ACCEPTANCE COMPLETE')
-    console.log('[Risk Banner] 📅 Timestamp:', new Date(acknowledgmentData.acknowledgedAt).toISOString())
-    console.log('[Risk Banner] 👤 User Agent:', acknowledgmentData.userAgent)
-    console.log('[Risk Banner] 🆔 Session ID:', acknowledgmentData.sessionId)
     
+    // Silent backend logging - no console output
     try {
       await fetch('/api/legal/accept-risk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(acknowledgmentData)
       })
-      console.log('[Risk Banner] 🔐 Backend logging successful')
     } catch (err) {
-      console.log('[Risk Banner] ℹ️ Backend logging unavailable (OK - using KV storage)')
+      // Silent fail - using KV storage as fallback
     }
   }
 

@@ -1,0 +1,16 @@
+# robots.txt for quantumfalcon.app
+# Quantum Falcon Cockpit v2025.1.0
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /private/
+
+# Sitemap location
+Sitemap: https://quantumfalcon.app/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+

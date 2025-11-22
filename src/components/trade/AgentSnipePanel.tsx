@@ -15,22 +15,25 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import AgentCard from '@/components/ai/AgentCard'
-import { ELITE_AGENTS, hasAgentAccess, type AgentTier, type AgentDecision } from '@/lib/ai/agents'
+import { ELITE_AGENTS, hasAgentAccess, type AgentTier, type AgentDecision } from '@/lib/ai/agents/index'
+import { wrapAllAgentsWithLearning } from '@/lib/ai/agents/agentWrapper'
 import { useMarketFeed } from '@/hooks/useMarketFeed'
 import { useDexExecution } from '@/hooks/useDexExecution'
+import { useMempoolSniper } from '@/hooks/useMempoolSniper'
+import { useWallet } from '@/hooks/useWallet'
 import { toAgentInput } from '@/lib/ai/agentInputAdapter'
 import { buildExecutionHints, parseTokenAmount, type DexExecutionRequest } from '@/lib/dex/client'
 
 interface AgentSnipePanelProps {
   userTier: AgentTier
-  userPublicKey: string | null
+  userPublicKey?: string | null
 }
 
 // Default Solana token mints (can be customized)
 const SOL_MINT = 'So11111111111111111111111111111111111111112'
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
 
-export default function AgentSnipePanel({ userTier, userPublicKey }: AgentSnipePanelProps) {
+export default function AgentSnipePanel({ userTier, userPublicKey: propUserPublicKey }: AgentSnipePanelProps) {
   const [selectedAgentName, setSelectedAgentName] = useState<string | null>(null)
   const [agentDecision, setAgentDecision] = useState<AgentDecision | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -40,13 +43,28 @@ export default function AgentSnipePanel({ userTier, userPublicKey }: AgentSnipeP
   const [mintOut, setMintOut] = useState(USDC_MINT)
   const [amount, setAmount] = useState('0.1')
   
-  // Hooks
-  const { snapshot, isConnected } = useMarketFeed()
+  // Hooks - Use wallet adapter if available, fallback to prop
+  const { walletAddress: adapterWalletAddress, isConnected: walletConnected } = useWallet()
+  const userPublicKey = adapterWalletAddress || propUserPublicKey
+  
+  // Market feed - Production: Use live data only
+  const { snapshot, isConnected } = useMarketFeed({ useMockData: false })
   const { status, lastResult, error: execError, execute, reset } = useDexExecution()
+  const { 
+    isMonitoring, 
+    lastSnipe, 
+    startMonitoring, 
+    stopMonitoring, 
+    enableAutoSnipe 
+  } = useMempoolSniper(userPublicKey)
+  
+  // Mempool sniping state (for Liquidity Hunter)
+  const [autoSnipeEnabled, setAutoSnipeEnabled] = useState(false)
+  const isLiquidityHunter = selectedAgentName === 'Liquidity Hunter'
 
-  // Available agents (filter by tier access)
-  const availableAgents = ELITE_AGENTS.filter(agent => 
-    hasAgentAccess(agent.tier, userTier)
+  // Available agents (filter by tier access and wrap with learning)
+  const availableAgents = wrapAllAgentsWithLearning(
+    ELITE_AGENTS.filter(agent => hasAgentAccess(agent.tier, userTier))
   )
 
   // Select first available agent by default
@@ -76,14 +94,46 @@ export default function AgentSnipePanel({ userTier, userPublicKey }: AgentSnipeP
 
     try {
       const agentInput = toAgentInput(snapshot)
-      const decision = await agent.analyze(agentInput)
+      const rawDecision = await agent.analyze(agentInput)
       
-      setAgentDecision(decision)
+      // Optimize decision using intelligent decision engine
+      const { getDecisionEngine } = await import('@/lib/ai/learning/IntelligentDecisionEngine')
+      const decisionEngine = getDecisionEngine()
       
-      // Show toast
+      const confidenceValue = rawDecision.confidence === 'very-high' ? 0.9 :
+                             rawDecision.confidence === 'high' ? 0.75 :
+                             rawDecision.confidence === 'medium' ? 0.6 : 0.4
+      
+      const optimizedDecision = decisionEngine.optimizeDecision(rawDecision, {
+        agentId: agent.name.toLowerCase().replace(/\s+/g, '-'),
+        strategy: 'agent-analysis',
+        marketConditions: {
+          volatility: snapshot.volatility.volatility1h,
+          volume: snapshot.orderbook.mid * 1000, // Approximate
+          sentiment: snapshot.sentiment.score,
+          mevRisk: snapshot.mev.riskScore,
+        },
+        confidence: confidenceValue,
+        signal: rawDecision.signal,
+        expectedProfit: rawDecision.metadata?.expectedProfitBps as number | undefined,
+        riskLevel: rawDecision.metadata?.riskLevel as 'low' | 'medium' | 'high' | undefined,
+      })
+      
+      // Use optimized decision
+      setAgentDecision({
+        ...optimizedDecision,
+        metadata: {
+          ...rawDecision.metadata,
+          ...optimizedDecision.metadata,
+          optimized: true,
+        },
+      })
+      
+      // Show toast with optimization info
       const signalEmoji = { BUY: '🟢', SELL: '🔴', HOLD: '⏸️' }
-      toast.success(`${signalEmoji[decision.signal]} ${agent.name}: ${decision.signal}`, {
-        description: decision.reason,
+      const optimizationBadge = optimizedDecision.metadata?.optimized ? '🧠' : ''
+      toast.success(`${signalEmoji[optimizedDecision.signal]} ${optimizationBadge} ${agent.name}: ${optimizedDecision.signal}`, {
+        description: optimizedDecision.reason,
         duration: 5000,
       })
     } catch (error: any) {
@@ -126,26 +176,73 @@ export default function AgentSnipePanel({ userTier, userPublicKey }: AgentSnipeP
       }
 
       // Build execution hints from market conditions
+      // For Liquidity Hunter, use mempool sniping with Jito bundles and flash loan fallback
+      const isSnipe = isLiquidityHunter && agentDecision.metadata?.snipeMethod
       const hints = buildExecutionHints(
         snapshot.mev.riskScore,
-        snapshot.dexEdge.arbEdgeBps
+        snapshot.dexEdge.arbEdgeBps,
+        {
+          useFlashLoan: isLiquidityHunter && (agentDecision.metadata?.useFlashLoan as boolean),
+          flashLoanProvider: 'solend',
+          isMempoolSnipe: isSnipe,
+        }
       )
 
-      // Create execution request
+      // Use intelligent trade executor for outcome tracking
+      const { getTradeExecutor } = await import('@/lib/ai/learning/TradeExecutor')
+      const tradeExecutor = getTradeExecutor()
+      
+      // Get optimized position size
+      const confidenceValue = agentDecision.confidence === 'very-high' ? 0.9 :
+                             agentDecision.confidence === 'high' ? 0.75 :
+                             agentDecision.confidence === 'medium' ? 0.6 : 0.4
+      
+      const positionMultiplier = agentDecision.metadata?.positionSizeMultiplier as number || 1.0
+      const optimizedAmount = amountBigInt * BigInt(Math.round(positionMultiplier * 100)) / 100n
+      
+      // Create execution request with optimized amount
       const request: DexExecutionRequest = {
         user: userPublicKey,
         mintIn: agentDecision.signal === 'BUY' ? mintIn : mintOut,
         mintOut: agentDecision.signal === 'BUY' ? mintOut : mintIn,
-        amountIn: amountBigInt,
+        amountIn: optimizedAmount,
         side: agentDecision.signal === 'BUY' ? 'buy' : 'sell',
         hints,
       }
 
-      // Execute
-      await execute(request)
+      // Execute with outcome tracking
+      const entryPrice = snapshot.orderbook.mid
+      const executionResult = await execute(request)
       
-      toast.success('Trade executed!', {
-        description: 'Check the execution details below',
+      // Record outcome for learning
+      if (executionResult.txId) {
+        await tradeExecutor.executeTrade(
+          {
+            agentId: selectedAgentName.toLowerCase().replace(/\s+/g, '-'),
+            strategy: 'agent-execution',
+            signal: agentDecision.signal,
+            confidence: confidenceValue,
+            entryPrice,
+            amount: optimizedAmount,
+            marketConditions: {
+              volatility: snapshot.volatility.volatility1h,
+              volume: snapshot.orderbook.mid * 1000,
+              sentiment: snapshot.sentiment.score,
+              mevRisk: snapshot.mev.riskScore,
+            },
+            metadata: agentDecision.metadata,
+          },
+          async () => executionResult
+        )
+      }
+      
+      const positionInfo = positionMultiplier !== 1.0 
+        ? ` (${(positionMultiplier * 100).toFixed(0)}% position size)` 
+        : ''
+      
+      toast.success('Trade executed! 🧠', {
+        description: `Intelligent execution complete${positionInfo}. Learning system updated.`,
+        duration: 5000,
       })
     } catch (error: any) {
       console.error('Execution failed:', error)
@@ -256,6 +353,85 @@ export default function AgentSnipePanel({ userTier, userPublicKey }: AgentSnipeP
           className="text-lg font-bold"
         />
       </div>
+
+      {/* Mempool Sniping Controls (Liquidity Hunter only) */}
+      {isLiquidityHunter && (
+        <div className="p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Lightning size={18} weight="duotone" className="text-cyan-400" />
+              <h4 className="text-sm font-bold uppercase tracking-wider text-cyan-400">
+                Live Mempool Sniping
+              </h4>
+            </div>
+            <Badge variant={isMonitoring ? 'default' : 'outline'} className={isMonitoring ? 'bg-cyan-500/20 border-cyan-500/50' : ''}>
+              {isMonitoring ? 'ACTIVE' : 'IDLE'}
+            </Badge>
+          </div>
+          
+          <p className="text-xs text-muted-foreground">
+            Automatically snipe new pools detected in mempool with Jito bundles and flash loan fallback
+          </p>
+
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => {
+                if (autoSnipeEnabled) {
+                  stopMonitoring()
+                  setAutoSnipeEnabled(false)
+                  toast.info('Auto-snipe disabled')
+                } else {
+                  const amountBigInt = parseTokenAmount(amount, 9)
+                  if (amountBigInt <= 0n) {
+                    toast.error('Invalid amount for auto-snipe')
+                    return
+                  }
+                  enableAutoSnipe(amountBigInt, mintIn, (result) => {
+                    if (result.success) {
+                      toast.success('🎯 Pool sniped!', {
+                        description: `Method: ${result.method}, Time: ${result.executionTimeMs}ms`,
+                      })
+                    } else {
+                      toast.error('Snipe failed', { description: result.error })
+                    }
+                  })
+                  setAutoSnipeEnabled(true)
+                  toast.success('Auto-snipe enabled', {
+                    description: 'Monitoring mempool for new pools...',
+                  })
+                }
+              }}
+              variant={autoSnipeEnabled ? 'destructive' : 'default'}
+              size="sm"
+              className={autoSnipeEnabled ? '' : 'bg-cyan-500 hover:bg-cyan-600'}
+            >
+              {autoSnipeEnabled ? 'Stop Auto-Snipe' : 'Enable Auto-Snipe'}
+            </Button>
+            
+            {lastSnipe && (
+              <div className="flex-1 text-xs text-muted-foreground">
+                Last snipe: {lastSnipe.success ? '✅' : '❌'} {lastSnipe.method} ({lastSnipe.executionTimeMs}ms)
+              </div>
+            )}
+          </div>
+
+          {agentDecision?.metadata?.snipeMethod && (
+            <div className="p-2 bg-background/60 rounded text-xs space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Method:</span>
+                <Badge className="bg-cyan-500/20 text-cyan-400">
+                  {agentDecision.metadata.snipeMethod as string}
+                </Badge>
+                {agentDecision.metadata.useFlashLoan && (
+                  <Badge className="bg-purple-500/20 text-purple-400">
+                    Flash Loan Ready
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-4">

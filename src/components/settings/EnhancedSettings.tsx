@@ -5,7 +5,7 @@
 // Connected to /api/settings for real-time preference sync
 
 import { useKVSafe } from '@/hooks/useKVFallback'
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
@@ -17,8 +17,9 @@ import {
   User, Trophy, GraduationCap, Gear, Bell, Palette, Lock,
   CurrencyDollar, SpeakerHigh, Shield, ChartLine, Medal, Star,
   Fire, Target, CheckCircle, Crown, ArrowsClockwise, Lightning, 
-  Wallet, CloudArrowUp, Database, Key, LinkSimple, WifiHigh, Cpu,
-  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales, SignOut, ClockClockwise
+  Wallet, CloudArrowUp, Database, LinkSimple, WifiHigh, Cpu,
+  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales, SignOut, ClockClockwise,
+  Swords, BarChart3
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
@@ -31,6 +32,7 @@ import ChangeLog from './ChangeLog'
 import DeviceManagement from './DeviceManagement'
 import SecuritySettings from './SecuritySettings'
 import DiscordIntegration from './DiscordIntegration'
+import LicenseTab from './LicenseTab'
 import { UserAuth } from '@/lib/auth'
 import { logSettingChange } from '@/lib/changeLogger'
 import { debounce } from '@/lib/debounce'
@@ -111,6 +113,7 @@ interface AppSettings {
     showBalances: boolean
     chartType: string
     refreshRate: number
+    eliteMode?: boolean
   }
 }
 
@@ -361,7 +364,7 @@ export default function EnhancedSettings() {
         trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },
         security: { biometric: true, twoFactor: false, autoLogout: 5, sessionTimeout: 30 },
         network: { rpcEndpoint: 'mainnet', priorityFees: true, customEndpoint: '' },
-        display: { compactMode: false, showBalances: true, chartType: 'candlestick', refreshRate: 5 }
+        display: { compactMode: false, showBalances: true, chartType: 'candlestick', refreshRate: 5, eliteMode: false }
       }
       const updated = { ...base }
       let obj: any = updated
@@ -397,7 +400,7 @@ export default function EnhancedSettings() {
         trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },
         security: { biometric: true, twoFactor: false, autoLogout: 5, sessionTimeout: 30 },
         network: { rpcEndpoint: 'mainnet', priorityFees: true, customEndpoint: '' },
-        display: { compactMode: false, showBalances: true, chartType: 'candlestick', refreshRate: 5 }
+        display: { compactMode: false, showBalances: true, chartType: 'candlestick', refreshRate: 5, eliteMode: false }
       }
       const updated = { ...base }
       let obj: any = updated
@@ -480,6 +483,14 @@ export default function EnhancedSettings() {
             <Trophy size={16} weight="duotone" />
             ACHIEVEMENTS
           </TabsTrigger>
+          <TabsTrigger value="arena" className="data-label gap-2">
+            <Swords size={16} weight="duotone" />
+            ARENA
+          </TabsTrigger>
+          <TabsTrigger value="analysis" className="data-label gap-2">
+            <BarChart3 size={16} weight="duotone" />
+            ANALYSIS
+          </TabsTrigger>
           <TabsTrigger value="security" className="data-label gap-2">
             <Shield size={16} weight="duotone" />
             SECURITY
@@ -495,6 +506,10 @@ export default function EnhancedSettings() {
           <TabsTrigger value="subscription" className="data-label gap-2">
             <Crown size={16} weight="duotone" />
             SUBSCRIPTION
+          </TabsTrigger>
+          <TabsTrigger value="license" className="data-label gap-2">
+            <Key size={16} weight="duotone" />
+            LICENSE
           </TabsTrigger>
           <TabsTrigger value="api" className="data-label gap-2">
             <LinkSimple size={16} weight="duotone" />
@@ -571,6 +586,36 @@ export default function EnhancedSettings() {
         </TabsContent>
 
         <TabsContent value="achievements" className="space-y-6">
+          {/* NFT Achievement Badges */}
+          <div className="cyber-card">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <Trophy size={24} weight="duotone" className="text-primary" />
+                <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">
+                  NFT ACHIEVEMENT BADGES
+                </h3>
+              </div>
+              <Suspense fallback={<div className="animate-pulse h-64 bg-muted/20 rounded" />}>
+                {(() => {
+                  const AchievementBadges = lazy(() => import('@/components/shared/AchievementBadges').then(m => ({ default: m.default })));
+                  return (
+                    <AchievementBadges
+                      userStats={{
+                        totalProfit: profile.totalTrades * 50,
+                        portfolioValue: 8943.21,
+                        weeklyWinRate: profile.winRate,
+                        totalTrades: profile.totalTrades,
+                        dailyStreak: 7,
+                      }}
+                      auth={auth}
+                    />
+                  );
+                })()}
+              </Suspense>
+            </div>
+          </div>
+
+          {/* Legacy Achievements */}
           <div className="cyber-card">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
@@ -628,6 +673,24 @@ export default function EnhancedSettings() {
               </div>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="arena" className="space-y-6">
+          <Suspense fallback={<div className="animate-pulse h-96 bg-muted/20 rounded" />}>
+            {(() => {
+              const ArenaAchievements = lazy(() => import('@/components/shared/ArenaAchievements').then(m => ({ default: m.default })));
+              return <ArenaAchievements />;
+            })()}
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="analysis" className="space-y-6">
+          <Suspense fallback={<div className="animate-pulse h-96 bg-muted/20 rounded" />}>
+            {(() => {
+              const StrategyAnalysisDashboard = lazy(() => import('@/components/shared/StrategyAnalysisDashboard').then(m => ({ default: m.default })));
+              return <StrategyAnalysisDashboard />;
+            })()}
+          </Suspense>
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
@@ -1331,6 +1394,22 @@ export default function EnhancedSettings() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold uppercase tracking-[0.15em] hud-text text-accent">DISPLAY</h3>
+                    
+                    {/* Elite Mode Toggle */}
+                    <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
+                      <div className="flex items-center gap-3">
+                        <Crown size={18} weight="duotone" className="text-yellow-400" />
+                        <div>
+                          <Label className="font-bold uppercase text-xs tracking-wider cursor-pointer">ELITE_MODE</Label>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">Aggressive UI with gold accents</p>
+                        </div>
+                      </div>
+                      <Switch 
+                        checked={settings.display?.eliteMode ?? (auth?.license?.tier === 'LIFETIME')}
+                        onCheckedChange={(v) => handleUpdateSetting(['display', 'eliteMode'], v)}
+                      />
+                    </div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">UI_PREFERENCES</p>
                   </div>
                   <div className="ml-auto flex flex-col items-end gap-0.5">
@@ -1341,6 +1420,30 @@ export default function EnhancedSettings() {
                 </div>
                 
                 <div className="space-y-3">
+                  {/* Elite Mode Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-yellow-500/30 hover:border-yellow-500/50 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500/50 group-hover/item:w-2 transition-all" />
+                    <div className="flex items-center gap-3">
+                      <Crown size={18} weight="duotone" className="text-yellow-400" />
+                      <div>
+                        <Label className="font-bold uppercase text-xs tracking-wider cursor-pointer">ELITE_MODE</Label>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Aggressive UI with gold accents</p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={settings.display?.eliteMode ?? (auth?.license?.tier === 'LIFETIME')}
+                      onCheckedChange={(v) => {
+                        handleUpdateSetting(['display', 'eliteMode'], v)
+                        // Apply Elite Mode styles
+                        if (v) {
+                          document.documentElement.classList.add('elite-mode')
+                        } else {
+                          document.documentElement.classList.remove('elite-mode')
+                        }
+                      }}
+                    />
+                  </div>
+
                   <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
                     <div className="flex items-center gap-3">
@@ -1718,7 +1821,7 @@ export default function EnhancedSettings() {
                     trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },
                     security: { biometric: true, twoFactor: false, autoLogout: 5, sessionTimeout: 30 },
                     network: { rpcEndpoint: 'mainnet', priorityFees: true, customEndpoint: '' },
-                    display: { compactMode: false, showBalances: true, chartType: 'candlestick', refreshRate: 5 }
+                    display: { compactMode: false, showBalances: true, chartType: 'candlestick', refreshRate: 5, eliteMode: false }
                   }))
                   toast.success('Settings reset to defaults')
                 }}
@@ -1733,6 +1836,10 @@ export default function EnhancedSettings() {
 
         <TabsContent value="subscription">
           <SubscriptionTiersWithStrategies />
+        </TabsContent>
+
+        <TabsContent value="license">
+          <LicenseTab />
         </TabsContent>
 
         <TabsContent value="devices">

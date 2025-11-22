@@ -8,7 +8,7 @@ export class ContentSecurityPolicy {
         this.handleViolation(e as SecurityPolicyViolationEvent);
       });
 
-      console.info('[CSP] Content Security Policy monitoring initialized');
+      // CSP monitoring initialized - no console output needed
     }
   }
 

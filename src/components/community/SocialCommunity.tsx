@@ -27,6 +27,8 @@ import LimitedOffersSection from './LimitedOffersSection'
 import Forum from './Forum'
 import StrategyMarketplace from './StrategyMarketplace'
 import CreateStrategyTeaser from './CreateStrategyTeaser'
+import ShareYourGains from './ShareYourGains'
+import RealTimeActivityFeed from './RealTimeActivityFeed'
 import CheckoutDialog from '@/components/shared/CheckoutDialog'
 import { CheckoutItem } from '@/lib/checkout'
 import { UserAuth } from '@/lib/auth'
@@ -552,6 +554,16 @@ export default function SocialCommunity() {
             </AnimatePresence>
           </div>
         )}
+
+        {/* Real-Time Activity Feed & Share Your Gains */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <RealTimeActivityFeed />
+          <ShareYourGains 
+            profit={auth?.license?.tier === 'Elite' ? 342.56 : 0}
+            winRate={68.5}
+            strategyName="Liquidity Hunter"
+          />
+        </div>
 
         <Tabs defaultValue="strategies" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">

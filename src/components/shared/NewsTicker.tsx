@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Newspaper, TrendUp, Lightning, Info, Warning } from '@phosphor-icons/react'
+import { Newspaper, TrendUp, Lightning, Info, Warning, Sparkle, Brain } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
+import { useNewsIntelligence } from '@/lib/intelligence/NewsIntelligenceEngine'
 
 interface NewsItem {
   id: string
@@ -25,6 +26,8 @@ export default function NewsTicker() {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { opportunities, analyzeNews } = useNewsIntelligence('free')
+  const [intelligenceActive, setIntelligenceActive] = useState(false)
 
   useEffect(() => {
     const fetchLiveNews = async () => {
@@ -49,6 +52,10 @@ export default function NewsTicker() {
         const data = await response.json()
 
         if (data.results && data.results.length > 0) {
+          // Analyze news for opportunities (intelligent scanning)
+          const analyzedOpportunities = analyzeNews(data.results.slice(0, 10))
+          setIntelligenceActive(analyzedOpportunities.length > 0)
+
           const formattedNews: NewsItem[] = data.results.slice(0, 10).map((article: any, idx: number) => {
             const determineType = (title: string): 'market' | 'system' | 'alert' => {
               const lowerTitle = title.toLowerCase()
@@ -72,6 +79,12 @@ export default function NewsTicker() {
               icon = <TrendUp size={14} weight="fill" className="text-primary" />
             }
 
+            // Check if this article has a high-confidence opportunity
+            const hasOpportunity = opportunities.some(o => o.article.id === article.id && o.confidence > 0.7)
+            if (hasOpportunity) {
+              icon = <Sparkle size={14} weight="fill" className="text-cyan-400 animate-pulse" />
+            }
+
             return {
               id: article.id || `news-${idx}`,
               text: article.title,
@@ -90,24 +103,13 @@ export default function NewsTicker() {
         console.error('Error fetching live news:', err)
         setError(err instanceof Error ? err.message : 'Failed to load news')
         
+        // Show error state only - no fake news
         setNewsItems([
           {
-            id: 'fallback-1',
-            text: 'Live news temporarily unavailable - Using cached data',
+            id: 'error-1',
+            text: 'Live news feed temporarily unavailable - Please check your connection',
             type: 'alert',
             icon: <Warning size={14} weight="fill" className="text-destructive" />
-          },
-          {
-            id: 'fallback-2',
-            text: 'BTC maintains support above key levels - Market stability continues',
-            type: 'market',
-            icon: <TrendUp size={14} weight="fill" className="text-primary" />
-          },
-          {
-            id: 'fallback-3',
-            text: 'SOL ecosystem growth continues - DeFi TVL reaches new highs',
-            type: 'system',
-            icon: <Info size={14} weight="fill" className="text-accent" />
           }
         ])
       } finally {
@@ -175,11 +177,24 @@ export default function NewsTicker() {
       />
       
       <div className="flex items-center gap-3 p-3 relative z-10">
-        <div className="flex items-center gap-2 px-3 py-1.5 jagged-corner-small bg-destructive/20 border border-destructive/50 whitespace-nowrap">
-          <Newspaper size={16} weight="duotone" className="text-destructive animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-[0.15em] text-destructive">
-            Live News
+        <div className={`flex items-center gap-2 px-3 py-1.5 jagged-corner-small whitespace-nowrap ${
+          intelligenceActive 
+            ? 'bg-cyan-500/20 border border-cyan-500/50 shadow-[0_0_20px_rgba(0,255,255,0.4)]' 
+            : 'bg-destructive/20 border border-destructive/50'
+        }`}>
+          {intelligenceActive ? (
+            <Brain size={16} weight="duotone" className="text-cyan-400 animate-pulse" />
+          ) : (
+            <Newspaper size={16} weight="duotone" className="text-destructive animate-pulse" />
+          )}
+          <span className={`text-xs font-bold uppercase tracking-[0.15em] ${
+            intelligenceActive ? 'text-cyan-400' : 'text-destructive'
+          }`}>
+            {intelligenceActive ? '🧠 AI Scanning' : 'Live News'}
           </span>
+          {intelligenceActive && (
+            <Sparkle size={12} weight="fill" className="text-cyan-400 animate-pulse" />
+          )}
         </div>
         
         <div className="flex-1 overflow-hidden">

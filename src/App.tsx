@@ -56,8 +56,15 @@ import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboar
 import MasterSearch from '@/components/shared/MasterSearch';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import IntroSplash from '@/components/intro/IntroSplash';
+import AmbientParticles from '@/components/shared/AmbientParticles';
+import ConnectionStatusIndicator from '@/components/shared/ConnectionStatusIndicator';
+import { useDailyLearning } from '@/hooks/useDailyLearning';
 import { SecurityManager } from '@/lib/security';
 import { updateDiscordRichPresence } from '@/lib/discord/oauth';
+import { isGodMode, activateGodMode, deactivateGodMode } from '@/lib/godMode';
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
+import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
 const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
@@ -69,6 +76,9 @@ const SocialCommunity = lazy(() => import('@/components/community/SocialCommunit
 const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
 const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
 const SupportOnboarding = lazy(() => import('@/pages/SupportOnboarding'));
+const PostTourWelcome = lazy(() => import('@/components/shared/PostTourWelcome'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const OnboardingModal = lazy(() => import('@/components/onboarding/OnboardingModal'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -179,24 +189,90 @@ const getOnboardingSeenStatus = (): boolean => {
 
 export default function App() {
   const isMobile = useIsMobile();
+  
+  // Initialize daily learning system
+  useDailyLearning();
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
   const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
-  const [showOnboarding, setShowOnboarding] = useState(() => !getOnboardingSeenStatus());
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
-  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-  });
+  const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false);
+  // Use persistent auth for auto-login
+  const persistentAuth = usePersistentAuth();
+  const auth = persistentAuth.auth;
 
   useEffect(() => {
     SecurityManager.initialize();
     console.info('🔒 [App] Security systems online');
   }, []);
+
+  // Track if this is first login (for showing OnboardingModal)
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
+  
+  // Show onboarding modal after first successful login
+  useEffect(() => {
+    if (persistentAuth.isInitialized && auth?.isAuthenticated && !hasSeenOnboarding) {
+      // Check if this is a first-time login (no stored onboarding seen)
+      const stored = typeof window !== 'undefined' 
+        ? window.localStorage.getItem('hasSeenOnboarding') 
+        : null;
+      
+      if (!stored) {
+        setIsFirstLogin(true);
+      }
+    }
+  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
+  
+  // Show interactive tour after onboarding modal completes
+  useEffect(() => {
+    if (persistentAuth.isInitialized && auth?.isAuthenticated && hasSeenOnboarding && !isFirstLogin) {
+      // Small delay to let dashboard load
+      const timer = setTimeout(() => {
+        setShowOnboarding(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding, isFirstLogin]);
+
+  // GOD MODE Activation
+  useEffect(() => {
+    const godModeActive = isGodMode(auth);
+    
+    if (godModeActive) {
+      activateGodMode();
+      
+      // Show celebration toast
+      toast.success('⚡ GOD MODE ACTIVATED ⚡', {
+        description: 'Unlimited everything. Rainbow mode engaged. You are the Falcon.',
+        duration: 10000,
+        style: {
+          background: 'linear-gradient(135deg, #ff00ff, #00ffff)',
+          color: 'white',
+          border: '2px solid gold',
+          boxShadow: '0 0 40px rgba(255, 215, 0, 0.8)',
+        },
+      });
+
+      // Confetti celebration
+      confetti({
+        particleCount: 300,
+        spread: 120,
+        origin: { y: 0.4 },
+        colors: ['#ff00ff', '#00ffff', '#ffff00', '#ff1493', '#00ff00', '#ffd700'],
+      });
+    } else {
+      deactivateGodMode();
+    }
+
+    return () => {
+      if (!godModeActive) {
+        deactivateGodMode();
+      }
+    };
+  }, [auth]);
 
   useEffect(() => {
     updateDiscordRichPresence(activeTab);
@@ -309,6 +385,15 @@ export default function App() {
     return () => window.removeEventListener('restart-onboarding-tour', handler);
   }, []);
 
+  // Listen for bot start from tour
+  useEffect(() => {
+    const handler = () => {
+      setBotRunning(true);
+    };
+    window.addEventListener('start-bot-from-tour', handler);
+    return () => window.removeEventListener('start-bot-from-tour', handler);
+  }, [setBotRunning]);
+
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
   const showAggressionControl = activeTab === 'multi-agent';
@@ -339,6 +424,11 @@ export default function App() {
       console.warn('Failed to save onboarding state to localStorage', e);
     }
     setShowOnboarding(false);
+    
+    // Show post-tour welcome screen
+    setTimeout(() => {
+      setShowPostTourWelcome(true);
+    }, 500);
   };
 
   const handleOnboardingSkip = () => {
@@ -348,7 +438,10 @@ export default function App() {
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-      <div className={cn('min-h-screen bg-background text-foreground flex', isMobile && 'flex-col')}>
+      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')}>
+        {/* Ambient Background Particles */}
+        <AmbientParticles />
+        
         <DebugHelper />
         <AIBotAssistant />
         <RiskDisclosureBanner />
@@ -363,6 +456,26 @@ export default function App() {
           onSkip={handleOnboardingSkip}
           setActiveTab={setActiveTab}
         />
+
+        {/* Post-Tour Welcome Screen */}
+        <Suspense fallback={null}>
+          <PostTourWelcome
+            isOpen={showPostTourWelcome}
+            onClose={() => setShowPostTourWelcome(false)}
+            onStartBot={() => {
+              setBotRunning(true);
+              // Toast will be shown by PostTourWelcome component
+            }}
+            onNavigate={setActiveTab}
+          />
+        </Suspense>
+
+        {/* GOD MODE Crown */}
+        {isGodMode(auth) && (
+          <div className="god-mode-crown" title="GOD MODE ACTIVE">
+            👑
+          </div>
+        )}
 
         {/* SIDEBAR UPGRADE: pro-level active indicator + cooler bot icon */}
         {!isMobile && (
@@ -396,10 +509,13 @@ export default function App() {
                   />
                 </button>
               </div>
-              <p className="text-xs uppercase tracking-widest text-primary flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full animate-pulse bg-primary"></span>
-                SYSTEM ONLINE
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-widest text-primary flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full animate-pulse bg-primary"></span>
+                  SYSTEM ONLINE
+                </p>
+                <ConnectionStatusIndicator />
+              </div>
             </div>
 
             <nav className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-1">
@@ -517,10 +633,21 @@ export default function App() {
           </div>
         )}
 
-        <div className={cn('flex-1', !isMobile && 'ml-[240px]')}>
+        <div className={cn('flex-1 relative z-10', !isMobile && 'ml-[240px]')}>
           <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
             <Suspense fallback={<LoadingFallback message={`Loading ${activeTab}...`} />}>
-              <ActiveComponent />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  className="h-full"
+                >
+                  <ActiveComponent />
+                </motion.div>
+              </AnimatePresence>
             </Suspense>
           </ErrorBoundary>
         </div>

@@ -188,6 +188,48 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  position: relative;
+}
+
+/* Falcon Head Logo Over Button */
+.qf-intro-falcon-logo {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.qf-intro-falcon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px oklch(0.68 0.18 330 / 0.8)) 
+          drop-shadow(0 0 40px oklch(0.72 0.20 195 / 0.6));
+  animation: falcon-pulse 3s ease-in-out infinite;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+@keyframes falcon-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px oklch(0.68 0.18 330 / 0.8)) 
+            drop-shadow(0 0 40px oklch(0.72 0.20 195 / 0.6));
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 30px oklch(0.68 0.18 330 / 1)) 
+            drop-shadow(0 0 60px oklch(0.72 0.20 195 / 0.8));
+  }
 }
 
 .qf-intro-cta {
@@ -287,6 +329,12 @@
     padding: 0.875rem 2rem;
     font-size: 1rem;
   }
+
+  .qf-intro-falcon-logo {
+    top: -60px;
+    width: 80px;
+    height: 80px;
+  }
 }
 
 /* Single column layout on narrow screens */
@@ -297,6 +345,12 @@
   
   .qf-intro-video-container {
     border-radius: 0.5rem;
+  }
+
+  .qf-intro-falcon-logo {
+    top: -50px;
+    width: 64px;
+    height: 64px;
   }
 }
 

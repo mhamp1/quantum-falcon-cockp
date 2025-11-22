@@ -59,12 +59,25 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
     if (videoRef.current) {
       videoRef.current.play().then(() => {
         setVideoPlaying(true);
-      }).catch(() => {
+      }).catch((error) => {
         // Autoplay failed - user will see play button
+        console.warn('Video autoplay failed:', error);
         setVideoPlaying(false);
       });
     }
   };
+
+  // Try to autoplay video when ready
+  useEffect(() => {
+    if (videoReady && videoRef.current && !videoPlaying) {
+      videoRef.current.play().then(() => {
+        setVideoPlaying(true);
+      }).catch(() => {
+        // Autoplay blocked - show play button
+        setVideoPlaying(false);
+      });
+    }
+  }, [videoReady, videoPlaying]);
 
   // Handle ESC key to dismiss
   useEffect(() => {
@@ -137,10 +150,16 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
                   className="qf-intro-video"
                   muted
                   playsInline
+                  autoPlay
                   onEnded={handleVideoEnded}
                   onLoadedData={handleVideoReady}
+                  onError={(e) => {
+                    console.warn('Video failed to load, using fallback:', e);
+                    setVideoReady(false);
+                  }}
                   poster="/falcon-head-official.png"
                 >
+                  <source src="/falcon.mp4" type="video/mp4" />
                   <source src="/intro.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
@@ -158,13 +177,31 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
               </div>
             </motion.div>
 
-            {/* CTA Button */}
+            {/* CTA Button with Falcon Head */}
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               className="qf-intro-cta-container"
             >
+              {/* Falcon Head Logo Over Button */}
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", delay: 1.0, stiffness: 200 }}
+                className="qf-intro-falcon-logo"
+              >
+                <img 
+                  src="/falcon-head-official.png" 
+                  alt="Quantum Falcon" 
+                  className="qf-intro-falcon-img"
+                  onError={(e) => {
+                    // Hide if image fails to load
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </motion.div>
+              
               <button
                 onClick={finish}
                 className="qf-intro-cta"

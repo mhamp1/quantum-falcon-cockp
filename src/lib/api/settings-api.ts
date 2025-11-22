@@ -47,8 +47,8 @@ export class SettingsAPI {
   }
 
   async connectWallet(walletId: string): Promise<APIResponse<{ address: string }>> {
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
+    // This method is now handled by the Solana wallet adapter
+    // Kept for backward compatibility but should use useWallet hook instead
     if (typeof window !== 'undefined' && (window as any).solana) {
       try {
         const response = await (window as any).solana.connect()
@@ -66,9 +66,8 @@ export class SettingsAPI {
     }
     
     return {
-      success: true,
-      data: { address: '7x' + Math.random().toString(36).substring(2, 15).toUpperCase() + '...' },
-      message: 'Wallet connected (simulated)'
+      success: false,
+      error: 'No wallet adapter found. Please install a Solana wallet extension.'
     }
   }
 

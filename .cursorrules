@@ -1,0 +1,27 @@
+# QUANTUM FALCON v2025.1.0 — CURSOR RULES
+
+## Custom Commands Reference
+
+When these commands are invoked, execute immediately:
+
+### "Fix tour"
+Fix the onboarding tour card positioning. It must be fixed at bottom: bottom-8 on desktop, bottom-20 on mobile. Ensure it never covers the mobile bottom nav.
+
+### "Kill Q"
+Find and delete any spinning Q logo immediately. Remove all traces of spinning animations on the Q logo. The spinning Q is banned forever.
+
+### "Add exchange"
+Ensure Kraken and Binance cards are present in API Integrations. If they are missing, add them immediately. These cards must always be present.
+
+### "Make solid pink"
+Convert the title to solid hot pink #FF1493. Remove any rainbow gradients, animations, or glow effects. It must be solid color only.
+
+## Core Rules (from .cursor/rules.md)
+
+- Spinning Q is banned forever
+- Tour card always at bottom
+- Titles solid hot pink when specified
+- Kraken + Binance always present
+- 15 elite agents with tier gating
+- No rainbow gradients unless explicitly requested
+

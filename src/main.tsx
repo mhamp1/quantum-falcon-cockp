@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
+import { WalletProvider } from '@/providers/WalletProvider';
 import "@github/spark/spark";
 
 import App from './App.tsx';
@@ -101,7 +102,9 @@ try {
       }}
     >
       <QueryClientProvider client={queryClient}>
-        <App />
+        <WalletProvider>
+          <App />
+        </WalletProvider>
         <Toaster 
           position="top-right" 
           expand={false} 

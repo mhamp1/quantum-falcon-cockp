@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useKV } from '@github/spark/hooks';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLiveTradingData } from '@/hooks/useLiveTradingData';
 
 interface Message {
   id: string;
@@ -80,7 +81,34 @@ export default function AIBotAssistant() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  const getBotResponse = useCallback((userMessage: string): string => {
+  const liveData = useLiveTradingData();
+
+  const getBotResponse = useCallback(async (userMessage: string): Promise<string> => {
+    // Try to use real AI with live data
+    try {
+      const promptText = `You are an AI trading assistant for Quantum Falcon, a sophisticated crypto trading bot platform.
+
+Context: Quantum Falcon features AI agents for market analysis, automated trading strategies, DCA (Dollar Cost Averaging), token sniping, portfolio tracking, and a BTC profit vault.
+
+Live Trading Data:
+- Portfolio Value: $${liveData.portfolioValue.toFixed(2)}
+- Daily P&L: ${liveData.dailyPnL >= 0 ? '+' : ''}$${liveData.dailyPnL.toFixed(2)}
+- Win Rate: ${liveData.winRate.toFixed(1)}%
+- Active Trades: ${liveData.activeTrades}
+
+User question: ${userMessage}
+
+Provide a helpful, concise response (under 150 words). Be professional yet friendly with actionable insights.`;
+
+      if (typeof window !== 'undefined' && window.spark?.llm) {
+        const response = await window.spark.llm(promptText, 'gpt-4o-mini');
+        return response || BOT_RESPONSES.default;
+      }
+    } catch (error) {
+      console.warn('[AIBotAssistant] AI call failed, using fallback:', error);
+    }
+
+    // Fallback to pattern matching if AI unavailable
     const lower = userMessage.toLowerCase();
     if (lower.includes('strategy') || lower.includes('create') || lower.includes('build')) {
       return BOT_RESPONSES.strategy;
@@ -95,7 +123,7 @@ export default function AIBotAssistant() {
       return BOT_RESPONSES.upgrade;
     }
     return BOT_RESPONSES.default;
-  }, []);
+  }, [liveData]);
 
   const handleSendMessage = useCallback((text?: string) => {
     const messageText = text || inputValue.trim();
@@ -111,18 +139,29 @@ export default function AIBotAssistant() {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
-    // Simulate bot typing
+    // Get bot response (AI or fallback)
     setIsTyping(true);
-    setTimeout(() => {
+    try {
+      const response = await getBotResponse(messageText);
       const botMessage: Message = {
         id: `bot-${Date.now()}`,
-        text: getBotResponse(messageText),
+        text: response,
         isBot: true,
         timestamp: Date.now(),
       };
       setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('[AIBotAssistant] Error getting response:', error);
+      const botMessage: Message = {
+        id: `bot-${Date.now()}`,
+        text: "I'm having trouble processing that right now. Please try again in a moment.",
+        isBot: true,
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, botMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 500);
+    }
   }, [inputValue, getBotResponse]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

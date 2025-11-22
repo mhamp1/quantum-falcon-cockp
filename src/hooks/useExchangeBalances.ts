@@ -53,7 +53,7 @@ export function useExchangeBalances(autoRefreshInterval = 30000) {
           })
         }
       } catch (error) {
-        console.error('[useExchangeBalances] Error fetching Binance balances:', error)
+        // Silent error handling - don't expose API errors
       }
     }
 

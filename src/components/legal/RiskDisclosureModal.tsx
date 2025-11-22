@@ -13,12 +13,14 @@ interface RiskDisclosureModalProps {
 }
 
 const RISK_DISCLOSURE_CONTENT = `QUANTUM FALCON – RISK DISCLOSURE STATEMENT
-Last Updated: November 18, 2025
+Last Updated: November 22, 2025
 
 ⚠️ THIS IS A LEGALLY BINDING ACKNOWLEDGEMENT OF RISK ⚠️
 BY USING QUANTUM FALCON, YOU EXPLICITLY ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND ACCEPT ALL RISKS DESCRIBED BELOW.
 
-TRADING CRYPTOCURRENCIES AND USING AUTOMATED TOOLS INVOLVES A HIGH RISK OF FINANCIAL LOSS, INCLUDING THE TOTAL LOSS OF ALL INVESTED CAPITAL.
+THIS DOCUMENT CONSTITUTES A LEGALLY BINDING AGREEMENT. BY ACCEPTING, YOU WAIVE CERTAIN LEGAL RIGHTS AND AGREE TO BINDING ARBITRATION.
+
+TRADING CRYPTOCURRENCIES AND USING AUTOMATED TOOLS INVOLVES A HIGH RISK OF FINANCIAL LOSS, INCLUDING THE TOTAL LOSS OF ALL INVESTED CAPITAL. YOU MAY LOSE MORE THAN YOUR INITIAL INVESTMENT IF USING LEVERAGE OR MARGIN.
 
 1. NO INVESTMENT ADVICE & NO GUARANTEES
 
@@ -64,9 +66,19 @@ TRADING CRYPTOCURRENCIES AND USING AUTOMATED TOOLS INVOLVES A HIGH RISK OF FINAN
 
 5.1 Funds on exchanges are NOT insured by FDIC, SIPC, or any government program.
 
-5.2 Quantum Falcon does NOT custody funds and provides zero compensation for any losses, under any circumstances.
+5.2 Quantum Falcon does NOT custody funds and provides ZERO compensation for any losses, under ANY circumstances, including but not limited to:
+   - Software bugs or errors
+   - Algorithmic failures
+   - Market crashes or volatility
+   - Exchange hacks or bankruptcies
+   - Regulatory actions
+   - Network outages
+   - Data inaccuracies
+   - Any other cause, whether foreseeable or not
 
-5.3 SECURITY & PRIVATE KEYS: WE NEVER STORE YOUR PRIVATE KEYS. All transaction signing occurs client-side in your wallet. You maintain full custody of your assets at all times. We cannot and will not access your funds.
+5.3 SECURITY & PRIVATE KEYS: WE NEVER STORE YOUR PRIVATE KEYS. All transaction signing occurs client-side in your wallet. You maintain full custody of your assets at all times. We cannot and will not access your funds. You are solely responsible for securing your private keys and wallet.
+
+5.4 NO REFUNDS: All subscription fees, license fees, and payments are NON-REFUNDABLE, regardless of trading outcomes, platform performance, or any other reason.
 
 6. TAX & LEGAL COMPLIANCE
 
@@ -78,12 +90,55 @@ TRADING CRYPTOCURRENCIES AND USING AUTOMATED TOOLS INVOLVES A HIGH RISK OF FINAN
 
 7.1 Automated trading can create false confidence and encourage over-trading or gambling-like behavior.
 
+8. COMPLETE LIABILITY WAIVER
+
+8.1 YOU EXPRESSLY WAIVE ALL CLAIMS, DEMANDS, AND CAUSES OF ACTION AGAINST QUANTUM FALCON, ITS CREATORS, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, AFFILIATES, SUBSIDIARIES, AND ASSIGNS (COLLECTIVELY, "RELEASED PARTIES") FOR ANY AND ALL LOSSES, DAMAGES, OR INJURIES ARISING FROM YOUR USE OF THE PLATFORM.
+
+8.2 YOU AGREE THAT THE RELEASED PARTIES SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO:
+   - Loss of profits, revenue, or cryptocurrency
+   - Loss of data or information
+   - Trading losses of any kind
+   - Emotional distress or mental anguish
+   - Business interruption
+   - Any other damages, regardless of the theory of liability
+
+8.3 THIS WAIVER APPLIES TO ALL CLAIMS, WHETHER BASED ON CONTRACT, TORT, STATUTE, OR ANY OTHER LEGAL THEORY, EVEN IF THE RELEASED PARTIES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+9. INDEMNIFICATION
+
+9.1 YOU AGREE TO INDEMNIFY, DEFEND, AND HOLD HARMLESS THE RELEASED PARTIES FROM AND AGAINST ANY AND ALL CLAIMS, DEMANDS, LOSSES, LIABILITIES, AND EXPENSES (INCLUDING ATTORNEYS' FEES) ARISING FROM:
+   - Your use of the Platform
+   - Your violation of these terms
+   - Your violation of any law or regulation
+   - Your trading activities
+   - Any claims made by third parties related to your use of the Platform
+
+10. ARBITRATION AND CLASS ACTION WAIVER
+
+10.1 ANY DISPUTE ARISING FROM OR RELATING TO THIS AGREEMENT OR YOUR USE OF THE PLATFORM SHALL BE RESOLVED EXCLUSIVELY THROUGH BINDING ARBITRATION IN DELAWARE, USA, UNDER THE RULES OF THE AMERICAN ARBITRATION ASSOCIATION.
+
+10.2 YOU WAIVE YOUR RIGHT TO:
+   - A trial by jury
+   - Participate in a class action lawsuit
+   - Participate in class-wide arbitration
+   - Bring claims on behalf of others
+
+10.3 YOU AGREE THAT ALL DISPUTES WILL BE RESOLVED ON AN INDIVIDUAL BASIS ONLY.
+
 FINAL ACKNOWLEDGEMENT (REQUIRED)
 
-I understand that cryptocurrency trading and the use of automated tools can result in the rapid and complete loss of all invested capital. I accept full and sole responsibility for all trading outcomes. I will only risk money I can afford to lose entirely.`
+I understand that cryptocurrency trading and the use of automated tools can result in the rapid and complete loss of all invested capital. I accept full and sole responsibility for all trading outcomes. I will only risk money I can afford to lose entirely.
+
+I have read, understood, and agree to be bound by this Risk Disclosure Statement. I acknowledge that this is a legally binding agreement and that I am waiving certain legal rights by accepting these terms.
+
+I understand that Quantum Falcon, its creators, and all related parties are not liable for any losses, damages, or injuries arising from my use of the Platform, regardless of cause.
+
+I agree to indemnify and hold harmless Quantum Falcon from all claims arising from my use of the Platform.
+
+I agree to resolve all disputes through binding arbitration in Delaware, USA, and waive my right to participate in class actions.`
 
 const TERMS_OF_SERVICE_CONTENT = `QUANTUM FALCON TERMS OF SERVICE
-Last Updated: November 18, 2025
+Last Updated: November 22, 2025
 
 IMPORTANT – READ CAREFULLY: This Terms of Service Agreement ("Agreement") constitutes a legally binding contract between you ("User", "you") and Quantum Falcon Ltd., a Delaware corporation with registered office at 8 The Green, Ste A, Dover, DE 19901, USA ("Quantum Falcon", "we", "us", "our").
 
@@ -134,9 +189,30 @@ TO THE MAXIMUM EXTENT PERMITTED BY LAW:
 
 6.2 OUR TOTAL CUMULATIVE LIABILITY SHALL NOT EXCEED THE GREATER OF (A) $100 USD OR (B) THE AMOUNT YOU PAID US IN THE PAST 12 MONTHS.
 
+6.3 IN NO EVENT SHALL QUANTUM FALCON BE LIABLE FOR ANY TRADING LOSSES, REGARDLESS OF CAUSE, INCLUDING BUT NOT LIMITED TO:
+   - Losses from automated trading bots
+   - Losses from strategy execution
+   - Losses from market volatility
+   - Losses from exchange failures
+   - Losses from software bugs or errors
+   - Losses from data inaccuracies
+   - Any other trading-related losses
+
+6.4 THE LIMITATIONS IN THIS SECTION APPLY TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW AND SHALL SURVIVE TERMINATION OF THIS AGREEMENT.
+
 7. INDEMNIFICATION
 
-You agree to indemnify, defend, and hold harmless Quantum Falcon from any claims, losses, or damages arising from your violation of this Agreement, your use of the Platform, or your trading activity.
+7.1 You agree to indemnify, defend, and hold harmless Quantum Falcon, its officers, directors, employees, agents, affiliates, subsidiaries, and assigns (collectively, "Indemnified Parties") from and against any and all claims, demands, losses, liabilities, damages, costs, and expenses (including reasonable attorneys' fees) arising from or relating to:
+   - Your use of the Platform
+   - Your violation of this Agreement
+   - Your violation of any law, regulation, or third-party right
+   - Your trading activities and decisions
+   - Any claims made by third parties related to your use of the Platform
+   - Any losses incurred by you or others as a result of your use of the Platform
+
+7.2 This indemnification obligation shall survive termination of this Agreement and your use of the Platform.
+
+7.3 You agree to cooperate fully with Quantum Falcon in the defense of any claim subject to indemnification under this section.
 
 8. CLASS ACTION WAIVER & ARBITRATION
 
@@ -164,7 +240,7 @@ export default function RiskDisclosureModal({
   isOpen, 
   onClose, 
   onAccept,
-  version = '2025-11-18' 
+  version = '2025-11-22' 
 }: RiskDisclosureModalProps) {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [scrollProgressTos, setScrollProgressTos] = useState(0)

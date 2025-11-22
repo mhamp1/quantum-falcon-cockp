@@ -1,9 +1,11 @@
 // Market Feed WebSocket Hook — Real-time Solana DEX Data
 // November 21, 2025 — Quantum Falcon Cockpit
+// ALL DATA MUST BE LIVE — NO MOCK DATA IN PRODUCTION
 
 import { useState, useEffect, useRef } from 'react'
 import type { MarketSnapshot, MarketFeedMessage } from '@/lib/market/solanaFeed'
 import { createMockMarketSnapshot } from '@/lib/market/solanaFeed'
+import { toast } from 'sonner'
 
 interface UseMarketFeedOptions {
   url?: string
@@ -18,7 +20,8 @@ interface UseMarketFeedOptions {
 export function useMarketFeed(options: UseMarketFeedOptions = {}) {
   const {
     url = import.meta.env.VITE_MARKET_FEED_URL || '',
-    useMockData = !url || import.meta.env.DEV,
+    // Production: NEVER use mock data unless explicitly requested in development
+    useMockData = options.useMockData ?? false,
     mockUpdateInterval = 5000,
   } = options
 
@@ -29,10 +32,10 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => {
-    // Use mock data in development or when no URL provided
+    // Production: Only use mock data if explicitly enabled
     if (useMockData) {
-      console.info('📊 Market Feed: Using mock data (no WebSocket URL configured)')
-      setIsConnected(true)
+      console.warn('⚠️ Market Feed: Using mock data (production should use live WebSocket)')
+      setIsConnected(false) // Mark as not connected when using mock data
       
       // Initial mock data
       setSnapshot(createMockMarketSnapshot())
@@ -51,6 +54,18 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
       }, mockUpdateInterval)
       
       return () => clearInterval(interval)
+    }
+    
+    // Production: Require WebSocket URL - NO MOCK DATA FALLBACK
+    if (!url) {
+      const errorMsg = '❌ Market Feed: No WebSocket URL configured. Set VITE_MARKET_FEED_URL environment variable. Live market data is required.'
+      console.error(errorMsg)
+      setError('Market feed URL not configured - Live data required')
+      setIsConnected(false)
+      toast?.error('Market Feed Error', {
+        description: 'Please configure VITE_MARKET_FEED_URL in your environment variables for live market data.',
+      })
+      return
     }
 
     // Real WebSocket connection

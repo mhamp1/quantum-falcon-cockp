@@ -381,11 +381,11 @@ export default function AdvancedTradingHub() {
             Advanced
           </TabsTrigger>
           <TabsTrigger 
-            value="advanced-strategies" 
+            value="special" 
             className="data-[state=active]:bg-accent/20 data-[state=active]:text-accent uppercase tracking-wider text-xs font-bold whitespace-nowrap flex items-center gap-1"
           >
             <Sparkle size={14} weight="duotone" />
-            Special Perks
+            Special
           </TabsTrigger>
         </TabsList>
 
@@ -439,10 +439,6 @@ export default function AdvancedTradingHub() {
               />
             ))}
           </div>
-        </TabsContent>
-
-        <TabsContent value="advanced-strategies" className="mt-6">
-          <AdvancedTradingStrategies />
         </TabsContent>
 
         <TabsContent value="special" className="space-y-4 mt-6">

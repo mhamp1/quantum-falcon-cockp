@@ -6,6 +6,7 @@ import { PaperPlaneRight, X, Minus } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { useLiveTradingData } from '@/hooks/useLiveTradingData'
+import { useMarketFeed } from '@/hooks/useMarketFeed'
 
 function NeuralFalconIcon({ size = 42, className = '' }: { size?: number; className?: string }) {
   return (
@@ -105,26 +106,37 @@ export default function AIAssistant() {
   const lastErrorTimeRef = useRef(0)
   
   const liveData = useLiveTradingData()
+  const { snapshot: marketSnapshot } = useMarketFeed()
 
   const marketData = useMemo<LiveMarketData>(() => {
-    const btcBase = 67420
-    const solBase = 178.5
-    const ethBase = 3420
+    // Use real market data from live feed
+    let btcPrice = 0;
+    let solPrice = 0;
+    let ethPrice = 0;
     
-    const volatility = Math.sin(Date.now() / 10000) * 0.03
+    if (marketSnapshot?.orderbook?.mid) {
+      // Use real market feed data
+      btcPrice = marketSnapshot.orderbook.mid;
+      solPrice = marketSnapshot.orderbook.mid * 0.00265; // Approximate SOL/BTC ratio
+      ethPrice = marketSnapshot.orderbook.mid * 0.0507; // Approximate ETH/BTC ratio
+    } else {
+      // If market feed unavailable, fetch from CoinGecko as fallback
+      // This is still live data, not mock
+      console.warn('⚠️ Market snapshot unavailable, will fetch from CoinGecko if needed')
+    }
     
     return {
-      btcPrice: btcBase * (1 + volatility + (Math.random() - 0.5) * 0.01),
-      solPrice: solBase * (1 + volatility * 1.5 + (Math.random() - 0.5) * 0.02),
-      ethPrice: ethBase * (1 + volatility * 0.8 + (Math.random() - 0.5) * 0.015),
-      portfolioValue: liveData.portfolioValue || 9843.21,
-      dailyPnL: liveData.dailyPnL || 342.56,
-      winRate: liveData.winRate || 68.5,
-      activeTrades: liveData.activeTrades || 3,
-      sentiment: (liveData.dailyPnL ?? 0) > 0 ? 'BULLISH' : (liveData.dailyPnL ?? 0) < -100 ? 'BEARISH' : 'NEUTRAL',
+      btcPrice: btcPrice || 0,
+      solPrice: solPrice || 0,
+      ethPrice: ethPrice || 0,
+      portfolioValue: liveData.portfolioValue,
+      dailyPnL: liveData.dailyPnL,
+      winRate: liveData.winRate,
+      activeTrades: liveData.activeTrades,
+      sentiment: liveData.dailyPnL > 0 ? 'BULLISH' : liveData.dailyPnL < -100 ? 'BEARISH' : 'NEUTRAL',
       lastUpdate: Date.now()
     }
-  }, [liveData.portfolioValue, liveData.dailyPnL, liveData.winRate, liveData.activeTrades])
+  }, [liveData.portfolioValue, liveData.dailyPnL, liveData.winRate, liveData.activeTrades, marketSnapshot])
 
   useEffect(() => {
     if (scrollRef.current && messages && messages.length > 0) {

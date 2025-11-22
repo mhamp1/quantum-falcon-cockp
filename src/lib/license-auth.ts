@@ -16,8 +16,12 @@ interface LicenseData {
 }
 
 export class LicenseAuthority {
-  private static readonly API_ENDPOINT = import.meta.env.VITE_LICENSE_API_ENDPOINT || 'https://your-secure-api.com/api/verify'
-  private static readonly LICENSE_REPO_URL = import.meta.env.VITE_LICENSE_AUTHORITY_REPO || 'https://github.com/mhamp1/LicenseAuthority'
+  // SECURITY: Only use environment variable - no fallback to placeholder URLs
+  private static readonly API_ENDPOINT = import.meta.env.VITE_LICENSE_API_ENDPOINT || 
+                                         import.meta.env.VITE_LICENSE_API_URL ||
+                                         'https://license.quantumfalcon.com/api/validate'
+  private static readonly LICENSE_REPO_URL = import.meta.env.VITE_LICENSE_AUTHORITY_REPO || 
+                                              'https://github.com/mhamp1/LicenseAuthority'
   
   static async verifyLicense(licenseKey: string): Promise<LicenseVerificationResult> {
     try {
@@ -50,10 +54,10 @@ export class LicenseAuthority {
         userId: data.userId
       }
     } catch (error) {
-      console.error('License verification error:', error)
+      // Silent error handling - don't expose network details
       return {
         valid: false,
-        error: 'Network error during verification'
+        error: 'License verification failed'
       }
     }
   }

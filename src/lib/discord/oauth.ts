@@ -101,7 +101,7 @@ export class DiscordOAuth {
 
       return connection;
     } catch (error) {
-      console.error('[Discord] OAuth callback error:', error);
+      // Silent error handling - don't expose OAuth errors
       return null;
     }
   }
@@ -122,7 +122,7 @@ export class DiscordOAuth {
     });
 
     if (!response.ok) {
-      console.error('[Discord] Token exchange failed:', response.status);
+      // Silent error handling - don't expose OAuth token exchange failures
       return null;
     }
 

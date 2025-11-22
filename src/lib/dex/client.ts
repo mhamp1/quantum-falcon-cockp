@@ -15,6 +15,9 @@ export interface ExecutionHints {
   priorityFeeMicroLamports: number
   maxSlippageBps: number
   preferredRoutes: string[] // e.g., ['jupiter', 'raydium', 'phoenix']
+  useFlashLoan?: boolean // Enable flash loan fallback
+  flashLoanProvider?: 'solend' | 'mango' | 'kamino' // Flash loan provider
+  targetSignature?: string // For Jito bundle sniping (bundle with target tx)
 }
 
 /**
@@ -120,16 +123,31 @@ export async function executeSwapViaRouter(
  */
 export function buildExecutionHints(
   mevRiskScore: number,
-  arbEdgeBps: number
+  arbEdgeBps: number,
+  options?: {
+    useFlashLoan?: boolean
+    flashLoanProvider?: 'solend' | 'mango' | 'kamino'
+    targetSignature?: string // For Jito bundle sniping
+    isMempoolSnipe?: boolean
+  }
 ): ExecutionHints {
+  const isSnipe = options?.isMempoolSnipe || false
+  
   return {
-    usePrivateRpc: mevRiskScore > 0.5,
-    submitAsJitoBundle: true,
+    usePrivateRpc: mevRiskScore > 0.5 || isSnipe, // Always use private RPC for snipes
+    submitAsJitoBundle: true, // Always use Jito for snipes and high MEV risk
     priorityFeeMicroLamports: Math.round(
-      5000 + mevRiskScore * 20000 // 5k-25k based on MEV risk
+      isSnipe 
+        ? 10000 + mevRiskScore * 30000 // Higher fees for snipes (10k-40k)
+        : 5000 + mevRiskScore * 20000 // 5k-25k based on MEV risk
     ),
-    maxSlippageBps: Math.min(100, Math.max(50, 150 - arbEdgeBps)), // 50-100bps
+    maxSlippageBps: isSnipe 
+      ? 150 // Allow higher slippage for snipes (150bps)
+      : Math.min(100, Math.max(50, 150 - arbEdgeBps)), // 50-100bps normal
     preferredRoutes: ['jupiter', 'raydium', 'phoenix'],
+    useFlashLoan: options?.useFlashLoan || false,
+    flashLoanProvider: options?.flashLoanProvider,
+    targetSignature: options?.targetSignature, // For bundling with target transaction
   }
 }
 

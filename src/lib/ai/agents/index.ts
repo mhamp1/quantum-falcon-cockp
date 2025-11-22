@@ -227,42 +227,103 @@ const WhaleShadowAgent: EliteAgentInstance = {
 
 /**
  * 3. Liquidity Hunter (PRO) — Snipes New Pools Instantly
+ * Enhanced with ML-based opportunity scoring, adaptive learning, and intelligent profit optimization
  */
 const LiquidityHunterAgent: EliteAgentInstance = {
   name: 'Liquidity Hunter',
   icon: Waves,
   color: '#00FFFF',
-  description: 'Snipes new pools instantly',
+  description: 'AI-powered sniper that learns and improves daily',
   personality: 'opportunistic',
   tier: 'pro',
   analyze: async (data: AgentAnalysisInput): Promise<AgentDecision> => {
-    const { newPools, topPoolLiqUsd } = data.mempool
+    const { newPools, topPoolLiqUsd, totalLiquidityUsd } = data.mempool
+    const { riskScore } = data.mev
     
-    // Fresh pool with significant liquidity
-    if (newPools > 0 && topPoolLiqUsd > 50000) {
-      return {
-        signal: 'BUY',
-        confidence: 'very-high',
-        reason: `New pool detected with $${(topPoolLiqUsd / 1000).toFixed(1)}K liquidity`,
-        metadata: { newPools, topPoolLiqUsd }
+    // Import learning system and opportunity scorer
+    const { getLearningSystem } = await import('../learning/AdaptiveLearningSystem')
+    const { getOpportunityScorer } = await import('../learning/OpportunityScorer')
+    const learningSystem = getLearningSystem()
+    const scorer = getOpportunityScorer()
+    
+    // Use ML-based opportunity scoring for intelligent sniping
+    if (newPools > 0 && topPoolLiqUsd > 20000) {
+      const opportunity = {
+        poolAddress: '',
+        tokenMint: '',
+        liquidityUsd: topPoolLiqUsd,
+        timestamp: Date.now(),
+        mevRisk: riskScore,
+        sentiment: data.sentiment.score,
+        volume24h: data.onchain.volumeChange1h > 0 ? topPoolLiqUsd * (1 + data.onchain.volumeChange1h / 100) : undefined,
       }
-    }
-    
-    // Multiple new pools (opportunity)
-    if (newPools >= 2 && topPoolLiqUsd > 20000) {
-      return {
-        signal: 'BUY',
-        confidence: 'high',
-        reason: `${newPools} new pools detected, early entry opportunity`,
-        metadata: { newPools, topPoolLiqUsd }
+      
+      const score = scorer.scoreOpportunity(opportunity)
+      
+      // Only snipe if ML score recommends it AND learning system approves
+      if (score.recommendation === 'snipe' && score.score >= 65) {
+        const shouldTake = learningSystem.shouldTakeTrade(
+          'liquidity-hunter',
+          'mempool-snipe',
+          score.confidence,
+          {
+            volatility: data.volatility.volatility1h,
+            volume: topPoolLiqUsd,
+            sentiment: data.sentiment.score,
+            mevRisk: riskScore,
+          }
+        )
+        
+        if (shouldTake) {
+          const expectedProfit = score.expectedProfitBps
+          const optimalSize = learningSystem.getOptimalPositionSize(1.0)
+          
+          return {
+            signal: 'BUY',
+            confidence: score.confidence >= 0.8 ? 'very-high' : 'high',
+            reason: `🧠 ML Snipe: ${score.score.toFixed(0)}/100 score, ${expectedProfit}bps expected profit, ${(score.confidence * 100).toFixed(0)}% confidence (${score.riskLevel} risk)`,
+            metadata: { 
+              newPools, 
+              topPoolLiqUsd,
+              snipeMethod: 'jito-bundle',
+              useFlashLoan: topPoolLiqUsd > 200000,
+              mevRisk: riskScore,
+              mlScore: score.score,
+              expectedProfitBps: expectedProfit,
+              positionSizeMultiplier: optimalSize,
+              opportunityScore: score,
+            }
+          }
+        }
+      }
+      
+      // Monitor high-scoring opportunities
+      if (score.recommendation === 'monitor' && score.score >= 50) {
+        return {
+          signal: 'HOLD',
+          confidence: 'medium',
+          reason: `👁️ Monitoring: ${score.score.toFixed(0)}/100 score opportunity (waiting for better entry)`,
+          metadata: {
+            newPools,
+            topPoolLiqUsd,
+            mevRisk: riskScore,
+            mlScore: score.score,
+            monitoring: true,
+          }
+        }
       }
     }
     
     return {
       signal: 'HOLD',
       confidence: 'medium',
-      reason: 'No significant new liquidity events',
-      metadata: { newPools }
+      reason: 'No high-quality snipe opportunities detected (ML filtering active)',
+      metadata: { 
+        newPools,
+        mevRisk: riskScore,
+        topPoolLiqUsd,
+        mlFiltering: true,
+      }
     }
   }
 }
@@ -310,7 +371,7 @@ const MEVDefenderAgent: EliteAgentInstance = {
 }
 
 /**
- * 5. Sentiment Oracle (ELITE) — Real-time X + Discord Sentiment
+ * 5. Sentiment Oracle (PRO) — Real-time X + Discord Sentiment
  */
 const SentimentOracleAgent: EliteAgentInstance = {
   name: 'Sentiment Oracle',
@@ -318,7 +379,7 @@ const SentimentOracleAgent: EliteAgentInstance = {
   color: '#FF00FF',
   description: 'Real-time X + Discord sentiment',
   personality: 'balanced',
-  tier: 'elite',
+  tier: 'pro',
   analyze: async (data: AgentAnalysisInput): Promise<AgentDecision> => {
     const { score } = data.sentiment
     const { volumeChange1h } = data.onchain
@@ -353,7 +414,7 @@ const SentimentOracleAgent: EliteAgentInstance = {
 }
 
 /**
- * 6. On-Chain Prophet (ELITE) — Helius + Dune Deep Analytics
+ * 6. On-Chain Prophet (PRO) — Helius + Dune Deep Analytics
  */
 const OnChainProphetAgent: EliteAgentInstance = {
   name: 'On-Chain Prophet',
@@ -361,7 +422,7 @@ const OnChainProphetAgent: EliteAgentInstance = {
   color: '#9945FF',
   description: 'Helius + Dune deep analytics',
   personality: 'balanced',
-  tier: 'elite',
+  tier: 'pro',
   analyze: async (data: AgentAnalysisInput): Promise<AgentDecision> => {
     const { holderGrowth24h, volumeChange1h } = data.onchain
     
@@ -395,7 +456,7 @@ const OnChainProphetAgent: EliteAgentInstance = {
 }
 
 /**
- * 7. Fractal Seer (ELITE) — Elliott Wave + Fibonacci
+ * 7. Fractal Seer (PRO) — Elliott Wave + Fibonacci
  */
 const FractalSeerAgent: EliteAgentInstance = {
   name: 'Fractal Seer',
@@ -403,7 +464,7 @@ const FractalSeerAgent: EliteAgentInstance = {
   color: '#FF1493',
   description: 'Elliott Wave + Fibonacci',
   personality: 'opportunistic',
-  tier: 'elite',
+  tier: 'pro',
   analyze: async (data: AgentAnalysisInput): Promise<AgentDecision> => {
     const { fractal, fib, price } = data
     
@@ -718,7 +779,7 @@ const MeanReversionAgent: EliteAgentInstance = {
 }
 
 /**
- * 13. Grid Master (ELITE) — Grid Trading in Ranges
+ * 13. Grid Master (PRO) — Grid Trading in Ranges
  */
 const GridMasterAgent: EliteAgentInstance = {
   name: 'Grid Master',
@@ -726,7 +787,7 @@ const GridMasterAgent: EliteAgentInstance = {
   color: '#DC1FFF',
   description: 'Grid trading in ranges',
   personality: 'balanced',
-  tier: 'elite',
+  tier: 'pro',
   analyze: async (data: AgentAnalysisInput): Promise<AgentDecision> => {
     const { current, bestBid, bestAsk, mid } = data.price
     const { volatility1h } = data.volatility
