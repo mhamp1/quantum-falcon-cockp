@@ -247,6 +247,7 @@ export default function RiskDisclosureModal({
   const [check1, setCheck1] = useState(false)
   const [check2, setCheck2] = useState(false)
   const [check3, setCheck3] = useState(false)
+  const [check4, setCheck4] = useState(false)
   const [canAccept, setCanAccept] = useState(false)
   const [canAcceptTos, setCanAcceptTos] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -446,7 +447,7 @@ export default function RiskDisclosureModal({
                     className="mt-1"
                   />
                   <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
-                    I have fully read and understand the Risk Disclosure
+                    I am 18+ years old and have fully read and understand the Risk Disclosure
                   </span>
                 </label>
 
@@ -459,20 +460,33 @@ export default function RiskDisclosureModal({
                     className="mt-1"
                   />
                   <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
-                    I accept full responsibility for all trading losses and will never hold Quantum Falcon liable
+                    I understand trading can result in 100% loss of capital and accept full responsibility for all trading outcomes
                   </span>
                 </label>
 
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <Checkbox
-                    id="tos-check-3"
+                    id="risk-check-3"
                     checked={check3}
                     onCheckedChange={(checked) => setCheck3(checked === true)}
+                    disabled={!canAccept}
+                    className="mt-1"
+                  />
+                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
+                    I am not relying on Quantum Falcon for financial advice and will never hold developers, contributors, or affiliates liable
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <Checkbox
+                    id="tos-check-4"
+                    checked={check4}
+                    onCheckedChange={(checked) => setCheck4(checked === true)}
                     disabled={!canAcceptTos}
                     className="mt-1"
                   />
                   <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
-                    I have read and agree to be bound by the Terms of Service
+                    I have read and agree to be bound by the Terms of Service and Privacy Policy
                   </span>
                 </label>
               </div>

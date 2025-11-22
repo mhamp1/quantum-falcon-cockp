@@ -81,7 +81,7 @@ class LicenseGenerationService {
       // Get device fingerprint for hardware binding
       let deviceFingerprint = null
       try {
-        const { generateDeviceFingerprint } = await import('../license-authority/integration/deviceFingerprint')
+        const { generateDeviceFingerprint } = await import('./license-authority/integration/deviceFingerprint')
         deviceFingerprint = await generateDeviceFingerprint()
       } catch (error) {
         console.warn('[LicenseGeneration] Device fingerprint not available:', error)

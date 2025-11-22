@@ -46,7 +46,8 @@ import {
   Brain,
   Gear,
   MagnifyingGlass,
-  Lifebuoy
+  Lifebuoy,
+  Trophy
 } from '@phosphor-icons/react';
 import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
@@ -299,6 +300,7 @@ export default function App() {
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
+    { id: 'quests', label: 'Quests', icon: Trophy, component: lazy(() => import('@/components/quests/QuestBoard').then(m => ({ default: m.default }))) },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },

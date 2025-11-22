@@ -125,7 +125,7 @@ Provide a helpful, concise response (under 150 words). Be professional yet frien
     return BOT_RESPONSES.default;
   }, [liveData]);
 
-  const handleSendMessage = useCallback((text?: string) => {
+  const handleSendMessage = useCallback(async (text?: string) => {
     const messageText = text || inputValue.trim();
     if (!messageText) return;
 

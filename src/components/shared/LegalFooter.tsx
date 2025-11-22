@@ -44,7 +44,11 @@ export default function LegalFooter() {
         >
           <div className="flex items-center justify-center gap-2 flex-wrap">
             <WarningCircle size={20} weight="bold" className="flex-shrink-0" />
-            <span>CRYPTOCURRENCY TRADING INVOLVES SUBSTANTIAL RISK OF LOSS</span>
+            <span className="font-bold">QUANTUM FALCON IS EXPERIMENTAL SOFTWARE PROVIDED "AS IS"</span>
+            <span className="hidden md:inline">•</span>
+            <span className="hidden md:inline">Trading cryptocurrencies carries extreme risk of total capital loss</span>
+            <span className="hidden md:inline">•</span>
+            <span className="hidden md:inline">No guarantees of profit are made</span>
             <span className="hidden md:inline">•</span>
             <button 
               onClick={() => {
@@ -55,9 +59,9 @@ export default function LegalFooter() {
                   window.dispatchEvent(legalTabEvent)
                 }, 100)
               }}
-              className="underline hover:text-primary transition-colors"
+              className="underline hover:text-primary transition-colors font-bold"
             >
-              SEE RISK DISCLOSURE
+              SEE FULL DISCLAIMER
             </button>
           </div>
         </motion.div>

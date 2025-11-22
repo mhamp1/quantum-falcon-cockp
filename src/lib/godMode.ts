@@ -151,18 +151,18 @@ export function isGodMode(auth: UserAuth | null): boolean {
           // This ensures we don't block, but will recognize on next check
           cachedIsMasterKey = false
           lastCheckedLicenseKey = licenseKey
-          return false
-        }
-        
+    return false
+  }
+  
         // Also check if license tier indicates master (from License Authority API)
         // Your master key should return a special tier or flag
         if (auth.license.tier === 'lifetime' && licenseKey.includes('MASTER')) {
           storeMasterKeyHash(licenseKey)
           cachedIsMasterKey = true
           lastCheckedLicenseKey = licenseKey
-          return true
-        }
-        
+    return true
+  }
+  
         cachedIsMasterKey = false
         lastCheckedLicenseKey = licenseKey
         return false

@@ -33,6 +33,7 @@ import DeviceManagement from './DeviceManagement'
 import SecuritySettings from './SecuritySettings'
 import DiscordIntegration from './DiscordIntegration'
 import LicenseTab from './LicenseTab'
+import ProfileNFTGallery from '@/components/shared/ProfileNFTGallery'
 import { UserAuth } from '@/lib/auth'
 import { logSettingChange } from '@/lib/changeLogger'
 import { debounce } from '@/lib/debounce'
@@ -483,6 +484,10 @@ export default function EnhancedSettings() {
             <Trophy size={16} weight="duotone" />
             ACHIEVEMENTS
           </TabsTrigger>
+          <TabsTrigger value="nfts" className="data-label gap-2">
+            <Image size={16} weight="duotone" />
+            NFTs
+          </TabsTrigger>
           <TabsTrigger value="arena" className="data-label gap-2">
             <Swords size={16} weight="duotone" />
             ARENA
@@ -581,6 +586,33 @@ export default function EnhancedSettings() {
                   </Button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* NFT Gallery Section */}
+          <div className="cyber-card">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <Image size={24} weight="duotone" className="text-primary" />
+                <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">
+                  MY NFT COLLECTION
+                </h3>
+              </div>
+              <ProfileNFTGallery />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="nfts" className="space-y-6">
+          <div className="cyber-card">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <Image size={24} weight="duotone" className="text-primary" />
+                <h3 className="text-xl font-bold uppercase tracking-[0.2em] hud-readout">
+                  MY NFT COLLECTION
+                </h3>
+              </div>
+              <ProfileNFTGallery />
             </div>
           </div>
         </TabsContent>

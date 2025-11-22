@@ -393,7 +393,7 @@ export default function LiveArenaPage() {
               <TabsTrigger value="monthly">Monthly</TabsTrigger>
             </TabsList>
 
-            <TabsContent value={timeframe} className="mt-8 space-y-8">
+            <TabsContent value={timeframe} className="mt-8 space-y-8" key={timeframe}>
           {/* Hall of Fame Showcase */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -575,6 +575,7 @@ export default function LiveArenaPage() {
           )}
         </TabsContent>
       </Tabs>
+        </TabsContent>
 
         {/* Battles Tab */}
         <TabsContent value="battles" className="space-y-6">

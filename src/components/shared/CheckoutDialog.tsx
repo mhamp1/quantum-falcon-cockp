@@ -18,7 +18,8 @@ import {
   CheckCircle,
   Warning,
   Spinner,
-  Lightning
+  Lightning,
+  AlertCircle
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import {
@@ -269,6 +270,17 @@ export default function CheckoutDialog({
           </DialogHeader>
           
           <div className="space-y-4 py-4">
+            {/* High-Risk Warning */}
+            <div className="cyber-card-accent p-4 border-l-4 border-destructive space-y-2">
+              <div className="flex items-center gap-2 text-destructive font-bold uppercase tracking-wider text-sm">
+                <AlertCircle size={20} weight="fill" />
+                <span>HIGH RISK WARNING</span>
+              </div>
+              <p className="text-xs text-foreground leading-relaxed">
+                Cryptocurrency trading can result in rapid and complete loss of funds. You confirm you understand this risk and accept full responsibility. No refunds will be issued due to trading losses.
+              </p>
+            </div>
+
             <div className="cyber-card-accent p-4 space-y-3">
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Item</div>
@@ -323,6 +335,17 @@ export default function CheckoutDialog({
         </DialogHeader>
         
         <div className="space-y-4 px-6 overflow-y-auto flex-1 scrollbar-thin">
+          {/* High-Risk Warning */}
+          <div className="cyber-card-accent p-4 border-l-4 border-destructive space-y-2">
+            <div className="flex items-center gap-2 text-destructive font-bold uppercase tracking-wider text-sm">
+              <AlertCircle size={20} weight="fill" />
+              <span>HIGH RISK WARNING</span>
+            </div>
+            <p className="text-xs text-foreground leading-relaxed">
+              Cryptocurrency trading can result in rapid and complete loss of funds. You confirm you understand this risk and accept full responsibility. No refunds will be issued due to trading losses.
+            </p>
+          </div>
+
           <div className="cyber-card p-3 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground uppercase tracking-wide">Subtotal</span>

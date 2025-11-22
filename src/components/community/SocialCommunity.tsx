@@ -10,7 +10,7 @@ import {
   ChatCircle, Fire, Users, Clock, Code, Lightning, 
   MagnifyingGlass, FunnelSimple, Plus, Lock, ShoppingCart, 
   Crown, Sparkle, CaretLeft, CaretRight, TrendUp, Heart,
-  Eye, Play, Pause, Stop, CheckCircle, Trophy, Medal, Star
+  Eye, Play, Pause, Stop, CheckCircle, Trophy, Medal, Star, Image
 } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -29,6 +29,7 @@ import StrategyMarketplace from './StrategyMarketplace'
 import CreateStrategyTeaser from './CreateStrategyTeaser'
 import ShareYourGains from './ShareYourGains'
 import RealTimeActivityFeed from './RealTimeActivityFeed'
+import NFTGallery from './NFTGallery'
 import CheckoutDialog from '@/components/shared/CheckoutDialog'
 import { CheckoutItem } from '@/lib/checkout'
 import { UserAuth } from '@/lib/auth'
@@ -566,7 +567,7 @@ export default function SocialCommunity() {
         </div>
 
         <Tabs defaultValue="strategies" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
+          <TabsList className="grid w-full grid-cols-6 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
             <TabsTrigger 
               value="strategies" 
               className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
@@ -601,6 +602,13 @@ export default function SocialCommunity() {
             >
               <Plus size={16} weight="bold" className="mr-2" />
               Create
+            </TabsTrigger>
+            <TabsTrigger 
+              value="nft" 
+              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
+            >
+              <Image size={16} weight="duotone" className="mr-2" />
+              NFTs
             </TabsTrigger>
           </TabsList>
 
@@ -982,6 +990,10 @@ export default function SocialCommunity() {
               }}
               isLocked={tierHierarchy[userTier] < tierHierarchy['Pro']}
             />
+          </TabsContent>
+
+          <TabsContent value="nft">
+            <NFTGallery />
           </TabsContent>
         </Tabs>
       </div>
