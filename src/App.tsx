@@ -68,19 +68,39 @@ import { toast } from 'sonner';
 // Import canvas-confetti with default import for Vite compatibility
 import confetti from 'canvas-confetti';
 
-const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
-const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
-const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
-const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTradingHub'));
-const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
-const VaultView = lazy(() => import('@/components/vault/VaultView'));
-const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
-const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
-const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
-const SupportOnboarding = lazy(() => import('@/pages/SupportOnboarding'));
-const PostTourWelcome = lazy(() => import('@/components/shared/PostTourWelcome'));
-const LoginPage = lazy(() => import('@/pages/LoginPage'));
-const OnboardingModal = lazy(() => import('@/components/onboarding/OnboardingModal'));
+// Lazy load with error handling and retry logic for production builds
+const lazyWithRetry = (importFn: () => Promise<any>, retries = 3) => {
+  return lazy(async () => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await importFn();
+      } catch (error) {
+        console.warn(`[LazyLoad] Attempt ${i + 1}/${retries} failed:`, error);
+        if (i === retries - 1) {
+          // Last attempt failed - throw error to trigger error boundary
+          throw new Error(`Failed to load component after ${retries} attempts: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+      }
+    }
+    throw new Error('Lazy load failed - no retries remaining');
+  });
+};
+
+const EnhancedDashboard = lazyWithRetry(() => import('@/components/dashboard/EnhancedDashboard'));
+const BotOverview = lazyWithRetry(() => import('@/components/dashboard/BotOverview'));
+const EnhancedAnalytics = lazyWithRetry(() => import('@/components/dashboard/EnhancedAnalytics'));
+const AdvancedTradingHub = lazyWithRetry(() => import('@/components/trade/AdvancedTradingHub'));
+const CreateStrategyPage = lazyWithRetry(() => import('@/components/strategy/CreateStrategyPage'));
+const VaultView = lazyWithRetry(() => import('@/components/vault/VaultView'));
+const SocialCommunity = lazyWithRetry(() => import('@/components/community/SocialCommunity'));
+const MultiAgentSystem = lazyWithRetry(() => import('@/components/agents/MultiAgentSystemWrapper'));
+const EnhancedSettings = lazyWithRetry(() => import('@/components/settings/EnhancedSettings'));
+const SupportOnboarding = lazyWithRetry(() => import('@/pages/SupportOnboarding'));
+const PostTourWelcome = lazyWithRetry(() => import('@/components/shared/PostTourWelcome'));
+const LoginPage = lazyWithRetry(() => import('@/pages/LoginPage'));
+const OnboardingModal = lazyWithRetry(() => import('@/components/onboarding/OnboardingModal'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -106,13 +126,27 @@ interface Tab {
 function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0ms' }} />
-          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
-          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
+      <div className="text-center space-y-6">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          className="mx-auto w-16 h-16"
+        >
+          <div className="premium-spinner w-16 h-16 rounded-full"></div>
+        </motion.div>
+        <div className="space-y-2">
+          <p className="text-sm text-primary font-bold uppercase tracking-wider neon-glow-primary">{message}</p>
+          <div className="flex items-center justify-center gap-2">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                className="w-2 h-2 rounded-full bg-primary"
+              />
+            ))}
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground uppercase tracking-wider">{message}</p>
       </div>
     </div>
   );
@@ -659,18 +693,20 @@ export default function App() {
         <div className={cn('flex-1 relative z-10', !isMobile && 'ml-[240px]')}>
           <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
             <Suspense fallback={<LoadingFallback message={`Loading ${activeTab}...`} />}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  className="h-full"
-                >
-                  <ActiveComponent />
-                </motion.div>
-              </AnimatePresence>
+              <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                    className="h-full"
+                  >
+                    <ActiveComponent />
+                  </motion.div>
+                </AnimatePresence>
+              </ErrorBoundary>
             </Suspense>
           </ErrorBoundary>
         </div>

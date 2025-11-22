@@ -91,6 +91,35 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
+// Global error handler for unhandled chunk loading errors
+window.addEventListener('error', (event) => {
+  if (event.message && (
+    event.message.includes('Loading chunk') ||
+    event.message.includes('Failed to fetch dynamically imported module') ||
+    event.message.includes('Importing a module script failed')
+  )) {
+    console.error('[ChunkLoadError] Detected chunk loading failure:', event.message);
+    // Force page reload on chunk load failure
+    if (confirm('Failed to load application resources. Reload page?')) {
+      window.location.reload();
+    }
+  }
+}, true);
+
+// Handle unhandled promise rejections from lazy imports
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && typeof event.reason === 'object' && 'message' in event.reason) {
+    const message = String(event.reason.message || '');
+    if (message.includes('Loading chunk') || message.includes('Failed to fetch dynamically imported module')) {
+      console.error('[ChunkLoadError] Unhandled chunk loading rejection:', message);
+      event.preventDefault();
+      if (confirm('Failed to load application resources. Reload page?')) {
+        window.location.reload();
+      }
+    }
+  }
+});
+
 try {
   root.render(
     <ErrorBoundary 
@@ -98,6 +127,13 @@ try {
       onError={(error, errorInfo) => {
         if (isR3FError(error)) {
           return;
+        }
+        // Log chunk loading errors
+        if (error.message && (
+          error.message.includes('Loading chunk') ||
+          error.message.includes('Failed to fetch dynamically imported module')
+        )) {
+          console.error('[ErrorBoundary] Chunk loading error detected:', error.message);
         }
       }}
     >
