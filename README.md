@@ -1,6 +1,21 @@
 # 🚀 Quantum Falcon Cockpit
 
-A cyberpunk-themed trading platform with Solana-inspired neon aesthetics, AI-powered agents, and comprehensive mobile-desktop integration.
+<p align="center">
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="./SECURITY.md"><img src="https://img.shields.io/badge/Security-Policy-brightgreen" alt="Security Policy"></a>
+  <a href="./CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Conduct-Covenant-blueviolet" alt="Code of Conduct"></a>
+  <a href="./LEGAL.md"><img src="https://img.shields.io/badge/Legal-Info-blue" alt="Legal Information"></a>
+</p>
+
+<p align="center">
+  <strong>A cyberpunk-themed trading platform with Solana-inspired neon aesthetics, AI-powered agents, and comprehensive mobile-desktop integration.</strong>
+</p>
+
+<p align="center">
+  <em>Professional-grade quantitative trading tools for traders, quant researchers, and crypto enthusiasts.</em>
+</p>
+
+> **📜 Legal**: For detailed legal information, license terms, and disclaimers, see [LEGAL.md](./LEGAL.md)
 
 ![Quantum Falcon Theme](https://github.com/user-attachments/assets/650689ad-bb01-4ece-83f2-c129c179c6d9)
 
@@ -27,7 +42,38 @@ import { HolographicCard, NeonProgress, NeonBadge } from '@/components/ui'
 </HolographicCard>
 ```
 
-A cyberpunk-themed progressive web app for crypto trading with AI-powered trading agents, advanced analytics, gamification, and community features. Built with React, TypeScript, and Vite, designed with a Cyberpunk Neon HUD aesthetic.
+## 📖 About Quantum Falcon Cockpit
+
+**Quantum Falcon Cockpit** is a professional-grade, cyberpunk-themed progressive web application (PWA) designed for cryptocurrency traders and quantitative researchers. It combines cutting-edge AI technology with an immersive user experience to provide a comprehensive trading platform.
+
+### What is Quantum Falcon?
+
+Quantum Falcon is an advanced trading ecosystem that brings institutional-grade quantitative trading tools to individual traders. The Cockpit serves as your command center, offering:
+
+- **Real-time Market Intelligence**: AI-powered market analysis and signal generation
+- **Automated Trading Strategies**: Deploy sophisticated algorithms without coding
+- **Risk Management**: Built-in position sizing, stop-loss, and portfolio management
+- **Performance Analytics**: Detailed metrics, backtesting, and trade journaling
+- **Community Collaboration**: Share strategies, learn from others, and grow together
+
+### Who is it for?
+
+- **Active Traders**: Execute manual and automated trades with advanced tools
+- **Quantitative Researchers**: Develop, test, and deploy trading algorithms
+- **Crypto Enthusiasts**: Learn trading with paper trading mode and educational resources
+- **Portfolio Managers**: Track multiple strategies and assets in one unified dashboard
+- **Professional Traders**: Scale operations with multi-agent AI assistance
+
+### Key Differentiators
+
+1. **Cyberpunk Aesthetic**: Solana-inspired neon design that's both beautiful and functional
+2. **Offline-First**: Continue working even without internet connectivity
+3. **Mobile + Desktop**: Seamless experience across all devices
+4. **AI-Powered**: Three autonomous agents handle analysis, execution, and optimization
+5. **Gamified Learning**: Progress through levels, earn achievements, and master trading
+6. **Open Source**: MIT licensed, transparent, and community-driven
+
+Built with **React 19**, **TypeScript**, **Vite**, and modern web technologies for maximum performance and reliability.
 
 ## 📋 Table of Contents
 
@@ -1655,16 +1701,28 @@ Contributions are welcome! Please follow these guidelines:
 
 ## 📄 License
 
-The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
+This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
+
+**Copyright (c) 2025 mhamp1 (Quantum Falcon)**
+
+The MIT License is a permissive open-source license that allows you to freely use, modify, and distribute this software for commercial or non-commercial purposes, provided you include the original copyright notice.
+
+### Legal Resources
+
+- 📜 [LEGAL.md](./LEGAL.md) - Comprehensive legal information and disclaimers
+- 🔒 [SECURITY.md](./SECURITY.md) - Security policy and vulnerability reporting
+- 🤝 [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) - Community guidelines and standards
+- ⚖️ [LICENSE](./LICENSE) - Full MIT License text
 
 ---
 
 ## 🔗 Related Documentation
 
-- [Backend API Example](./BACKEND_API_EXAMPLE.md) - Flask server implementation
-- [Implementation Plan](./IMPLEMENTATION_PLAN.md) - Feature development roadmap
-- [PRD](./PRD.md) - Complete product requirements
-- [Security](./SECURITY.md) - Security guidelines
+- [Backend API Example](./docs/BACKEND_API_EXAMPLE.md) - Flask server implementation
+- [Implementation Plan](./docs/IMPLEMENTATION_PLAN.md) - Feature development roadmap
+- [PRD](./docs/PRD.md) - Complete product requirements
+- [Security Architecture](./docs/SECURITY_ARCHITECTURE.md) - Detailed security implementation
+- [Legal Documentation](./docs/LEGAL_DOCUMENTATION.md) - Application legal terms
 
 ## 📞 Support
 
