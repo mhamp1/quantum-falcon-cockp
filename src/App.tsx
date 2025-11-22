@@ -65,6 +65,7 @@ import { updateDiscordRichPresence } from '@/lib/discord/oauth';
 import { isGodMode, activateGodMode, deactivateGodMode } from '@/lib/godMode';
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
+// Import canvas-confetti with default import for Vite compatibility
 import confetti from 'canvas-confetti';
 
 const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
