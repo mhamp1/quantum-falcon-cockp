@@ -71,7 +71,7 @@ Quantum Falcon implements multiple layers of security:
 - Content Security Policy (CSP)
 - Comprehensive security audit logging
 
-For detailed technical information about our security architecture, see [SECURITY_ARCHITECTURE.md](./docs/SECURITY_SUMMARY.md).
+For detailed technical information about our security architecture, see [SECURITY_ARCHITECTURE.md](./docs/SECURITY_ARCHITECTURE.md).
 
 ## Thank You
 
