@@ -114,7 +114,11 @@ export function AIAdvisor() {
             </div>
           </div>
 
-          <div className={`p-3 ${bgColor} border ${borderColor} cut-corner-br confidence-bar`} data-tour="confidence-bar">
+          <div 
+            className={`p-3 ${bgColor} border ${borderColor} cut-corner-br confidence-bar`} 
+            data-tour="confidence-bar"
+            title={`${data!.confidence.toFixed(0)}% confidence — ${data!.confidence > 70 ? 'strong buy signal' : data!.confidence > 50 ? 'buy signal' : 'neutral signal'}`}
+          >
             <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Confidence</div>
             <div className={`text-lg font-bold ${trendColor}`}>
               {data!.confidence.toFixed(1)}%

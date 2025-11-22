@@ -16,7 +16,7 @@ import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
-import { fetchArenaLeaderboard, createMockLeaderboard, createMockBattles, createMockArenaEvents } from '@/lib/arena/client'
+import { fetchArenaLeaderboard } from '@/lib/arena/client'
 import {
   fetchActiveBattles,
   createBattle,
@@ -64,19 +64,14 @@ export default function LiveArenaPage() {
   const loadLeaderboard = async (tf: ArenaTimeframe) => {
     setIsLoading(true)
     try {
-      let data: ArenaLeaderboardResponse
-      try {
-        data = await fetchArenaLeaderboard(tf)
-      } catch {
-        console.warn('⚠️ Using mock leaderboard data')
-        data = createMockLeaderboard(tf)
-      }
-
+      // NO MOCK DATA - MUST BE LIVE
+      const data = await fetchArenaLeaderboard(tf)
       setLeaderboard(data)
       setLastUpdate(new Date())
     } catch (err) {
       console.error('❌ Failed to load leaderboard:', err)
-      toast.error('Failed to load leaderboard')
+      toast.error('Failed to load leaderboard - API unavailable')
+      setLeaderboard(null)
     } finally {
       setIsLoading(false)
     }
@@ -85,30 +80,26 @@ export default function LiveArenaPage() {
   // Fetch active battles
   const loadActiveBattles = async () => {
     try {
-      let battles = await fetchActiveBattles()
-      // Fallback to mock data if API fails
-      if (battles.length === 0) {
-        battles = createMockBattles()
-      }
+      // NO MOCK DATA - MUST BE LIVE
+      const battles = await fetchActiveBattles()
       setActiveBattles(battles)
     } catch (err) {
-      console.error('❌ Failed to load active battles, using mock data:', err)
-      setActiveBattles(createMockBattles())
+      console.error('❌ Failed to load active battles:', err)
+      toast.error('Failed to load active battles - API unavailable')
+      setActiveBattles([])
     }
   }
 
   // Fetch arena events
   const loadArenaEvents = async () => {
     try {
-      let events = await fetchArenaEvents()
-      // Fallback to mock data if API fails
-      if (events.length === 0) {
-        events = createMockArenaEvents()
-      }
+      // NO MOCK DATA - MUST BE LIVE
+      const events = await fetchArenaEvents()
       setArenaEvents(events)
     } catch (err) {
-      console.error('❌ Failed to load arena events, using mock data:', err)
-      setArenaEvents(createMockArenaEvents())
+      console.error('❌ Failed to load arena events:', err)
+      toast.error('Failed to load arena events - API unavailable')
+      setArenaEvents([])
     }
   }
 

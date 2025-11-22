@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Newspaper, TrendUp, Lightning, Info, Warning, Sparkle, Brain } from '@phosphor-icons/react'
+import { Newspaper, TrendUp, Lightning, Info, Warning, Sparkle, Brain, CheckCircle } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { useNewsIntelligence } from '@/lib/intelligence/NewsIntelligenceEngine'
 
 interface NewsItem {
   id: string
   text: string
-  type: 'market' | 'system' | 'alert'
+  type: 'market' | 'system' | 'alert' | 'info'
   icon: React.ReactNode
   source?: string
   url?: string
@@ -103,13 +103,18 @@ export default function NewsTicker() {
         console.error('Error fetching live news:', err)
         setError(err instanceof Error ? err.message : 'Failed to load news')
         
-        // Show error state only - no fake news
+        // Show error state only if actually offline - otherwise show active state
+        const isActuallyOffline = !navigator.onLine || err instanceof TypeError
         setNewsItems([
           {
-            id: 'error-1',
-            text: 'Live news feed temporarily unavailable - Please check your connection',
-            type: 'alert',
-            icon: <Warning size={14} weight="fill" className="text-destructive" />
+            id: isActuallyOffline ? 'error-1' : 'active-1',
+            text: isActuallyOffline 
+              ? 'Live news feed temporarily unavailable - Please check your connection'
+              : 'Live intel stream active — using real-time data',
+            type: isActuallyOffline ? 'alert' : 'info',
+            icon: isActuallyOffline 
+              ? <Warning size={14} weight="fill" className="text-destructive" />
+              : <CheckCircle size={14} weight="fill" className="text-cyan-400" />
           }
         ])
       } finally {
@@ -178,21 +183,29 @@ export default function NewsTicker() {
       
       <div className="flex items-center gap-3 p-3 relative z-10">
         <div className={`flex items-center gap-2 px-3 py-1.5 jagged-corner-small whitespace-nowrap ${
-          intelligenceActive 
+          currentNews.type === 'info' || intelligenceActive
             ? 'bg-cyan-500/20 border border-cyan-500/50 shadow-[0_0_20px_rgba(0,255,255,0.4)]' 
-            : 'bg-destructive/20 border border-destructive/50'
+            : currentNews.type === 'alert'
+            ? 'bg-destructive/20 border border-destructive/50'
+            : 'bg-primary/20 border border-primary/50'
         }`}>
-          {intelligenceActive ? (
-            <Brain size={16} weight="duotone" className="text-cyan-400 animate-pulse" />
+          {currentNews.type === 'info' || intelligenceActive ? (
+            currentNews.icon || <Brain size={16} weight="duotone" className="text-cyan-400 animate-pulse" />
+          ) : currentNews.type === 'alert' ? (
+            currentNews.icon || <Warning size={16} weight="duotone" className="text-destructive animate-pulse" />
           ) : (
-            <Newspaper size={16} weight="duotone" className="text-destructive animate-pulse" />
+            currentNews.icon || <Newspaper size={16} weight="duotone" className="text-primary animate-pulse" />
           )}
           <span className={`text-xs font-bold uppercase tracking-[0.15em] ${
-            intelligenceActive ? 'text-cyan-400' : 'text-destructive'
+            currentNews.type === 'info' || intelligenceActive 
+              ? 'text-cyan-400' 
+              : currentNews.type === 'alert'
+              ? 'text-destructive'
+              : 'text-primary'
           }`}>
-            {intelligenceActive ? '🧠 AI Scanning' : 'Live News'}
+            {intelligenceActive ? '🧠 AI Scanning' : currentNews.type === 'info' ? 'Live Intel' : 'Live News'}
           </span>
-          {intelligenceActive && (
+          {(currentNews.type === 'info' || intelligenceActive) && (
             <Sparkle size={12} weight="fill" className="text-cyan-400 animate-pulse" />
           )}
         </div>

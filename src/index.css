@@ -17,6 +17,46 @@
   }
 }
 
+/* Tour highlight animation - extra thick for neural-forecast */
+@keyframes pulse-cyan {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.7), 0 0 80px rgba(0, 255, 255, 0.3);
+    opacity: 0.9;
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(0, 255, 255, 0.9), 0 0 120px rgba(0, 255, 255, 0.5);
+    opacity: 1;
+  }
+}
+
+.pulsing-highlight {
+  animation: pulse-cyan 2s infinite !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.9) !important;
+  z-index: 99999 !important;
+}
+
+/* Premium button active state - slight depress + cyan flash */
+button:active,
+[role="button"]:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(0, 255, 255, 0.5);
+  transition: all 0.1s ease;
+}
+
+/* Cyan text selection */
+::selection {
+  background: rgba(0, 255, 255, 0.3);
+  color: #00FFFF;
+}
+
+::-moz-selection {
+  background: rgba(0, 255, 255, 0.3);
+  color: #00FFFF;
+}
+
 :root {
   /* Solana-inspired Cyberpunk Theme Colors */
   --solana-green: #14F195;
@@ -1990,8 +2030,15 @@ a:not(.no-hover):hover,
   box-shadow: 0 0 15px rgba(147, 51, 234, 0.8), 0 0 30px rgba(147, 51, 234, 0.4) !important;
 }
 
-/* GOD MODE — Rainbow Background Animation */
+/* GOD MODE — Rainbow Border + Background Animation */
 body.god-mode {
+  border: 4px solid transparent;
+  background-image: 
+    linear-gradient(black, black),
+    linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff1493, #00ff00, #ff00ff);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  animation: rainbowBorder 3s linear infinite;
   background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #ff00ff, #00ffff) !important;
   background-size: 400% 400% !important;
   animation: rainbowShift 8s ease infinite !important;

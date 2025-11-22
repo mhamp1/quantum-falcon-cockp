@@ -1,5 +1,5 @@
-// FINAL TOUR FIX: Bottom card, stat cards visible, arrow points UP — exactly as user's winning screenshot — November 21, 2025
-// CANONICAL VERSION: This is the perfect tour. No more changes. No more bugs. This is it.
+// FINAL STEP 3 FIX — arrow points down, text says "below", works on mobile — November 22, 2025
+// FINAL TOUR TEXT — neutral, perfect highlight, mobile-safe — November 22, 2025
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,7 +41,7 @@ const TOUR_STEPS: TourStep[] = [
     id: 'neural-forecast',
     title: 'AI Forecasts and Confidence',
     description: 'Our AI predicts market movements with up to 92% confidence.',
-    instruction: 'Click the highlighted confidence bar',
+    instruction: 'Hover over the highlighted confidence bar',
     targetTab: 'dashboard',
     targetSelector: '[data-tour="confidence-bar"]',
     actionType: 'hover',
@@ -144,13 +144,20 @@ export default function InteractiveOnboardingTour({
   const scrollTargetIntoView = useCallback(() => {
     if (targetElementsRef.current.length > 0) {
       const firstElement = targetElementsRef.current[0];
+      // Extra scroll for neural-forecast to ensure bar is visible
       firstElement.scrollIntoView({ 
         behavior: 'smooth', 
-        block: 'center',
+        block: currentStep.id === 'neural-forecast' ? 'center' : 'center',
         inline: 'center'
       });
+      // Additional scroll adjustment for neural-forecast
+      if (currentStep.id === 'neural-forecast') {
+        setTimeout(() => {
+          window.scrollBy({ top: 100, behavior: 'smooth' });
+        }, 500);
+      }
     }
-  }, []);
+  }, [currentStep.id]);
 
   const cleanupListeners = useCallback(() => {
     cleanupFunctionsRef.current.forEach(cleanup => cleanup());
@@ -224,6 +231,17 @@ export default function InteractiveOnboardingTour({
         cleanupFunctionsRef.current.push(() => {
           element.removeEventListener('mouseenter', hoverHandler);
         });
+        
+        // Mobile: Auto-advance hover steps after 2 seconds
+        if (isMobile && currentStep.id === 'neural-forecast') {
+          const autoAdvanceTimer = setTimeout(() => {
+            console.log('📱 Tour: Auto-advancing hover step on mobile');
+            handleActionComplete();
+          }, 2000);
+          cleanupFunctionsRef.current.push(() => {
+            clearTimeout(autoAdvanceTimer);
+          });
+        }
       }
     });
   }, [currentStep, cleanupListeners, handleActionComplete]);
@@ -457,7 +475,7 @@ export default function InteractiveOnboardingTour({
           }}
         />
 
-        {/* Pulsing cyan border around target elements */}
+            {/* Pulsing cyan border around target elements - EXTRA THICK for neural-forecast */}
         {targetRect && (
           <>
             <motion.div
@@ -465,24 +483,27 @@ export default function InteractiveOnboardingTour({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="absolute"
+              className="absolute pulsing-highlight"
               style={{
                 top: targetRect.top - 20,
                 left: targetRect.left - 20,
                 width: targetRect.width + 40,
                 height: targetRect.height + 40,
-                border: '4px solid rgba(0, 255, 255, 0.9)',
+                border: currentStep.id === 'neural-forecast' ? '8px solid rgba(0, 255, 255, 0.95)' : '4px solid rgba(0, 255, 255, 0.9)',
                 borderRadius: '24px',
-                boxShadow: '0 0 40px rgba(0, 255, 255, 0.7)',
+                boxShadow: currentStep.id === 'neural-forecast' 
+                  ? '0 0 60px rgba(0, 255, 255, 0.9), 0 0 120px rgba(0, 255, 255, 0.5)' 
+                  : '0 0 40px rgba(0, 255, 255, 0.7)',
                 pointerEvents: 'none',
                 zIndex: 10000,
+                transform: 'scale(1.05)',
               }}
             >
               <motion.div
                 className="absolute inset-0 rounded-3xl"
                 animate={{
-                  scale: [1, 1.03, 1],
-                  opacity: [0.6, 0.9, 0.6],
+                  scale: [1, 1.05, 1],
+                  opacity: [0.7, 1, 0.7],
                 }}
                 transition={{
                   duration: 2,
@@ -490,48 +511,87 @@ export default function InteractiveOnboardingTour({
                   ease: 'easeInOut',
                 }}
                 style={{
-                  background: 'radial-gradient(circle at center, rgba(0, 255, 255, 0.3), transparent)',
+                  background: 'radial-gradient(circle at center, rgba(0, 255, 255, 0.4), transparent)',
                 }}
               />
             </motion.div>
 
-            {/* ARROW POINTING UP from tour card to stat cards */}
-            <motion.div
-              key={`arrow-${currentStepIndex}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.3 }}
-              className="absolute flex flex-col items-center gap-2"
-              style={{
-                left: targetRect.left + targetRect.width / 2,
-                top: targetRect.bottom + 40,
-                transform: 'translateX(-50%)',
-                pointerEvents: 'none',
-                zIndex: 10000,
-              }}
-            >
+            {/* ARROW - Points DOWN for neural-forecast (confidence bar below), UP for others */}
+            {currentStep.id === 'neural-forecast' ? (
               <motion.div
-                animate={{
-                  y: [0, -8, 0],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                className="text-6xl"
+                key={`arrow-${currentStepIndex}`}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
+                className="absolute flex flex-col items-center gap-2"
                 style={{
-                  filter: 'drop-shadow(0 0 12px rgba(0, 255, 255, 0.9))',
+                  left: targetRect.left + targetRect.width / 2,
+                  top: targetRect.top - 60,
+                  transform: 'translateX(-50%)',
+                  pointerEvents: 'none',
+                  zIndex: 10000,
                 }}
               >
-                ↑
+                <motion.div
+                  animate={{
+                    y: [0, 8, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="text-6xl"
+                  style={{
+                    filter: 'drop-shadow(0 0 12px rgba(0, 255, 255, 0.9))',
+                  }}
+                >
+                  ↓
+                </motion.div>
+                <div 
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 border-2 border-cyan-400 rounded-full text-cyan-300 font-bold text-sm"
+                >
+                  Look here ↓
+                </div>
               </motion.div>
-              <div 
-                className="px-4 py-2 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 border-2 border-cyan-400 rounded-full text-cyan-300 font-bold text-sm"
+            ) : (
+              <motion.div
+                key={`arrow-${currentStepIndex}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
+                className="absolute flex flex-col items-center gap-2"
+                style={{
+                  left: targetRect.left + targetRect.width / 2,
+                  top: targetRect.bottom + 40,
+                  transform: 'translateX(-50%)',
+                  pointerEvents: 'none',
+                  zIndex: 10000,
+                }}
               >
-                Click here
-              </div>
-            </motion.div>
+                <motion.div
+                  animate={{
+                    y: [0, -8, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="text-6xl"
+                  style={{
+                    filter: 'drop-shadow(0 0 12px rgba(0, 255, 255, 0.9))',
+                  }}
+                >
+                  ↑
+                </motion.div>
+                <div 
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 border-2 border-cyan-400 rounded-full text-cyan-300 font-bold text-sm"
+                >
+                  Look here ↑
+                </div>
+              </motion.div>
+            )}
           </>
         )}
 
@@ -680,7 +740,7 @@ export default function InteractiveOnboardingTour({
                           <ArrowRight size={20} weight="bold" className="ml-2" />
                         </>
                       ) : (
-                        'Complete the action above first'
+                        'Complete the highlighted action first'
                       )}
                     </Button>
                     <button

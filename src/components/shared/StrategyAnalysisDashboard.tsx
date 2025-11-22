@@ -16,6 +16,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart as RechartsPieChart, Cell, Area, AreaChart
 } from 'recharts'
+import { toast } from 'sonner'
 
 interface StrategyPerformance {
   strategyName: string
@@ -52,77 +53,38 @@ interface TradeAnalysis {
   success: boolean
 }
 
-const MOCK_STRATEGIES: StrategyPerformance[] = [
-  {
-    strategyName: 'Whale Shadow',
-    totalTrades: 247,
-    winRate: 78.5,
-    profitLoss: 15420.50,
-    sharpeRatio: 2.34,
-    maxDrawdown: -1250.00,
-    avgTradeDuration: 45, // minutes
-    bestTrade: 2340.00,
-    worstTrade: -890.00,
-    totalVolume: 892000,
-    successRate: 82.1,
-    riskAdjustedReturn: 1.67,
-    consistency: 89,
-  },
-  {
-    strategyName: 'Momentum Tsunami',
-    totalTrades: 189,
-    winRate: 71.2,
-    profitLoss: 9870.25,
-    sharpeRatio: 1.89,
-    maxDrawdown: -2100.00,
-    avgTradeDuration: 62,
-    bestTrade: 3120.00,
-    worstTrade: -1450.00,
-    totalVolume: 654000,
-    successRate: 75.8,
-    riskAdjustedReturn: 1.42,
-    consistency: 76,
-  },
-  {
-    strategyName: 'Flash Crash Hunter',
-    totalTrades: 98,
-    winRate: 85.7,
-    profitLoss: 22340.75,
-    sharpeRatio: 3.12,
-    maxDrawdown: -980.00,
-    avgTradeDuration: 12,
-    bestTrade: 5670.00,
-    worstTrade: -320.00,
-    totalVolume: 445000,
-    successRate: 89.3,
-    riskAdjustedReturn: 2.89,
-    consistency: 94,
-  },
-  {
-    strategyName: 'Arbitrage Phantom',
-    totalTrades: 156,
-    winRate: 92.3,
-    profitLoss: 18750.00,
-    sharpeRatio: 4.56,
-    maxDrawdown: -450.00,
-    avgTradeDuration: 8,
-    bestTrade: 1250.00,
-    worstTrade: -120.00,
-    totalVolume: 234000,
-    successRate: 94.7,
-    riskAdjustedReturn: 3.21,
-    consistency: 98,
-  },
-]
+// NO MOCK DATA - All strategies must be fetched from live API
 
 const PERFORMANCE_COLORS = ['#00FFFF', '#DC1FFF', '#FF1493', '#FFD700', '#32CD32', '#FF6347']
 
 export default function StrategyAnalysisDashboard() {
   const [selectedStrategy, setSelectedStrategy] = useState<string>('all')
   const [timeRange, setTimeRange] = useState<'1d' | '7d' | '30d' | '90d'>('30d')
-  const [strategies] = useKVSafe<StrategyPerformance[]>('strategy-performance', MOCK_STRATEGIES)
+  // Fetch live strategy performance data from API
+  const [strategies, setStrategies] = useKVSafe<StrategyPerformance[]>('strategy-performance', [])
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Generate mock performance data
+  useEffect(() => {
+    // Fetch live strategy performance from API
+    const fetchStrategies = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/strategies/performance')
+        if (!response.ok) throw new Error('Failed to fetch strategies')
+        const data = await response.json()
+        setStrategies(data)
+      } catch (err) {
+        console.error('❌ Failed to load strategy performance:', err)
+        toast.error('Failed to load strategy performance - API unavailable')
+        setStrategies([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchStrategies()
+  }, [setStrategies])
+
+  // Generate performance data from live strategies
   const performanceData = strategies.map((strategy, index) => ({
     name: strategy.strategyName,
     profit: strategy.profitLoss,
@@ -132,14 +94,25 @@ export default function StrategyAnalysisDashboard() {
     color: PERFORMANCE_COLORS[index % PERFORMANCE_COLORS.length],
   }))
 
-  // Generate mock time series data
-  const timeSeriesData = Array.from({ length: 30 }, (_, i) => ({
-    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-    'Whale Shadow': Math.random() * 1000 + 500,
-    'Momentum Tsunami': Math.random() * 800 + 300,
-    'Flash Crash Hunter': Math.random() * 1200 + 800,
-    'Arbitrage Phantom': Math.random() * 600 + 400,
-  }))
+  // Fetch live time series data from API
+  const [timeSeriesData, setTimeSeriesData] = useState<any[]>([])
+  
+  useEffect(() => {
+    const fetchTimeSeries = async () => {
+      try {
+        const response = await fetch(`/api/strategies/timeseries?range=${timeRange}`)
+        if (!response.ok) throw new Error('Failed to fetch time series')
+        const data = await response.json()
+        setTimeSeriesData(data)
+      } catch (err) {
+        console.error('❌ Failed to load time series:', err)
+        setTimeSeriesData([])
+      }
+    }
+    if (strategies.length > 0) {
+      fetchTimeSeries()
+    }
+  }, [timeRange, strategies])
 
   // Risk-return scatter plot data
   const riskReturnData = strategies.map(strategy => ({
