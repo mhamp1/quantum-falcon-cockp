@@ -52,7 +52,7 @@ We would highly appreciate it if you support us via GitHub Sponsors. Especially 
 
 ### 💡 Alternative Ways to Support
 
-Another way to sponsor us or get an issue solved is to comment on an issue that you are willing to sponsor it. This helps us prioritize work that matters most to the community.
+Another way to sponsor us or get an issue solved is to comment on an issue that you are willing to sponsor. This helps us prioritize work that matters most to the community.
 
 ### 🙏 Thank You!
 
