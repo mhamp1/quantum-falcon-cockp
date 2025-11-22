@@ -1,223 +1,190 @@
-# Documentation Index
+# 📚 Documentation Index
 
 Complete guide to all documentation in the Quantum Falcon Cockpit repository.
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-Start here if you're new to the project:
+**New to the project?** Start here:
 
-1. **[QUICK_START.md](./QUICK_START.md)** - Get up and running in 5 minutes
-2. **[README.md](./README.md)** - Complete project documentation
+1. **[README.md](./README.md)** - Complete project overview, setup, and features
+2. **[docs/guides/QUICK_START_GUIDE.md](./docs/guides/QUICK_START_GUIDE.md)** - Get running in 5 minutes
 
-## 📚 Core Documentation
+## 📖 Core Documentation
 
-### For Developers
+### Essential Reading
 
-- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development environment, architecture, and best practices
-- **[API_INTEGRATION.md](./API_INTEGRATION.md)** - Complete API integration guide with examples
-- **[IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)** - Feature development roadmap
+- **[README.md](./README.md)** - Main project documentation
+- **[PRD.md](./PRD.md)** - Product Requirements Document
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development guide and best practices
+- **[SECURITY.md](./SECURITY.md)** - Security guidelines
+- **[LEGAL_DOCUMENTATION.md](./LEGAL_DOCUMENTATION.md)** - Legal and compliance information
 
-### For Users
+## 📁 Documentation Structure
 
-- **[PRD.md](./PRD.md)** - Product Requirements Document with complete feature specifications
-- **[MOBILE_APP_LAYOUT_GUIDE.md](./MOBILE_APP_LAYOUT_GUIDE.md)** - UI/UX layout specifications
+### `/docs/guides/` - User & Developer Guides
 
-## 🔧 Setup & Configuration
+- **QUICK_START_GUIDE.md** - Fast setup guide
+- **THEME_GUIDE.md** - Customization and theming
+- **STRATEGY_MARKETPLACE_GUIDE.md** - Strategy marketplace usage
+- **MOBILE_APP_LAYOUT_GUIDE.md** - Mobile UI/UX specifications
+- **MIGRATION_GUIDE_FOR_QUANTUM_FALCON.md** - Migration instructions
+- **LEGAL_VERSION_UPDATE_GUIDE.md** - Legal document versioning
+- **TROUBLESHOOTING_GUIDE.md** - Common issues and solutions
 
-### Environment Setup
+### `/docs/integration/` - API & Integration
 
-- **[.env.example](./.env.example)** - Environment variable configuration template
-- **README.md → Setup Instructions** - Step-by-step installation guide
+- **API_INTEGRATION.md** - Complete API documentation
+- **BACKEND_API_EXAMPLE.md** - Backend server implementation
+- **EXCHANGE_INTEGRATION.md** - Exchange API integration
+- **LICENSE_AUTHORITY_INTEGRATION_GUIDE.md** - License system integration
+- **LICENSE_INTEGRATION.md** - License verification setup
+- **LICENSE_INTEGRATION_README.md** - License quick reference
+- **QUICK_INTEGRATION_REFERENCE.md** - Quick API reference
+- **MOBILE_BACKEND_API_SPEC.md** - Mobile API specifications
 
-### Backend Integration
+### `/docs/features/` - Feature Implementation
 
-- **[BACKEND_API_EXAMPLE.md](./BACKEND_API_EXAMPLE.md)** - Flask server implementation example
-- **[API_INTEGRATION.md](./API_INTEGRATION.md)** - API endpoint documentation
-- **README.md → Backend API Integration** - Connection guide
+- **CREATE_STRATEGY_FOMO_IMPLEMENTATION.md** - Strategy creation features
+- **DASHBOARD_IMPROVEMENTS_IMPLEMENTATION.md** - Dashboard enhancements
+- **ELITE_AGENTS_IMPLEMENTATION.md** - Elite AI agents
+- **INTRO_SPLASH_IMPLEMENTATION.md** - Splash screen implementation
+- **RISK_DISCLOSURE_IMPLEMENTATION.md** - Risk disclosure system
+- **STRATEGY_BUILDER_IMPLEMENTATION.md** - Strategy builder
+- **WEB_WORKER_IMPLEMENTATION.md** - Web workers for performance
+- **IMPLEMENTATION_SUMMARY_OFFLINE_FIRST.md** - Offline-first architecture
+- **IMPLEMENTATION_SUMMARY_THEME.md** - Theme implementation
+- **IMPLEMENTATION_SUMMARY_TRADING.md** - Trading features
+- **IMPLEMENTATION_COMPLETE_PRICING_CONFIG.md** - Pricing configuration
+- **DASHBOARD_ENHANCEMENTS.md** - Dashboard feature list
+- **SETTINGS_IMPROVEMENTS.md** - Settings enhancements
+- **GOD_TIER_ENHANCEMENTS.md** - Premium features
+- **TRADING_STRATEGIES_ENHANCEMENT.md** - Strategy improvements
+- **ERROR_HANDLING_IMPROVEMENTS.md** - Error handling system
 
-### Firebase Notifications
+### `/docs/technical/` - Architecture & Technical
 
-- **README.md → Firebase Push Notifications** - Complete setup guide
-- **API_INTEGRATION.md → Implementation Example** - Code examples
+- **ARCHITECTURE_AND_FLOW.md** - System architecture
+- **ARCHITECTURE_DIAGRAM.md** - Architecture diagrams
+- **SETTINGS_ARCHITECTURE.md** - Settings system design
+- **PRICING_CONFIG_SYSTEM.md** - Pricing system architecture
 
-## 💾 Data & Synchronization
+### `/docs/reference/` - Reference Documentation
 
-### Offline-First Architecture
+- **ROTATING_OFFERS_README.md** - Rotating offers system
+- **SOUND_EFFECTS.md** - Sound effects implementation
+- **FALCON_IMAGE_INSTRUCTIONS.md** - Image asset guidelines
+- **DATA_TOUR_ATTRIBUTES_TODO.md** - Data tour implementation notes
 
-- **README.md → Offline-First with LocalStorage** - Storage strategy and caching
-- **API_INTEGRATION.md → Offline-First Strategy** - Sync queue implementation
+### `/docs/archive/` - Historical Documentation
 
-### XP System
+Archived summaries and historical fixes (kept for reference):
+- Implementation summaries
+- Bug fix reports
+- Merge resolution docs
+- Audit reports
+- Verification reports
 
-- **README.md → XP Synchronization Logic** - XP award and sync flow
-- **API_INTEGRATION.md → XP Award Endpoint** - API specifications
+## 🎯 Documentation by Task
 
-### Quests & Achievements
+### Setting Up the Project
 
-- **API_INTEGRATION.md → Quests Endpoint** - Quest management API
-- **API_INTEGRATION.md → Achievements Endpoint** - Achievement system
+1. [README.md → Setup Instructions](./README.md#setup-instructions)
+2. [docs/guides/QUICK_START_GUIDE.md](./docs/guides/QUICK_START_GUIDE.md)
+3. [DEVELOPMENT.md](./DEVELOPMENT.md)
 
-## 🎨 Design & Theming
+### API Integration
 
-### UI Customization
+1. [docs/integration/API_INTEGRATION.md](./docs/integration/API_INTEGRATION.md)
+2. [docs/integration/BACKEND_API_EXAMPLE.md](./docs/integration/BACKEND_API_EXAMPLE.md)
+3. [docs/integration/QUICK_INTEGRATION_REFERENCE.md](./docs/integration/QUICK_INTEGRATION_REFERENCE.md)
 
-- **README.md → Theming & Customization** - Color scheme and component styling
-- **PRD.md → Design Direction** - Complete design specifications
+### Customizing the Theme
 
-### Component Library
+1. [docs/guides/THEME_GUIDE.md](./docs/guides/THEME_GUIDE.md)
+2. [README.md → Theming & Customization](./README.md#theming--customization)
 
-- **[MOBILE_APP_LAYOUT_GUIDE.md](./MOBILE_APP_LAYOUT_GUIDE.md)** - Component layouts
-- **PRD.md → Component Selection** - UI component details
+### Mobile Development
 
-## 🔐 Security & Licensing
+1. [docs/guides/MOBILE_APP_LAYOUT_GUIDE.md](./docs/guides/MOBILE_APP_LAYOUT_GUIDE.md)
+2. [docs/integration/MOBILE_BACKEND_API_SPEC.md](./docs/integration/MOBILE_BACKEND_API_SPEC.md)
+3. [README.md → Mobile Applications](./README.md#mobile-applications)
 
-### License System
+### Security & Licensing
 
-- **[LICENSE_INTEGRATION.md](./LICENSE_INTEGRATION.md)** - License integration guide
-- **[BACKEND_API_EXAMPLE.md](./BACKEND_API_EXAMPLE.md)** - License verification server
-- **API_INTEGRATION.md → License Verification** - API endpoint
+1. [SECURITY.md](./SECURITY.md)
+2. [LEGAL_DOCUMENTATION.md](./LEGAL_DOCUMENTATION.md)
+3. [docs/integration/LICENSE_INTEGRATION.md](./docs/integration/LICENSE_INTEGRATION.md)
 
-### Security
+### Troubleshooting
 
-- **[SECURITY.md](./SECURITY.md)** - Security guidelines and best practices
-- **BACKEND_API_EXAMPLE.md → Security Checklist** - Server security
+1. [docs/guides/TROUBLESHOOTING_GUIDE.md](./docs/guides/TROUBLESHOOTING_GUIDE.md)
+2. [README.md → Common Issues](./README.md#common-issues)
 
-## 🎮 Features Documentation
+## 📊 Quick Reference Tables
 
-### Gamification System
+### API Endpoints
 
-- **PRD.md → Gamification System** - XP, levels, and achievements
-- **[ROTATING_OFFERS_README.md](./ROTATING_OFFERS_README.md)** - Special offers system
+| Endpoint | Method | Purpose | Documentation |
+|----------|--------|---------|---------------|
+| `/api/verify` | POST | License verification | [API_INTEGRATION.md](./docs/integration/API_INTEGRATION.md) |
+| `/api/xp/award` | POST | Award XP points | [API_INTEGRATION.md](./docs/integration/API_INTEGRATION.md) |
+| `/api/quests` | GET | Get user quests | [API_INTEGRATION.md](./docs/integration/API_INTEGRATION.md) |
+| `/api/streaks` | GET | Get user streaks | [API_INTEGRATION.md](./docs/integration/API_INTEGRATION.md) |
 
-### Trading Features
+### Key Features
 
-- **PRD.md → Multi-Agent Trading System** - AI agents
-- **PRD.md → Trading Strategies Hub** - Strategy management
-- **PRD.md → Solana Trading Hub** - DCA and sniping
-
-### Community Features
-
-- **PRD.md → Community & XP System** - Forum and social features
-- **API_INTEGRATION.md → Community Endpoints** - Social API
-
-## 🧪 Testing & Debugging
-
-### Testing
-
-- **README.md → Testing with Desktop Backend** - Integration testing
-- **DEVELOPMENT.md → Testing** - Testing strategies
-
-### Debugging
-
-- **README.md → Debugging** - Common debugging techniques
-- **DEVELOPMENT.md → Debugging** - Advanced debugging
-- **QUICK_START.md → Troubleshooting** - Common issues
-
-## 📊 Implementation & Status
-
-### Implementation Tracking
-
-- **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)** - Implementation summary
-- **[IMPLEMENTATION_CHANGES.md](./IMPLEMENTATION_CHANGES.md)** - Recent changes
-- **[FUNCTIONALITY_CHECK.md](./FUNCTIONALITY_CHECK.md)** - Feature checklist
-
-### AI Generation
-
-- **[MOBILE_AI_GENERATION_README.md](./MOBILE_AI_GENERATION_README.md)** - AI-generated features
-- **[SPARK_AI_MOBILE_PROMPT.md](./SPARK_AI_MOBILE_PROMPT.md)** - AI prompts used
-- **[SPARK_AI_PROMPT_SUMMARY.md](./SPARK_AI_PROMPT_SUMMARY.md)** - AI prompt summary
-
-## 🔗 Quick Reference
-
-### Most Common Tasks
-
-| Task | Documentation |
-|------|--------------|
-| **Install & Setup** | [QUICK_START.md](./QUICK_START.md) |
-| **Configure Backend** | [README.md → Backend API Integration](./README.md#backend-api-integration) |
-| **Setup Firebase** | [README.md → Firebase Push Notifications](./README.md#firebase-push-notifications) |
-| **API Integration** | [API_INTEGRATION.md](./API_INTEGRATION.md) |
-| **Customize Theme** | [README.md → Theming & Customization](./README.md#theming--customization) |
-| **Development Setup** | [DEVELOPMENT.md](./DEVELOPMENT.md) |
-| **Add New Feature** | [DEVELOPMENT.md → Component Development](./DEVELOPMENT.md#component-development) |
-| **Deploy Backend** | [BACKEND_API_EXAMPLE.md → Deployment](./BACKEND_API_EXAMPLE.md) |
-
-### API Endpoints Quick Reference
-
-| Endpoint | Documentation | Purpose |
-|----------|--------------|---------|
-| `POST /api/verify` | [API_INTEGRATION.md](./API_INTEGRATION.md#1-license-verification) | License verification |
-| `POST /api/xp/award` | [API_INTEGRATION.md](./API_INTEGRATION.md#2-xp-award) | Award XP points |
-| `GET /api/xp` | [API_INTEGRATION.md](./API_INTEGRATION.md#3-get-user-xp) | Get user XP |
-| `GET /api/quests` | [API_INTEGRATION.md](./API_INTEGRATION.md#4-get-quests) | Get user quests |
-| `POST /api/quests/progress` | [API_INTEGRATION.md](./API_INTEGRATION.md#5-update-quest-progress) | Update quest progress |
-| `GET /api/streaks` | [API_INTEGRATION.md](./API_INTEGRATION.md#6-get-streaks) | Get user streaks |
-| `POST /api/streaks/update` | [API_INTEGRATION.md](./API_INTEGRATION.md#7-update-streak) | Update streak |
-| `GET /api/achievements` | [API_INTEGRATION.md](./API_INTEGRATION.md#8-get-achievements) | Get achievements |
+| Feature | Implementation | Documentation |
+|---------|---------------|---------------|
+| Offline-First | LocalStorage + Sync Queue | [docs/features/IMPLEMENTATION_SUMMARY_OFFLINE_FIRST.md](./docs/features/IMPLEMENTATION_SUMMARY_OFFLINE_FIRST.md) |
+| AI Agents | Multi-agent system | [docs/features/ELITE_AGENTS_IMPLEMENTATION.md](./docs/features/ELITE_AGENTS_IMPLEMENTATION.md) |
+| Strategy Builder | Visual builder + marketplace | [docs/features/STRATEGY_BUILDER_IMPLEMENTATION.md](./docs/features/STRATEGY_BUILDER_IMPLEMENTATION.md) |
+| Theme System | Cyberpunk neon design | [docs/guides/THEME_GUIDE.md](./docs/guides/THEME_GUIDE.md) |
 
 ## 🎯 Documentation by Role
 
-### For New Developers
-
-1. [QUICK_START.md](./QUICK_START.md)
-2. [DEVELOPMENT.md](./DEVELOPMENT.md)
-3. [README.md](./README.md)
-4. [API_INTEGRATION.md](./API_INTEGRATION.md)
+### For Developers
+1. [DEVELOPMENT.md](./DEVELOPMENT.md)
+2. [docs/integration/API_INTEGRATION.md](./docs/integration/API_INTEGRATION.md)
+3. [docs/technical/ARCHITECTURE_AND_FLOW.md](./docs/technical/ARCHITECTURE_AND_FLOW.md)
 
 ### For Product Managers
-
 1. [PRD.md](./PRD.md)
-2. [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)
-3. [FUNCTIONALITY_CHECK.md](./FUNCTIONALITY_CHECK.md)
+2. [README.md](./README.md)
 
-### For Backend Developers
+### For Designers
+1. [docs/guides/THEME_GUIDE.md](./docs/guides/THEME_GUIDE.md)
+2. [docs/guides/MOBILE_APP_LAYOUT_GUIDE.md](./docs/guides/MOBILE_APP_LAYOUT_GUIDE.md)
+3. [PRD.md → Design Direction](./PRD.md)
 
-1. [BACKEND_API_EXAMPLE.md](./BACKEND_API_EXAMPLE.md)
-2. [API_INTEGRATION.md](./API_INTEGRATION.md)
-3. [LICENSE_INTEGRATION.md](./LICENSE_INTEGRATION.md)
+### For DevOps
+1. [docs/integration/BACKEND_API_EXAMPLE.md](./docs/integration/BACKEND_API_EXAMPLE.md)
+2. [SECURITY.md](./SECURITY.md)
 
-### For UI/UX Designers
+## 📝 Contributing to Documentation
 
-1. [PRD.md → Design Direction](./PRD.md#design-direction)
-2. [MOBILE_APP_LAYOUT_GUIDE.md](./MOBILE_APP_LAYOUT_GUIDE.md)
-3. [README.md → Theming & Customization](./README.md#theming--customization)
+When updating documentation:
 
-## 📞 Support & Resources
+1. **Keep it current** - Update docs when code changes
+2. **Use examples** - Include working code examples
+3. **Link properly** - Use relative links within the repo
+4. **Test examples** - Verify all code examples work
+5. **Follow structure** - Match existing documentation style
 
-### Getting Help
-
-- **Issues**: [GitHub Issues](https://github.com/mhamp1/quantum-falcon-cockp/issues)
-- **Backend Repo**: [Quantum-Falcon](https://github.com/mhamp1/Quantum-Falcon)
-- **License System**: [LicenseAuthority](https://github.com/mhamp1/LicenseAuthority)
-
-### External Resources
+## 🔗 External Resources
 
 - [React Documentation](https://react.dev)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
 - [Vite Guide](https://vitejs.dev/guide/)
-- [Firebase Documentation](https://firebase.google.com/docs)
+- [Flutter Documentation](https://docs.flutter.dev/)
 
----
+## 📞 Support
 
-## 📝 Documentation Standards
-
-All documentation follows these standards:
-
-- **Format**: Markdown (.md)
-- **Style**: Clear, concise, with code examples
-- **Structure**: Table of contents, sections, subsections
-- **Code Examples**: TypeScript with proper typing
-- **Links**: Relative links within repository
-
-## 🔄 Keeping Documentation Updated
-
-When making changes to the app:
-
-1. Update relevant documentation files
-2. Verify all code examples still work
-3. Update API endpoint documentation if APIs change
-4. Keep version numbers and dates current
+- **Issues**: [GitHub Issues](https://github.com/mhamp1/quantum-falcon-cockp/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/mhamp1/quantum-falcon-cockp/discussions)
+- **Related Projects**:
+  - [Quantum-Falcon (Desktop Backend)](https://github.com/mhamp1/Quantum-Falcon)
+  - [LicenseAuthority](https://github.com/mhamp1/LicenseAuthority)
 
 ---
 

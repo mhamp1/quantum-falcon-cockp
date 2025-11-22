@@ -340,7 +340,7 @@ export function CircularProfitHUD({ data, className }: CircularProfitHUDProps) {
 
     const dx = mouseX - centerX;
     const dy = mouseY - centerY;
-    let angle = Math.atan2(dy, dx);
+    const angle = Math.atan2(dy, dx);
     
     setRotation(angle);
   };
