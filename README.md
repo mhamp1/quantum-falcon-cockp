@@ -17,6 +17,49 @@
 
 > **📜 Legal**: For detailed legal information, license terms, and disclaimers, see [LEGAL.md](./LEGAL.md)
 
+---
+
+## 💎 Support & Sponsorship
+
+We would highly appreciate it if you support us via GitHub Sponsors. Especially if you make feature requests or need help using Quantum Falcon, sponsoring enables us to dedicate time to development, support, and continuous improvement.
+
+### 💳 Sponsorship Options
+
+- **[GitHub Sponsors](https://github.com/sponsors/mhamp1)** (Preferred) - Recurring support with sponsor benefits
+- **Direct IBAN Transfer** - Contact us at [mhamp1trading@yahoo.com](mailto:mhamp1trading@yahoo.com) for banking details
+- **Bitcoin (BTC)** - Contact us for wallet address
+- **Solana (SOL)** - Contact us for wallet address
+
+### 🎁 Sponsor Benefits
+
+#### ✨ Priority Support & Labels
+
+- Issues backed by sponsors are tagged with the 🏷️ **sponsored** label
+- Tasks from sponsors are tackled first in our development queue
+- Sub-24 hour support response time guarantee
+
+#### 🚀 Development Influence
+
+- Direct influence on feature roadmap and development priorities
+- Feature requests considered out of scope (due to time or complexity) will be marked with 🔓 **unfunded** label
+- Comment that you're willing to sponsor an issue to fast-track its implementation
+
+#### 🌟 Recognition & Access
+
+- Featured in our sponsors list and acknowledgments
+- Early access to beta features and experimental builds
+- Exclusive updates on project progress
+
+### 💡 Alternative Ways to Support
+
+Another way to sponsor us or get an issue solved is to comment on an issue that you are willing to sponsor it. This helps us prioritize work that matters most to the community.
+
+### 🙏 Thank You!
+
+Every contribution, no matter the size, helps us deliver cutting-edge features, maintain top-tier security, and provide rapid support to our community. Your support directly shapes Quantum Falcon's future.
+
+---
+
 ![Quantum Falcon Theme](https://github.com/user-attachments/assets/650689ad-bb01-4ece-83f2-c129c179c6d9)
 
 ## 🎨 Cyberpunk Neon Theme
@@ -77,6 +120,7 @@ Built with **React 19**, **TypeScript**, **Vite**, and modern web technologies f
 
 ## 📋 Table of Contents
 
+- [Support & Sponsorship](#-support--sponsorship)
 - [Features](#-features)
 - [Prerequisites](#-prerequisites)
 - [Setup Instructions](#-setup-instructions)
