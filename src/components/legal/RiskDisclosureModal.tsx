@@ -344,7 +344,11 @@ export default function RiskDisclosureModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/98 overflow-y-auto"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 overflow-y-auto"
+          style={{ 
+            zIndex: 99999,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)', // 70% black overlay
+          }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               // Close on backdrop click
@@ -437,55 +441,75 @@ export default function RiskDisclosureModal({
             </Tabs>
 
             <div className="p-6 border-t-2 border-destructive/30 bg-destructive/10 space-y-4 flex-shrink-0">
-              <div className={`space-y-3 transition-opacity ${(canAccept && canAcceptTos) ? 'opacity-100' : 'opacity-40'}`}>
-                <label className="flex items-start gap-3 cursor-pointer group">
+              <div className={`space-y-3 ${(canAccept && canAcceptTos) ? 'opacity-100' : 'opacity-60'}`}>
+                <label className="flex items-start gap-3 cursor-pointer group" style={{ opacity: 1, visibility: 'visible' }}>
                   <Checkbox
                     id="risk-check-1"
                     checked={check1}
                     onCheckedChange={(checked) => setCheck1(checked === true)}
                     disabled={!canAccept}
-                    className="mt-1"
+                    className="mt-1 flex-shrink-0"
+                    style={{ 
+                      opacity: canAccept ? 1 : 0.5,
+                      visibility: 'visible',
+                      pointerEvents: canAccept ? 'auto' : 'none',
+                    }}
                   />
-                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
+                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors" style={{ opacity: 1, visibility: 'visible' }}>
                     I am 18+ years old and have fully read and understand the Risk Disclosure
                   </span>
                 </label>
 
-                <label className="flex items-start gap-3 cursor-pointer group">
+                <label className="flex items-start gap-3 cursor-pointer group" style={{ opacity: 1, visibility: 'visible' }}>
                   <Checkbox
                     id="risk-check-2"
                     checked={check2}
                     onCheckedChange={(checked) => setCheck2(checked === true)}
                     disabled={!canAccept}
-                    className="mt-1"
+                    className="mt-1 flex-shrink-0"
+                    style={{ 
+                      opacity: canAccept ? 1 : 0.5,
+                      visibility: 'visible',
+                      pointerEvents: canAccept ? 'auto' : 'none',
+                    }}
                   />
-                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
+                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors" style={{ opacity: 1, visibility: 'visible' }}>
                     I understand trading can result in 100% loss of capital and accept full responsibility for all trading outcomes
                   </span>
                 </label>
 
-                <label className="flex items-start gap-3 cursor-pointer group">
+                <label className="flex items-start gap-3 cursor-pointer group" style={{ opacity: 1, visibility: 'visible' }}>
                   <Checkbox
                     id="risk-check-3"
                     checked={check3}
                     onCheckedChange={(checked) => setCheck3(checked === true)}
                     disabled={!canAccept}
-                    className="mt-1"
+                    className="mt-1 flex-shrink-0"
+                    style={{ 
+                      opacity: canAccept ? 1 : 0.5,
+                      visibility: 'visible',
+                      pointerEvents: canAccept ? 'auto' : 'none',
+                    }}
                   />
-                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
+                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors" style={{ opacity: 1, visibility: 'visible' }}>
                     I am not relying on Quantum Falcon for financial advice and will never hold developers, contributors, or affiliates liable
                   </span>
                 </label>
 
-                <label className="flex items-start gap-3 cursor-pointer group">
+                <label className="flex items-start gap-3 cursor-pointer group" style={{ opacity: 1, visibility: 'visible' }}>
                   <Checkbox
                     id="tos-check-4"
                     checked={check4}
                     onCheckedChange={(checked) => setCheck4(checked === true)}
                     disabled={!canAcceptTos}
-                    className="mt-1"
+                    className="mt-1 flex-shrink-0"
+                    style={{ 
+                      opacity: canAcceptTos ? 1 : 0.5,
+                      visibility: 'visible',
+                      pointerEvents: canAcceptTos ? 'auto' : 'none',
+                    }}
                   />
-                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
+                  <span className="text-sm font-medium leading-tight group-hover:text-primary transition-colors" style={{ opacity: 1, visibility: 'visible' }}>
                     I have read and agree to be bound by the Terms of Service and Privacy Policy
                   </span>
                 </label>
@@ -513,8 +537,11 @@ export default function RiskDisclosureModal({
                       : 'bg-muted text-muted-foreground cursor-not-allowed'
                   }`}
                   size="lg"
+                  style={{
+                    boxShadow: isAcceptEnabled ? '0 0 30px rgba(0, 255, 255, 0.5), 0 0 60px rgba(0, 255, 255, 0.3)' : 'none',
+                  }}
                 >
-                  Accept Both & Continue
+                  I ACCEPT & CONTINUE
                 </Button>
               </div>
             </div>

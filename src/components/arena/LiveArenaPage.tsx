@@ -803,7 +803,7 @@ export default function LiveArenaPage() {
                         <span>What a massive trade! {selectedBattle.participants[0]?.username} just went all-in on SOL!</span>
                       </div>
                       <div className="flex gap-2">
-                        <span className="text-blue-400 font-bold">📊</span>
+                        <span className="text-primary font-bold" style={{ color: '#14F195' }}>📊</span>
                         <span>Market volatility spiking - perfect conditions for momentum strategies!</span>
                       </div>
                       <div className="flex gap-2">
@@ -951,7 +951,7 @@ export default function LiveArenaPage() {
                                   <Badge className={`text-xs ${
                                     msg.type === 'cheer' ? 'bg-green-500/20 text-green-400' :
                                     msg.type === 'taunt' ? 'bg-red-500/20 text-red-400' :
-                                    'bg-blue-500/20 text-blue-400'
+                                    'bg-primary/20 text-primary'
                                   }`}>
                                     {msg.type}
                                   </Badge>
@@ -1023,8 +1023,8 @@ export default function LiveArenaPage() {
                 <div className="flex items-center justify-between mb-4">
                   <Badge className={`${
                     event.status === 'active' ? 'bg-green-500/20 text-green-400' :
-                    event.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400' :
-                    'bg-gray-500/20 text-gray-400'
+                    event.status === 'upcoming' ? 'bg-primary/20 text-primary' :
+                    'bg-muted/20 text-muted-foreground'
                   }`}>
                     {event.status.toUpperCase()}
                   </Badge>
@@ -1123,7 +1123,7 @@ function PodiumCard({ entry, rank, isKing = false }: PodiumCardProps) {
         </div>
         <div className="p-3 bg-background/60 rounded-lg">
           <p className="text-muted-foreground mb-1">Trades</p>
-          <p className="font-bold text-blue-400">{entry.trades}</p>
+          <p className="font-bold text-primary" style={{ color: '#14F195' }}>{entry.trades}</p>
         </div>
         <div className="p-3 bg-background/60 rounded-lg">
           <p className="text-muted-foreground mb-1">Sharpe</p>

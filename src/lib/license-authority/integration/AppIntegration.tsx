@@ -31,8 +31,8 @@ const SplashScreen: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <h1 className="text-6xl font-bold text-white mb-4">
           🦅 Quantum Falcon
         </h1>
-        <p className="text-2xl text-gray-300 mb-2">Trading Cockpit v2025.1.0</p>
-        <p className="text-gray-400">November 19, 2025</p>
+        <p className="text-2xl text-primary mb-2" style={{ color: '#14F195' }}>Trading Cockpit v2025.1.0</p>
+        <p className="text-muted-foreground">November 19, 2025</p>
         <div className="mt-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
         </div>
@@ -73,9 +73,9 @@ const OnboardingTour: React.FC<{ onComplete: () => void }> = ({ onComplete }) =>
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md mx-4">
-        <h2 className="text-2xl font-bold mb-4">{steps[step].title}</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
+      <div className="bg-card border-2 border-primary/30 rounded-lg p-8 max-w-md mx-4" style={{ backgroundColor: 'oklch(0.12 0.03 280)' }}>
+        <h2 className="text-2xl font-bold mb-4 text-primary" style={{ color: '#14F195' }}>{steps[step].title}</h2>
+        <p className="text-muted-foreground mb-6">
           {steps[step].description}
         </p>
         
@@ -85,20 +85,25 @@ const OnboardingTour: React.FC<{ onComplete: () => void }> = ({ onComplete }) =>
               <div
                 key={index}
                 className={`h-2 w-2 rounded-full ${
-                  index === step ? 'bg-blue-600' : 'bg-gray-300'
+                  index === step ? 'bg-primary' : 'bg-muted'
                 }`}
+                style={index === step ? { backgroundColor: '#14F195' } : {}}
               />
             ))}
           </div>
           
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             {step + 1} / {steps.length}
           </span>
         </div>
 
         <button
           onClick={handleNext}
-          className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition"
+          className="w-full px-6 py-3 text-black rounded-md font-medium transition"
+          style={{ 
+            background: 'linear-gradient(135deg, #14F195 0%, #9945FF 100%)',
+            boxShadow: '0 0 20px rgba(20, 241, 149, 0.5)',
+          }}
         >
           {step < steps.length - 1 ? 'Next' : 'Get Started'}
         </button>
@@ -118,63 +123,75 @@ const UpgradeModal: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-2xl mx-4">
-        <h2 className="text-3xl font-bold mb-4">Upgrade Required</h2>
+      <div className="bg-card border-2 border-primary/30 rounded-lg p-8 max-w-2xl mx-4" style={{ backgroundColor: 'oklch(0.12 0.03 280)' }}>
+        <h2 className="text-3xl font-bold mb-4 text-primary" style={{ color: '#14F195' }}>Upgrade Required</h2>
         
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
+        <p className="text-muted-foreground mb-6">
           {reason}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Pro Tier */}
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <h3 className="font-bold text-lg mb-2">Pro</h3>
-            <p className="text-3xl font-bold mb-2">$99<span className="text-sm font-normal">/mo</span></p>
-            <ul className="space-y-1 mb-4 text-sm">
+          <div className="border border-primary/30 rounded-lg p-4 bg-card/50">
+            <h3 className="font-bold text-lg mb-2 text-foreground">Pro</h3>
+            <p className="text-3xl font-bold mb-2 text-primary" style={{ color: '#14F195' }}>$99<span className="text-sm font-normal">/mo</span></p>
+            <ul className="space-y-1 mb-4 text-sm text-muted-foreground">
               <li>✓ 5 strategies</li>
               <li>✓ 5 agents</li>
               <li>✓ Priority support</li>
             </ul>
             <button
               onClick={() => handleUpgrade('pro')}
-              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition"
+              className="w-full px-4 py-2 text-black rounded-md font-medium transition"
+              style={{ 
+                background: 'linear-gradient(135deg, #14F195 0%, #9945FF 100%)',
+                boxShadow: '0 0 20px rgba(20, 241, 149, 0.5)',
+              }}
             >
               Get Pro
             </button>
           </div>
 
           {/* Elite Tier */}
-          <div className="border-2 border-purple-600 rounded-lg p-4 relative">
-            <div className="absolute top-0 right-0 bg-purple-600 text-white text-xs px-2 py-1 rounded-bl-lg">
+          <div className="border-2 border-secondary rounded-lg p-4 relative" style={{ borderColor: '#9945FF' }}>
+            <div className="absolute top-0 right-0 text-white text-xs px-2 py-1 rounded-bl-lg" style={{ backgroundColor: '#9945FF' }}>
               POPULAR
             </div>
-            <h3 className="font-bold text-lg mb-2">Elite</h3>
-            <p className="text-3xl font-bold mb-2">$299<span className="text-sm font-normal">/mo</span></p>
-            <ul className="space-y-1 mb-4 text-sm">
+            <h3 className="font-bold text-lg mb-2 text-foreground">Elite</h3>
+            <p className="text-3xl font-bold mb-2 text-secondary" style={{ color: '#9945FF' }}>$299<span className="text-sm font-normal">/mo</span></p>
+            <ul className="space-y-1 mb-4 text-sm text-muted-foreground">
               <li>✓ All 23+ strategies</li>
               <li>✓ Unlimited agents</li>
               <li>✓ Premium support</li>
             </ul>
             <button
               onClick={() => handleUpgrade('elite')}
-              className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition"
+              className="w-full px-4 py-2 text-white rounded-md font-medium transition"
+              style={{ 
+                backgroundColor: '#9945FF',
+                boxShadow: '0 0 20px rgba(153, 69, 255, 0.5)',
+              }}
             >
               Get Elite
             </button>
           </div>
 
           {/* Lifetime Tier */}
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <h3 className="font-bold text-lg mb-2">Lifetime</h3>
-            <p className="text-3xl font-bold mb-2">$1,999<span className="text-sm font-normal"></span></p>
-            <ul className="space-y-1 mb-4 text-sm">
+          <div className="border border-primary/30 rounded-lg p-4 bg-card/50">
+            <h3 className="font-bold text-lg mb-2 text-foreground">Lifetime</h3>
+            <p className="text-3xl font-bold mb-2 text-accent" style={{ color: '#FFD700' }}>$1,999<span className="text-sm font-normal"></span></p>
+            <ul className="space-y-1 mb-4 text-sm text-muted-foreground">
               <li>✓ Everything in Elite</li>
               <li>✓ Lifetime access</li>
               <li>✓ White-label option</li>
             </ul>
             <button
               onClick={() => handleUpgrade('lifetime')}
-              className="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md font-medium transition"
+              className="w-full px-4 py-2 text-black rounded-md font-medium transition"
+              style={{ 
+                backgroundColor: '#FFD700',
+                boxShadow: '0 0 20px rgba(255, 215, 0, 0.5)',
+              }}
             >
               Get Lifetime
             </button>
@@ -183,7 +200,7 @@ const UpgradeModal: React.FC<{
 
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm"
+          className="text-muted-foreground hover:text-foreground text-sm"
         >
           Continue with Free tier
         </button>
@@ -348,10 +365,10 @@ export const Paywall: React.FC<{
   }
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 text-center">
+    <div className="p-8 bg-card/50 rounded-lg border-2 border-dashed border-primary/30 text-center" style={{ backgroundColor: 'oklch(0.12 0.03 280 / 0.5)' }}>
       <div className="text-4xl mb-4">🔒</div>
-      <h3 className="text-xl font-bold mb-2">Premium Feature</h3>
-      <p className="text-gray-600 dark:text-gray-400 mb-4">
+      <h3 className="text-xl font-bold mb-2 text-primary" style={{ color: '#14F195' }}>Premium Feature</h3>
+      <p className="text-muted-foreground mb-4">
         Upgrade to {requiredTier.toUpperCase()} or higher to access this feature
       </p>
       <button
@@ -359,7 +376,11 @@ export const Paywall: React.FC<{
           const upgradeUrl = licenseService.getUpgradeUrl(requiredTier);
           window.open(upgradeUrl, '_blank');
         }}
-        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition"
+        className="px-6 py-3 text-black rounded-md font-medium transition"
+        style={{ 
+          background: 'linear-gradient(135deg, #14F195 0%, #9945FF 100%)',
+          boxShadow: '0 0 20px rgba(20, 241, 149, 0.5)',
+        }}
       >
         Upgrade Now
       </button>

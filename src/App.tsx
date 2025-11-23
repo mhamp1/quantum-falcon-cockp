@@ -53,10 +53,9 @@ import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
-import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
 import MasterSearch from '@/components/shared/MasterSearch';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
-import IntroSplash from '@/components/intro/IntroSplash';
+import OnboardingFlowManager from '@/components/onboarding/OnboardingFlowManager';
 import AmbientParticles from '@/components/shared/AmbientParticles';
 import ConnectionStatusIndicator from '@/components/shared/ConnectionStatusIndicator';
 import { useDailyLearning } from '@/hooks/useDailyLearning';
@@ -127,9 +126,7 @@ const SocialCommunity = lazyWithRetry(() => import('@/components/community/Socia
 const MultiAgentSystem = lazyWithRetry(() => import('@/components/agents/MultiAgentSystemWrapper'), 'MultiAgentSystem');
 const EnhancedSettings = lazyWithRetry(() => import('@/components/settings/EnhancedSettings'), 'EnhancedSettings');
 const SupportOnboarding = lazyWithRetry(() => import('@/pages/SupportOnboarding'), 'SupportOnboarding');
-const PostTourWelcome = lazyWithRetry(() => import('@/components/shared/PostTourWelcome'), 'PostTourWelcome');
-const LoginPage = lazyWithRetry(() => import('@/pages/LoginPage'), 'LoginPage');
-const OnboardingModal = lazyWithRetry(() => import('@/components/onboarding/OnboardingModal'), 'OnboardingModal');
+// Removed: PostTourWelcome, LoginPage, OnboardingModal - handled by OnboardingFlowManager
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -312,8 +309,6 @@ export default function App() {
       }
     }, 1000);
   }, []);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
   const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false);
   // Use persistent auth for auto-login
@@ -325,33 +320,7 @@ export default function App() {
     console.info('🔒 [App] Security systems online');
   }, []);
 
-  // Track if this is first login (for showing OnboardingModal)
-  const [isFirstLogin, setIsFirstLogin] = useState(false);
-  
-  // Show onboarding modal after first successful login
-  useEffect(() => {
-    if (persistentAuth.isInitialized && auth?.isAuthenticated && !hasSeenOnboarding) {
-      // Check if this is a first-time login (no stored onboarding seen)
-      const stored = typeof window !== 'undefined' 
-        ? window.localStorage.getItem('hasSeenOnboarding') 
-        : null;
-      
-      if (!stored) {
-        setIsFirstLogin(true);
-      }
-    }
-  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
-  
-  // Show interactive tour after onboarding modal completes
-  useEffect(() => {
-    if (persistentAuth.isInitialized && auth?.isAuthenticated && hasSeenOnboarding && !isFirstLogin) {
-      // Small delay to let dashboard load
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding, isFirstLogin]);
+  // Onboarding is now handled by OnboardingFlowManager - no manual state management needed
 
   // GOD MODE Activation
   useEffect(() => {
@@ -479,28 +448,26 @@ export default function App() {
     return () => window.removeEventListener('navigate-tab', handler);
   }, [tabs, setActiveTab]);
 
+  // Handle tour tab switching
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { tab } = (e as CustomEvent<{ tab: string }>).detail;
+      if (tabs.some(t => t.id === tab)) {
+        soundEffects.playTabSwitch();
+        setActiveTab(tab);
+      }
+    };
+    window.addEventListener('tour-set-active-tab', handler);
+    return () => window.removeEventListener('tour-set-active-tab', handler);
+  }, [tabs, setActiveTab]);
+
   useEffect(() => {
     const handler = () => setTimeout(() => window.dispatchEvent(new CustomEvent('open-settings-legal-tab')), 100);
     window.addEventListener('open-legal-risk-disclosure', handler);
     return () => window.removeEventListener('open-legal-risk-disclosure', handler);
   }, []);
 
-  useEffect(() => {
-    if (!hasSeenOnboarding) {
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 600);
-      return () => clearTimeout(timer);
-    }
-  }, [hasSeenOnboarding]);
-
-  useEffect(() => {
-    const handler = () => {
-      setShowOnboarding(true);
-    };
-    window.addEventListener('restart-onboarding-tour', handler);
-    return () => window.removeEventListener('restart-onboarding-tour', handler);
-  }, []);
+  // Onboarding is handled by OnboardingFlowManager - no manual tour triggers needed
 
   // Listen for bot start from tour
   useEffect(() => {
@@ -539,27 +506,10 @@ export default function App() {
     );
   }
 
-  // Show login page if not authenticated
-  if (!auth?.isAuthenticated) {
-    return (
-      <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-        <Suspense fallback={<LoadingFallback message="Loading Login..." />}>
-          <LoginPage />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-  
-  // CRITICAL: If we somehow get here without auth, show login as fallback
-  if (!auth && authTimeout) {
-    return (
-      <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-        <Suspense fallback={<LoadingFallback message="Loading Login..." />}>
-          <LoginPage />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
+  // Authentication is now handled by OnboardingFlowManager's AuthenticationStep
+  // Authentication is handled by OnboardingFlowManager's AuthenticationStep
+  // Always render app structure - OnboardingFlowManager will overlay when needed
+  // This allows the onboarding flow to work even if user is not authenticated yet
 
   const getAggressionLabel = (value: number) => {
     if (value < 33) return 'CAUTIOUS';
@@ -579,25 +529,7 @@ export default function App() {
     { label: 'Aggressive', value: 75, icon: Flame, color: '#FF4444' },
   ];
 
-  const handleOnboardingComplete = () => {
-    setHasSeenOnboarding(true);
-    try {
-      window.localStorage.setItem('hasSeenOnboarding', 'true');
-    } catch (e) {
-      console.warn('Failed to save onboarding state to localStorage', e);
-    }
-    setShowOnboarding(false);
-    
-    // Show post-tour welcome screen
-    setTimeout(() => {
-      setShowPostTourWelcome(true);
-    }, 500);
-  };
-
-  const handleOnboardingSkip = () => {
-    // Hide tour for this session but don't mark as seen
-    setShowOnboarding(false);
-  };
+  // Onboarding is now handled by OnboardingFlowManager - no handlers needed
 
   // ALWAYS render - no conditions, no guards
   return (
@@ -611,49 +543,25 @@ export default function App() {
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
         
-        {/* First-time user intro splash - appears before onboarding */}
-        <IntroSplash />
-        
-        {/* First-time user onboarding modal - shows after login */}
-        {isFirstLogin && (
-          <Suspense fallback={null}>
-            <OnboardingModal
-              isOpen={isFirstLogin}
-              onComplete={() => {
-                setIsFirstLogin(false);
-                setHasSeenOnboarding(true);
-                try {
-                  window.localStorage.setItem('hasSeenOnboarding', 'true');
-                } catch (e) {
-                  console.warn('Failed to save onboarding state', e);
-                }
-              }}
-            />
-          </Suspense>
-        )}
-        
-        <InteractiveOnboardingTour
-          isOpen={showOnboarding}
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
-          setActiveTab={setActiveTab}
-        />
-
-        {/* Post-Tour Welcome Screen */}
+        {/* NEW: 5-Step Onboarding Flow Manager - Orchestrates entire onboarding sequence */}
         <Suspense fallback={null}>
-          <PostTourWelcome
-            isOpen={showPostTourWelcome}
-            onClose={() => setShowPostTourWelcome(false)}
-            onStartBot={() => {
-              setBotRunning(true);
-              // Toast will be shown by PostTourWelcome component
+          <OnboardingFlowManager
+            onComplete={() => {
+              // Onboarding complete - user can now use the app
+              setHasSeenOnboarding(true);
+              try {
+                window.localStorage.setItem('hasSeenOnboarding', 'true');
+              } catch (e) {
+                console.warn('Failed to save onboarding state', e);
+              }
             }}
-            onNavigate={setActiveTab}
           />
         </Suspense>
+        
+        {/* OnboardingFlowManager handles all onboarding steps - no legacy components needed */}
 
         {/* GOD MODE Crown */}
-        {isGodMode(auth) && (
+        {auth && isGodMode(auth) && (
           <div className="god-mode-crown" title="GOD MODE ACTIVE">
             👑
           </div>
@@ -704,7 +612,7 @@ export default function App() {
               {tabs.map(tab => {
                 const isActive = activeTab === tab.id;
                 const IconComponent = tab.icon;
-                const isEliteOrLifetime = auth.license?.tier === 'ELITE' || auth.license?.tier === 'LIFETIME';
+                const isEliteOrLifetime = auth?.license?.tier === 'ELITE' || auth?.license?.tier === 'LIFETIME';
                 const showCrownBadge = tab.id === 'settings' && isEliteOrLifetime;
                 
                 return (
@@ -801,11 +709,11 @@ export default function App() {
                   weight="fill" 
                   className={cn(
                     "text-yellow-400",
-                    (!auth.license?.tier || auth.license?.tier === 'FREE') && "crown-pulse"
+                    (!auth?.license?.tier || auth?.license?.tier === 'FREE') && "crown-pulse"
                   )}
                 />
                 <span className="text-xs text-yellow-400 font-bold uppercase">
-                  {auth.license?.tier || 'FREE'} TIER
+                  {auth?.license?.tier || 'FREE'} TIER
                 </span>
               </div>
               <p className="text-xs text-muted-foreground text-center font-mono">
@@ -962,10 +870,14 @@ export default function App() {
               soundEffects.playClick();
               setShowAggressionPanel(true);
             }}
-            className="fixed bottom-28 right-4 z-40 p-3 bg-cyan-500/20 border border-cyan-500/40 rounded-full hover:bg-cyan-500/30 transition-all"
-            style={{ boxShadow: '0 0 12px rgba(0,255,255,0.2)' }}
+            className="fixed bottom-28 right-4 z-40 p-3 border rounded-full transition-all"
+            style={{ 
+              backgroundColor: 'rgba(20, 241, 149, 0.2)',
+              borderColor: '#14F195',
+              boxShadow: '0 0 12px rgba(20, 241, 149, 0.3)',
+            }}
           >
-            <Flame size={24} className="text-cyan-400" />
+            <Flame size={24} style={{ color: '#14F195' }} />
           </button>
         )}
       </div>
