@@ -154,6 +154,14 @@ export default defineConfig({
           
           // Solana packages removed - causing React 19 conflicts
           // Buffer and related packages now go to main vendor chunk
+          // Explicitly route buffer-related packages to 'vendor' for clarity and future Solana re-enabling
+          if (
+            id.includes('bn.js') ||
+            id.includes('buffer') ||
+            id.includes('borsh')
+          ) {
+            return 'vendor';
+          }
           
           // Large UI libraries in their own chunk
           if (
