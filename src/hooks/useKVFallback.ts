@@ -1,6 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getKVValue, setKVValue, deleteKVValue } from '@/lib/kv-storage';
 
+/**
+ * Safe KV hook with localStorage fallback
+ * Use this instead of @github/spark/hooks useKV to prevent blob storage errors
+ * 
+ * Gracefully handles:
+ * - RestError: The specified blob does not exist
+ * - Azure Blob Storage failures
+ * - GitHub Spark KV storage unavailability
+ * - All errors silently fall back to localStorage
+ */
 export function useKVSafe<T>(
   key: string,
   defaultValue: T
@@ -65,3 +75,9 @@ export function useKVSafe<T>(
 
   return [value, updateValue, deleteValue];
 }
+
+/**
+ * Alias for useKVSafe - drop-in replacement for @github/spark/hooks useKV
+ * Use this to avoid blob storage errors
+ */
+export const useKV = useKVSafe;
