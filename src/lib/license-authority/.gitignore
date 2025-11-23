@@ -1,0 +1,25 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Secrets
+master.key
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Never commit private keys or license files
+masterkey/
+*.pem
+*.env
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
