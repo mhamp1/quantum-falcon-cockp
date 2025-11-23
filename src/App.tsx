@@ -29,6 +29,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { logError } from '@/lib/errorLogger';
 import { soundEffects } from '@/lib/soundEffects';
 import { motion, AnimatePresence } from 'framer-motion';
+import { WhiteScreenPrevention } from '@/lib/whiteScreenPrevention';
 import {
   House,
   Terminal,
@@ -68,7 +69,8 @@ import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
 // Lazy load with error handling and retry logic for production builds
-const lazyWithRetry = (importFn: () => Promise<any>, componentName: string, retries = 3) => {
+// CRITICAL FIX: Better error messages and faster failure detection
+const lazyWithRetry = (importFn: () => Promise<any>, componentName: string, retries = 2) => {
   return lazy(async () => {
     for (let i = 0; i < retries; i++) {
       try {
@@ -80,33 +82,57 @@ const lazyWithRetry = (importFn: () => Promise<any>, componentName: string, retr
         
         // Check if it's a chunk loading error (stale cache)
         const errorMessage = error instanceof Error ? error.message : String(error);
-        if (errorMessage.includes('Failed to fetch dynamically imported module') || 
-            errorMessage.includes('error loading dynamically imported module') ||
-            errorMessage.includes('Loading chunk')) {
-          console.error(`[LazyLoad] ${componentName} - Stale chunk detected, forcing page reload`);
-          // Force immediate reload on chunk errors
-          window.location.reload();
-          // Return a placeholder while reloading
-          return { default: () => <LoadingFallback message="Reloading..." /> };
+        const isChunkError = errorMessage.includes('Failed to fetch dynamically imported module') || 
+                            errorMessage.includes('error loading dynamically imported module') ||
+                            errorMessage.includes('Loading chunk');
+        
+        if (isChunkError) {
+          console.error(`[LazyLoad] ${componentName} - Chunk loading error detected`);
+          // On first chunk error, try to reload immediately
+          if (i === 0) {
+            // Wait a bit and try again
+            await new Promise(resolve => setTimeout(resolve, 500));
+            continue;
+          } else {
+            // On second failure, force reload
+            console.error(`[LazyLoad] ${componentName} - Multiple chunk errors, forcing reload`);
+            setTimeout(() => window.location.reload(), 100);
+            // Return placeholder while reloading
+            return { default: () => <LoadingFallback message="Updating application..." /> };
+          }
         }
         
         if (i === retries - 1) {
-          console.error(`[LazyLoad] ${componentName} - All retries exhausted, showing error fallback`);
+          console.error(`[LazyLoad] ${componentName} - All retries exhausted`);
           // Return a safe fallback component instead of throwing
           return { 
             default: () => (
               <div className="min-h-screen flex items-center justify-center p-4">
                 <div className="cyber-card p-8 max-w-md text-center space-y-4">
-                  <h2 className="text-xl font-bold text-destructive">Failed to Load {componentName}</h2>
-                  <p className="text-muted-foreground">Component could not be loaded after multiple attempts.</p>
-                  <Button onClick={() => window.location.reload()}>Reload Page</Button>
+                  <h2 className="text-xl font-bold text-destructive">Component Load Error</h2>
+                  <p className="text-muted-foreground text-sm">
+                    {componentName} failed to load. This is usually caused by network issues or stale cache.
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <Button onClick={() => window.location.reload()}>Reload Page</Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.reload();
+                      }}
+                    >
+                      Clear Cache
+                    </Button>
+                  </div>
                 </div>
               </div>
             )
           };
         }
         // Wait before retry (exponential backoff)
-        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        await new Promise(resolve => setTimeout(resolve, 300 * (i + 1)));
       }
     }
     // Fallback - should never reach here
@@ -278,8 +304,10 @@ export default function App() {
   console.log('[App] Window available:', typeof window !== 'undefined');
   console.log('[App] Document available:', typeof document !== 'undefined');
   
-  // REMOVED isClient guard - it was blocking rendering
-  // In browser, window is always defined, so we always render
+  // CRITICAL FIX: Mark that we're attempting to render
+  if (typeof window !== 'undefined') {
+    (window as any).__appRenderAttempted = true;
+  }
   
   // All hooks must be called unconditionally (React rules)
   // These hooks are safe to call - they handle errors internally
@@ -290,10 +318,13 @@ export default function App() {
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
   
+  console.log('[App] All hooks called successfully');
   console.log('[App] Rendering main app - no guards blocking');
   
   // DEBUG: Log DOM state after render
   useEffect(() => {
+    console.log('[App] useEffect running - component is mounting');
+    
     setTimeout(() => {
       const root = document.getElementById('root');
       if (root) {
@@ -305,6 +336,8 @@ export default function App() {
         console.log('[App] - Root first child:', root.firstElementChild?.tagName, root.firstElementChild?.className);
         if (contentLength === 0) {
           console.error('[App] ========== WHITE SCREEN DETECTED - ROOT IS EMPTY ==========');
+        } else {
+          console.log('[App] ✅ Root has content - render successful');
         }
       }
     }, 1000);
@@ -318,6 +351,12 @@ export default function App() {
   useEffect(() => {
     SecurityManager.initialize();
     console.info('🔒 [App] Security systems online');
+    
+    // CRITICAL: Mark successful render for white screen prevention
+    WhiteScreenPrevention.markRenderSuccess();
+    
+    // Log successful mount
+    console.log('[App] ✅ Component mounted successfully');
   }, []);
 
   // Onboarding is now handled by OnboardingFlowManager - no manual state management needed
@@ -482,8 +521,8 @@ export default function App() {
 
   const showAggressionControl = activeTab === 'multi-agent';
 
-  // Show loading screen while auth is initializing
-  // CRITICAL: Add timeout to prevent infinite loading screen
+  // CRITICAL FIX: Never block render - always show UI
+  // Auth initialization happens in background, UI stays responsive
   const [authTimeout, setAuthTimeout] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -491,20 +530,13 @@ export default function App() {
         console.warn('[App] Auth initialization timeout - forcing render');
         setAuthTimeout(true);
       }
-    }, 3000); // 3 second timeout (reduced from 5)
+    }, 1500); // 1.5 second max wait - then force render
     return () => clearTimeout(timer);
   }, [persistentAuth.isInitialized]);
 
-  // CRITICAL: Show loading screen only if truly initializing (not stuck)
-  const shouldShowLoading = !persistentAuth.isInitialized && !authTimeout && persistentAuth.isLoading;
-  
-  if (shouldShowLoading) {
-    return (
-      <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-        <LoadingFallback message="Initializing Quantum Falcon..." />
-      </ErrorBoundary>
-    );
-  }
+  // CRITICAL FIX: Never show loading screen - always render app
+  // This prevents white screens caused by stuck auth initialization
+  // OnboardingFlowManager will handle auth UI overlay when needed
 
   // Authentication is now handled by OnboardingFlowManager's AuthenticationStep
   // Authentication is handled by OnboardingFlowManager's AuthenticationStep

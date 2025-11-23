@@ -231,62 +231,72 @@ window.addEventListener('unhandledrejection', (event) => {
   // Don't prevent default - let ErrorBoundary handle it
 });
 
-// CRITICAL: White screen detector - if React doesn't render in 5 seconds, show fallback
+// CRITICAL FIX: White screen detector - if React doesn't render in 3 seconds, show fallback
 let hasRendered = false;
 const whiteScreenTimeout = setTimeout(() => {
   if (!hasRendered) {
     console.error('[main.tsx] ========== WHITE SCREEN TIMEOUT ==========');
-    console.error('[main.tsx] React failed to render within 5 seconds');
+    console.error('[main.tsx] React failed to render within 3 seconds');
     console.error('[main.tsx] Showing emergency fallback UI');
     
-    // Emergency fallback render
+    // Emergency fallback render - import and render EmergencyFallback component
     if (rootElement) {
-      rootElement.innerHTML = `
-        <div style="
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: oklch(0.08 0.02 280);
-          color: oklch(0.85 0.12 195);
-          font-family: system-ui, -apple-system, sans-serif;
-          padding: 2rem;
-        ">
-          <div style="max-width: 600px; text-align: center;">
-            <h1 style="font-size: 2rem; margin-bottom: 1rem; color: oklch(0.72 0.20 195);">
-              ⚠️ Loading Timeout
-            </h1>
-            <p style="margin-bottom: 2rem; opacity: 0.8;">
-              The application is taking longer than expected to load. This might be due to slow network or stale cache.
-            </p>
-            <button 
-              onclick="window.location.reload()"
-              style="
-                padding: 0.75rem 2rem;
-                background: oklch(0.72 0.20 195);
-                color: oklch(0.08 0.02 280);
-                border: none;
-                cursor: pointer;
-                font-size: 1rem;
-                font-weight: bold;
-                text-transform: uppercase;
-                border-radius: 0.5rem;
-              "
-            >
-              Reload Application
-            </button>
-            <p style="margin-top: 2rem; font-size: 0.75rem; opacity: 0.6;">
-              Quantum Falcon Cockpit v2025.1.0
-            </p>
+      import('./components/shared/EmergencyFallback').then(({ EmergencyFallback }) => {
+        const fallbackRoot = createRoot(rootElement);
+        fallbackRoot.render(<EmergencyFallback />);
+      }).catch(() => {
+        // If even the import fails, use inline HTML
+        rootElement.innerHTML = `
+          <div style="
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: oklch(0.08 0.02 280);
+            color: oklch(0.85 0.12 195);
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 2rem;
+          ">
+            <div style="max-width: 600px; text-align: center;">
+              <h1 style="font-size: 2rem; margin-bottom: 1rem; color: oklch(0.72 0.20 195);">
+                ⚠️ Critical Loading Error
+              </h1>
+              <p style="margin-bottom: 2rem; opacity: 0.8;">
+                The application failed to load. Please reload the page.
+              </p>
+              <button 
+                onclick="localStorage.clear(); sessionStorage.clear(); window.location.reload()"
+                style="
+                  padding: 0.75rem 2rem;
+                  background: oklch(0.72 0.20 195);
+                  color: oklch(0.08 0.02 280);
+                  border: none;
+                  cursor: pointer;
+                  font-size: 1rem;
+                  font-weight: bold;
+                  text-transform: uppercase;
+                  border-radius: 0.5rem;
+                "
+              >
+                Clear Cache & Reload
+              </button>
+              <p style="margin-top: 2rem; font-size: 0.75rem; opacity: 0.6;">
+                Quantum Falcon Cockpit v2025.1.0
+              </p>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      });
     }
   }
-}, 5000);
+}, 3000);
 
 try {
   console.log('[main.tsx] Attempting to render app...');
+  
+  // Mark render attempt
+  (window as any).__reactRenderAttempted = true;
+  (window as any).__reactRenderTime = Date.now();
   
   // Render with comprehensive error handling
   root.render(
@@ -343,25 +353,39 @@ try {
   hasRendered = true;
   clearTimeout(whiteScreenTimeout);
   
-  // Check if render actually happened after a short delay
+  // CRITICAL: Double-check render actually happened
   setTimeout(() => {
     const rootContent = rootElement.innerHTML;
     const rootChildren = rootElement.children;
+    const appRenderAttempted = (window as any).__appRenderAttempted;
+    
     console.log('[main.tsx] ========== DOM INSPECTION ==========');
     console.log('[main.tsx] Root element content length:', rootContent.length);
     console.log('[main.tsx] Root element has content:', rootContent.length > 0);
     console.log('[main.tsx] Root children count:', rootChildren.length);
+    console.log('[main.tsx] App component attempted render:', appRenderAttempted);
+    
     if (rootChildren.length > 0) {
       console.log('[main.tsx] First child:', rootChildren[0].tagName, rootChildren[0].className);
       console.log('[main.tsx] First child innerHTML length:', rootChildren[0].innerHTML.length);
     }
     
-    if (rootContent.length === 0) {
+    if (rootContent.length === 0 || !appRenderAttempted) {
       console.error('[main.tsx] ========== WHITE SCREEN DETECTED ==========');
-      console.error('[main.tsx] Root element is empty after render!');
-      console.error('[main.tsx] This indicates React failed to mount or render');
+      console.error('[main.tsx] Root element is empty or App never rendered!');
+      console.error('[main.tsx] This indicates React failed to mount');
+      
+      // Try emergency re-render
+      console.log('[main.tsx] Attempting emergency re-render...');
+      import('./components/shared/EmergencyFallback').then(({ EmergencyFallback }) => {
+        const emergencyRoot = createRoot(rootElement);
+        emergencyRoot.render(<EmergencyFallback />);
+      }).catch(() => {
+        console.error('[main.tsx] Emergency fallback failed to load');
+      });
     } else {
       console.log('[main.tsx] ✅ Root has content - app appears to be rendering');
+      console.log('[main.tsx] ✅ App component successfully rendered');
     }
   }, 1500);
   

@@ -3,7 +3,7 @@ import { getKVValue, setKVValue, deleteKVValue } from '@/lib/kv-storage';
 
 /**
  * Safe KV hook with localStorage fallback
- * Use this instead of @github/spark/hooks useKV to prevent blob storage errors
+ * CRITICAL FIX: Never block render - always return immediately with default
  * 
  * Gracefully handles:
  * - RestError: The specified blob does not exist
@@ -39,14 +39,15 @@ export function useKVSafe<T>(
       }
     };
 
-    // Add timeout to prevent infinite loading
+    // CRITICAL FIX: Much shorter timeout - 1 second max
     const timeoutId = setTimeout(() => {
       if (isMountedRef.current && !isInitialized) {
         console.warn(`[useKVSafe] Timeout loading key "${key}", using default`);
         setIsInitialized(true);
       }
-    }, 2000);
+    }, 1000);
 
+    // Load in background - don't block
     loadInitialValue();
 
     return () => {
