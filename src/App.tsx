@@ -59,6 +59,8 @@ import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import OnboardingFlowManager from '@/components/onboarding/OnboardingFlowManager';
 import AmbientParticles from '@/components/shared/AmbientParticles';
 import ConnectionStatusIndicator from '@/components/shared/ConnectionStatusIndicator';
+import TabVerificationTester from '@/components/shared/TabVerificationTester';
+import AppHealthMonitor from '@/components/shared/AppHealthMonitor';
 import { useDailyLearning } from '@/hooks/useDailyLearning';
 import { SecurityManager } from '@/lib/security';
 import { updateDiscordRichPresence } from '@/lib/discord/oauth';
@@ -343,6 +345,7 @@ export default function App() {
     }, 1000);
   }, []);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
+  const [showVerificationTester, setShowVerificationTester] = useState(false);
   const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false);
   // Use persistent auth for auto-login
   const persistentAuth = usePersistentAuth();
@@ -404,16 +407,29 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + K = Master Search
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         soundEffects.playClick();
         setShowMasterSearch(prev => !prev);
       }
+      // Cmd/Ctrl + Shift + V = Verification Tester
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'V') {
+        e.preventDefault();
+        soundEffects.playClick();
+        setShowVerificationTester(prev => !prev);
+        if (!showVerificationTester) {
+          toast.info('🔍 Tab Verification Test Suite', {
+            description: 'Testing all components for white screens...',
+            duration: 3000
+          });
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [showVerificationTester]);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -486,6 +502,13 @@ export default function App() {
     window.addEventListener('navigate-tab', handler);
     return () => window.removeEventListener('navigate-tab', handler);
   }, [tabs, setActiveTab]);
+
+  // Listen for verification tester close event
+  useEffect(() => {
+    const handler = () => setShowVerificationTester(false);
+    window.addEventListener('close-verification-tester', handler);
+    return () => window.removeEventListener('close-verification-tester', handler);
+  }, []);
 
   // Handle tour tab switching
   useEffect(() => {
@@ -574,6 +597,12 @@ export default function App() {
         <AIBotAssistant />
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
+        <AppHealthMonitor />
+        
+        {/* Tab Verification Tester - Cmd/Ctrl+Shift+V to open */}
+        {showVerificationTester && (
+          <TabVerificationTester />
+        )}
         
         {/* NEW: 5-Step Onboarding Flow Manager - Orchestrates entire onboarding sequence */}
         <Suspense fallback={null}>
