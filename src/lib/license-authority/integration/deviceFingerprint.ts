@@ -1,247 +1,246 @@
-// LICENSEAUTH UPGRADE: Instant activation + hardware binding + grace period — now better than 3Commas/Pionex — November 20, 2025
-// deviceFingerprint.ts - Browser-based device fingerprinting
-// Fixed for browser compatibility — November 22, 2025
+// Device Fingerprint Generator
+// Generates a unique fingerprint for hardware binding and device tracking
+// November 23, 2025 — Quantum Falcon Cockpit v2025.1.0
 
+/**
+ * Device fingerprint data structure
+ */
 export interface DeviceFingerprint {
-  fingerprint: string;
-  canvas_hash: string;
-  webgl_hash: string;
-  fonts_hash: string;
-  user_agent: string;
+  fingerprint: string
+  userAgent: string
+  platform: string
+  language: string
+  screenResolution: string
+  timezone: string
+  canvas?: string
+  webgl?: string
+  audio?: string
+  timestamp: number
 }
 
 /**
- * Generate a canvas fingerprint by rendering text and shapes
- */
-function generateCanvasFingerprint(): string {
-  try {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    if (!ctx) return '';
-    
-    canvas.width = 200;
-    canvas.height = 50;
-    
-    // Draw text with different styles
-    ctx.textBaseline = 'top';
-    ctx.font = '14px "Arial"';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = '#f60';
-    ctx.fillRect(125, 1, 62, 20);
-    ctx.fillStyle = '#069';
-    ctx.fillText('QuantumFalcon 🦅', 2, 15);
-    ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-    ctx.fillText('QuantumFalcon 🦅', 4, 17);
-    
-    // Draw shapes
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.fillStyle = 'rgb(255,0,255)';
-    ctx.beginPath();
-    ctx.arc(50, 25, 20, 0, Math.PI * 2, true);
-    ctx.closePath();
-    ctx.fill();
-    
-    // Get canvas data and hash it
-    const dataUrl = canvas.toDataURL();
-    return hashString(dataUrl);
-  } catch (e) {
-    console.error('Canvas fingerprint error:', e);
-    return '';
-  }
-}
-
-/**
- * Generate a WebGL fingerprint
- */
-function generateWebGLFingerprint(): string {
-  try {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    
-    if (!gl) return '';
-    
-    // Get WebGL parameters
-    const params = [
-      'VERSION',
-      'SHADING_LANGUAGE_VERSION',
-      'VENDOR',
-      'RENDERER',
-      'MAX_VERTEX_ATTRIBS',
-      'MAX_TEXTURE_SIZE',
-      'MAX_CUBE_MAP_TEXTURE_SIZE'
-    ];
-    
-    const glInfo: Record<string, any> = {};
-    
-    params.forEach(param => {
-      const glParam = (gl as any)[param];
-      if (glParam !== undefined) {
-        glInfo[param] = gl.getParameter(glParam);
-      }
-    });
-    
-    // Get supported extensions
-    const extensions = gl.getSupportedExtensions() || [];
-    glInfo.EXTENSIONS = extensions.join(',');
-    
-    return hashString(JSON.stringify(glInfo));
-  } catch (e) {
-    console.error('WebGL fingerprint error:', e);
-    return '';
-  }
-}
-
-/**
- * Detect available fonts
- */
-function generateFontsFingerprint(): string {
-  try {
-    const baseFonts = ['monospace', 'sans-serif', 'serif'];
-    const testString = 'mmmmmmmmmmlli';
-    const testSize = '72px';
-    
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    if (!ctx) return '';
-    
-    const testFonts = [
-      'Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Georgia',
-      'Palatino', 'Garamond', 'Comic Sans MS', 'Trebuchet MS', 'Impact',
-      'Arial Black', 'Helvetica', 'Tahoma', 'Lucida Console', 'Monaco',
-      'Consolas', 'Calibri', 'Cambria', 'Candara', 'Segoe UI'
-    ];
-    
-    // Get baseline widths
-    const baselineWidths: Record<string, number> = {};
-    baseFonts.forEach(font => {
-      ctx.font = `${testSize} ${font}`;
-      baselineWidths[font] = ctx.measureText(testString).width;
-    });
-    
-    // Test which fonts are available
-    const detectedFonts: string[] = [];
-    testFonts.forEach(font => {
-      baseFonts.forEach(baseFont => {
-        ctx.font = `${testSize} '${font}', ${baseFont}`;
-        const width = ctx.measureText(testString).width;
-        
-        if (width !== baselineWidths[baseFont]) {
-          if (!detectedFonts.includes(font)) {
-            detectedFonts.push(font);
-          }
-        }
-      });
-    });
-    
-    return hashString(detectedFonts.sort().join(','));
-  } catch (e) {
-    console.error('Fonts fingerprint error:', e);
-    return '';
-  }
-}
-
-/**
- * Hash a string using SHA-256
- */
-function hashString(input: string): string {
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
-    // Use Web Crypto API (async, but we'll use a sync workaround)
-    const encoder = new TextEncoder();
-    const data = encoder.encode(input);
-    
-    // For synchronous operation, we'll use a simpler hash
-    let hash = 0;
-    for (let i = 0; i < input.length; i++) {
-      const char = input.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash).toString(16).padStart(8, '0');
-  }
-  
-  // Fallback simple hash
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(16).padStart(8, '0');
-}
-
-/**
- * Generate complete device fingerprint
+ * Generate a unique device fingerprint based on browser characteristics
+ * Uses multiple data points to create a stable identifier
  */
 export async function generateDeviceFingerprint(): Promise<DeviceFingerprint> {
-  const canvas_hash = generateCanvasFingerprint();
-  const webgl_hash = generateWebGLFingerprint();
-  const fonts_hash = generateFontsFingerprint();
-  const user_agent = navigator.userAgent;
-  
-  // Combine all hashes into single fingerprint
-  const combinedData = {
-    canvas: canvas_hash,
-    webgl: webgl_hash,
-    fonts: fonts_hash,
-    ua: user_agent
-  };
-  
-  const fingerprint = hashString(JSON.stringify(combinedData));
-  
-  return {
-    fingerprint,
-    canvas_hash,
-    webgl_hash,
-    fonts_hash,
-    user_agent
-  };
+  const fingerprint: DeviceFingerprint = {
+    fingerprint: '',
+    userAgent: navigator.userAgent || '',
+    platform: navigator.platform || '',
+    language: navigator.language || '',
+    screenResolution: `${screen.width}x${screen.height}x${screen.colorDepth}`,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+    timestamp: Date.now()
+  }
+
+  // Collect canvas fingerprint
+  try {
+    fingerprint.canvas = await getCanvasFingerprint()
+  } catch (e) {
+    // Canvas fingerprinting may be blocked
+    fingerprint.canvas = 'unavailable'
+  }
+
+  // Collect WebGL fingerprint
+  try {
+    fingerprint.webgl = getWebGLFingerprint()
+  } catch (e) {
+    // WebGL may be unavailable
+    fingerprint.webgl = 'unavailable'
+  }
+
+  // Collect audio fingerprint
+  try {
+    fingerprint.audio = await getAudioFingerprint()
+  } catch (e) {
+    // Audio fingerprinting may fail
+    fingerprint.audio = 'unavailable'
+  }
+
+  // Generate combined fingerprint hash
+  fingerprint.fingerprint = await hashFingerprint(fingerprint)
+
+  return fingerprint
 }
 
 /**
- * Validate license with device fingerprint
+ * Get canvas-based fingerprint
  */
-export async function validateLicenseWithFingerprint(
-  licenseKey: string,
-  apiUrl: string = 'http://localhost:8000'
-): Promise<any> {
-  const deviceFingerprint = await generateDeviceFingerprint();
+async function getCanvasFingerprint(): Promise<string> {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
   
-  const response = await fetch(`${apiUrl}/validate`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      license_key: licenseKey,
-      hardware_id: deviceFingerprint.fingerprint,
-      device_fingerprint: deviceFingerprint
-    })
-  });
-  
-  return response.json();
+  if (!ctx) {
+    return 'canvas-unavailable'
+  }
+
+  canvas.width = 200
+  canvas.height = 50
+
+  // Draw text with various styles
+  ctx.textBaseline = 'top'
+  ctx.font = '14px "Arial"'
+  ctx.fillStyle = '#f60'
+  ctx.fillRect(125, 1, 62, 20)
+  ctx.fillStyle = '#069'
+  ctx.fillText('Quantum Falcon 🚀', 2, 15)
+  ctx.fillStyle = 'rgba(102, 204, 0, 0.7)'
+  ctx.fillText('Quantum Falcon 🚀', 4, 17)
+
+  // Get data URL and hash it
+  const dataURL = canvas.toDataURL()
+  return await simpleHash(dataURL)
 }
 
 /**
- * Bind device to license
+ * Get WebGL-based fingerprint
  */
-export async function bindDeviceToLicense(
-  licenseKey: string,
-  apiUrl: string = 'http://localhost:8000'
-): Promise<any> {
-  const deviceFingerprint = await generateDeviceFingerprint();
+function getWebGLFingerprint(): string {
+  const canvas = document.createElement('canvas')
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl') as WebGLRenderingContext | null
   
-  const response = await fetch(`${apiUrl}/bind-device`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      license_key: licenseKey,
-      device_fingerprint: deviceFingerprint
-    })
-  });
+  if (!gl) {
+    return 'webgl-unavailable'
+  }
+
+  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
+  const vendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'unknown'
+  const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'unknown'
   
-  return response.json();
+  return `${vendor}|${renderer}`
+}
+
+/**
+ * Get audio-based fingerprint
+ */
+async function getAudioFingerprint(): Promise<string> {
+  return new Promise((resolve) => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+      if (!AudioContext) {
+        resolve('audio-unavailable')
+        return
+      }
+
+      const context = new AudioContext()
+      const oscillator = context.createOscillator()
+      const analyser = context.createAnalyser()
+      const gainNode = context.createGain()
+      const scriptProcessor = context.createScriptProcessor(4096, 1, 1)
+      let resolved = false // Prevent race condition
+
+      gainNode.gain.value = 0 // Mute
+      oscillator.connect(analyser)
+      analyser.connect(scriptProcessor)
+      scriptProcessor.connect(gainNode)
+      gainNode.connect(context.destination)
+
+      // Timeout after 100ms
+      const timeoutId = setTimeout(() => {
+        if (resolved) return
+        resolved = true
+        
+        try {
+          scriptProcessor.disconnect()
+          oscillator.disconnect()
+          analyser.disconnect()
+          gainNode.disconnect()
+          context.close()
+        } catch (e) {
+          // Already disconnected
+        }
+        resolve('audio-timeout')
+      }, 100)
+
+      scriptProcessor.onaudioprocess = function(event) {
+        if (resolved) return
+        resolved = true
+        clearTimeout(timeoutId)
+        
+        const output = event.outputBuffer.getChannelData(0)
+        const hash = Array.from(output.slice(0, 30))
+          .map(v => Math.abs(v))
+          .reduce((a, b) => a + b, 0)
+          .toString()
+        
+        scriptProcessor.disconnect()
+        oscillator.disconnect()
+        analyser.disconnect()
+        gainNode.disconnect()
+        context.close()
+        
+        resolve(hash)
+      }
+
+      oscillator.start(0)
+    } catch (e) {
+      resolve('audio-error')
+    }
+  })
+}
+
+/**
+ * Hash all fingerprint components into a single string
+ */
+async function hashFingerprint(fp: DeviceFingerprint): Promise<string> {
+  const components = [
+    fp.userAgent,
+    fp.platform,
+    fp.language,
+    fp.screenResolution,
+    fp.timezone,
+    fp.canvas || '',
+    fp.webgl || '',
+    fp.audio || ''
+  ].join('|')
+
+  return await simpleHash(components)
+}
+
+/**
+ * Simple hash function using SubtleCrypto API
+ * Falls back to basic hash if SubtleCrypto is unavailable
+ * Note: SHA-256 produces 64-char hex, fallback produces 64-char hex for consistency
+ */
+async function simpleHash(str: string): Promise<string> {
+  try {
+    // Use SubtleCrypto if available (HTTPS context)
+    if (crypto && crypto.subtle) {
+      const encoder = new TextEncoder()
+      const data = encoder.encode(str)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    }
+  } catch (e) {
+    // SubtleCrypto unavailable (HTTP context)
+  }
+
+  // Fallback hash: simple 32-bit hash expanded to 64 chars for consistency
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash | 0 // Convert to 32-bit signed integer
+  }
+  
+  // Expand to 64 characters to match SHA-256 output length
+  const baseHash = Math.abs(hash).toString(16).padStart(8, '0')
+  // Repeat pattern to create 64-char string (similar to SHA-256 length)
+  return (baseHash + baseHash + baseHash + baseHash + baseHash + baseHash + baseHash + baseHash).substring(0, 64)
+}
+
+/**
+ * Validate if a fingerprint is valid
+ */
+export function isValidFingerprint(fp: DeviceFingerprint | null): boolean {
+  if (!fp) return false
+  return !!(fp.fingerprint && fp.fingerprint.length > 0)
+}
+
+/**
+ * Get a simplified fingerprint (just the hash)
+ */
+export function getSimplifiedFingerprint(fp: DeviceFingerprint): string {
+  return fp.fingerprint
 }
