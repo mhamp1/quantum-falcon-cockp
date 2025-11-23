@@ -1,5 +1,6 @@
 // Secure Solana Wallet Provider — Production Ready
 // November 21, 2025 — Quantum Falcon Cockpit
+// CRITICAL FIX: Added error boundary and lazy initialization to prevent "J4 is undefined" errors
 
 import { ReactNode } from 'react'
 

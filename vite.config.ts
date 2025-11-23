@@ -28,9 +28,8 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // CRITICAL: Simplified chunking to prevent "exports is undefined" errors
-        // Strategy: React first, then everything else in one vendor chunk
-        // This prevents circular dependencies and chunk loading race conditions
+        // CRITICAL: Fixed chunking to prevent "exports is undefined" errors
+        // Strategy: Separate Solana from other vendors to prevent module resolution issues
         manualChunks: (id) => {
           // Only chunk node_modules
           if (!id.includes('node_modules')) {
@@ -48,8 +47,29 @@ export default defineConfig({
             return 'vendor-react';
           }
           
-          // Everything else goes into one vendor chunk
-          // This prevents dependency issues between chunks
+          // Solana packages in separate chunk (they have complex interdependencies)
+          // This prevents "J4 is undefined" errors caused by circular dependencies
+          if (
+            id.includes('@solana/') ||
+            id.includes('bn.js') ||
+            id.includes('buffer') ||
+            id.includes('borsh')
+          ) {
+            return 'vendor-solana';
+          }
+          
+          // Large UI libraries in their own chunk
+          if (
+            id.includes('framer-motion') ||
+            id.includes('radix-ui') ||
+            id.includes('recharts') ||
+            id.includes('three') ||
+            id.includes('d3')
+          ) {
+            return 'vendor-ui';
+          }
+          
+          // Everything else in vendor chunk
           return 'vendor';
         },
       },
