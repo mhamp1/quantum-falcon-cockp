@@ -128,6 +128,15 @@ export default defineConfig({
     // Use content-based chunk naming to prevent stale chunk issues
     rollupOptions: {
       input: resolve(projectRoot, 'index.html'),
+      // CRITICAL: Force ALL Solana packages to be external in production only
+      // This completely excludes them from the bundle, preventing white screen crashes
+      external: (source) => {
+        // Check if we're in production build
+        if (process.env.NODE_ENV === 'production' || process.env.MODE === 'production') {
+          return source.includes('@solana') || source.includes('web3.js');
+        }
+        return false;
+      },
       output: {
         // Content-based hashing ensures chunks update when content changes
         entryFileNames: 'assets/[name]-[hash].js',
