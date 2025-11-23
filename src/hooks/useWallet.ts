@@ -8,6 +8,18 @@ import { useCallback } from 'react'
 class PublicKey {
   constructor(public value: string) {}
   toBase58() { return this.value; }
+  toBuffer() {
+    // Return a Buffer-like object from the base58 string (stub: use UTF-8 encoding)
+    return typeof Buffer !== 'undefined'
+      ? Buffer.from(this.value, 'utf8')
+      : new TextEncoder().encode(this.value);
+  }
+  equals(other: PublicKey) {
+    return other && typeof other.toBase58 === 'function' && this.toBase58() === other.toBase58();
+  }
+  toJSON() {
+    return this.toBase58();
+  }
 }
 
 /**
