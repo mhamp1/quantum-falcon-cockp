@@ -69,38 +69,67 @@ import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
 // Lazy load with error handling and retry logic for production builds
-const lazyWithRetry = (importFn: () => Promise<any>, retries = 3) => {
+const lazyWithRetry = (importFn: () => Promise<any>, componentName: string, retries = 3) => {
   return lazy(async () => {
     for (let i = 0; i < retries; i++) {
       try {
-        return await importFn();
+        const module = await importFn();
+        console.log(`[LazyLoad] Successfully loaded ${componentName}`);
+        return module;
       } catch (error) {
-        console.warn(`[LazyLoad] Attempt ${i + 1}/${retries} failed:`, error);
+        console.warn(`[LazyLoad] ${componentName} - Attempt ${i + 1}/${retries} failed:`, error);
+        
+        // Check if it's a chunk loading error (stale cache)
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage.includes('Failed to fetch dynamically imported module') || 
+            errorMessage.includes('error loading dynamically imported module') ||
+            errorMessage.includes('Loading chunk')) {
+          console.error(`[LazyLoad] ${componentName} - Stale chunk detected, forcing page reload`);
+          // Force immediate reload on chunk errors
+          window.location.reload();
+          // Return a placeholder while reloading
+          return { default: () => <LoadingFallback message="Reloading..." /> };
+        }
+        
         if (i === retries - 1) {
-          // Last attempt failed - throw error to trigger error boundary
-          throw new Error(`Failed to load component after ${retries} attempts: ${error instanceof Error ? error.message : String(error)}`);
+          console.error(`[LazyLoad] ${componentName} - All retries exhausted, showing error fallback`);
+          // Return a safe fallback component instead of throwing
+          return { 
+            default: () => (
+              <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="cyber-card p-8 max-w-md text-center space-y-4">
+                  <h2 className="text-xl font-bold text-destructive">Failed to Load {componentName}</h2>
+                  <p className="text-muted-foreground">Component could not be loaded after multiple attempts.</p>
+                  <Button onClick={() => window.location.reload()}>Reload Page</Button>
+                </div>
+              </div>
+            )
+          };
         }
         // Wait before retry (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
       }
     }
-    throw new Error('Lazy load failed - no retries remaining');
+    // Fallback - should never reach here
+    return { 
+      default: () => <LoadingFallback message={`Loading ${componentName}...`} /> 
+    };
   });
 };
 
-const EnhancedDashboard = lazyWithRetry(() => import('@/components/dashboard/EnhancedDashboard'));
-const BotOverview = lazyWithRetry(() => import('@/components/dashboard/BotOverview'));
-const EnhancedAnalytics = lazyWithRetry(() => import('@/components/dashboard/EnhancedAnalytics'));
-const AdvancedTradingHub = lazyWithRetry(() => import('@/components/trade/AdvancedTradingHub'));
-const CreateStrategyPage = lazyWithRetry(() => import('@/components/strategy/CreateStrategyPage'));
-const VaultView = lazyWithRetry(() => import('@/components/vault/VaultView'));
-const SocialCommunity = lazyWithRetry(() => import('@/components/community/SocialCommunity'));
-const MultiAgentSystem = lazyWithRetry(() => import('@/components/agents/MultiAgentSystemWrapper'));
-const EnhancedSettings = lazyWithRetry(() => import('@/components/settings/EnhancedSettings'));
-const SupportOnboarding = lazyWithRetry(() => import('@/pages/SupportOnboarding'));
-const PostTourWelcome = lazyWithRetry(() => import('@/components/shared/PostTourWelcome'));
-const LoginPage = lazyWithRetry(() => import('@/pages/LoginPage'));
-const OnboardingModal = lazyWithRetry(() => import('@/components/onboarding/OnboardingModal'));
+const EnhancedDashboard = lazyWithRetry(() => import('@/components/dashboard/EnhancedDashboard'), 'EnhancedDashboard');
+const BotOverview = lazyWithRetry(() => import('@/components/dashboard/BotOverview'), 'BotOverview');
+const EnhancedAnalytics = lazyWithRetry(() => import('@/components/dashboard/EnhancedAnalytics'), 'EnhancedAnalytics');
+const AdvancedTradingHub = lazyWithRetry(() => import('@/components/trade/AdvancedTradingHub'), 'AdvancedTradingHub');
+const CreateStrategyPage = lazyWithRetry(() => import('@/components/strategy/CreateStrategyPage'), 'CreateStrategyPage');
+const VaultView = lazyWithRetry(() => import('@/components/vault/VaultView'), 'VaultView');
+const SocialCommunity = lazyWithRetry(() => import('@/components/community/SocialCommunity'), 'SocialCommunity');
+const MultiAgentSystem = lazyWithRetry(() => import('@/components/agents/MultiAgentSystemWrapper'), 'MultiAgentSystem');
+const EnhancedSettings = lazyWithRetry(() => import('@/components/settings/EnhancedSettings'), 'EnhancedSettings');
+const SupportOnboarding = lazyWithRetry(() => import('@/pages/SupportOnboarding'), 'SupportOnboarding');
+const PostTourWelcome = lazyWithRetry(() => import('@/components/shared/PostTourWelcome'), 'PostTourWelcome');
+const LoginPage = lazyWithRetry(() => import('@/pages/LoginPage'), 'LoginPage');
+const OnboardingModal = lazyWithRetry(() => import('@/components/onboarding/OnboardingModal'), 'OnboardingModal');
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -125,14 +154,19 @@ interface Tab {
 
 function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center bg-background" style={{ minHeight: '100vh' }}>
       <div className="text-center space-y-6">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
           className="mx-auto w-16 h-16"
         >
-          <div className="premium-spinner w-16 h-16 rounded-full"></div>
+          <div className="premium-spinner w-16 h-16 rounded-full" style={{
+            border: '3px solid oklch(0.35 0.12 195 / 0.3)',
+            borderTopColor: 'oklch(0.72 0.20 195)',
+            borderRightColor: 'oklch(0.68 0.18 330)',
+            borderRadius: '50%'
+          }}></div>
         </motion.div>
         <div className="space-y-2">
           <p className="text-sm text-primary font-bold uppercase tracking-wider neon-glow-primary">{message}</p>
@@ -362,7 +396,7 @@ export default function App() {
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'quests', label: 'Quests', icon: Trophy, component: lazy(() => import('@/components/quests/QuestBoard').then(m => ({ default: m.default }))) },
+    { id: 'quests', label: 'Quests', icon: Trophy, component: lazyWithRetry(() => import('@/components/quests/QuestBoard'), 'QuestBoard') },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
@@ -462,6 +496,26 @@ export default function App() {
 
   const showAggressionControl = activeTab === 'multi-agent';
 
+  // Show loading screen while auth is initializing
+  if (!persistentAuth.isInitialized || (persistentAuth.isLoading && !auth?.isAuthenticated)) {
+    return (
+      <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+        <LoadingFallback message="Initializing Quantum Falcon..." />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show login page if not authenticated (after initialization is complete)
+  if (!auth?.isAuthenticated && persistentAuth.isInitialized && !persistentAuth.isLoading) {
+    return (
+      <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+        <Suspense fallback={<LoadingFallback message="Loading Login..." />}>
+          <LoginPage />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
   const getAggressionLabel = (value: number) => {
     if (value < 33) return 'CAUTIOUS';
     if (value < 67) return 'MODERATE';
@@ -503,26 +557,7 @@ export default function App() {
   // ALWAYS render - no conditions, no guards
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-      {/* CRITICAL DEBUG BANNER - Always visible if React renders */}
-      <div style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0,
-        zIndex: 999999, 
-        background: '#ff1493', 
-        color: 'white', 
-        padding: '12px 16px',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        borderBottom: '3px solid #00ffff',
-        boxShadow: '0 4px 20px rgba(255, 20, 147, 0.5)'
-      }}>
-        🚀 QUANTUM FALCON DEBUG: APP RENDERED | Tab: {activeTab || 'dashboard'} | Mobile: {isMobile ? 'YES' : 'NO'} | Time: {new Date().toLocaleTimeString()}
-      </div>
-      
-      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')} style={{ paddingTop: '60px' }}>
+      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')}>
         {/* Ambient Background Particles */}
         <AmbientParticles />
         
@@ -533,6 +568,24 @@ export default function App() {
         
         {/* First-time user intro splash - appears before onboarding */}
         <IntroSplash />
+        
+        {/* First-time user onboarding modal - shows after login */}
+        {isFirstLogin && (
+          <Suspense fallback={null}>
+            <OnboardingModal
+              isOpen={isFirstLogin}
+              onComplete={() => {
+                setIsFirstLogin(false);
+                setHasSeenOnboarding(true);
+                try {
+                  window.localStorage.setItem('hasSeenOnboarding', 'true');
+                } catch (e) {
+                  console.warn('Failed to save onboarding state', e);
+                }
+              }}
+            />
+          </Suspense>
+        )}
         
         <InteractiveOnboardingTour
           isOpen={showOnboarding}

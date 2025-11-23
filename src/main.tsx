@@ -3,6 +3,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { WalletProvider } from '@/providers/WalletProvider';
+import { RenderSafetyWrapper } from '@/components/shared/RenderSafetyWrapper';
 import "@github/spark/spark";
 
 import App from './App.tsx';
@@ -134,8 +135,6 @@ console.log('[main.tsx] Root element:', rootElement);
 console.log('[main.tsx] Root element exists:', !!rootElement);
 console.log('[main.tsx] Window available:', typeof window !== 'undefined');
 console.log('[main.tsx] Document ready:', document.readyState);
-console.log('[main.tsx] React available:', typeof React !== 'undefined');
-console.log('[main.tsx] createRoot available:', typeof createRoot !== 'undefined');
 
 // Global error handler to catch ANY errors
 window.addEventListener('error', (event) => {
@@ -148,57 +147,117 @@ window.addEventListener('unhandledrejection', (event) => {
   // Don't prevent default - let ErrorBoundary handle it
 });
 
+// CRITICAL: White screen detector - if React doesn't render in 5 seconds, show fallback
+let hasRendered = false;
+const whiteScreenTimeout = setTimeout(() => {
+  if (!hasRendered) {
+    console.error('[main.tsx] ========== WHITE SCREEN TIMEOUT ==========');
+    console.error('[main.tsx] React failed to render within 5 seconds');
+    console.error('[main.tsx] Showing emergency fallback UI');
+    
+    // Emergency fallback render
+    if (rootElement) {
+      rootElement.innerHTML = `
+        <div style="
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: oklch(0.08 0.02 280);
+          color: oklch(0.85 0.12 195);
+          font-family: system-ui, -apple-system, sans-serif;
+          padding: 2rem;
+        ">
+          <div style="max-width: 600px; text-align: center;">
+            <h1 style="font-size: 2rem; margin-bottom: 1rem; color: oklch(0.72 0.20 195);">
+              ⚠️ Loading Timeout
+            </h1>
+            <p style="margin-bottom: 2rem; opacity: 0.8;">
+              The application is taking longer than expected to load. This might be due to slow network or stale cache.
+            </p>
+            <button 
+              onclick="window.location.reload()"
+              style="
+                padding: 0.75rem 2rem;
+                background: oklch(0.72 0.20 195);
+                color: oklch(0.08 0.02 280);
+                border: none;
+                cursor: pointer;
+                font-size: 1rem;
+                font-weight: bold;
+                text-transform: uppercase;
+                border-radius: 0.5rem;
+              "
+            >
+              Reload Application
+            </button>
+            <p style="margin-top: 2rem; font-size: 0.75rem; opacity: 0.6;">
+              Quantum Falcon Cockpit v2025.1.0
+            </p>
+          </div>
+        </div>
+      `;
+    }
+  }
+}, 5000);
+
 try {
   console.log('[main.tsx] Attempting to render app...');
   
   // Render with comprehensive error handling
   root.render(
-    <ErrorBoundary 
-      FallbackComponent={ErrorFallback}
-      onError={(error, errorInfo) => {
-        console.error('[main.tsx] ========== ERRORBOUNDARY CAUGHT ERROR ==========');
-        console.error('[main.tsx] Error:', error);
-        console.error('[main.tsx] Error message:', error.message);
-        console.error('[main.tsx] Error stack:', error.stack);
-        console.error('[main.tsx] Component stack:', errorInfo.componentStack);
-        
-        if (isR3FError(error)) {
-          console.log('[main.tsx] R3F error - suppressing');
-          return;
-        }
-        
-        // Log chunk loading errors
-        if (error.message && (
-          error.message.includes('Loading chunk') ||
-          error.message.includes('Failed to fetch dynamically imported module')
-        )) {
-          console.error('[ErrorBoundary] Chunk loading error detected:', error.message);
-        }
-      }}
-    >
-      <QueryClientProvider client={queryClient}>
-        <WalletProvider>
-          <App />
-        </WalletProvider>
-        <Toaster 
-          position="top-right" 
-          expand={false} 
-          richColors 
-          closeButton
-          toastOptions={{
-            style: {
-              background: 'oklch(0.12 0.03 280)',
-              border: '1px solid oklch(0.35 0.12 195)',
-              color: 'oklch(0.85 0.12 195)',
-            },
-          }}
-        />
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <RenderSafetyWrapper componentName="Root Application">
+      <ErrorBoundary 
+        FallbackComponent={ErrorFallback}
+        onError={(error, errorInfo) => {
+          console.error('[main.tsx] ========== ERRORBOUNDARY CAUGHT ERROR ==========');
+          console.error('[main.tsx] Error:', error);
+          console.error('[main.tsx] Error message:', error.message);
+          console.error('[main.tsx] Error stack:', error.stack);
+          console.error('[main.tsx] Component stack:', errorInfo.componentStack);
+          
+          if (isR3FError(error)) {
+            console.log('[main.tsx] R3F error - suppressing');
+            return;
+          }
+          
+          // Log chunk loading errors
+          if (error.message && (
+            error.message.includes('Loading chunk') ||
+            error.message.includes('Failed to fetch dynamically imported module')
+          )) {
+            console.error('[ErrorBoundary] Chunk loading error detected:', error.message);
+          }
+        }}
+      >
+        <QueryClientProvider client={queryClient}>
+          <WalletProvider>
+            <App />
+          </WalletProvider>
+          <Toaster 
+            position="top-right" 
+            expand={false} 
+            richColors 
+            closeButton
+            toastOptions={{
+              style: {
+                background: 'oklch(0.12 0.03 280)',
+                border: '1px solid oklch(0.35 0.12 195)',
+                color: 'oklch(0.85 0.12 195)',
+              },
+            }}
+          />
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </RenderSafetyWrapper>
   );
   
   console.log('[main.tsx] ========== RENDER CALLED SUCCESSFULLY ==========');
   console.log('[main.tsx] Waiting for React to mount...');
+  
+  // Mark as rendered successfully
+  hasRendered = true;
+  clearTimeout(whiteScreenTimeout);
   
   // Check if render actually happened after a short delay
   setTimeout(() => {
@@ -212,24 +271,6 @@ try {
       console.log('[main.tsx] First child:', rootChildren[0].tagName, rootChildren[0].className);
       console.log('[main.tsx] First child innerHTML length:', rootChildren[0].innerHTML.length);
     }
-    
-    // Check for debug banner
-    const debugBanner = document.querySelector('[style*="background: #ff1493"]');
-    if (debugBanner) {
-      console.log('[main.tsx] ✅ DEBUG BANNER FOUND - App is rendering!');
-    } else {
-      console.warn('[main.tsx] ⚠️ DEBUG BANNER NOT FOUND - May indicate render issue');
-    }
-    
-    // Check for overlays that might be blocking
-    const overlays = document.querySelectorAll('[class*="fixed"], [class*="absolute"]');
-    console.log('[main.tsx] Fixed/absolute overlays found:', overlays.length);
-    overlays.forEach((overlay, i) => {
-      const zIndex = window.getComputedStyle(overlay as Element).zIndex;
-      if (parseInt(zIndex) > 1000) {
-        console.log(`[main.tsx] High z-index overlay ${i}:`, overlay.className, 'z-index:', zIndex);
-      }
-    });
     
     if (rootContent.length === 0) {
       console.error('[main.tsx] ========== WHITE SCREEN DETECTED ==========');

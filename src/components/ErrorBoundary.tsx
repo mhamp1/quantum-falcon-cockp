@@ -85,8 +85,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       actualError.message.includes('error loading dynamically imported module') ||
       actualError.message.includes('Loading chunk') ||
       actualError.message.includes('Failed to fetch dynamically imported module') ||
-      actualError.message.includes('EnhancedDashboard') ||
-      actualError.message.includes('B29oJMZ1') // Old stale chunk hash
+      actualError.message.includes('Importing a module script failed') ||
+      actualError.message.toLowerCase().includes('chunk')
     )) {
       console.error('[ErrorBoundary] STALE CHUNK DETECTED - forcing immediate page reload');
       console.error('[ErrorBoundary] Error:', actualError.message);
@@ -138,7 +138,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       actualError.message.includes('error loading dynamically imported module') ||
       actualError.message.includes('Loading chunk') ||
       actualError.message.includes('Failed to fetch dynamically imported module') ||
-      actualError.message.includes('EnhancedDashboard')
+      actualError.message.includes('Importing a module script failed') ||
+      actualError.message.toLowerCase().includes('chunk')
     )) {
       console.error('[ErrorBoundary] Chunk loading error detected - forcing page reload');
       console.error('[ErrorBoundary] Error:', actualError.message);
