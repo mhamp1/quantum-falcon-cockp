@@ -28,8 +28,27 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Use Vite's automatic chunking - manual chunking was causing circular dependencies
-        // and "Cannot read properties of undefined (reading 'exports')" errors
+        // Manual chunking to prevent module loading race conditions
+        // This fixes "can't access property 'exports', J4 is undefined" errors
+        manualChunks: (id) => {
+          // Solana packages must be in separate chunk due to complex dependencies
+          if (id.includes('@solana/') || id.includes('@metaplex')) {
+            return 'vendor-solana';
+          }
+          // Large vendor libraries that should be cached separately
+          if (id.includes('node_modules')) {
+            // React and core dependencies
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is')) {
+              return 'vendor-react';
+            }
+            // UI libraries
+            if (id.includes('@radix-ui') || id.includes('framer-motion') || id.includes('recharts')) {
+              return 'vendor-ui';
+            }
+            // All other vendor code
+            return 'vendor';
+          }
+        },
       },
     },
     // Increase chunk size warning limit
@@ -40,6 +59,11 @@ export default defineConfig({
     // Optimize chunk loading to prevent race conditions
     modulePreload: {
       polyfill: true,
+      // Ensure all module dependencies are preloaded before execution
+      resolveDependencies: (filename, deps, { hostId, hostType }) => {
+        // Return all dependencies to ensure they're loaded before the module executes
+        return deps;
+      },
     },
     // Ensure chunks load in correct order
     cssCodeSplit: true,
@@ -47,6 +71,13 @@ export default defineConfig({
     target: 'esnext',
     // Minify options to prevent module issues
     minify: 'esbuild',
+    // Disable sourcemaps in production to prevent module resolution issues
+    sourcemap: false,
+    // Enable CommonJS interop for better module compatibility
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
   },
   plugins: [
     react({
