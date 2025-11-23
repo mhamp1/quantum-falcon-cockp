@@ -133,19 +133,13 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-<<<<<<< HEAD
         // CRITICAL: Simplified chunking to prevent "exports is undefined" errors
         // Strategy: React first, then everything else in one vendor chunk
         // This prevents circular dependencies and chunk loading race conditions
-=======
-        // CRITICAL: Fixed chunking to prevent "exports is undefined" errors
-        // Strategy: Separate Solana from other vendors to prevent module resolution issues
->>>>>>> 21d86c6940ac902b6009a44dfb4aedbf3c2285c5
         manualChunks: (id) => {
           // Only chunk node_modules
           if (!id.includes('node_modules')) {
             return;
-<<<<<<< HEAD
           }
           
           // React and core dependencies MUST be in separate chunk (loads first)
@@ -161,53 +155,6 @@ export default defineConfig({
           
           // Everything else goes into one vendor chunk
           // This prevents dependency issues between chunks
-=======
-          }
-          
-          // React and core dependencies MUST be in separate chunk (loads first)
-          if (
-            id.includes('/react/') || 
-            id.includes('/react-dom/') || 
-            id.includes('/react-is/') ||
-            id.includes('/scheduler/') ||
-            id.includes('react/jsx-runtime')
-          ) {
-            return 'vendor-react';
-          }
-          
-          // Solana packages in separate chunk (they have complex interdependencies)
-          // This prevents "J4 is undefined" errors caused by circular dependencies
-          if (
-            id.includes('@solana/') ||
-            id.includes('bn.js') ||
-            id.includes('buffer') ||
-            id.includes('borsh')
-          ) {
-            return 'vendor-solana';
-          }
-          
-          // Large UI libraries in their own chunk
-          if (
-            id.includes('framer-motion') ||
-            id.includes('radix-ui') ||
-            id.includes('recharts') ||
-            id.includes('three') ||
-            id.includes('d3')
-          ) {
-            return 'vendor-ui';
-          }
-          
-          // Socket.io and dependencies in separate chunk to avoid EventEmitter issues
-          if (
-            id.includes('socket.io-client') ||
-            id.includes('eventemitter3') ||
-            id.includes('engine.io-client')
-          ) {
-            return 'vendor-websocket';
-          }
-          
-          // Everything else in vendor chunk
->>>>>>> 21d86c6940ac902b6009a44dfb4aedbf3c2285c5
           return 'vendor';
         },
       },
