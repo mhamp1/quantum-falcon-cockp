@@ -80,6 +80,23 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // Convert to Error if needed
     const actualError = error instanceof Error ? error : new Error(String(error));
 
+    // CRITICAL: Check for chunk loading errors FIRST - force immediate reload
+    if (actualError.message && (
+      actualError.message.includes('error loading dynamically imported module') ||
+      actualError.message.includes('Loading chunk') ||
+      actualError.message.includes('Failed to fetch dynamically imported module') ||
+      actualError.message.includes('EnhancedDashboard') ||
+      actualError.message.includes('B29oJMZ1') // Old stale chunk hash
+    )) {
+      console.error('[ErrorBoundary] STALE CHUNK DETECTED - forcing immediate page reload');
+      console.error('[ErrorBoundary] Error:', actualError.message);
+      // Force page reload immediately - don't even set error state
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+      return { hasError: false, retryCount: 0 }; // Don't show error UI, just reload
+    }
+
     if (isNonCriticalError(actualError)) {
       console.debug('[ErrorBoundary] Suppressed non-critical error:', actualError.message);
       return { hasError: false, retryCount: 0 }
