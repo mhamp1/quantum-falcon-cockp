@@ -165,29 +165,10 @@ export default function APIIntegration() {
           duration: 5000
         })
         return
-        // The wallet adapter will handle the connection via modal
-        // We'll update the connection state after successful connection
-        const result = await settingsAPI.connectWallet(connectionId)
-        
-        if (result.success && result.data?.address) {
-          setConnections((current) => 
-            (current || []).map((conn) =>
-              conn.id === connectionId
-                ? { ...conn, connected: true, lastUsed: Date.now(), walletAddress: result.data?.address }
-                : conn
-            )
-          )
-          
-          toast.dismiss(`connect-${connectionId}`)
-          toast.success('✓ Wallet connected', {
-            description: `Address: ${result.data.address.slice(0, 8)}...${result.data.address.slice(-4)}`,
-            className: 'border-primary/50 bg-background/95',
-            duration: 4000
-          })
-        } else {
-          throw new Error(result.error || 'Failed to connect')
-        }
-      } else {
+      }
+      
+      // Handle other connection types
+      if (connectionId !== 'phantom' && connectionId !== 'solflare') {
         // Fallback for other connection types
         const result = await settingsAPI.connectWallet(connectionId)
         
