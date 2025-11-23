@@ -12,45 +12,42 @@ import './main.css';
 import './styles/theme.css';
 import './index.css';
 
-function isR3FError(error: Error | string): boolean {
+function isNonCriticalError(error: Error | string): boolean {
   const message = typeof error === 'string' ? error : (error?.message || '')
   const stack = typeof error === 'string' ? '' : (error?.stack || '')
+  
+  // Only suppress errors that are truly non-critical
+  // DO NOT suppress legitimate React errors like hook violations!
   return (
-    message.includes('R3F') ||
+    // R3F/Three.js specific errors that are cosmetic
+    (message.includes('R3F') || stack.includes('@react-three/fiber')) ||
     message.includes('data-component-loc') ||
     message.includes('__r3f') ||
     message.includes('Cannot set "data-component-loc-end"') ||
     message.includes('child.object is undefined') ||
-    message.includes('addEventListener') && message.includes('null') ||
-    message.includes('ResizeObserver') ||
-    message.includes('useContext') ||
-    message.includes('dispatcher') ||
-    message.includes('Rendered more hooks than') ||
-    message.includes('hooks can only be called') ||
-    message.includes('Failed to fetch KV key') ||
-    message.includes('Failed to set key') ||
-    message.includes('KV storage') ||
-    message.includes('_spark/kv') ||
-    message.includes('RefreshRuntime.register') ||
-    message.includes('RefreshRuntime') && message.includes('not a function') ||
-    // Azure Blob Storage and Spark runtime errors
-    message.includes('RestError') ||
-    message.includes('The specified blob does not exist') ||
-    message.includes('Failed to submit prompt') ||
-    message.includes('BlobNotFound') ||
-    message.includes('azure') && message.includes('blob') ||
+    
+    // Spark KV storage errors (with fallback)
+    (message.includes('Failed to fetch KV key') && message.includes('_spark/kv')) ||
+    (message.includes('Failed to set key') && message.includes('_spark/kv')) ||
+    (message.includes('KV storage') && stack.includes('@github/spark')) ||
     message.includes('spark.kv') ||
-    stack.includes('@react-three/fiber') ||
-    stack.includes('react-three') ||
-    stack.includes('spark/hooks') ||
-    stack.includes('@github/spark')
+    
+    // Azure Blob Storage errors (non-critical with fallback)
+    (message.includes('RestError') && message.includes('blob')) ||
+    (message.includes('The specified blob does not exist') && message.includes('azure')) ||
+    (message.includes('BlobNotFound') && message.includes('azure')) ||
+    
+    // Vite HMR non-critical warnings
+    (message.includes('RefreshRuntime.register') && !message.includes('not a function'))
   )
 }
 
 const originalConsoleError = console.error;
 console.error = (...args: any[]) => {
   const message = args.join(' ');
-  if (isR3FError(message)) {
+  if (isNonCriticalError(message)) {
+    // Log to debug console but don't spam the main console
+    console.debug('[Suppressed]', message.substring(0, 100));
     return;
   }
   originalConsoleError.apply(console, args);
@@ -59,14 +56,17 @@ console.error = (...args: any[]) => {
 const originalConsoleWarn = console.warn;
 console.warn = (...args: any[]) => {
   const message = args.join(' ');
-  if (isR3FError(message)) {
+  if (isNonCriticalError(message)) {
+    // Log to debug console but don't spam the main console
+    console.debug('[Suppressed]', message.substring(0, 100));
     return;
   }
   originalConsoleWarn.apply(console, args);
 };
 
 window.addEventListener('error', (event) => {
-  if (isR3FError(event.error || event.message)) {
+  if (isNonCriticalError(event.error || event.message)) {
+    console.debug('[Suppressed Error]', event.message?.substring(0, 100));
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -75,7 +75,8 @@ window.addEventListener('error', (event) => {
 }, true);
 
 window.addEventListener('unhandledrejection', (event) => {
-  if (isR3FError(event.reason)) {
+  if (isNonCriticalError(event.reason)) {
+    console.debug('[Suppressed Rejection]', String(event.reason)?.substring(0, 100));
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -216,8 +217,8 @@ try {
           console.error('[main.tsx] Error stack:', error.stack);
           console.error('[main.tsx] Component stack:', errorInfo.componentStack);
           
-          if (isR3FError(error)) {
-            console.log('[main.tsx] R3F error - suppressing');
+          if (isNonCriticalError(error)) {
+            console.debug('[main.tsx] Non-critical error - suppressing');
             return;
           }
           
@@ -287,7 +288,7 @@ try {
   console.error('[main.tsx] Error message:', error instanceof Error ? error.message : String(error));
   console.error('[main.tsx] Error stack:', error instanceof Error ? error.stack : 'No stack');
   console.error('[Root] Fatal render error:', error);
-  if (error instanceof Error && !isR3FError(error)) {
+  if (error instanceof Error && !isNonCriticalError(error)) {
     root.render(
       <div style={{ 
         minHeight: '100vh', 
