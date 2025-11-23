@@ -3,9 +3,6 @@
 
 // CRITICAL: Handle module format issues for browser compatibility
 
-// Try to import from polyfills already injected by vite-plugin-node-polyfills
-// The plugin should have already made these available as globals
-
 // Setup global environment first
 if (typeof window !== 'undefined') {
   // Global reference
@@ -31,14 +28,42 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Minimal EventEmitter fallback
+// Import buffer polyfill from the node polyfills plugin
+// The vite-plugin-node-polyfills should have made this available
+let BufferPolyfill: any;
+try {
+  // Try to get Buffer from global (injected by vite-plugin-node-polyfills)
+  BufferPolyfill = (window as any).Buffer || (globalThis as any).Buffer;
+  
+  if (!BufferPolyfill) {
+    // Fallback: dynamically import buffer package
+    import('buffer').then((bufferModule) => {
+      BufferPolyfill = bufferModule.Buffer;
+      if (typeof window !== 'undefined') {
+        (window as any).Buffer = BufferPolyfill;
+        (globalThis as any).Buffer = BufferPolyfill;
+      }
+      console.log('[Polyfills] Buffer loaded from buffer package');
+    }).catch(() => {
+      console.warn('[Polyfills] Failed to load Buffer polyfill');
+    });
+  } else {
+    console.log('[Polyfills] Buffer available from global');
+  }
+} catch (e) {
+  console.warn('[Polyfills] Buffer setup failed:', e);
+}
+
+// Minimal EventEmitter implementation for browser
 class MinimalEventEmitter {
   private events: Map<string, Function[]> = new Map();
+  
   on(event: string, handler: Function) {
     if (!this.events.has(event)) this.events.set(event, []);
     this.events.get(event)!.push(handler);
     return this;
   }
+  
   once(event: string, handler: Function) {
     const wrapper = (...args: any[]) => {
       this.off(event, wrapper);
@@ -46,11 +71,13 @@ class MinimalEventEmitter {
     };
     return this.on(event, wrapper);
   }
+  
   emit(event: string, ...args: any[]) {
     const handlers = this.events.get(event);
     if (handlers) handlers.forEach(h => h(...args));
     return this;
   }
+  
   off(event: string, handler: Function) {
     const handlers = this.events.get(event);
     if (handlers) {
@@ -59,9 +86,11 @@ class MinimalEventEmitter {
     }
     return this;
   }
+  
   removeListener(event: string, handler: Function) {
     return this.off(event, handler);
   }
+  
   removeAllListeners(event?: string) {
     if (event) {
       this.events.delete(event);
@@ -70,13 +99,26 @@ class MinimalEventEmitter {
     }
     return this;
   }
+  
+  addListener(event: string, handler: Function) {
+    return this.on(event, handler);
+  }
+  
+  listeners(event: string) {
+    return this.events.get(event) || [];
+  }
+  
+  listenerCount(event: string) {
+    return (this.events.get(event) || []).length;
+  }
+  
+  eventNames() {
+    return Array.from(this.events.keys());
+  }
 }
 
-// Check if Buffer is already available from polyfill plugin
-const BufferPolyfill = (window as any).Buffer || (globalThis as any).Buffer;
-
-// Check if EventEmitter is available, otherwise use minimal implementation
-const EventEmitterImpl = (window as any).EventEmitter || (globalThis as any).EventEmitter || MinimalEventEmitter;
+// Use our minimal EventEmitter implementation
+const EventEmitterImpl = MinimalEventEmitter;
 
 // Ensure they're set on all global scopes
 if (typeof window !== 'undefined') {
@@ -88,8 +130,10 @@ if (typeof window !== 'undefined') {
   (window as any).EventEmitter = EventEmitterImpl;
   (globalThis as any).EventEmitter = EventEmitterImpl;
   
-  console.log('[Polyfills] Buffer type:', BufferPolyfill ? 'available' : 'unavailable');
-  console.log('[Polyfills] EventEmitter type:', EventEmitterImpl ? 'available' : 'unavailable');
+  // Also export under eventemitter3 namespace for compatibility
+  (window as any).eventemitter3 = { EventEmitter: EventEmitterImpl };
+  
+  console.log('[Polyfills] EventEmitter implementation:', EventEmitterImpl ? 'available' : 'unavailable');
   console.log('[Polyfills] Process type:', (window as any).process ? 'available' : 'unavailable');
   console.log('[Polyfills] Global setup complete');
 }
@@ -97,3 +141,4 @@ if (typeof window !== 'undefined') {
 // Re-export with named exports for compatibility
 export { BufferPolyfill as Buffer, EventEmitterImpl as EventEmitter };
 export default EventEmitterImpl;
+

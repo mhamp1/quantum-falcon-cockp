@@ -145,7 +145,6 @@ export default defineConfig({
         global: true,
         process: true,
       },
-      // Ensure proper module format
       protocolImports: true,
     }),
     react({
@@ -160,12 +159,7 @@ export default defineConfig({
     alias: {
       '@': resolve(projectRoot, 'src'),
       // Explicit polyfill aliases to ensure correct module resolution
-      'buffer': 'buffer/',
-      'eventemitter3': 'eventemitter3/index.js',
       'stream': 'stream-browserify',
-      'util': 'util/',
-      // Fix bs58 default export issue
-      'bs58': 'bs58/index.js',
     },
     // CRITICAL: Force all dependencies to use YOUR React version
     // This prevents "can't access property 'createContext' of undefined" errors
@@ -185,8 +179,8 @@ export default defineConfig({
       'react-dom',
       'canvas-confetti',
       'buffer',
-      'eventemitter3',
-      'bs58',
+      'stream-browserify',
+      'util',
     ],
     exclude: [
       '@solana/wallet-adapter-react',
