@@ -30,6 +30,35 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src')
     }
   },
+  build: {
+    // Use content-based chunk naming to prevent stale chunk issues
+    rollupOptions: {
+      output: {
+        // Content-based hashing ensures chunks update when content changes
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        // Manual chunks for better caching
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@solana')) {
+              return 'vendor-solana';
+            }
+            if (id.includes('three') || id.includes('@react-three')) {
+              return 'vendor-3d';
+            }
+            return 'vendor';
+          }
+        },
+      },
+    },
+    // Increase chunk size warning limit
+    chunkSizeWarningLimit: 1000,
+  },
   server: {
     // Allow requests to GitHub API for Spark runtime KV storage and other services
     // This prevents Vite 6's HTTP blocking from interfering with the Spark plugin's proxy

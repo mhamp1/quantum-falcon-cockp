@@ -116,6 +116,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return;
     }
     
+    // Don't retry on chunk loading errors - force page reload instead
+    if (actualError.message && (
+      actualError.message.includes('error loading dynamically imported module') ||
+      actualError.message.includes('Loading chunk') ||
+      actualError.message.includes('Failed to fetch dynamically imported module') ||
+      actualError.message.includes('EnhancedDashboard')
+    )) {
+      console.error('[ErrorBoundary] Chunk loading error detected - forcing page reload');
+      console.error('[ErrorBoundary] Error:', actualError.message);
+      // Force page reload to get fresh chunks
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+      return;
+    }
+    
     console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
     
     this.setState({ error: actualError, errorInfo });
@@ -128,8 +144,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
     }
 
-    // Only retry on actual component errors, not CSS warnings
-    if (this.state.retryCount < 2 && !actualError.message.includes('CSS')) {
+    // Only retry on actual component errors, not CSS warnings or chunk errors
+    if (this.state.retryCount < 2 && !actualError.message.includes('CSS') && !actualError.message.includes('chunk')) {
       const retryDelay = 1000;
       console.log(`[ErrorBoundary] Auto-retry ${this.state.retryCount + 1}/2 in ${retryDelay}ms`);
       
@@ -142,7 +158,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }));
       }, retryDelay);
     } else {
-      console.error('[ErrorBoundary] Max retry attempts reached or CSS error, showing error UI');
+      console.error('[ErrorBoundary] Max retry attempts reached or non-retryable error, showing error UI');
     }
   }
 
