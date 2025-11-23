@@ -28,49 +28,46 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Manual chunking to prevent module loading race conditions
-        // This fixes "can't access property 'exports', J4 is undefined" errors
+        // CRITICAL: Simplified chunking to prevent "exports is undefined" errors
+        // Strategy: React first, then everything else in one vendor chunk
+        // This prevents circular dependencies and chunk loading race conditions
         manualChunks: (id) => {
-          // Solana packages must be in separate chunk due to complex dependencies
-          if (id.includes('@solana/') || id.includes('@metaplex')) {
-            return 'vendor-solana';
+          // Only chunk node_modules
+          if (!id.includes('node_modules')) {
+            return;
           }
-          // Large vendor libraries that should be cached separately
-          if (id.includes('node_modules')) {
-            // React and core dependencies
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is')) {
-              return 'vendor-react';
-            }
-            // UI libraries
-            if (id.includes('@radix-ui') || id.includes('framer-motion') || id.includes('recharts')) {
-              return 'vendor-ui';
-            }
-            // All other vendor code
-            return 'vendor';
+          
+          // React and core dependencies MUST be in separate chunk (loads first)
+          if (
+            id.includes('/react/') || 
+            id.includes('/react-dom/') || 
+            id.includes('/react-is/') ||
+            id.includes('/scheduler/') ||
+            id.includes('react/jsx-runtime')
+          ) {
+            return 'vendor-react';
           }
+          
+          // Everything else goes into one vendor chunk
+          // This prevents dependency issues between chunks
+          return 'vendor';
         },
       },
     },
-    // Increase chunk size warning limit
-    chunkSizeWarningLimit: 1000,
     // Ensure proper HTML handling
     outDir: 'dist',
     emptyOutDir: true,
-    // Optimize chunk loading to prevent race conditions
-    modulePreload: {
-      polyfill: true,
-      // Ensure all module dependencies are preloaded before execution
-      resolveDependencies: (filename, deps, { hostId, hostType }) => {
-        // Return all dependencies to ensure they're loaded before the module executes
-        return deps;
-      },
-    },
+    // CRITICAL: Disable modulePreload to prevent chunk loading race conditions
+    // The manual chunking strategy ensures proper load order instead
+    modulePreload: false,
     // Ensure chunks load in correct order
     cssCodeSplit: true,
     // Target modern browsers for better module support
     target: 'esnext',
     // Minify options to prevent module issues
     minify: 'esbuild',
+    // Increase chunk size warning limit (large vendor bundles are expected)
+    chunkSizeWarningLimit: 2000,
     // Generate sourcemaps but don't expose them to users (for debugging production issues)
     sourcemap: 'hidden',
   },
