@@ -160,57 +160,68 @@ export class EnhancedLicenseService {
 
       const hardware_id = hardwareId || (this.deviceFingerprint?.fingerprint)
       
-      const response = await fetch(`${LICENSE_API_URL}/validate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Origin': 'quantum-falcon-cockpit',
-          'X-Version': '2025.1.0'
-        },
-        body: JSON.stringify({
-          license_key: licenseKey,
-          hardware_id: hardware_id,
-          device_fingerprint: this.deviceFingerprint,
-        }),
-      })
+      // Add timeout to fetch to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
+      try {
+        const response = await fetch(`${LICENSE_API_URL}/validate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Origin': 'quantum-falcon-cockpit',
+            'X-Version': '2025.1.0'
+          },
+          body: JSON.stringify({
+            license_key: licenseKey,
+            hardware_id: hardware_id,
+            device_fingerprint: this.deviceFingerprint,
+          }),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'API request failed' }))
-        throw new Error(errorData.error || `API request failed: ${response.statusText}`)
-      }
-
-      const result: LicenseValidationResponse = await response.json()
-
-      // If valid, store in KV
-      if (result.valid && result.token) {
-        const licenseData: LicenseData = {
-          licenseKey,
-          tier: result.tier,
-          expires_at: result.expires_at,
-          user_id: result.user_id || '',
-          features: result.features,
-          validated_at: result.validated_at || new Date().toISOString(),
-          token: result.token,
-          hardware_id: hardware_id,
-          device_fingerprint: this.deviceFingerprint || undefined,
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'API request failed' }))
+          throw new Error(errorData.error || `API request failed: ${response.statusText}`)
         }
-        this.saveToKV(licenseData)
 
-        // If hardware binding is enabled and not yet bound, bind device
-        if (ENABLE_HARDWARE_BINDING && !result.hardware_bound && this.deviceFingerprint) {
-          try {
-            await this.bindDevice(licenseKey)
-            // Device bound successfully - no logging needed
-          } catch (bindError) {
-            // Device binding failed - non-critical, silent fail
+        const result: LicenseValidationResponse = await response.json()
+
+        // If valid, store in KV
+        if (result.valid && result.token) {
+          const licenseData: LicenseData = {
+            licenseKey,
+            tier: result.tier,
+            expires_at: result.expires_at,
+            user_id: result.user_id || '',
+            features: result.features,
+            validated_at: result.validated_at || new Date().toISOString(),
+            token: result.token,
+            hardware_id: hardware_id,
+            device_fingerprint: this.deviceFingerprint || undefined,
           }
-        }
-      } else {
-        // Invalid license - clear KV
-        this.clearKV()
-      }
+          this.saveToKV(licenseData)
 
-      return result
+          // If hardware binding is enabled and not yet bound, bind device
+          if (ENABLE_HARDWARE_BINDING && !result.hardware_bound && this.deviceFingerprint) {
+            try {
+              await this.bindDevice(licenseKey)
+              // Device bound successfully - no logging needed
+            } catch (bindError) {
+              // Device binding failed - non-critical, silent fail
+            }
+          }
+        } else {
+          // Invalid license - clear KV
+          this.clearKV()
+        }
+
+        return result;
+      } finally {
+        clearTimeout(timeoutId);
+      }
     } catch (error) {
       // Silent error handling
       return {

@@ -524,11 +524,14 @@ export default function App() {
         console.warn('[App] Auth initialization timeout - forcing render');
         setAuthTimeout(true);
       }
-    }, 5000); // 5 second timeout
+    }, 3000); // 3 second timeout (reduced from 5)
     return () => clearTimeout(timer);
   }, [persistentAuth.isInitialized]);
 
-  if ((!persistentAuth.isInitialized || (persistentAuth.isLoading && !auth?.isAuthenticated)) && !authTimeout) {
+  // CRITICAL: Show loading screen only if truly initializing (not stuck)
+  const shouldShowLoading = !persistentAuth.isInitialized && !authTimeout && persistentAuth.isLoading;
+  
+  if (shouldShowLoading) {
     return (
       <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
         <LoadingFallback message="Initializing Quantum Falcon..." />
@@ -536,8 +539,8 @@ export default function App() {
     );
   }
 
-  // Show login page if not authenticated (after initialization is complete or timeout)
-  if (!auth?.isAuthenticated && (persistentAuth.isInitialized || authTimeout) && !persistentAuth.isLoading) {
+  // Show login page if not authenticated
+  if (!auth?.isAuthenticated) {
     return (
       <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
         <Suspense fallback={<LoadingFallback message="Loading Login..." />}>

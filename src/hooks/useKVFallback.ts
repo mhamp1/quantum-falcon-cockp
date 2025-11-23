@@ -39,10 +39,19 @@ export function useKVSafe<T>(
       }
     };
 
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (isMountedRef.current && !isInitialized) {
+        console.warn(`[useKVSafe] Timeout loading key "${key}", using default`);
+        setIsInitialized(true);
+      }
+    }, 2000);
+
     loadInitialValue();
 
     return () => {
       isMountedRef.current = false;
+      clearTimeout(timeoutId);
     };
   }, [key]);
 

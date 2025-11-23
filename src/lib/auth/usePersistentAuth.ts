@@ -316,7 +316,18 @@ export const usePersistentAuth = () => {
       }
     }
 
-    autoLogin()
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (!isInitialized) {
+        console.warn('[usePersistentAuth] Auto-login timeout - forcing initialization');
+        setIsLoading(false);
+        setIsInitialized(true);
+      }
+    }, 3000);
+
+    autoLogin();
+    
+    return () => clearTimeout(timeoutId);
   }, [setAuth])
 
   return {
