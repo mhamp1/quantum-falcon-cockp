@@ -1,6 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, PluginOption } from "vite";
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 import sparkPlugin from "@github/spark/spark-vite-plugin";
 import createIconImportProxy from "@github/spark/vitePhosphorIconProxyPlugin";
@@ -8,9 +9,35 @@ import { resolve } from 'path'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
-// Set SPARK_DIR to the current project root to avoid hardcoded /workspaces/spark-template path
 if (!process.env.SPARK_DIR) {
   process.env.SPARK_DIR = projectRoot
+}
+
+// Custom plugin to inject polyfills before anything else
+function polyfillsPlugin(): PluginOption {
+  return {
+    name: 'polyfills-injector',
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        return html.replace(
+          '<head>',
+          `<head>
+    <script>
+      // Global polyfills - must run before any module loads
+      window.global = window;
+      window.process = window.process || { 
+        env: {}, 
+        browser: true,
+        nextTick: (fn) => setTimeout(fn, 0),
+        version: '',
+        versions: { node: '' }
+      };
+    </script>`
+        )
+      }
+    }
+  }
 }
 
 // https://vite.dev/config/
@@ -104,24 +131,30 @@ export default defineConfig({
   commonjsOptions: {
     include: [/node_modules/],
     transformMixedEsModules: true,
+    requireReturnsDefault: 'auto',
+    defaultIsModuleExports: 'auto',
   },
   plugins: [
+    polyfillsPlugin(),
+    nodePolyfills({
+      include: ['buffer', 'events', 'stream', 'util', 'process'],
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
     react({
       fastRefresh: true,
       jsxRuntime: 'automatic',
     }),
     tailwindcss(),
-    // DO NOT REMOVE - Spark plugin (only loads in Spark environment)
     createIconImportProxy() as PluginOption,
-    // Spark plugin - safe to include, only activates in Spark environment
-    // In Vercel/other platforms, this plugin is a no-op
     sparkPlugin() as PluginOption,
   ],
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src'),
-      'buffer': 'buffer/',
-      'events': 'eventemitter3',
     },
     // CRITICAL: Force all dependencies to use YOUR React version
     // This prevents "can't access property 'createContext' of undefined" errors
@@ -133,21 +166,14 @@ export default defineConfig({
     ],
   },
   define: {
-    'global': 'globalThis',
-    'process.env': {},
+    // Node polyfills plugin handles these
   },
   optimizeDeps: {
-    // Pre-bundle React to ensure it resolves correctly in all environments
-    // CRITICAL: Explicitly include React to prevent duplicate React instances
     include: [
       'react',
       'react-dom',
       'canvas-confetti',
-      'socket.io-client',
-      'eventemitter3',
-      'buffer',
     ],
-    // Exclude problematic packages that may not be installed
     exclude: [
       '@solana/wallet-adapter-react',
       '@solana/wallet-adapter-base',
@@ -155,12 +181,8 @@ export default defineConfig({
       '@solana/wallet-adapter-wallets',
       '@solana/web3.js',
     ],
-    // Force Vite to optimize these even if they're large
     esbuildOptions: {
       target: 'esnext',
-      define: {
-        global: 'globalThis',
-      },
     },
   },
   server: {
