@@ -121,7 +121,8 @@ function moduleInteropPlugin(): PluginOption {
 export default defineConfig({
   // CRITICAL: Set base path for correct asset loading
   // Use '/' for Vercel/Spark (root deployment)
-  base: '/',
+  // Use '/quantum-falcon-cockp/' for GitHub Pages deployment
+  base: process.env.GITHUB_PAGES === 'true' ? '/quantum-falcon-cockp/' : '/',
   // Explicit entry point for build
   build: {
     // Use content-based chunk naming to prevent stale chunk issues

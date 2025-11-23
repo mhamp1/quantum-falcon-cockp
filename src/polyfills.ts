@@ -1,17 +1,14 @@
 // Polyfills for Node.js modules in browser environment
 
-
 // Import with proper ESM compatibility
-import BufferModule from 'buffer';
-import * as EventEmitterModule from 'eventemitter3';
+import { Buffer as BufferPolyfill } from 'buffer';
+import EventEmitter3 from 'eventemitter3';
 
-  (window as any).Buffer = BufferPolyfill;
-  
-  (window as any).global = window;
+// Use EventEmitter3 as the implementation
+const EventEmitterImpl = EventEmitter3;
 
-  if (!(window as any).proc
-      env: {},
-      nextTick: (fn: Function, ...args
+// Buffer polyfill
+if (typeof window !== 'undefined') {
   (window as any).Buffer = BufferPolyfill;
   (globalThis as any).Buffer = BufferPolyfill;
   
@@ -26,13 +23,15 @@ import * as EventEmitterModule from 'eventemitter3';
       browser: true,
       nextTick: (fn: Function, ...args: any[]) => setTimeout(() => fn(...args), 0),
       version: '',
-
+      versions: { node: '' },
       platform: 'browser',
-
+      cwd: () => '/',
       title: 'browser',
       argv: [],
+      pid: 1,
+      umask: () => 0,
     };
-
+  }
 
   // EventEmitter - set on window and as module export
   (window as any).EventEmitter = EventEmitterImpl;
@@ -42,14 +41,13 @@ import * as EventEmitterModule from 'eventemitter3';
     (window as any).__vite_ssr_import_2__ = {
       EventEmitter: EventEmitterImpl,
       default: EventEmitterImpl,
-
+    };
   }
 
   console.log('[Polyfills] Buffer:', typeof BufferPolyfill);
   console.log('[Polyfills] EventEmitter:', typeof EventEmitterImpl);
   console.log('[Polyfills] Global setup complete');
-
-
+}
 
 export { BufferPolyfill as Buffer, EventEmitterImpl as EventEmitter };
 export default EventEmitterImpl;
