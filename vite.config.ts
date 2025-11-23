@@ -94,16 +94,28 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src')
-    }
+    },
+    // CRITICAL: Force all dependencies to use YOUR React version
+    // This prevents "can't access property 'createContext' of undefined" errors
+    dedupe: [
+      'react',
+      'react-dom',
+      '@types/react',
+      '@types/react-dom'
+    ],
   },
   optimizeDeps: {
-    // Pre-bundle Solana packages to ensure they resolve correctly in all environments
+    // Pre-bundle React and Solana packages to ensure they resolve correctly in all environments
+    // CRITICAL: Explicitly include React to prevent duplicate React instances
     include: [
+      'react',
+      'react-dom',
       '@solana/wallet-adapter-react',
       '@solana/wallet-adapter-base',
       '@solana/wallet-adapter-react-ui',
       '@solana/wallet-adapter-wallets',
       '@solana/web3.js',
+      'canvas-confetti',
     ],
     // Force Vite to optimize these even if they're large
     esbuildOptions: {
