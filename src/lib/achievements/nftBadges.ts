@@ -1,9 +1,11 @@
 // On-Chain NFT Achievement Badges
 // November 21, 2025 — Quantum Falcon Cockpit
 // Real Solana NFTs minted for user achievements
+// DISABLED: Solana wallet-adapter conflicts with React 19
 
-import { Connection, PublicKey } from '@solana/web3.js'
-// Note: You'll need to install @metaplex-foundation/mpl-token-metadata or use your preferred NFT minting library
+// Stub Solana types to avoid imports
+type Connection = any;
+type PublicKey = any;
 
 export interface AchievementNFT {
   id: string

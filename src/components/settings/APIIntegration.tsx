@@ -156,12 +156,15 @@ export default function APIIntegration() {
     })
 
     try {
-      // Use real Solana wallet adapter
-      const { useWallet } = await import('@/hooks/useWallet')
-      const { useWalletModal } = await import('@solana/wallet-adapter-react-ui')
+      // Wallet functionality temporarily disabled due to React 19 + Solana conflicts
       
-      // For wallet connections, trigger wallet modal
+      // For wallet connections, show temporary disabled message
       if (connectionId === 'phantom' || connectionId === 'solflare') {
+        toast.error('Wallet Connection Temporarily Disabled', {
+          description: 'Solana wallet adapters are temporarily disabled due to React 19 compatibility issues. Check back soon!',
+          duration: 5000
+        })
+        return
         // The wallet adapter will handle the connection via modal
         // We'll update the connection state after successful connection
         const result = await settingsAPI.connectWallet(connectionId)

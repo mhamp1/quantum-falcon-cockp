@@ -1,8 +1,14 @@
 // Secure Wallet Hook — Production Ready
 // November 21, 2025 — Quantum Falcon Cockpit
+// DISABLED: Solana wallet-adapter conflicts with React 19
 
 import { useCallback } from 'react'
-import { PublicKey } from '@solana/web3.js'
+
+// Stub PublicKey class to avoid Solana import
+class PublicKey {
+  constructor(public value: string) {}
+  toBase58() { return this.value; }
+}
 
 /**
  * Enhanced wallet hook with security features
