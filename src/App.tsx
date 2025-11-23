@@ -500,6 +500,7 @@ export default function App() {
     setShowOnboarding(false);
   };
 
+  // ALWAYS render - no conditions, no guards
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
       {/* CRITICAL DEBUG BANNER - Always visible if React renders */}
@@ -518,7 +519,7 @@ export default function App() {
         borderBottom: '3px solid #00ffff',
         boxShadow: '0 4px 20px rgba(255, 20, 147, 0.5)'
       }}>
-        🚀 QUANTUM FALCON DEBUG: APP RENDERED | Tab: {activeTab} | Mobile: {isMobile ? 'YES' : 'NO'} | Time: {new Date().toLocaleTimeString()}
+        🚀 QUANTUM FALCON DEBUG: APP RENDERED | Tab: {activeTab || 'dashboard'} | Mobile: {isMobile ? 'YES' : 'NO'} | Time: {new Date().toLocaleTimeString()}
       </div>
       
       <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')} style={{ paddingTop: '60px' }}>
