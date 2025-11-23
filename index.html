@@ -5,6 +5,75 @@
     <link rel="icon" type="image/svg+xml" href="/falcon-head-official.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quantum Falcon Cockpit</title>
+    <script>
+      // Critical polyfills that must exist before any module loads
+      window.global = window.global || window;
+      window.process = window.process || {
+        env: {},
+        browser: true,
+        version: '',
+        versions: { node: '' },
+        nextTick: function(fn) { setTimeout(fn, 0); },
+        platform: 'browser',
+        cwd: function() { return '/'; },
+        title: 'browser',
+        argv: [],
+        pid: 1,
+        umask: function() { return 0; },
+      };
+      
+      // Ensure globalThis is available
+      if (typeof globalThis !== 'undefined') {
+        globalThis.global = globalThis.global || globalThis;
+        globalThis.process = globalThis.process || window.process;
+      }
+      
+      // EventEmitter polyfill - minimal implementation for browser
+      if (!window.EventEmitter) {
+        class EventEmitterPolyfill {
+          constructor() {
+            this._events = new Map();
+          }
+          on(event, handler) {
+            if (!this._events.has(event)) this._events.set(event, []);
+            this._events.get(event).push(handler);
+            return this;
+          }
+          once(event, handler) {
+            const wrapper = function(...args) {
+              this.off(event, wrapper);
+              handler.apply(this, args);
+            }.bind(this);
+            return this.on(event, wrapper);
+          }
+          emit(event, ...args) {
+            const handlers = this._events.get(event);
+            if (handlers) handlers.forEach(h => h.apply(this, args));
+            return this;
+          }
+          off(event, handler) {
+            const handlers = this._events.get(event);
+            if (handlers) {
+              const index = handlers.indexOf(handler);
+              if (index > -1) handlers.splice(index, 1);
+            }
+            return this;
+          }
+          removeListener(event, handler) { return this.off(event, handler); }
+          addListener(event, handler) { return this.on(event, handler); }
+          removeAllListeners(event) {
+            if (event) this._events.delete(event);
+            else this._events.clear();
+            return this;
+          }
+          listeners(event) { return this._events.get(event) || []; }
+          listenerCount(event) { return (this._events.get(event) || []).length; }
+          eventNames() { return Array.from(this._events.keys()); }
+        }
+        window.EventEmitter = EventEmitterPolyfill;
+        globalThis.EventEmitter = EventEmitterPolyfill;
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

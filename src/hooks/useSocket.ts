@@ -1,43 +1,62 @@
 // Custom hook for WebSocket connection
 import { useEffect, useState } from 'react'
-import { io, Socket } from 'socket.io-client'
+
+// Type definitions for Socket.IO
+type Socket = any
 
 export const useSocket = (url: string) => {
   const [socket, setSocket] = useState<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    // Get JWT token from localStorage if available
-    const token = localStorage.getItem('jwt') || ''
-    
-    // Create socket connection with auth
-    const socketInstance = io(url, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5
-    })
+    let socketInstance: Socket | null = null
+    let mounted = true
 
-    socketInstance.on('connect', () => {
-      console.log('WebSocket connected')
-      setIsConnected(true)
-    })
+    const initSocket = async () => {
+      try {
+        const { io } = await import('socket.io-client')
+        
+        if (!mounted) return
 
-    socketInstance.on('disconnect', () => {
-      console.log('WebSocket disconnected')
-      setIsConnected(false)
-    })
+        const token = localStorage.getItem('jwt') || ''
+        
+        socketInstance = io(url, {
+          auth: { token },
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionAttempts: 5
+        })
 
-    socketInstance.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error)
-      setIsConnected(false)
-    })
+        socketInstance.on('connect', () => {
+          console.log('WebSocket connected')
+          if (mounted) setIsConnected(true)
+        })
 
-    setSocket(socketInstance)
+        socketInstance.on('disconnect', () => {
+          console.log('WebSocket disconnected')
+          if (mounted) setIsConnected(false)
+        })
+
+        socketInstance.on('connect_error', (error: any) => {
+          console.error('WebSocket connection error:', error)
+          if (mounted) setIsConnected(false)
+        })
+
+        if (mounted) setSocket(socketInstance)
+      } catch (error) {
+        console.error('Failed to initialize socket.io-client:', error)
+        if (mounted) setSocket(null)
+      }
+    }
+
+    initSocket()
 
     return () => {
-      socketInstance.disconnect()
+      mounted = false
+      if (socketInstance) {
+        socketInstance.disconnect()
+      }
     }
   }, [url])
 

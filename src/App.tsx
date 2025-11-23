@@ -61,13 +61,13 @@ import AmbientParticles from '@/components/shared/AmbientParticles';
 import ConnectionStatusIndicator from '@/components/shared/ConnectionStatusIndicator';
 import TabVerificationTester from '@/components/shared/TabVerificationTester';
 import AppHealthMonitor from '@/components/shared/AppHealthMonitor';
+import { BuildHealthCheck } from '@/components/shared/BuildHealthCheck';
 import { useDailyLearning } from '@/hooks/useDailyLearning';
 import { SecurityManager } from '@/lib/security';
 import { updateDiscordRichPresence } from '@/lib/discord/oauth';
 import { isGodMode, activateGodMode, deactivateGodMode } from '@/lib/godMode';
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
-// Import canvas-confetti with default import for Vite compatibility
 import confetti from 'canvas-confetti';
 
 // Lazy load with error handling and retry logic for production builds
@@ -598,6 +598,7 @@ export default function App() {
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
         <AppHealthMonitor />
+        <BuildHealthCheck />
         
         {/* Tab Verification Tester - Cmd/Ctrl+Shift+V to open */}
         {showVerificationTester && (

@@ -297,7 +297,7 @@ export default function RiskDisclosureModal({
     }
   }
 
-  const isAcceptEnabled = check1 && check2 && check3 && canAccept && canAcceptTos
+  const isAcceptEnabled = check1 && check2 && check3 && check4 && canAccept && canAcceptTos
 
   const handleAccept = async () => {
     if (isAcceptEnabled) {
