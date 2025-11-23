@@ -26,47 +26,66 @@ interface WalletProviderProps {
  * Network: Mainnet (production) or Devnet (development)
  */
 export function WalletProvider({ children }: WalletProviderProps) {
-  // Determine network from environment
-  const network = useMemo(() => {
-    const envNetwork = import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta'
-    return envNetwork === 'mainnet-beta' 
-      ? WalletAdapterNetwork.Mainnet 
-      : WalletAdapterNetwork.Devnet
-  }, [])
+  console.log('[WalletProvider] Rendering...');
+  
+  try {
+    // Determine network from environment
+    const network = useMemo(() => {
+      const envNetwork = import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta'
+      return envNetwork === 'mainnet-beta' 
+        ? WalletAdapterNetwork.Mainnet 
+        : WalletAdapterNetwork.Devnet
+    }, [])
 
-  // RPC endpoint - use environment variable or default
-  const endpoint = useMemo(() => {
-    const customRpc = import.meta.env.VITE_SOLANA_RPC_URL
-    if (customRpc) {
-      return customRpc
-    }
-    
-    // Default to Helius or public RPC
-    if (network === WalletAdapterNetwork.Mainnet) {
-      return import.meta.env.VITE_HELIUS_RPC_URL || clusterApiUrl('mainnet-beta')
-    }
-    return clusterApiUrl('devnet')
-  }, [network])
+    // RPC endpoint - use environment variable or default
+    const endpoint = useMemo(() => {
+      const customRpc = import.meta.env.VITE_SOLANA_RPC_URL
+      if (customRpc) {
+        return customRpc
+      }
+      
+      // Default to Helius or public RPC
+      if (network === WalletAdapterNetwork.Mainnet) {
+        return import.meta.env.VITE_HELIUS_RPC_URL || clusterApiUrl('mainnet-beta')
+      }
+      return clusterApiUrl('devnet')
+    }, [network])
 
-  // Initialize wallet adapters
-  const wallets = useMemo(
-    () => [
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter(),
-      new LedgerWalletAdapter(),
-      new TorusWalletAdapter(),
-    ],
-    []
-  )
+    // Initialize wallet adapters
+    const wallets = useMemo(
+      () => {
+        try {
+          return [
+            new PhantomWalletAdapter(),
+            new SolflareWalletAdapter(),
+            new LedgerWalletAdapter(),
+            new TorusWalletAdapter(),
+          ]
+        } catch (error) {
+          console.error('[WalletProvider] Error creating wallet adapters:', error);
+          // Return empty array as fallback
+          return [];
+        }
+      },
+      []
+    )
 
-  return (
-    <ConnectionProvider endpoint={endpoint}>
-      <SolanaWalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          {children}
-        </WalletModalProvider>
-      </SolanaWalletProvider>
-    </ConnectionProvider>
-  )
+    console.log('[WalletProvider] Wallets initialized:', wallets.length);
+    console.log('[WalletProvider] Endpoint:', endpoint);
+
+    return (
+      <ConnectionProvider endpoint={endpoint}>
+        <SolanaWalletProvider wallets={wallets} autoConnect>
+          <WalletModalProvider>
+            {children}
+          </WalletModalProvider>
+        </SolanaWalletProvider>
+      </ConnectionProvider>
+    )
+  } catch (error) {
+    console.error('[WalletProvider] Fatal error:', error);
+    // Fallback: render children without wallet provider
+    return <>{children}</>;
+  }
 }
 

@@ -60,9 +60,9 @@ Every contribution, no matter the size, helps us deliver cutting-edge features, 
 
 ---
 
-![Quantum Falcon Theme](https://github.com/user-attachments/assets/650689ad-bb01-4ece-83f2-c129c179c6d9)
+## 🎨 Quantum Falcon Theme
 
-## 🎨 Cyberpunk Neon Theme
+### Cyberpunk Neon Theme
 
 This app features a custom Solana-inspired cyberpunk theme with neon aesthetics, holographic effects, and smooth animations.
 
@@ -85,6 +85,8 @@ import { HolographicCard, NeonProgress, NeonBadge } from '@/components/ui'
 </HolographicCard>
 ```
 
+---
+
 ## 📖 About Quantum Falcon Cockpit
 
 **Quantum Falcon Cockpit** is a professional-grade, cyberpunk-themed progressive web application (PWA) designed for cryptocurrency traders and quantitative researchers. It combines cutting-edge AI technology with an immersive user experience to provide a comprehensive trading platform.
@@ -98,6 +100,8 @@ Quantum Falcon is an advanced trading ecosystem that brings institutional-grade 
 - **Risk Management**: Built-in position sizing, stop-loss, and portfolio management
 - **Performance Analytics**: Detailed metrics, backtesting, and trade journaling
 - **Community Collaboration**: Share strategies, learn from others, and grow together
+- **NFT Collection System**: AI-generated NFT collections with rarity tiers and quest rewards
+- **Quest-Based Rewards**: Complete challenges, earn XP, and unlock exclusive NFTs
 
 ### Who is it for?
 
@@ -106,6 +110,7 @@ Quantum Falcon is an advanced trading ecosystem that brings institutional-grade 
 - **Crypto Enthusiasts**: Learn trading with paper trading mode and educational resources
 - **Portfolio Managers**: Track multiple strategies and assets in one unified dashboard
 - **Professional Traders**: Scale operations with multi-agent AI assistance
+- **NFT Collectors**: Collect AI-generated Quantum Falcon NFTs through quests and seasonal collections
 
 ### Key Differentiators
 
@@ -114,9 +119,12 @@ Quantum Falcon is an advanced trading ecosystem that brings institutional-grade 
 3. **Mobile + Desktop**: Seamless experience across all devices
 4. **AI-Powered**: Three autonomous agents handle analysis, execution, and optimization
 5. **Gamified Learning**: Progress through levels, earn achievements, and master trading
-6. **Open Source**: MIT licensed, transparent, and community-driven
+6. **NFT Integration**: Collect unique AI-generated NFTs tied to trading achievements
+7. **Open Source**: MIT licensed, transparent, and community-driven
 
 Built with **React 19**, **TypeScript**, **Vite**, and modern web technologies for maximum performance and reliability.
+
+---
 
 ## 📋 Table of Contents
 
@@ -129,6 +137,8 @@ Built with **React 19**, **TypeScript**, **Vite**, and modern web technologies f
 - [Offline-First with LocalStorage](#-offline-first-with-localstorage)
 - [Backend API Integration](#-backend-api-integration)
 - [XP Synchronization Logic](#-xp-synchronization-logic)
+- [NFT Collection System](#-nft-collection-system)
+- [Quest System](#-quest-system)
 - [Development Workflow](#-development-workflow)
 - [Testing with Desktop Backend](#-testing-with-desktop-backend)
 - [Theming & Customization](#-theming--customization)
@@ -140,16 +150,25 @@ Built with **React 19**, **TypeScript**, **Vite**, and modern web technologies f
 > 
 > **Code Quality**: See [CODE_QUALITY_IMPROVEMENTS.md](./docs/CODE_QUALITY_IMPROVEMENTS.md) for details on recent code quality improvements and linting setup.
 
+---
+
 ## ✨ Features
 
 - **Multi-Agent Trading System**: Three autonomous AI agents (Market Analysis, Strategy Execution, RL Optimizer)
 - **Advanced Analytics**: Real-time performance metrics, PnL charts, win rates, and strategy breakdowns
 - **Gamification System**: XP progression (50 levels), achievements, streaks, and visual rewards
+- **Quest System**: Complete challenges to earn XP and unlock exclusive tier-gated NFTs
+- **NFT Collection Engine**: AI-generated NFT collections with rarity tiers (Legendary, Epic, Rare, Uncommon, Common)
+- **Seasonal NFT Collections**: Automated seasonal themes (Winter, Spring, Summer, Autumn, Christmas, Halloween, Bull/Bear)
 - **Community Features**: Strategy marketplace, secure forum with comments/likes, rotating special offers
 - **BTC Profit Vault**: Automated profit-taking with secure deposit/withdrawal functionality
 - **Subscription Tiers**: 6-tier system (Free/Starter/Trader/Pro/Elite/Lifetime) with paper trading
 - **Offline-First Architecture**: LocalStorage-based caching with automatic backend sync
 - **Cyberpunk UI**: Neon HUD design with holographic cards, wireframe 3D elements, and animated effects
+- **Solana Wallet Integration**: Connect Solana wallets for NFT minting and on-chain operations
+- **Legal Protections**: Comprehensive risk disclosures, terms of service, and privacy policy
+
+---
 
 ## 🔧 Prerequisites
 
@@ -161,6 +180,9 @@ Before you begin, ensure you have the following installed:
 - A modern browser (Chrome, Firefox, Safari, or Edge)
 - (Optional) Firebase account for push notifications
 - (Optional) Backend server running (see [Quantum-Falcon desktop backend](https://github.com/mhamp1/Quantum-Falcon))
+- (Optional) Solana wallet (Phantom, Solflare, etc.) for NFT features
+
+---
 
 ## 🚀 Setup Instructions
 
@@ -170,72 +192,6 @@ Before you begin, ensure you have the following installed:
 git clone https://github.com/mhamp1/quantum-falcon-cockp.git
 cd quantum-falcon-cockp
 ```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Run the Development Server
-
-```bash
-npm run dev
-```
-
-The app will be available at `http://localhost:5173`
-
-### 4. Build for Production
-
-```bash
-npm run build
-```
-
-## 📱 Mobile Applications
-
-This repository includes **two Flutter-based mobile implementations** with different focus areas:
-
-### Option 1: `mobile/` - Firebase Cloud Messaging
-Real-time push notifications with Firebase Cloud Messaging (FCM).
-
-**Best for**: Real-time alerts, instant updates, server-push notifications
-
-```bash
-cd mobile
-flutter pub get
-# Add your google-services.json (Android) and GoogleService-Info.plist (iOS)
-flutter run
-```
-
-**Features**:
-- Firebase Cloud Messaging for push notifications
-- Local notifications as offline fallback
-- XP awards, streak reminders, quest reset notifications
-- User preference controls
-
-📖 See [mobile/README.md](./mobile/README.md) for detailed setup
-
-### Option 2: `mobile_app/` - Offline-First
-Complete offline functionality with local Hive storage and background sync.
-
-**Best for**: Offline operation, unreliable networks, local-first data
-
-```bash
-cd mobile_app
-flutter pub get
-flutter test  # Run 40+ tests
-flutter run
-```
-
-**Features**:
-- Full offline XP/quest tracking
-- Automatic background synchronization
-- Connectivity detection
-- No Firebase required
-
-📖 See [mobile_app/QUICKSTART.md](./mobile_app/QUICKSTART.md) for quick start
-
-📋 **Choosing Between Implementations**: See [MERGE_RESOLUTION_SUMMARY.md](./docs/MERGE_RESOLUTION_SUMMARY.md#integration-strategy) for detailed comparison and integration options.
 
 ### 2. Install Dependencies
 
@@ -276,6 +232,13 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
 VITE_FIREBASE_APP_ID=1:123456789:web:abc123
 VITE_FIREBASE_VAPID_KEY=your_vapid_key
 
+# AI Image Generation (for NFT collections)
+VITE_XAI_API_KEY=your_xai_api_key
+
+# Arweave Upload (for NFT metadata storage)
+VITE_ARWEAVE_UPLOAD_ENDPOINT=https://your-arweave-service.com/upload
+VITE_ARWEAVE_API_KEY=your_arweave_api_key
+
 # Security Settings
 VITE_ENABLE_2FA=true
 VITE_SESSION_TIMEOUT=300000
@@ -298,6 +261,58 @@ npm run build
 ```
 
 The optimized build will be in the `dist/` directory.
+
+---
+
+## 📱 Mobile Applications
+
+This repository includes **two Flutter-based mobile implementations** with different focus areas:
+
+### Option 1: `mobile/` - Firebase Cloud Messaging
+
+Real-time push notifications with Firebase Cloud Messaging (FCM).
+
+**Best for**: Real-time alerts, instant updates, server-push notifications
+
+```bash
+cd mobile
+flutter pub get
+# Add your google-services.json (Android) and GoogleService-Info.plist (iOS)
+flutter run
+```
+
+**Features**:
+- Firebase Cloud Messaging for push notifications
+- Local notifications as offline fallback
+- XP awards, streak reminders, quest reset notifications
+- User preference controls
+
+📖 See [mobile/README.md](./mobile/README.md) for detailed setup
+
+### Option 2: `mobile_app/` - Offline-First
+
+Complete offline functionality with local Hive storage and background sync.
+
+**Best for**: Offline operation, unreliable networks, local-first data
+
+```bash
+cd mobile_app
+flutter pub get
+flutter test  # Run 40+ tests
+flutter run
+```
+
+**Features**:
+- Full offline XP/quest tracking
+- Automatic background synchronization
+- Connectivity detection
+- No Firebase required
+
+📖 See [mobile_app/QUICKSTART.md](./mobile_app/QUICKSTART.md) for quick start
+
+📋 **Choosing Between Implementations**: See [MERGE_RESOLUTION_SUMMARY.md](./docs/MERGE_RESOLUTION_SUMMARY.md#integration-strategy) for detailed comparison and integration options.
+
+---
 
 ## 🔔 Firebase Push Notifications
 
@@ -331,6 +346,7 @@ The optimized build will be in the `dist/` directory.
 - **Quest Completion**: Notifications for completed quests and streaks
 - **Price Alerts**: Custom price movement notifications
 - **Agent Status**: Alerts for agent errors or status changes
+- **NFT Minted**: Notifications when NFTs are successfully minted
 
 ### Implementation Example
 
@@ -372,6 +388,8 @@ export function listenForMessages() {
 }
 ```
 
+---
+
 ## 💾 Offline-First with LocalStorage
 
 The app uses an offline-first architecture to ensure functionality even without internet connectivity.
@@ -383,6 +401,7 @@ The app uses an offline-first architecture to ensure functionality even without 
 - **Trade History**: Recent trades cached for offline viewing
 - **XP & Achievements**: Progress stored locally and synced when online
 - **Settings & Preferences**: All user settings persisted locally
+- **NFT Data**: Cached NFT metadata and ownership information
 
 ### How It Works
 
@@ -417,6 +436,7 @@ qf_cache_xp         // Cached XP data
 qf_cache_quests     // Cached quests
 qf_cache_streaks    // Cached streaks
 qf_cache_trades     // Recent trade history
+qf_cache_nfts       // Cached NFT data
 
 // Sync queue
 qf_pending_sync     // Actions waiting to sync with backend
@@ -451,6 +471,8 @@ export function clearCache(): void {
   })
 }
 ```
+
+---
 
 ## 🔌 Backend API Integration
 
@@ -632,6 +654,8 @@ Common error codes:
 - `RATE_LIMIT_EXCEEDED`: Too many requests
 - `SERVER_ERROR`: Internal server error
 
+---
+
 ## 🎯 XP Synchronization Logic
 
 The XP system uses a smart synchronization strategy to balance offline functionality with backend consistency.
@@ -686,7 +710,8 @@ const XP_VALUES = {
   streak_milestone: 500,    // Complete 7-day streak
   forum_post: 15,           // Create forum post
   strategy_share: 30,       // Share trading strategy
-  referral: 100            // Successful referral
+  referral: 100,            // Successful referral
+  quest_complete: 100       // Complete a quest
 }
 ```
 
@@ -740,6 +765,110 @@ export async function awardXP(userId: string, action: string, amount: number) {
   }
 }
 ```
+
+---
+
+## 🎨 NFT Collection System
+
+Quantum Falcon features a comprehensive AI-generated NFT collection system with on-chain minting via Metaplex Core.
+
+### Features
+
+- **AI Image Generation**: Uses xAI/Grok API and Flux (Replicate) for unique image generation
+- **Rarity Tiers**: Legendary (1%), Epic (5%), Rare (20%), Uncommon (34%), Common (40%)
+- **On-Chain Minting**: Metaplex Core integration for Solana blockchain
+- **Arweave Storage**: Decentralized storage for images and metadata
+- **Seasonal Collections**: Automated seasonal themes with rarity adjustments
+- **Quest Rewards**: Tier-gated NFTs for completing quests
+
+### Genesis Collection
+
+The Genesis collection includes:
+- **Total Supply**: 3,510 NFTs (perfect rarity distribution)
+- **Collection Name**: "Quantum Falcon Genesis"
+- **Symbol**: "QFALCON"
+- **Royalty**: 5% (500 basis points)
+- **Rarity Distribution**:
+  - Legendary: 10 NFTs (1%)
+  - Epic: 100 NFTs (5%)
+  - Rare: 400 NFTs (20%)
+  - Uncommon: 1,000 NFTs (34%)
+  - Common: 2,000 NFTs (40%)
+
+### Seasonal Collections
+
+Seasonal collections automatically adjust based on:
+- **Current Season**: Winter, Spring, Summer, Autumn
+- **Holiday Themes**: Christmas (12 max), Halloween (31 max)
+- **Market Sentiment**: Bull/Bear market editions
+- **Royalty**: 7.77% (777 basis points) for seasonal NFTs
+
+### Quest-Based NFTs
+
+Complete quests to earn exclusive NFTs:
+- **First Trade Pioneer**: Available to all tiers
+- **Profit Seeker Badge**: Requires Pro tier or higher
+- **Elite Falcon NFT**: Requires Elite tier or higher
+- **Lifetime Falcon Master**: Requires Lifetime tier (max supply: 1)
+
+### NFT Gallery
+
+View and manage your NFT collection:
+- **Profile Gallery**: See all owned NFTs in your profile
+- **Community Gallery**: Browse all collections
+- **Rarity Filtering**: Filter by rarity tier
+- **Season Filtering**: Filter by collection season
+- **Solscan Integration**: View NFTs on Solscan
+
+### Legal Disclaimer
+
+**IMPORTANT**: All NFTs are digital art collectibles only. No utility is promised. No financial return is guaranteed. This is art only. See [LEGAL.md](./LEGAL.md) for complete disclaimers.
+
+---
+
+## 🎮 Quest System
+
+The quest system rewards users with XP and exclusive NFTs for completing trading challenges.
+
+### Available Quests
+
+1. **First Live Trade**
+   - Description: Execute your very first live trade on any connected exchange
+   - XP Reward: 100
+   - NFT Reward: First Trade Pioneer (all tiers)
+
+2. **First $100 Profit**
+   - Description: Achieve a cumulative profit of $100 in live trading
+   - XP Reward: 250
+   - NFT Reward: Profit Seeker Badge (Pro tier or higher)
+
+3. **Elite Trader Status**
+   - Description: Maintain a win rate of 70% or higher over 100+ trades
+   - XP Reward: 1,000
+   - NFT Reward: Elite Falcon NFT (Elite tier or higher)
+
+4. **Lifetime Master**
+   - Description: Achieve Lifetime License status
+   - XP Reward: 5,000
+   - NFT Reward: Lifetime Falcon Master (Lifetime tier only, max supply: 1)
+
+### Quest Progress Tracking
+
+- Real-time progress updates
+- Visual progress bars
+- Completion notifications
+- Automatic XP awards
+- NFT claim system
+
+### Tier Gating
+
+Some quest NFTs require specific subscription tiers:
+- **Free Tier**: Basic quests only
+- **Pro Tier**: Access to profit-based quests
+- **Elite Tier**: Access to elite trader quests
+- **Lifetime Tier**: Access to all quests including exclusive Lifetime Master NFT
+
+---
 
 ## 🛠 Development Workflow
 
@@ -819,6 +948,8 @@ localStorage.clear()
 # Check sync queue
 JSON.parse(localStorage.getItem('qf_pending_sync') || '[]')
 ```
+
+---
 
 ## 🖥 Testing with Desktop Backend
 
@@ -906,6 +1037,8 @@ CORS(app, origins=[
     'https://quantum-falcon-cockpit.com'
 ])
 ```
+
+---
 
 ## 🎨 Theming & Customization
 
@@ -1055,6 +1188,8 @@ export const theme = {
   }
 }
 ```
+
+---
 
 ## 📚 API Integration Tutorial
 
@@ -1341,6 +1476,8 @@ async function processQueuedItem(item: any): Promise<void> {
 }
 ```
 
+---
+
 ## 📁 Project Structure
 
 ```
@@ -1351,15 +1488,29 @@ quantum-falcon-cockp/
 │   │   ├── trade/          # Trading interface
 │   │   ├── vault/          # BTC vault
 │   │   ├── community/      # Community features
+│   │   │   ├── NFTGallery.tsx      # NFT gallery component
+│   │   │   └── NFTGenerator.tsx    # NFT collection generator
+│   │   ├── quests/         # Quest system
+│   │   │   ├── QuestBoard.tsx      # Quest board component
+│   │   │   └── QuestNFTReward.tsx # Quest NFT rewards
 │   │   ├── settings/       # Settings panels
 │   │   ├── shared/         # Shared components
+│   │   │   ├── ProfileNFTGallery.tsx  # User NFT gallery
+│   │   │   └── NFTLegalDisclaimer.tsx  # NFT legal disclaimer
 │   │   └── ui/             # UI primitives (shadcn)
 │   ├── hooks/              # Custom React hooks
 │   ├── lib/                # Utility libraries
 │   │   ├── api.ts          # API client
 │   │   ├── license-auth.ts # License verification
 │   │   ├── xp-sync.ts      # XP synchronization
-│   │   └── cache.ts        # Cache management
+│   │   ├── cache.ts        # Cache management
+│   │   ├── nft/            # NFT system
+│   │   │   ├── AutoNFTGenerator.ts        # Genesis collection generator
+│   │   │   ├── SeasonalFalconNFTGenerator.ts  # Seasonal collections
+│   │   │   ├── QuestNFTSystem.ts          # Quest NFT rewards
+│   │   │   ├── generateImageWithAI.ts     # AI image generation
+│   │   │   └── arweaveUpload.ts           # Arweave upload utility
+│   │   └── metaplex.ts     # Metaplex Core integration
 │   ├── styles/             # CSS files
 │   ├── assets/             # Images, icons
 │   ├── App.tsx             # Main app component
@@ -1369,379 +1520,13 @@ quantum-falcon-cockp/
 ├── package.json            # Dependencies
 ├── tailwind.config.js      # Tailwind configuration
 ├── vite.config.ts          # Vite configuration
+├── DISCLAIMER.md           # Risk disclosure
+├── TERMS.md                # Terms of Service
+├── PRIVACY.md              # Privacy Policy
 └── README.md               # This file
 ```
-# Quantum Falcon Cockpit
 
-A comprehensive trading platform featuring a React/TypeScript Progressive Web App (PWA) for desktop and a Flutter mobile application with offline-first capabilities.
-
-## 🚀 What's Inside?
-
-### Desktop Application (PWA)
-- React 19 + TypeScript web application
-- Cyberpunk-themed UI with real-time trading features
-- Multi-agent AI trading system
-- Community features with XP progression
-- Pre-configured for local development
-
-### Mobile Application (Flutter)
-- **Offline-first architecture** using Hive Flutter
-- Local caching of XP levels, streaks, and quest progress
-- Automatic synchronization with desktop API
-- Seamless online/offline transitions
-- Comprehensive error handling and retry logic
-
-## 📱 Mobile App - Offline-First Functionality
-
-The mobile app is built with an offline-first approach, ensuring users can continue using the app even without an internet connection.
-
-### Key Features
-
-#### 1. **Local Data Storage with Hive**
-- All user data (XP, streaks, quests) is cached locally using `hive_flutter`
-- Data persists across app restarts
-- No dependency on network connectivity for basic operations
-
-#### 2. **Automatic Sync**
-- Background synchronization every 5 minutes when online
-- Immediate sync when reconnecting after being offline
-- Manual sync option available via UI
-🛠️ Getting Started
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Configure environment variables (optional):**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-3. **Start development server:**
-   ```bash
-   npm run dev
-   ```
-
-4. **Build for production:**
-   ```bash
-   npm run build
-   ```
-
-🧠 What Can You Do?
-
-#### 3. **Sync Status Indicator**
-- Visual indicator showing current sync status
-- States: Offline, Syncing, Synced, Sync Failed
-- Displays last sync timestamp
-- Manual retry button for failed syncs
-
-#### 4. **Data Integrity**
-- Conflict-free data merging
-- All offline changes tracked with timestamps
-- Guaranteed delivery to backend once online
-
-## 🛠 Setup Instructions
-
-### Desktop Application Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-```
-
-### Mobile Application Setup
-
-#### Prerequisites
-- Flutter SDK 3.0.0 or higher
-- Dart SDK 3.0.0 or higher
-- Android Studio or Xcode (for mobile development)
-
-#### Installation
-
-```bash
-# Navigate to mobile app directory
-cd mobile_app
-
-# Get Flutter dependencies
-flutter pub get
-
-# Generate Hive type adapters (if needed)
-flutter pub run build_runner build
-
-# Run on connected device or emulator
-flutter run
-
-# Run tests
-flutter test
-```
-
-#### Configuring the API Endpoint
-
-Update the API base URL in `lib/main.dart`:
-
-```dart
-SyncProvider(
-  xpService: xpService,
-  apiBaseUrl: 'https://your-api-url.com', // Change this to your backend URL
-)
-```
-
-### Environment Variables
-
-Create a `.env` file in the root directory for the desktop app:
-
-```env
-VITE_API_URL=http://localhost:3000
-```
-
-## 📊 Architecture
-
-### Mobile App Structure
-
-```
-mobile_app/
-├── lib/
-│   ├── models/           # Hive data models
-│   │   ├── xp_data.dart
-│   │   ├── streak_data.dart
-│   │   └── quest_progress.dart
-│   ├── services/         # Business logic
-│   │   └── xp_service.dart
-│   ├── providers/        # State management
-│   │   └── sync_provider.dart
-│   ├── widgets/          # UI components
-│   │   └── sync_indicator.dart
-│   └── main.dart
-├── test/                 # Unit tests
-│   ├── services/
-│   └── providers/
-└── pubspec.yaml
-```
-
-### Data Flow
-
-1. **Offline Mode**:
-   - User actions → XP Service → Local Hive Storage
-   - Data marked as "unsynced"
-
-2. **Online Mode**:
-   - Sync Provider monitors connectivity
-   - Detects unsynced data
-   - Sends to backend API via HTTP
-   - Marks data as synced on success
-
-3. **Reconnection**:
-   - Automatically detects network restoration
-   - Triggers immediate sync of pending data
-   - Updates UI with sync status
-
-## 🧪 Testing
-
-### Mobile App Tests
-
-The mobile app includes comprehensive unit tests covering:
-
-- ✅ XP calculation and level progression
-- ✅ Streak tracking (consecutive days, resets)
-- ✅ Quest progress and completion
-- ✅ Offline data caching
-- ✅ Sync status tracking
-- ✅ Error handling and retry logic
-- ✅ Data persistence across restarts
-
-**Run all tests:**
-Run all tests:
-```bash
-cd mobile_app
-flutter test
-```
-
-**Run specific test file:**
-Run specific test file:
-```bash
-flutter test test/services/xp_service_test.dart
-```
-
-### Test Coverage
-
-- **XP Service**: 100% coverage of core functionality
-- **Sync Provider**: Complete offline/online scenario testing
-- **Data Models**: Serialization and deserialization tests
-
-## 📖 API Endpoints
-
-The mobile app syncs with the following backend endpoints:
-
-### XP Award
-```
-POST /api/xp/award
-Content-Type: application/json
-
-{
-  "level": 5,
-  "currentXp": 50,
-  "totalXp": 450,
-  "lastUpdated": "2024-01-01T12:00:00.000Z"
-}
-```
-
-### Streak Update
-```
-POST /api/streaks/update
-Content-Type: application/json
-
-{
-  "currentStreak": 7,
-  "longestStreak": 15,
-  "lastActiveDate": "2024-01-01T12:00:00.000Z",
-  "lastUpdated": "2024-01-01T12:00:00.000Z"
-}
-```
-
-### Quest Progress
-```
-POST /api/quests/progress
-Content-Type: application/json
-
-{
-  "quests": [
-    {
-      "questId": "quest_1",
-      "questName": "Complete First Trade",
-      "currentProgress": 5,
-      "targetProgress": 10,
-      "isCompleted": false,
-      "rewardXp": 100,
-      "lastUpdated": "2024-01-01T12:00:00.000Z"
-    }
-  ]
-}
-```
-
-## 🔧 Customization
-
-### Adding New Offline Features
-
-1. **Create a Hive Model**:
-```dart
-@HiveType(typeId: 3) // Use unique typeId
-class YourModel extends HiveObject {
-  @HiveField(0)
-  String field;
-  // Add more fields...
-}
-```
-
-2. **Register in XP Service**:
-```dart
-Hive.registerAdapter(YourModelAdapter());
-```
-
-3. **Add Sync Logic**:
-Update `SyncProvider` to include your new data type in sync operations.
-
-### Configuring Sync Intervals
-
-Modify the periodic sync timer in `sync_provider.dart`:
-
-```dart
-_syncTimer = Timer.periodic(const Duration(minutes: 10), (_) {
-  // Sync every 10 minutes instead of 5
-  if (_isOnline && hasUnsyncedData) {
-    syncData();
-  }
-});
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Q: Data not syncing to backend?**
-- Check internet connectivity
-- Verify API endpoint URL is correct
-- Check backend API logs for errors
-- Ensure backend endpoints are accessible
-
-**Q: Hive initialization error?**
-- Clear app data/cache
-- Ensure `Hive.initFlutter()` is called before `runApp()`
-- Check for conflicting typeIds in models
-
-**Q: Tests failing?**
-- Run `flutter pub get` to ensure all dependencies are installed
-- Check that Hive test directory is properly cleaned up
-- Ensure no boxes are left open between tests
-
-**Q: Build errors with generated files?**
-- Run `flutter pub run build_runner build --delete-conflicting-outputs`
-- Check that all Hive models have proper annotations
-
-## 🚀 Development
-
-### Web App (React/TypeScript)
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
-
-### Mobile App (Flutter)
-
-```bash
-# Install dependencies
-cd mobile_app
-flutter pub get
-
-# Run on device/simulator
-flutter run
-
-# Run tests
-flutter test
-
-# Build for production
-flutter build apk  # Android
-flutter build ios  # iOS
-```
-
-## 📚 Additional Resources
-
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [Hive Documentation](https://docs.hivedb.dev/)
-- [Provider State Management](https://pub.dev/packages/provider)
-- [Connectivity Plus](https://pub.dev/packages/connectivity_plus)
-- [Tailwind CSS Documentation](https://tailwindcss.com/)
-- [Solana Branding Guidelines](https://solana.com/branding)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+---
 
 ## 📄 License
 
@@ -1757,6 +1542,9 @@ The MIT License is a permissive open-source license that allows you to freely us
 - 🔒 [SECURITY.md](./SECURITY.md) - Security policy and vulnerability reporting
 - 🤝 [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) - Community guidelines and standards
 - ⚖️ [LICENSE](./LICENSE) - Full MIT License text
+- ⚠️ [DISCLAIMER.md](./DISCLAIMER.md) - Extreme risk disclosure
+- 📋 [TERMS.md](./TERMS.md) - Terms of Service
+- 🔐 [PRIVACY.md](./PRIVACY.md) - Privacy Policy
 
 ---
 
@@ -1768,14 +1556,17 @@ The MIT License is a permissive open-source license that allows you to freely us
 - [Security Architecture](./docs/SECURITY_ARCHITECTURE.md) - Detailed security implementation
 - [Legal Documentation](./docs/LEGAL_DOCUMENTATION.md) - Application legal terms
 
+---
+
 ## 📞 Support
 
 For issues and questions:
-- GitHub Issues: [Create an issue](https://github.com/mhamp1/quantum-falcon-cockp/issues)
-- Documentation: [Full docs](./docs/)
+- **GitHub Issues**: [Create an issue](https://github.com/mhamp1/quantum-falcon-cockp/issues)
+- **Email**: [mhamp1trading@yahoo.com](mailto:mhamp1trading@yahoo.com)
+- **Documentation**: [Full docs](./docs/)
 
 ---
 
-**Built with ❤️ using React, TypeScript, and Vite**
-**Version**: 1.0.0  
-**Last Updated**: November 2024
+**Built with ❤️ using React, TypeScript, and Vite**  
+**Version**: v2025.1.0  
+**Last Updated**: November 22, 2025

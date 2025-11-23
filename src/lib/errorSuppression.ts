@@ -29,6 +29,16 @@ export const SUPPRESSED_ERROR_PATTERNS = [
   'Font',
   'Cannot read properties of undefined',
   'reading \'object\'',
+  // CSS parsing errors (harmless browser warnings)
+  'Error in parsing value',
+  'Declaration dropped',
+  'Unknown property',
+  'field-sizing',
+  'user-select',
+  '-webkit-text-size-adjust',
+  'opacity',
+  'Ruleset ignored',
+  'bad selector',
 ] as const;
 
 export const CRITICAL_ERROR_PATTERNS = [

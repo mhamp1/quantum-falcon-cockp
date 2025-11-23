@@ -15,6 +15,40 @@ if (!process.env.SPARK_DIR) {
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Explicit entry point for build
+  build: {
+    // Use content-based chunk naming to prevent stale chunk issues
+    rollupOptions: {
+      input: resolve(projectRoot, 'index.html'),
+      output: {
+        // Content-based hashing ensures chunks update when content changes
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        // Manual chunks for better caching
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@solana')) {
+              return 'vendor-solana';
+            }
+            if (id.includes('three') || id.includes('@react-three')) {
+              return 'vendor-3d';
+            }
+            return 'vendor';
+          }
+        },
+      },
+    },
+    // Increase chunk size warning limit
+    chunkSizeWarningLimit: 1000,
+    // Ensure proper HTML handling
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
   plugins: [
     react({
       fastRefresh: true,

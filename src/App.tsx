@@ -65,21 +65,42 @@ import { updateDiscordRichPresence } from '@/lib/discord/oauth';
 import { isGodMode, activateGodMode, deactivateGodMode } from '@/lib/godMode';
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
+// Import canvas-confetti with default import for Vite compatibility
 import confetti from 'canvas-confetti';
 
-const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
-const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
-const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
-const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTradingHub'));
-const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
-const VaultView = lazy(() => import('@/components/vault/VaultView'));
-const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
-const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
-const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
-const SupportOnboarding = lazy(() => import('@/pages/SupportOnboarding'));
-const PostTourWelcome = lazy(() => import('@/components/shared/PostTourWelcome'));
-const LoginPage = lazy(() => import('@/pages/LoginPage'));
-const OnboardingModal = lazy(() => import('@/components/onboarding/OnboardingModal'));
+// Lazy load with error handling and retry logic for production builds
+const lazyWithRetry = (importFn: () => Promise<any>, retries = 3) => {
+  return lazy(async () => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await importFn();
+      } catch (error) {
+        console.warn(`[LazyLoad] Attempt ${i + 1}/${retries} failed:`, error);
+        if (i === retries - 1) {
+          // Last attempt failed - throw error to trigger error boundary
+          throw new Error(`Failed to load component after ${retries} attempts: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+      }
+    }
+    throw new Error('Lazy load failed - no retries remaining');
+  });
+};
+
+const EnhancedDashboard = lazyWithRetry(() => import('@/components/dashboard/EnhancedDashboard'));
+const BotOverview = lazyWithRetry(() => import('@/components/dashboard/BotOverview'));
+const EnhancedAnalytics = lazyWithRetry(() => import('@/components/dashboard/EnhancedAnalytics'));
+const AdvancedTradingHub = lazyWithRetry(() => import('@/components/trade/AdvancedTradingHub'));
+const CreateStrategyPage = lazyWithRetry(() => import('@/components/strategy/CreateStrategyPage'));
+const VaultView = lazyWithRetry(() => import('@/components/vault/VaultView'));
+const SocialCommunity = lazyWithRetry(() => import('@/components/community/SocialCommunity'));
+const MultiAgentSystem = lazyWithRetry(() => import('@/components/agents/MultiAgentSystemWrapper'));
+const EnhancedSettings = lazyWithRetry(() => import('@/components/settings/EnhancedSettings'));
+const SupportOnboarding = lazyWithRetry(() => import('@/pages/SupportOnboarding'));
+const PostTourWelcome = lazyWithRetry(() => import('@/components/shared/PostTourWelcome'));
+const LoginPage = lazyWithRetry(() => import('@/pages/LoginPage'));
+const OnboardingModal = lazyWithRetry(() => import('@/components/onboarding/OnboardingModal'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -105,13 +126,27 @@ interface Tab {
 function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0ms' }} />
-          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
-          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
+      <div className="text-center space-y-6">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          className="mx-auto w-16 h-16"
+        >
+          <div className="premium-spinner w-16 h-16 rounded-full"></div>
+        </motion.div>
+        <div className="space-y-2">
+          <p className="text-sm text-primary font-bold uppercase tracking-wider neon-glow-primary">{message}</p>
+          <div className="flex items-center justify-center gap-2">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                className="w-2 h-2 rounded-full bg-primary"
+              />
+            ))}
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground uppercase tracking-wider">{message}</p>
       </div>
     </div>
   );
@@ -189,14 +224,64 @@ const getOnboardingSeenStatus = (): boolean => {
 };
 
 export default function App() {
+  console.log('[App] ========== APP COMPONENT RENDERING ==========');
+  console.log('[App] Window available:', typeof window !== 'undefined');
+  console.log('[App] Document available:', typeof document !== 'undefined');
+  
+  // Production build safety - ensure client-side only rendering
+  // In browser, window is always defined, so isClient should always be true
+  const [isClient] = useState(() => {
+    const client = typeof window !== 'undefined';
+    console.log('[App] Initial isClient state:', client);
+    if (client) {
+      console.log('[App] Client-side detected - app will render');
+    }
+    return client;
+  });
+  
+  // All hooks must be called unconditionally (React rules)
+  // But they should be safe to call even before client is ready
   const isMobile = useIsMobile();
   
-  // Initialize daily learning system
+  // Initialize daily learning system (safe - handles localStorage errors)
   useDailyLearning();
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
   const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
+  
+  // Prevent white screen in production - show loading state until client is ready
+  if (!isClient) {
+    console.log('[App] Rendering loading state (isClient is false)');
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center" style={{ backgroundColor: '#0a0e27' }}>
+        <div className="text-center space-y-4">
+          <div className="premium-spinner w-12 h-12 mx-auto rounded-full"></div>
+          <p className="text-primary font-bold uppercase tracking-wider" style={{ color: '#00ffff' }}>Loading Quantum Falcon...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  console.log('[App] isClient is true, rendering main app');
+  
+  // DEBUG: Log DOM state after render
+  useEffect(() => {
+    setTimeout(() => {
+      const root = document.getElementById('root');
+      if (root) {
+        const contentLength = root.innerHTML.length;
+        const hasChildren = root.children.length > 0;
+        console.log('[App] DOM State Check:');
+        console.log('[App] - Root content length:', contentLength);
+        console.log('[App] - Root has children:', hasChildren);
+        console.log('[App] - Root first child:', root.firstElementChild?.tagName, root.firstElementChild?.className);
+        if (contentLength === 0) {
+          console.error('[App] ========== WHITE SCREEN DETECTED - ROOT IS EMPTY ==========');
+        }
+      }
+    }, 1000);
+  }, []);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
@@ -440,7 +525,25 @@ export default function App() {
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')}>
+      {/* DEBUG BANNER - Remove after confirming render */}
+      <div style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0,
+        zIndex: 99999, 
+        background: '#ff1493', 
+        color: 'white', 
+        padding: '8px 16px',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        borderBottom: '2px solid #00ffff'
+      }}>
+        🚀 DEBUG: APP RENDERED - isClient: {String(isClient)} | Active Tab: {activeTab}
+      </div>
+      
+      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')} style={{ paddingTop: '40px' }}>
         {/* Ambient Background Particles */}
         <AmbientParticles />
         
@@ -638,18 +741,20 @@ export default function App() {
         <div className={cn('flex-1 relative z-10', !isMobile && 'ml-[240px]')}>
           <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
             <Suspense fallback={<LoadingFallback message={`Loading ${activeTab}...`} />}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  className="h-full"
-                >
-                  <ActiveComponent />
-                </motion.div>
-              </AnimatePresence>
+              <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                    className="h-full"
+                  >
+                    <ActiveComponent />
+                  </motion.div>
+                </AnimatePresence>
+              </ErrorBoundary>
             </Suspense>
           </ErrorBoundary>
         </div>

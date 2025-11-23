@@ -93,7 +93,7 @@ export default function LiveActivityPanel() {
                   scale: { duration: 1, repeat: Infinity }
                 }}
               >
-                <Brain size={32} weight="duotone" className="text-primary" style={{ filter: 'drop-shadow(0 0 6px var(--primary))' }} />
+                <Brain size={32} weight="duotone" className="text-primary" style={{ filter: 'drop-shadow(0 0 6px rgba(20, 241, 149, 0.5))' }} />
               </motion.div>
               <div className="flex-1">
                 <motion.h3 
@@ -199,7 +199,7 @@ export default function LiveActivityPanel() {
               rotate: { duration: 3, repeat: Infinity, ease: 'linear' }
             }}
           >
-            <Lightning size={24} weight="fill" className="text-accent" style={{ filter: 'drop-shadow(0 0 6px var(--accent))' }} />
+            <Lightning size={24} weight="fill" className="text-accent" style={{ filter: 'drop-shadow(0 0 6px rgba(153, 69, 255, 0.5))' }} />
           </motion.div>
         </div>
       </motion.div>
@@ -242,9 +242,9 @@ export default function LiveActivityPanel() {
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
                       {activity.type === 'buy' ? (
-                        <TrendUp size={16} weight="bold" className="text-secondary" style={{ filter: 'drop-shadow(0 0 5px var(--secondary))' }} />
+                        <TrendUp size={16} weight="bold" className="text-secondary" style={{ filter: 'drop-shadow(0 0 5px rgba(153, 69, 255, 0.5))' }} />
                       ) : (
-                        <TrendDown size={16} weight="bold" className="text-destructive" style={{ filter: 'drop-shadow(0 0 5px var(--destructive))' }} />
+                        <TrendDown size={16} weight="bold" className="text-destructive" style={{ filter: 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.5))' }} />
                       )}
                     </motion.div>
                     <div className="flex-1">

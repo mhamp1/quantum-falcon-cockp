@@ -80,6 +80,23 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // Convert to Error if needed
     const actualError = error instanceof Error ? error : new Error(String(error));
 
+    // CRITICAL: Check for chunk loading errors FIRST - force immediate reload
+    if (actualError.message && (
+      actualError.message.includes('error loading dynamically imported module') ||
+      actualError.message.includes('Loading chunk') ||
+      actualError.message.includes('Failed to fetch dynamically imported module') ||
+      actualError.message.includes('EnhancedDashboard') ||
+      actualError.message.includes('B29oJMZ1') // Old stale chunk hash
+    )) {
+      console.error('[ErrorBoundary] STALE CHUNK DETECTED - forcing immediate page reload');
+      console.error('[ErrorBoundary] Error:', actualError.message);
+      // Force page reload immediately - don't even set error state
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+      return { hasError: false, retryCount: 0 }; // Don't show error UI, just reload
+    }
+
     if (isNonCriticalError(actualError)) {
       console.debug('[ErrorBoundary] Suppressed non-critical error:', actualError.message);
       return { hasError: false, retryCount: 0 }
@@ -104,6 +121,34 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return
     }
     
+    // Don't auto-retry on CSS parsing errors - they're harmless
+    if (actualError.message && (
+      actualError.message.includes('opacity') ||
+      actualError.message.includes('field-sizing') ||
+      actualError.message.includes('user-select') ||
+      actualError.message.includes('parsing value') ||
+      actualError.message.includes('Declaration dropped')
+    )) {
+      console.debug('[ErrorBoundary] CSS parsing error (harmless), not retrying');
+      return;
+    }
+    
+    // Don't retry on chunk loading errors - force page reload instead
+    if (actualError.message && (
+      actualError.message.includes('error loading dynamically imported module') ||
+      actualError.message.includes('Loading chunk') ||
+      actualError.message.includes('Failed to fetch dynamically imported module') ||
+      actualError.message.includes('EnhancedDashboard')
+    )) {
+      console.error('[ErrorBoundary] Chunk loading error detected - forcing page reload');
+      console.error('[ErrorBoundary] Error:', actualError.message);
+      // Force page reload to get fresh chunks
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+      return;
+    }
+    
     console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
     
     this.setState({ error: actualError, errorInfo });
@@ -116,7 +161,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
     }
 
-    if (this.state.retryCount < 2) {
+    // Only retry on actual component errors, not CSS warnings or chunk errors
+    if (this.state.retryCount < 2 && !actualError.message.includes('CSS') && !actualError.message.includes('chunk')) {
       const retryDelay = 1000;
       console.log(`[ErrorBoundary] Auto-retry ${this.state.retryCount + 1}/2 in ${retryDelay}ms`);
       
@@ -129,7 +175,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }));
       }, retryDelay);
     } else {
-      console.error('[ErrorBoundary] Max retry attempts reached, showing error UI');
+      console.error('[ErrorBoundary] Max retry attempts reached or non-retryable error, showing error UI');
     }
   }
 

@@ -203,13 +203,16 @@ button:active,
     -3px 0 12px rgba(0, 255, 255, 0.3),
     inset 0 1px 0 rgba(0, 255, 255, 0.1);
   position: relative;
+  /* More aggressive jagged futuristic corners */
   clip-path: polygon(
-    0 0,
-    calc(100% - 8px) 0,
-    100% 8px,
-    100% 100%,
-    8px 100%,
-    0 calc(100% - 8px)
+    0 12px,
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px)
   );
 }
 
@@ -993,13 +996,16 @@ button:active,
     inset 0 1px 0 oklch(0.72 0.20 195 / 0.1),
     0 0 0 1px oklch(0.72 0.20 195 / 0.05);
   position: relative;
+  /* Jagged futuristic corners */
   clip-path: polygon(
-    0 0,
-    calc(100% - 12px) 0,
-    100% 12px,
-    100% 100%,
-    12px 100%,
-    0 calc(100% - 12px)
+    0 10px,
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px)
   );
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
               box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -2103,4 +2109,335 @@ body.god-mode::before {
   50% { border-image-source: linear-gradient(45deg, #ffff00, #ff1493, #00ff00, #ff00ff, #00ffff); }
   75% { border-image-source: linear-gradient(45deg, #ff1493, #00ff00, #ff00ff, #00ffff, #ffff00); }
   100% { border-image-source: linear-gradient(45deg, #00ff00, #ff00ff, #00ffff, #ffff00, #ff1493); }
+}
+
+/* ============================================================================
+   $100M CYBERPUNK COCKPIT — PREMIUM UI COMPONENTS
+   ============================================================================ */
+
+/* Premium Dialog/Modal Enhancements + Jagged Corners */
+[data-slot="dialog-content"],
+[role="dialog"] {
+  background: linear-gradient(
+    135deg,
+    oklch(0.10 0.02 280 / 0.95) 0%,
+    oklch(0.12 0.03 280 / 0.9) 100%
+  ) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  border: 2px solid oklch(0.35 0.12 195 / 0.4) !important;
+  box-shadow: 
+    0 20px 64px 0 oklch(0 0 0 / 0.5),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.2),
+    0 0 0 1px oklch(0.72 0.20 195 / 0.1),
+    0 0 80px oklch(0.72 0.20 195 / 0.15) !important;
+  /* Jagged futuristic corners */
+  clip-path: polygon(
+    0 16px,
+    16px 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+    100% calc(100% - 16px),
+    calc(100% - 16px) 100%,
+    16px 100%,
+    0 calc(100% - 16px)
+  ) !important;
+}
+
+[data-slot="dialog-overlay"] {
+  background: oklch(0 0 0 / 0.75) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Premium Badge Enhancements */
+.badge-premium,
+[data-slot="badge"] {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid currentColor;
+  box-shadow: 
+    0 2px 8px oklch(0 0 0 / 0.3),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge-premium:hover,
+[data-slot="badge"]:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 4px 12px oklch(0 0 0 / 0.4),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.15),
+    0 0 16px currentColor;
+}
+
+/* Premium Progress Bar */
+[role="progressbar"] {
+  background: oklch(0.08 0.02 280 / 0.6) !important;
+  border: 1px solid oklch(0.35 0.12 195 / 0.3) !important;
+  box-shadow: 
+    inset 0 2px 4px oklch(0 0 0 / 0.3),
+    0 0 8px oklch(0.72 0.20 195 / 0.1) !important;
+}
+
+[role="progressbar"] > div {
+  background: linear-gradient(
+    90deg,
+    oklch(0.72 0.20 195),
+    oklch(0.68 0.18 330),
+    oklch(0.72 0.20 195)
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: shimmer 2s linear infinite !important;
+  box-shadow: 
+    0 0 12px oklch(0.72 0.20 195 / 0.5),
+    inset 0 1px 0 oklch(0.92 0.08 70 / 0.3) !important;
+}
+
+/* Premium Switch/Toggle */
+[role="switch"],
+[data-slot="switch"] {
+  background: oklch(0.15 0.03 280) !important;
+  border: 2px solid oklch(0.35 0.12 195 / 0.4) !important;
+  box-shadow: 
+    inset 0 2px 4px oklch(0 0 0 / 0.3),
+    0 0 8px oklch(0.72 0.20 195 / 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[role="switch"][aria-checked="true"],
+[data-slot="switch"][data-state="checked"] {
+  background: oklch(0.72 0.20 195) !important;
+  border-color: oklch(0.72 0.20 195) !important;
+  box-shadow: 
+    0 0 20px oklch(0.72 0.20 195 / 0.6),
+    inset 0 1px 0 oklch(0.92 0.08 70 / 0.3) !important;
+}
+
+/* Premium Tab Enhancements */
+[role="tablist"] {
+  background: oklch(0.08 0.02 280 / 0.5) !important;
+  border: 1px solid oklch(0.35 0.12 195 / 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+[role="tab"][aria-selected="true"] {
+  background: linear-gradient(
+    135deg,
+    oklch(0.72 0.20 195 / 0.2),
+    oklch(0.68 0.18 330 / 0.2)
+  ) !important;
+  border-bottom: 2px solid oklch(0.72 0.20 195) !important;
+  box-shadow: 
+    0 0 16px oklch(0.72 0.20 195 / 0.3),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.1) !important;
+  text-shadow: 0 0 8px oklch(0.72 0.20 195 / 0.5) !important;
+}
+
+/* Premium Card Hover Effects */
+.cyber-card:hover .hud-readout,
+.cyber-card:hover .technical-readout {
+  text-shadow: 
+    0 0 12px currentColor,
+    0 0 24px currentColor;
+  transition: text-shadow 0.3s ease;
+}
+
+/* Premium Loading Spinner */
+@keyframes premium-spin {
+  0% {
+    transform: rotate(0deg);
+    box-shadow: 0 0 8px oklch(0.72 0.20 195 / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 16px oklch(0.72 0.20 195 / 0.8);
+  }
+  100% {
+    transform: rotate(360deg);
+    box-shadow: 0 0 8px oklch(0.72 0.20 195 / 0.5);
+  }
+}
+
+.premium-spinner {
+  animation: premium-spin 1s linear infinite;
+  border: 3px solid oklch(0.35 0.12 195 / 0.3);
+  border-top-color: oklch(0.72 0.20 195);
+  border-right-color: oklch(0.68 0.18 330);
+}
+
+/* Premium Tooltip + Jagged Corners */
+[data-radix-tooltip-content],
+[role="tooltip"] {
+  background: linear-gradient(
+    135deg,
+    oklch(0.12 0.03 280 / 0.95),
+    oklch(0.10 0.02 280 / 0.95)
+  ) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid oklch(0.35 0.12 195 / 0.4) !important;
+  box-shadow: 
+    0 8px 24px 0 oklch(0 0 0 / 0.4),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.15),
+    0 0 0 1px oklch(0.72 0.20 195 / 0.1),
+    0 0 40px oklch(0.72 0.20 195 / 0.1) !important;
+  color: oklch(0.85 0.12 195) !important;
+  text-shadow: 0 0 8px oklch(0.72 0.20 195 / 0.3) !important;
+  /* Jagged futuristic corners */
+  clip-path: polygon(
+    0 6px,
+    6px 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    0 calc(100% - 6px)
+  ) !important;
+}
+
+/* ============================================================================
+   JAGGED FUTURISTIC CORNERS — Applied to All UI Elements
+   ============================================================================ */
+
+/* Jagged Button Corners */
+.jagged-button {
+  clip-path: polygon(
+    0 6px,
+    6px 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    0 calc(100% - 6px)
+  );
+}
+
+/* Jagged Input Corners */
+.jagged-input {
+  clip-path: polygon(
+    0 5px,
+    5px 0,
+    calc(100% - 5px) 0,
+    100% 5px,
+    100% calc(100% - 5px),
+    calc(100% - 5px) 100%,
+    5px 100%,
+    0 calc(100% - 5px)
+  );
+}
+
+/* Enhanced Jagged Corner Variants */
+.jagged-corner-aggressive {
+  clip-path: polygon(
+    0 16px,
+    16px 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+    100% calc(100% - 16px),
+    calc(100% - 16px) 100%,
+    16px 100%,
+    0 calc(100% - 16px)
+  );
+}
+
+.jagged-corner-futuristic {
+  clip-path: polygon(
+    0 12px,
+    8px 0,
+    calc(100% - 8px) 0,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    0 calc(100% - 12px)
+  );
+}
+
+/* Premium Badge with Jagged Corners */
+.badge-premium,
+[data-slot="badge"] {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid currentColor;
+  box-shadow: 
+    0 2px 8px oklch(0 0 0 / 0.3),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  clip-path: polygon(
+    0 4px,
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    0 calc(100% - 4px)
+  );
+}
+
+/* Premium Progress Bar with Jagged Corners */
+[role="progressbar"] {
+  background: oklch(0.08 0.02 280 / 0.6) !important;
+  border: 1px solid oklch(0.35 0.12 195 / 0.3) !important;
+  box-shadow: 
+    inset 0 2px 4px oklch(0 0 0 / 0.3),
+    0 0 8px oklch(0.72 0.20 195 / 0.1) !important;
+  clip-path: polygon(
+    0 3px,
+    3px 0,
+    calc(100% - 3px) 0,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    0 calc(100% - 3px)
+  ) !important;
+}
+
+/* Premium Tab with Jagged Corners */
+[role="tablist"] {
+  background: oklch(0.08 0.02 280 / 0.5) !important;
+  border: 1px solid oklch(0.35 0.12 195 / 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  clip-path: polygon(
+    0 4px,
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    0 calc(100% - 4px)
+  ) !important;
+}
+
+[role="tab"] {
+  clip-path: polygon(
+    0 3px,
+    3px 0,
+    calc(100% - 3px) 0,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    0 calc(100% - 3px)
+  ) !important;
+}
+
+/* Card Accent with Jagged Corners */
+.cyber-card-accent {
+  clip-path: polygon(
+    0 10px,
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  ) !important;
 }

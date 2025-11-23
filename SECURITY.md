@@ -17,7 +17,7 @@ If you discover a security vulnerability in any Quantum Falcon repository or rel
 
 ### How to Report
 
-**Email**: mhamp1trading@yahoo.com
+**Email**: [mhamp1trading@yahoo.com](mailto:mhamp1trading@yahoo.com)
 
 Please include the following information in your report:
 - A description of the vulnerability
@@ -59,17 +59,37 @@ We recommend the following security practices when using Quantum Falcon:
 4. **Enable 2FA**: Use two-factor authentication when available
 5. **Monitor Your Account**: Regularly review your trading activity
 6. **Report Suspicious Activity**: Contact us immediately if you notice anything unusual
+7. **Secure Your Wallet**: Never share your Solana wallet private keys
+8. **Verify Transactions**: Always verify NFT minting and trading transactions before confirming
 
 ## Security Features
 
 Quantum Falcon implements multiple layers of security:
-- AES-256-GCM encryption for sensitive data
-- Secure session management
-- Rate limiting and DDoS protection
-- Input sanitization and XSS prevention
-- CSRF protection
-- Content Security Policy (CSP)
-- Comprehensive security audit logging
+
+- **AES-256-GCM encryption** for sensitive data
+- **PBKDF2 key derivation** for encryption keys
+- **Secure session management** with automatic expiration
+- **Rate limiting and DDoS protection**
+- **Input sanitization** and XSS prevention
+- **SQL injection protection** (where applicable)
+- **Path traversal protection**
+- **CSRF protection**
+- **Content Security Policy (CSP)**
+- **Comprehensive security audit logging**
+- **Session hijacking detection**
+- **Multi-device session management**
+- **Device fingerprinting** for license binding
+- **Secure credential storage** with encryption
+- **API key validation and masking**
+
+### Wallet Security
+
+**IMPORTANT**: Quantum Falcon never stores your private keys. All transaction signing occurs client-side in your wallet. You maintain full custody of your assets at all times. We cannot and will not access your funds.
+
+- All Solana wallet operations use client-side signing
+- Private keys never leave your device
+- No server-side wallet access
+- Full user control over all transactions
 
 For detailed technical information about our security architecture, see [SECURITY_ARCHITECTURE.md](./docs/SECURITY_ARCHITECTURE.md).
 
@@ -80,4 +100,4 @@ We appreciate the security research community's efforts in helping keep Quantum 
 ---
 
 **Last Updated**: January 2025  
-**Contact**: mhamp1trading@yahoo.com
+**Contact**: [mhamp1trading@yahoo.com](mailto:mhamp1trading@yahoo.com)
