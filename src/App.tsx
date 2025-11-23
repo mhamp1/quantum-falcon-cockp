@@ -154,19 +154,38 @@ interface Tab {
 
 function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background" style={{ minHeight: '100vh' }}>
-      <div className="text-center space-y-6">
+    <div 
+      className="min-h-screen flex items-center justify-center bg-background" 
+      style={{ 
+        minHeight: '100vh',
+        width: '100%',
+        backgroundColor: 'oklch(0.08 0.02 280)',
+        color: 'oklch(0.85 0.12 195)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+      }}
+    >
+      <div className="text-center space-y-6" style={{ textAlign: 'center' }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
           className="mx-auto w-16 h-16"
+          style={{ margin: '0 auto', width: '64px', height: '64px' }}
         >
-          <div className="premium-spinner w-16 h-16 rounded-full" style={{
-            border: '3px solid oklch(0.35 0.12 195 / 0.3)',
-            borderTopColor: 'oklch(0.72 0.20 195)',
-            borderRightColor: 'oklch(0.68 0.18 330)',
-            borderRadius: '50%'
-          }}></div>
+          <div 
+            className="premium-spinner w-16 h-16 rounded-full" 
+            style={{
+              width: '64px',
+              height: '64px',
+              border: '3px solid oklch(0.35 0.12 195 / 0.3)',
+              borderTopColor: 'oklch(0.72 0.20 195)',
+              borderRightColor: 'oklch(0.68 0.18 330)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }}
+          ></div>
         </motion.div>
         <div className="space-y-2">
           <p className="text-sm text-primary font-bold uppercase tracking-wider neon-glow-primary">{message}</p>
@@ -497,7 +516,19 @@ export default function App() {
   const showAggressionControl = activeTab === 'multi-agent';
 
   // Show loading screen while auth is initializing
-  if (!persistentAuth.isInitialized || (persistentAuth.isLoading && !auth?.isAuthenticated)) {
+  // CRITICAL: Add timeout to prevent infinite loading screen
+  const [authTimeout, setAuthTimeout] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!persistentAuth.isInitialized) {
+        console.warn('[App] Auth initialization timeout - forcing render');
+        setAuthTimeout(true);
+      }
+    }, 5000); // 5 second timeout
+    return () => clearTimeout(timer);
+  }, [persistentAuth.isInitialized]);
+
+  if ((!persistentAuth.isInitialized || (persistentAuth.isLoading && !auth?.isAuthenticated)) && !authTimeout) {
     return (
       <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
         <LoadingFallback message="Initializing Quantum Falcon..." />
@@ -505,8 +536,8 @@ export default function App() {
     );
   }
 
-  // Show login page if not authenticated (after initialization is complete)
-  if (!auth?.isAuthenticated && persistentAuth.isInitialized && !persistentAuth.isLoading) {
+  // Show login page if not authenticated (after initialization is complete or timeout)
+  if (!auth?.isAuthenticated && (persistentAuth.isInitialized || authTimeout) && !persistentAuth.isLoading) {
     return (
       <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
         <Suspense fallback={<LoadingFallback message="Loading Login..." />}>

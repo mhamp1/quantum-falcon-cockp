@@ -8,9 +8,10 @@ import "@github/spark/spark";
 
 import App from './App.tsx';
 import ErrorFallback from './ErrorFallback.tsx';
+// CRITICAL: Import CSS in correct order - Tailwind must be first
+import './index.css';
 import './main.css';
 import './styles/theme.css';
-import './index.css';
 
 // Maximum length for debug message truncation
 const MAX_DEBUG_MESSAGE_LENGTH = 100;
@@ -108,6 +109,17 @@ const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error('Failed to find the root element. Ensure there is a div with id="root" in your HTML.');
 }
+
+// CRITICAL: Ensure body has minimum background to prevent black screen
+document.body.style.minHeight = '100vh';
+document.body.style.backgroundColor = 'oklch(0.08 0.02 280)';
+document.body.style.color = 'oklch(0.85 0.12 195)';
+document.body.style.margin = '0';
+document.body.style.padding = '0';
+
+// Ensure root element has minimum styles
+rootElement.style.minHeight = '100vh';
+rootElement.style.width = '100%';
 
 const root = createRoot(rootElement);
 
