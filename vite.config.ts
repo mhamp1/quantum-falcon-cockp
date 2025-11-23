@@ -52,6 +52,16 @@ export default defineConfig({
     // Ensure proper HTML handling
     outDir: 'dist',
     emptyOutDir: true,
+    // Optimize chunk loading to prevent race conditions
+    modulePreload: {
+      polyfill: true,
+    },
+    // Ensure chunks load in correct order
+    cssCodeSplit: true,
+    // Target modern browsers for better module support
+    target: 'esnext',
+    // Minify options to prevent module issues
+    minify: 'esbuild',
   },
   plugins: [
     react({

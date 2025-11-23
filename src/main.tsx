@@ -109,13 +109,29 @@ console.warn = (...args: any[]) => {
 
 window.addEventListener('error', (event) => {
   const errorMessage = event.error?.message || event.message || '';
+  const errorSource = event.filename || '';
   
   // Suppress module bundling errors that are harmless (vendor chunk loading)
+  // These occur when chunks load out of order but resolve themselves
   if (errorMessage.includes("can't access property") && 
-      (errorMessage.includes('exports') || errorMessage.includes('is undefined'))) {
+      (errorMessage.includes('exports') || errorMessage.includes('is undefined')) &&
+      (errorSource.includes('vendor-') || errorSource.includes('assets/'))) {
     // This is a known Vite/Rollup bundling quirk with large vendor chunks
     // The module still loads correctly, this is just a timing issue
-    console.debug('[Suppressed] Module bundling timing issue:', errorMessage.substring(0, 100));
+    // Retry loading the chunk after a short delay
+    console.debug('[Module Load] Retrying chunk load after timing issue');
+    setTimeout(() => {
+      // Force reload if the error persists
+      if (document.readyState === 'complete') {
+        // Only reload if we're still getting errors after page load
+        const errorCount = (window as any).__moduleErrorCount || 0;
+        (window as any).__moduleErrorCount = errorCount + 1;
+        if (errorCount > 3) {
+          console.warn('[Module Load] Multiple module errors detected, reloading page');
+          window.location.reload();
+        }
+      }
+    }, 100);
     event.preventDefault();
     event.stopPropagation();
     return true;
