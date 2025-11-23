@@ -133,6 +133,8 @@ export default defineConfig({
     transformMixedEsModules: true,
     requireReturnsDefault: 'auto',
     defaultIsModuleExports: 'auto',
+    // Explicitly handle problematic modules
+    esmExternals: true,
   },
   plugins: [
     polyfillsPlugin(),
@@ -143,6 +145,8 @@ export default defineConfig({
         global: true,
         process: true,
       },
+      // Ensure proper module format
+      protocolImports: true,
     }),
     react({
       fastRefresh: true,
@@ -155,6 +159,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src'),
+      // Explicit polyfill aliases to ensure correct module resolution
+      'buffer': 'buffer/',
+      'eventemitter3': 'eventemitter3/index.js',
+      'stream': 'stream-browserify',
+      'util': 'util/',
+      // Fix bs58 default export issue
+      'bs58': 'bs58/index.js',
     },
     // CRITICAL: Force all dependencies to use YOUR React version
     // This prevents "can't access property 'createContext' of undefined" errors
@@ -173,6 +184,9 @@ export default defineConfig({
       'react',
       'react-dom',
       'canvas-confetti',
+      'buffer',
+      'eventemitter3',
+      'bs58',
     ],
     exclude: [
       '@solana/wallet-adapter-react',
@@ -183,6 +197,9 @@ export default defineConfig({
     ],
     esbuildOptions: {
       target: 'esnext',
+      define: {
+        global: 'globalThis',
+      },
     },
   },
   server: {

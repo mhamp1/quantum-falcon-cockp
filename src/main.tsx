@@ -1,3 +1,4 @@
+import './shims';
 import './polyfills';
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
