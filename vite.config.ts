@@ -40,6 +40,83 @@ function polyfillsPlugin(): PluginOption {
   }
 }
 
+// Custom plugin to fix ESM/CommonJS interop issues
+function moduleInteropPlugin(): PluginOption {
+  return {
+    name: 'module-interop-fixer',
+    enforce: 'pre',
+    resolveId(id) {
+      // Intercept problematic module imports
+      if (id === 'eventemitter3') {
+        return '\0eventemitter3-polyfill';
+      }
+      if (id === 'bs58') {
+        return '\0bs58-polyfill';
+      }
+      return null;
+    },
+    load(id) {
+      // Provide polyfilled versions that export correctly
+      if (id === '\0eventemitter3-polyfill') {
+        return `
+          // EventEmitter polyfill
+          export class EventEmitter {
+            constructor() {
+              this._events = new Map();
+            }
+            on(event, handler) {
+              if (!this._events.has(event)) this._events.set(event, []);
+              this._events.get(event).push(handler);
+              return this;
+            }
+            once(event, handler) {
+              const wrapper = (...args) => {
+                this.off(event, wrapper);
+                handler.apply(this, args);
+              };
+              return this.on(event, wrapper);
+            }
+            emit(event, ...args) {
+              const handlers = this._events.get(event);
+              if (handlers) handlers.forEach(h => h.apply(this, args));
+              return this;
+            }
+            off(event, handler) {
+              const handlers = this._events.get(event);
+              if (handlers) {
+                const index = handlers.indexOf(handler);
+                if (index > -1) handlers.splice(index, 1);
+              }
+              return this;
+            }
+            removeListener(event, handler) { return this.off(event, handler); }
+            addListener(event, handler) { return this.on(event, handler); }
+            removeAllListeners(event) {
+              if (event) this._events.delete(event);
+              else this._events.clear();
+              return this;
+            }
+            listeners(event) { return this._events.get(event) || []; }
+            listenerCount(event) { return (this._events.get(event) || []).length; }
+            eventNames() { return Array.from(this._events.keys()); }
+          }
+          export default EventEmitter;
+        `;
+      }
+      if (id === '\0bs58-polyfill') {
+        return `
+          // bs58 polyfill - delegate to actual bs58 package
+          import * as bs58Module from 'bs58';
+          export const encode = bs58Module.encode || bs58Module.default?.encode;
+          export const decode = bs58Module.decode || bs58Module.default?.decode;
+          export default bs58Module.default || bs58Module;
+        `;
+      }
+      return null;
+    }
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   // CRITICAL: Set base path for correct asset loading
@@ -133,11 +210,17 @@ export default defineConfig({
     transformMixedEsModules: true,
     requireReturnsDefault: 'auto',
     defaultIsModuleExports: 'auto',
-    // Explicitly handle problematic modules
     esmExternals: true,
+    // Explicitly tell Vite to handle these as CommonJS
+    namedExports: {
+      'eventemitter3': ['EventEmitter'],
+      'buffer': ['Buffer'],
+      'bs58': ['default', 'encode', 'decode'],
+    },
   },
   plugins: [
     polyfillsPlugin(),
+    moduleInteropPlugin(),
     nodePolyfills({
       include: ['buffer', 'events', 'stream', 'util', 'process'],
       globals: {
@@ -146,6 +229,9 @@ export default defineConfig({
         process: true,
       },
       protocolImports: true,
+      overrides: {
+        fs: 'memfs',
+      },
     }),
     react({
       fastRefresh: true,
@@ -160,6 +246,8 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src'),
       // Explicit polyfill aliases to ensure correct module resolution
       'stream': 'stream-browserify',
+      'buffer': 'buffer/',
+      'eventemitter3': 'eventemitter3',
     },
     // CRITICAL: Force all dependencies to use YOUR React version
     // This prevents "can't access property 'createContext' of undefined" errors
@@ -181,6 +269,8 @@ export default defineConfig({
       'buffer',
       'stream-browserify',
       'util',
+      'eventemitter3',
+      'bs58',
     ],
     exclude: [
       '@solana/wallet-adapter-react',
