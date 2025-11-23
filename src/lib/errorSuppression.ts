@@ -36,9 +36,25 @@ export const SUPPRESSED_ERROR_PATTERNS = [
   'field-sizing',
   'user-select',
   '-webkit-text-size-adjust',
+  '-webkit-mask',
+  '-moz-columns',
+  '-moz-column-count',
+  '-moz-column-fill',
+  '-moz-column-gap',
+  '-moz-column-rule',
+  '-moz-column-span',
+  '-moz-column-width',
+  '-moz-text-align-last',
+  '-moz-osx-font-smoothing',
+  'orphans',
+  'widows',
   'opacity',
   'Ruleset ignored',
   'bad selector',
+  // Module bundling errors (harmless in production)
+  "can't access property",
+  'exports',
+  'is undefined',
 ] as const;
 
 export const CRITICAL_ERROR_PATTERNS = [

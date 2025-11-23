@@ -38,6 +38,10 @@ export default defineConfig({
             if (id.includes('three') || id.includes('@react-three')) {
               return 'vendor-3d';
             }
+            // Split large vendor chunks to prevent module loading issues
+            if (id.includes('@walletconnect') || id.includes('@reown')) {
+              return 'vendor-wallet';
+            }
             return 'vendor';
           }
         },

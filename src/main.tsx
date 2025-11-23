@@ -56,6 +56,22 @@ function isNonCriticalError(error: Error | string): boolean {
 const originalConsoleError = console.error;
 console.error = (...args: any[]) => {
   const message = args.join(' ');
+  
+  // Suppress CSS parsing warnings
+  if (message.includes('Unknown property') || 
+      message.includes('Declaration dropped') ||
+      message.includes('Error in parsing value') ||
+      message.includes('Ruleset ignored') ||
+      message.includes('bad selector') ||
+      message.includes('-moz-') ||
+      message.includes('-webkit-') ||
+      message.includes('field-sizing') ||
+      message.includes('orphans') ||
+      message.includes('widows')) {
+    // Suppress CSS warnings completely
+    return;
+  }
+  
   if (isNonCriticalError(message)) {
     // Log to debug console but don't spam the main console
     console.debug('[Suppressed]', message.substring(0, MAX_DEBUG_MESSAGE_LENGTH));
