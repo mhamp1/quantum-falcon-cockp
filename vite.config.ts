@@ -15,24 +15,11 @@ if (!process.env.SPARK_DIR) {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
-      fastRefresh: true,
-      jsxRuntime: 'automatic',
-    }),
-    tailwindcss(),
-    // DO NOT REMOVE
-    createIconImportProxy() as PluginOption,
-    sparkPlugin() as PluginOption,
-  ],
-  resolve: {
-    alias: {
-      '@': resolve(projectRoot, 'src')
-    }
-  },
+  // Explicit entry point for build
   build: {
     // Use content-based chunk naming to prevent stale chunk issues
     rollupOptions: {
+      input: resolve(projectRoot, 'index.html'),
       output: {
         // Content-based hashing ensures chunks update when content changes
         entryFileNames: 'assets/[name]-[hash].js',
@@ -58,6 +45,24 @@ export default defineConfig({
     },
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 1000,
+    // Ensure proper HTML handling
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
+  plugins: [
+    react({
+      fastRefresh: true,
+      jsxRuntime: 'automatic',
+    }),
+    tailwindcss(),
+    // DO NOT REMOVE
+    createIconImportProxy() as PluginOption,
+    sparkPlugin() as PluginOption,
+  ],
+  resolve: {
+    alias: {
+      '@': resolve(projectRoot, 'src')
+    }
   },
   server: {
     // Allow requests to GitHub API for Spark runtime KV storage and other services
