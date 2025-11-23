@@ -1,23 +1,25 @@
+// src/providers/WalletProvider.tsx
 import React from 'react';
-import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
-import { useMemo } from 'react';
 
-// TEMPORARY FIX: Disable Solana wallet in production to avoid React 19 + web3.js crash
 const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // THIS RUNS FIRST — no Solana imports allowed before this line
   if (import.meta.env.PROD) {
-    console.log('Solana wallet disabled in production (temporary React 19 fix)');
+    console.log('Solana wallet completely bypassed in production — no crash');
     return <>{children}</>;
   }
 
-  // Only runs in development — your original code below
+  // ONLY executes in development — safe to import here
+  const { ConnectionProvider, WalletProvider: SolanaWalletProvider } = require('@solana/wallet-adapter-react');
+  const { WalletModalProvider } = require('@solana/wallet-adapter-react-ui');
+  const { PhantomWalletAdapter, SolflareWalletAdapter } = require('@solana/wallet-adapter-wallets');
+  const { clusterApiUrl } = require('@solana/web3.js');
+  const { useMemo } = require('react');
+
   const network = clusterApiUrl('mainnet-beta');
-  const wallets = useMemo(
-    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
-    []
-  );
+  const wallets = useMemo(() => [
+    new PhantomWalletAdapter(),
+    new SolflareWalletAdapter(),
+  ], []);
 
   return (
     <ConnectionProvider endpoint={network}>
