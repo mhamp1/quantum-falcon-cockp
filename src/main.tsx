@@ -32,9 +32,17 @@ function isR3FError(error: Error | string): boolean {
     message.includes('_spark/kv') ||
     message.includes('RefreshRuntime.register') ||
     message.includes('RefreshRuntime') && message.includes('not a function') ||
+    // Azure Blob Storage and Spark runtime errors
+    message.includes('RestError') ||
+    message.includes('The specified blob does not exist') ||
+    message.includes('Failed to submit prompt') ||
+    message.includes('BlobNotFound') ||
+    message.includes('azure') && message.includes('blob') ||
+    message.includes('spark.kv') ||
     stack.includes('@react-three/fiber') ||
     stack.includes('react-three') ||
-    stack.includes('spark/hooks')
+    stack.includes('spark/hooks') ||
+    stack.includes('@github/spark')
   )
 }
 
