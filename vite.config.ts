@@ -62,6 +62,20 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src')
     }
   },
+  optimizeDeps: {
+    // Pre-bundle Solana packages to ensure they resolve correctly in all environments
+    include: [
+      '@solana/wallet-adapter-react',
+      '@solana/wallet-adapter-base',
+      '@solana/wallet-adapter-react-ui',
+      '@solana/wallet-adapter-wallets',
+      '@solana/web3.js',
+    ],
+    // Force Vite to optimize these even if they're large
+    esbuildOptions: {
+      target: 'esnext',
+    },
+  },
   server: {
     // Allow requests to GitHub API for Spark runtime KV storage and other services
     // This prevents Vite 6's HTTP blocking from interfering with the Spark plugin's proxy
