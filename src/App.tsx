@@ -549,6 +549,17 @@ export default function App() {
       </ErrorBoundary>
     );
   }
+  
+  // CRITICAL: If we somehow get here without auth, show login as fallback
+  if (!auth && authTimeout) {
+    return (
+      <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+        <Suspense fallback={<LoadingFallback message="Loading Login..." />}>
+          <LoginPage />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
 
   const getAggressionLabel = (value: number) => {
     if (value < 33) return 'CAUTIOUS';

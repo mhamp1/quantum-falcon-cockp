@@ -9,7 +9,9 @@
         "build": "tsc -b --noCheck && vite build",
         "lint": "eslint .",
         "optimize": "vite optimize",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "check-deps": "node -e \"const pkg=require('./package.json'); const deps=Object.keys(pkg.dependencies||{}); const missing=[]; try{require.resolve('canvas-confetti');}catch{missing.push('canvas-confetti');} try{require.resolve('@solana/wallet-adapter-react');}catch{missing.push('@solana/wallet-adapter-react');} try{require.resolve('@solana/wallet-adapter-react-ui');}catch{missing.push('@solana/wallet-adapter-react-ui');} if(missing.length){console.error('❌ MISSING DEPS:',missing.join(', '));process.exit(1);}else{console.log('✅ All critical dependencies installed');}\"",
+        "prebuild": "npm run check-deps"
     },
     "dependencies": {
         "@github/spark": "^0.39.0",
