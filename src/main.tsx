@@ -120,11 +120,18 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
+// Add console logging to debug white screen
+console.log('[main.tsx] Starting render...');
+console.log('[main.tsx] Root element:', rootElement);
+console.log('[main.tsx] Window available:', typeof window !== 'undefined');
+
 try {
+  console.log('[main.tsx] Attempting to render app...');
   root.render(
     <ErrorBoundary 
       FallbackComponent={ErrorFallback}
       onError={(error, errorInfo) => {
+        console.error('[main.tsx] ErrorBoundary caught error:', error);
         if (isR3FError(error)) {
           return;
         }
@@ -157,7 +164,9 @@ try {
       </QueryClientProvider>
     </ErrorBoundary>
   );
+  console.log('[main.tsx] Render completed successfully');
 } catch (error) {
+  console.error('[main.tsx] Fatal render error:', error);
   console.error('[Root] Fatal render error:', error);
   if (error instanceof Error && !isR3FError(error)) {
     root.render(
