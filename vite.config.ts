@@ -25,26 +25,8 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Manual chunks for better caching
-        manualChunks: (id) => {
-          // Vendor chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('@solana')) {
-              return 'vendor-solana';
-            }
-            if (id.includes('three') || id.includes('@react-three')) {
-              return 'vendor-3d';
-            }
-            // Split large vendor chunks to prevent module loading issues
-            if (id.includes('@walletconnect') || id.includes('@reown')) {
-              return 'vendor-wallet';
-            }
-            return 'vendor';
-          }
-        },
+        // Use Vite's automatic chunking - manual chunking was causing circular dependencies
+        // and "Cannot read properties of undefined (reading 'exports')" errors
       },
     },
     // Increase chunk size warning limit
@@ -79,6 +61,20 @@ export default defineConfig({
     alias: {
       '@': resolve(projectRoot, 'src')
     }
+  },
+  optimizeDeps: {
+    // Pre-bundle Solana packages to ensure they resolve correctly in all environments
+    include: [
+      '@solana/wallet-adapter-react',
+      '@solana/wallet-adapter-base',
+      '@solana/wallet-adapter-react-ui',
+      '@solana/wallet-adapter-wallets',
+      '@solana/web3.js',
+    ],
+    // Force Vite to optimize these even if they're large
+    esbuildOptions: {
+      target: 'esnext',
+    },
   },
   server: {
     // Allow requests to GitHub API for Spark runtime KV storage and other services
