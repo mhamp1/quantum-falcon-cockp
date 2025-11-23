@@ -11,7 +11,7 @@
         "lint": "eslint .",
         "optimize": "vite optimize",
         "preview": "vite preview",
-        "check-deps": "node -e \"const pkg=require('./package.json'); const deps=Object.keys(pkg.dependencies||{}); const missing=[]; try{require.resolve('canvas-confetti');}catch{missing.push('canvas-confetti');} if(missing.length){console.error('❌ MISSING DEPS:',missing.join(', '));process.exit(1);}else{console.log('✅ All critical dependencies installed');}\"",
+        "check-deps": "node -e \"const pkg=require('./package.json'); const deps=Object.keys(pkg.dependencies||{}); const missing=deps.filter(dep=>{try{return !require.resolve(dep);}catch{return true;}}); if(missing.length){console.error('❌ MISSING DEPS:',missing.join(', '));process.exit(1);}else{console.log('✅ All critical dependencies installed');}\"",
         "prebuild": "npm run check-deps",
         "predeploy": "npm run build:gh-pages",
         "deploy": "gh-pages -d dist"
