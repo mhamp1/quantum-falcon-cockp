@@ -128,13 +128,36 @@ async function getAudioFingerprint(): Promise<string> {
       const gainNode = context.createGain()
       const scriptProcessor = context.createScriptProcessor(4096, 1, 1)
 
+      let resolved = false // Prevent race condition
+
       gainNode.gain.value = 0 // Mute
       oscillator.connect(analyser)
       analyser.connect(scriptProcessor)
       scriptProcessor.connect(gainNode)
       gainNode.connect(context.destination)
 
+      // Timeout after 100ms
+      const timeoutId = setTimeout(() => {
+        if (resolved) return
+        resolved = true
+        
+        try {
+          scriptProcessor.disconnect()
+          oscillator.disconnect()
+          analyser.disconnect()
+          gainNode.disconnect()
+          context.close()
+        } catch (e) {
+          // Already disconnected
+        }
+        resolve('audio-timeout')
+      }, 100)
+
       scriptProcessor.onaudioprocess = function(event) {
+        if (resolved) return
+        resolved = true
+        clearTimeout(timeoutId)
+        
         const output = event.outputBuffer.getChannelData(0)
         const hash = Array.from(output.slice(0, 30))
           .map(v => Math.abs(v))
@@ -151,20 +174,6 @@ async function getAudioFingerprint(): Promise<string> {
       }
 
       oscillator.start(0)
-      
-      // Timeout after 100ms
-      setTimeout(() => {
-        try {
-          scriptProcessor.disconnect()
-          oscillator.disconnect()
-          analyser.disconnect()
-          gainNode.disconnect()
-          context.close()
-        } catch (e) {
-          // Already disconnected
-        }
-        resolve('audio-timeout')
-      }, 100)
     } catch (e) {
       resolve('audio-error')
     }
@@ -192,6 +201,7 @@ async function hashFingerprint(fp: DeviceFingerprint): Promise<string> {
 /**
  * Simple hash function using SubtleCrypto API
  * Falls back to basic hash if SubtleCrypto is unavailable
+ * Note: SHA-256 produces 64-char hex, fallback produces 64-char hex for consistency
  */
 async function simpleHash(str: string): Promise<string> {
   try {
@@ -207,14 +217,18 @@ async function simpleHash(str: string): Promise<string> {
     // SubtleCrypto unavailable (HTTP context)
   }
 
-  // Fallback to simple hash
+  // Fallback hash: simple 32-bit hash expanded to 64 chars for consistency
   let hash = 0
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
     hash = ((hash << 5) - hash) + char
-    hash = hash & hash // Convert to 32-bit integer
+    hash = hash | 0 // Convert to 32-bit signed integer
   }
-  return Math.abs(hash).toString(16).padStart(16, '0')
+  
+  // Expand to 64 characters to match SHA-256 output length
+  const baseHash = Math.abs(hash).toString(16).padStart(8, '0')
+  // Repeat pattern to create 64-char string (similar to SHA-256 length)
+  return (baseHash + baseHash + baseHash + baseHash + baseHash + baseHash + baseHash + baseHash).substring(0, 64)
 }
 
 /**
