@@ -55,8 +55,10 @@ export default defineConfig({
       jsxRuntime: 'automatic',
     }),
     tailwindcss(),
-    // DO NOT REMOVE
+    // DO NOT REMOVE - Spark plugin (only loads in Spark environment)
     createIconImportProxy() as PluginOption,
+    // Spark plugin - safe to include, only activates in Spark environment
+    // In Vercel/other platforms, this plugin is a no-op
     sparkPlugin() as PluginOption,
   ],
   resolve: {
