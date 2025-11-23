@@ -102,17 +102,20 @@ export default defineConfig({
     ],
   },
   optimizeDeps: {
-    // Pre-bundle React and Solana packages to ensure they resolve correctly in all environments
+    // Pre-bundle React to ensure it resolves correctly in all environments
     // CRITICAL: Explicitly include React to prevent duplicate React instances
     include: [
       'react',
       'react-dom',
+      'canvas-confetti',
+    ],
+    // Exclude problematic packages that may not be installed
+    exclude: [
       '@solana/wallet-adapter-react',
       '@solana/wallet-adapter-base',
       '@solana/wallet-adapter-react-ui',
       '@solana/wallet-adapter-wallets',
       '@solana/web3.js',
-      'canvas-confetti',
     ],
     // Force Vite to optimize these even if they're large
     esbuildOptions: {

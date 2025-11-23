@@ -67,8 +67,7 @@ import { updateDiscordRichPresence } from '@/lib/discord/oauth';
 import { isGodMode, activateGodMode, deactivateGodMode } from '@/lib/godMode';
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
-// Import canvas-confetti with default import for Vite compatibility
-import confetti from 'canvas-confetti/dist/confetti.module.mjs';
+import confetti from 'canvas-confetti';
 
 // Lazy load with error handling and retry logic for production builds
 // CRITICAL FIX: Better error messages and faster failure detection
