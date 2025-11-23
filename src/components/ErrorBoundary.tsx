@@ -104,6 +104,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return
     }
     
+    // Don't auto-retry on CSS parsing errors - they're harmless
+    if (actualError.message && (
+      actualError.message.includes('opacity') ||
+      actualError.message.includes('field-sizing') ||
+      actualError.message.includes('user-select') ||
+      actualError.message.includes('parsing value') ||
+      actualError.message.includes('Declaration dropped')
+    )) {
+      console.debug('[ErrorBoundary] CSS parsing error (harmless), not retrying');
+      return;
+    }
+    
     console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
     
     this.setState({ error: actualError, errorInfo });
@@ -116,7 +128,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
     }
 
-    if (this.state.retryCount < 2) {
+    // Only retry on actual component errors, not CSS warnings
+    if (this.state.retryCount < 2 && !actualError.message.includes('CSS')) {
       const retryDelay = 1000;
       console.log(`[ErrorBoundary] Auto-retry ${this.state.retryCount + 1}/2 in ${retryDelay}ms`);
       
@@ -129,7 +142,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }));
       }, retryDelay);
     } else {
-      console.error('[ErrorBoundary] Max retry attempts reached, showing error UI');
+      console.error('[ErrorBoundary] Max retry attempts reached or CSS error, showing error UI');
     }
   }
 
