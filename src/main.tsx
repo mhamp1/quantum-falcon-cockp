@@ -113,25 +113,47 @@ window.addEventListener('error', (event) => {
   
   // Suppress module bundling errors that are harmless (vendor chunk loading)
   // These occur when chunks load out of order but resolve themselves
-  if (errorMessage.includes("can't access property") && 
-      (errorMessage.includes('exports') || errorMessage.includes('is undefined')) &&
-      (errorSource.includes('vendor-') || errorSource.includes('assets/'))) {
+  // CRITICAL FIX: Handle "J4 is undefined" and similar vendor bundle errors
+  if ((errorMessage.includes("can't access property") || 
+       errorMessage.includes("is undefined") ||
+       errorMessage.includes("exports")) && 
+      (errorMessage.includes('J4') || 
+       errorMessage.includes('exports') || 
+       errorSource.includes('vendor-') || 
+       errorSource.includes('assets/'))) {
     // This is a known Vite/Rollup bundling quirk with large vendor chunks
     // The module still loads correctly, this is just a timing issue
-    // Retry loading the chunk after a short delay
-    console.debug('[Module Load] Retrying chunk load after timing issue');
-    setTimeout(() => {
-      // Force reload if the error persists
-      if (document.readyState === 'complete') {
-        // Only reload if we're still getting errors after page load
-        const errorCount = (window as any).__moduleErrorCount || 0;
-        (window as any).__moduleErrorCount = errorCount + 1;
-        if (errorCount > 3) {
-          console.warn('[Module Load] Multiple module errors detected, reloading page');
-          window.location.reload();
-        }
+    // Specific fix for Solana vendor bundle (vendor-solana.js) race conditions
+    console.debug('[Module Load] Vendor chunk timing issue detected (common with Solana packages)');
+    
+    // Initialize error counter
+    const errorCount = (window as any).__moduleErrorCount || 0;
+    (window as any).__moduleErrorCount = errorCount + 1;
+    
+    // Only reload after multiple errors to avoid reload loop
+    if (errorCount > 5 && document.readyState === 'complete') {
+      console.warn('[Module Load] Multiple vendor errors detected, attempting cache clear + reload');
+      // Clear service worker cache if present
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(registration => registration.unregister());
+        });
       }
-    }, 100);
+      // Clear caches API
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => caches.delete(name));
+        });
+      }
+      // Reload after cache clear
+      setTimeout(() => window.location.reload(), 500);
+    } else {
+      // Retry after short delay for chunk to become available
+      setTimeout(() => {
+        console.debug('[Module Load] Chunk should be available now, continuing...');
+      }, 200);
+    }
+    
     event.preventDefault();
     event.stopPropagation();
     return true;

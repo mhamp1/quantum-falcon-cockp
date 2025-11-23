@@ -61,6 +61,7 @@ import AmbientParticles from '@/components/shared/AmbientParticles';
 import ConnectionStatusIndicator from '@/components/shared/ConnectionStatusIndicator';
 import TabVerificationTester from '@/components/shared/TabVerificationTester';
 import AppHealthMonitor from '@/components/shared/AppHealthMonitor';
+import { BuildHealthCheck } from '@/components/shared/BuildHealthCheck';
 import { useDailyLearning } from '@/hooks/useDailyLearning';
 import { SecurityManager } from '@/lib/security';
 import { updateDiscordRichPresence } from '@/lib/discord/oauth';
@@ -598,6 +599,7 @@ export default function App() {
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
         <AppHealthMonitor />
+        <BuildHealthCheck />
         
         {/* Tab Verification Tester - Cmd/Ctrl+Shift+V to open */}
         {showVerificationTester && (
