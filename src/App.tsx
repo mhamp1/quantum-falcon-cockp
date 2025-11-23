@@ -228,42 +228,19 @@ export default function App() {
   console.log('[App] Window available:', typeof window !== 'undefined');
   console.log('[App] Document available:', typeof document !== 'undefined');
   
-  // Production build safety - ensure client-side only rendering
-  // In browser, window is always defined, so isClient should always be true
-  const [isClient] = useState(() => {
-    const client = typeof window !== 'undefined';
-    console.log('[App] Initial isClient state:', client);
-    if (client) {
-      console.log('[App] Client-side detected - app will render');
-    }
-    return client;
-  });
+  // REMOVED isClient guard - it was blocking rendering
+  // In browser, window is always defined, so we always render
   
   // All hooks must be called unconditionally (React rules)
-  // But they should be safe to call even before client is ready
+  // These hooks are safe to call - they handle errors internally
   const isMobile = useIsMobile();
-  
-  // Initialize daily learning system (safe - handles localStorage errors)
   useDailyLearning();
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
   const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
   
-  // Prevent white screen in production - show loading state until client is ready
-  if (!isClient) {
-    console.log('[App] Rendering loading state (isClient is false)');
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center" style={{ backgroundColor: '#0a0e27' }}>
-        <div className="text-center space-y-4">
-          <div className="premium-spinner w-12 h-12 mx-auto rounded-full"></div>
-          <p className="text-primary font-bold uppercase tracking-wider" style={{ color: '#00ffff' }}>Loading Quantum Falcon...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  console.log('[App] isClient is true, rendering main app');
+  console.log('[App] Rendering main app - no guards blocking');
   
   // DEBUG: Log DOM state after render
   useEffect(() => {
@@ -525,25 +502,26 @@ export default function App() {
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-      {/* DEBUG BANNER - Remove after confirming render */}
+      {/* CRITICAL DEBUG BANNER - Always visible if React renders */}
       <div style={{ 
         position: 'fixed', 
         top: 0, 
         left: 0, 
         right: 0,
-        zIndex: 99999, 
+        zIndex: 999999, 
         background: '#ff1493', 
         color: 'white', 
-        padding: '8px 16px',
-        fontSize: '12px',
+        padding: '12px 16px',
+        fontSize: '14px',
         fontWeight: 'bold',
         textAlign: 'center',
-        borderBottom: '2px solid #00ffff'
+        borderBottom: '3px solid #00ffff',
+        boxShadow: '0 4px 20px rgba(255, 20, 147, 0.5)'
       }}>
-        🚀 DEBUG: APP RENDERED - isClient: {String(isClient)} | Active Tab: {activeTab}
+        🚀 QUANTUM FALCON DEBUG: APP RENDERED | Tab: {activeTab} | Mobile: {isMobile ? 'YES' : 'NO'} | Time: {new Date().toLocaleTimeString()}
       </div>
       
-      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')} style={{ paddingTop: '40px' }}>
+      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')} style={{ paddingTop: '60px' }}>
         {/* Ambient Background Particles */}
         <AmbientParticles />
         
