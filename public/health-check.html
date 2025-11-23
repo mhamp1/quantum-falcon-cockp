@@ -131,7 +131,13 @@
             
             // Test 3: Check if assets are accessible
             try {
-                const response = await fetch('/falcon-head-official.png', { method: 'HEAD' });
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                const response = await fetch('/falcon-head-official.png', { 
+                    method: 'HEAD',
+                    signal: controller.signal 
+                });
+                clearTimeout(timeout);
                 addStatus('Favicon Access', `Favicon file accessible (status: ${response.status})`, response.ok);
             } catch (e) {
                 addStatus('Favicon Access', `Error accessing favicon: ${e.message}`, false);
@@ -139,7 +145,13 @@
             
             // Test 4: Check if index.html is accessible
             try {
-                const response = await fetch('/', { method: 'HEAD' });
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                const response = await fetch('/', { 
+                    method: 'HEAD',
+                    signal: controller.signal 
+                });
+                clearTimeout(timeout);
                 addStatus('Main App Accessible', `Main app route accessible (status: ${response.status})`, response.ok);
             } catch (e) {
                 addStatus('Main App Accessible', `Error accessing main app: ${e.message}`, false);

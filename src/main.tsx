@@ -12,6 +12,19 @@ import './main.css';
 import './styles/theme.css';
 import './index.css';
 
+// Maximum length for debug message truncation
+const MAX_DEBUG_MESSAGE_LENGTH = 100;
+
+// Helper to check if error is a Spark KV error (with fallback available)
+function isSparkKVError(message: string, stack: string): boolean {
+  return (
+    (message.includes('Failed to fetch KV key') && message.includes('_spark/kv')) ||
+    (message.includes('Failed to set key') && message.includes('_spark/kv')) ||
+    (message.includes('KV storage') && stack.includes('@github/spark')) ||
+    message.includes('spark.kv')
+  );
+}
+
 function isNonCriticalError(error: Error | string): boolean {
   const message = typeof error === 'string' ? error : (error?.message || '')
   const stack = typeof error === 'string' ? '' : (error?.stack || '')
@@ -27,10 +40,7 @@ function isNonCriticalError(error: Error | string): boolean {
     message.includes('child.object is undefined') ||
     
     // Spark KV storage errors (with fallback)
-    (message.includes('Failed to fetch KV key') && message.includes('_spark/kv')) ||
-    (message.includes('Failed to set key') && message.includes('_spark/kv')) ||
-    (message.includes('KV storage') && stack.includes('@github/spark')) ||
-    message.includes('spark.kv') ||
+    isSparkKVError(message, stack) ||
     
     // Azure Blob Storage errors (non-critical with fallback)
     (message.includes('RestError') && message.includes('blob')) ||
@@ -47,7 +57,7 @@ console.error = (...args: any[]) => {
   const message = args.join(' ');
   if (isNonCriticalError(message)) {
     // Log to debug console but don't spam the main console
-    console.debug('[Suppressed]', message.substring(0, 100));
+    console.debug('[Suppressed]', message.substring(0, MAX_DEBUG_MESSAGE_LENGTH));
     return;
   }
   originalConsoleError.apply(console, args);
@@ -58,7 +68,7 @@ console.warn = (...args: any[]) => {
   const message = args.join(' ');
   if (isNonCriticalError(message)) {
     // Log to debug console but don't spam the main console
-    console.debug('[Suppressed]', message.substring(0, 100));
+    console.debug('[Suppressed]', message.substring(0, MAX_DEBUG_MESSAGE_LENGTH));
     return;
   }
   originalConsoleWarn.apply(console, args);
@@ -66,7 +76,7 @@ console.warn = (...args: any[]) => {
 
 window.addEventListener('error', (event) => {
   if (isNonCriticalError(event.error || event.message)) {
-    console.debug('[Suppressed Error]', event.message?.substring(0, 100));
+    console.debug('[Suppressed Error]', event.message?.substring(0, MAX_DEBUG_MESSAGE_LENGTH));
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -76,7 +86,7 @@ window.addEventListener('error', (event) => {
 
 window.addEventListener('unhandledrejection', (event) => {
   if (isNonCriticalError(event.reason)) {
-    console.debug('[Suppressed Rejection]', String(event.reason)?.substring(0, 100));
+    console.debug('[Suppressed Rejection]', String(event.reason)?.substring(0, MAX_DEBUG_MESSAGE_LENGTH));
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
