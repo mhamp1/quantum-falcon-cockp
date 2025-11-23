@@ -224,12 +224,22 @@ const getOnboardingSeenStatus = (): boolean => {
 };
 
 export default function App() {
+  console.log('[App] ========== APP COMPONENT RENDERING ==========');
+  console.log('[App] Window available:', typeof window !== 'undefined');
+  console.log('[App] Document available:', typeof document !== 'undefined');
+  
   // Production build safety - ensure client-side only rendering
   // Initialize immediately to prevent hooks from running before client is ready
-  const [isClient, setIsClient] = useState(() => typeof window !== 'undefined');
+  const [isClient, setIsClient] = useState(() => {
+    const client = typeof window !== 'undefined';
+    console.log('[App] Initial isClient state:', client);
+    return client;
+  });
   
   useEffect(() => {
+    console.log('[App] useEffect running, isClient:', isClient);
     if (typeof window !== 'undefined' && !isClient) {
+      console.log('[App] Setting isClient to true');
       setIsClient(true);
       console.log('Quantum Falcon — Production build loaded');
     }
@@ -248,15 +258,18 @@ export default function App() {
   
   // Prevent white screen in production - show loading state until client is ready
   if (!isClient) {
+    console.log('[App] Rendering loading state (isClient is false)');
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center" style={{ backgroundColor: '#0a0e27' }}>
         <div className="text-center space-y-4">
           <div className="premium-spinner w-12 h-12 mx-auto rounded-full"></div>
-          <p className="text-primary font-bold uppercase tracking-wider">Loading Quantum Falcon...</p>
+          <p className="text-primary font-bold uppercase tracking-wider" style={{ color: '#00ffff' }}>Loading Quantum Falcon...</p>
         </div>
       </div>
     );
   }
+  
+  console.log('[App] isClient is true, rendering main app');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);

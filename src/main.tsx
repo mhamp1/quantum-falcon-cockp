@@ -120,21 +120,45 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
-// Add console logging to debug white screen
-console.log('[main.tsx] Starting render...');
+// Aggressive error logging for white screen debugging
+console.log('[main.tsx] ========== STARTING RENDER ==========');
 console.log('[main.tsx] Root element:', rootElement);
+console.log('[main.tsx] Root element exists:', !!rootElement);
 console.log('[main.tsx] Window available:', typeof window !== 'undefined');
+console.log('[main.tsx] Document ready:', document.readyState);
+console.log('[main.tsx] React available:', typeof React !== 'undefined');
+console.log('[main.tsx] createRoot available:', typeof createRoot !== 'undefined');
+
+// Global error handler to catch ANY errors
+window.addEventListener('error', (event) => {
+  console.error('[GLOBAL ERROR]', event.error || event.message, event.filename, event.lineno);
+  // Don't prevent default - let ErrorBoundary handle it
+}, true);
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[GLOBAL UNHANDLED REJECTION]', event.reason);
+  // Don't prevent default - let ErrorBoundary handle it
+});
 
 try {
   console.log('[main.tsx] Attempting to render app...');
+  
+  // Render with comprehensive error handling
   root.render(
     <ErrorBoundary 
       FallbackComponent={ErrorFallback}
       onError={(error, errorInfo) => {
-        console.error('[main.tsx] ErrorBoundary caught error:', error);
+        console.error('[main.tsx] ========== ERRORBOUNDARY CAUGHT ERROR ==========');
+        console.error('[main.tsx] Error:', error);
+        console.error('[main.tsx] Error message:', error.message);
+        console.error('[main.tsx] Error stack:', error.stack);
+        console.error('[main.tsx] Component stack:', errorInfo.componentStack);
+        
         if (isR3FError(error)) {
+          console.log('[main.tsx] R3F error - suppressing');
           return;
         }
+        
         // Log chunk loading errors
         if (error.message && (
           error.message.includes('Loading chunk') ||
@@ -164,9 +188,26 @@ try {
       </QueryClientProvider>
     </ErrorBoundary>
   );
-  console.log('[main.tsx] Render completed successfully');
+  
+  console.log('[main.tsx] ========== RENDER CALLED SUCCESSFULLY ==========');
+  console.log('[main.tsx] Waiting for React to mount...');
+  
+  // Check if render actually happened after a short delay
+  setTimeout(() => {
+    const rootContent = rootElement.innerHTML;
+    console.log('[main.tsx] Root element content length:', rootContent.length);
+    console.log('[main.tsx] Root element has content:', rootContent.length > 0);
+    if (rootContent.length === 0) {
+      console.error('[main.tsx] ========== WHITE SCREEN DETECTED ==========');
+      console.error('[main.tsx] Root element is empty after render!');
+    }
+  }, 1000);
+  
 } catch (error) {
-  console.error('[main.tsx] Fatal render error:', error);
+  console.error('[main.tsx] ========== FATAL RENDER ERROR ==========');
+  console.error('[main.tsx] Error type:', error?.constructor?.name);
+  console.error('[main.tsx] Error message:', error instanceof Error ? error.message : String(error));
+  console.error('[main.tsx] Error stack:', error instanceof Error ? error.stack : 'No stack');
   console.error('[Root] Fatal render error:', error);
   if (error instanceof Error && !isR3FError(error)) {
     root.render(
