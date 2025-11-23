@@ -111,6 +111,14 @@
         "vite": "^6.3.5"
     },
     "overrides": {
-        "use-sync-external-store": "^1.2.2"
+        "use-sync-external-store": "^1.2.2",
+        "react-qr-reader": {
+            "react": "$react",
+            "react-dom": "$react-dom"
+        },
+        "qrcode.react": {
+            "react": "$react",
+            "react-dom": "$react-dom"
+        }
     }
 }
