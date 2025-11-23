@@ -152,16 +152,8 @@ export default defineConfig({
             return 'vendor-react';
           }
           
-          // Solana packages in separate chunk (they have complex interdependencies)
-          // This prevents "J4 is undefined" errors caused by circular dependencies
-          if (
-            id.includes('@solana/') ||
-            id.includes('bn.js') ||
-            id.includes('buffer') ||
-            id.includes('borsh')
-          ) {
-            return 'vendor-solana';
-          }
+          // Solana packages removed - causing React 19 conflicts
+          // Buffer and related packages now go to main vendor chunk
           
           // Large UI libraries in their own chunk
           if (
@@ -273,13 +265,7 @@ export default defineConfig({
       'eventemitter3',
       'bs58',
     ],
-    exclude: [
-      '@solana/wallet-adapter-react',
-      '@solana/wallet-adapter-base',
-      '@solana/wallet-adapter-react-ui',
-      '@solana/wallet-adapter-wallets',
-      '@solana/web3.js',
-    ],
+    // Solana packages removed - no longer needed
     esbuildOptions: {
       target: 'esnext',
       define: {

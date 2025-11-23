@@ -1,8 +1,8 @@
 // Quest-Based NFT Reward System — Tier-Gated, XP-Integrated
 // November 22, 2025 — Quantum Falcon Cockpit
 // SEC-Proof: Digital Collectibles Only, No Investment Promise
+// DISABLED: Solana wallet-adapter conflicts with React 19
 
-import { useWallet } from '@solana/wallet-adapter-react'
 import { toast } from 'sonner'
 import { generateSigner, publicKey } from '@metaplex-foundation/umi'
 import { createV1 } from '@metaplex-foundation/mpl-core'

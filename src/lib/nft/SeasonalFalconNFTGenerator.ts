@@ -3,7 +3,8 @@
 
 import { createV1 } from '@metaplex-foundation/mpl-core'
 import { generateSigner, publicKey } from '@metaplex-foundation/umi'
-import { WalletContextState } from '@solana/wallet-adapter-react'
+// Stub WalletContextState type to avoid Solana import
+type WalletContextState = any;
 import { toast } from 'sonner'
 import confetti from 'canvas-confetti'
 import { generateImageWithAI } from './generateImageWithAI'

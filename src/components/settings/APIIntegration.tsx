@@ -156,35 +156,19 @@ export default function APIIntegration() {
     })
 
     try {
-      // Use real Solana wallet adapter
-      const { useWallet } = await import('@/hooks/useWallet')
-      const { useWalletModal } = await import('@solana/wallet-adapter-react-ui')
+      // Wallet functionality temporarily disabled due to React 19 + Solana conflicts
       
-      // For wallet connections, trigger wallet modal
+      // For wallet connections, show temporary disabled message
       if (connectionId === 'phantom' || connectionId === 'solflare') {
-        // The wallet adapter will handle the connection via modal
-        // We'll update the connection state after successful connection
-        const result = await settingsAPI.connectWallet(connectionId)
-        
-        if (result.success && result.data?.address) {
-          setConnections((current) => 
-            (current || []).map((conn) =>
-              conn.id === connectionId
-                ? { ...conn, connected: true, lastUsed: Date.now(), walletAddress: result.data?.address }
-                : conn
-            )
-          )
-          
-          toast.dismiss(`connect-${connectionId}`)
-          toast.success('✓ Wallet connected', {
-            description: `Address: ${result.data.address.slice(0, 8)}...${result.data.address.slice(-4)}`,
-            className: 'border-primary/50 bg-background/95',
-            duration: 4000
-          })
-        } else {
-          throw new Error(result.error || 'Failed to connect')
-        }
-      } else {
+        toast.error('Wallet Connection Temporarily Disabled', {
+          description: 'Solana wallet adapters are temporarily disabled due to React 19 compatibility issues. Check back soon!',
+          duration: 5000
+        })
+        return
+      }
+      
+      // Handle other connection types
+      if (connectionId !== 'phantom' && connectionId !== 'solflare') {
         // Fallback for other connection types
         const result = await settingsAPI.connectWallet(connectionId)
         

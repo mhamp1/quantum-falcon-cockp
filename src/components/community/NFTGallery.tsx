@@ -2,7 +2,7 @@
 // November 22, 2025 — Quantum Falcon Cockpit
 
 import { useState, useEffect } from 'react'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useWallet } from '@/hooks/useWallet'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
