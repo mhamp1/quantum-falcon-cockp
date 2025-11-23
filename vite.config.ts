@@ -69,6 +69,15 @@ export default defineConfig({
             return 'vendor-ui';
           }
           
+          // Socket.io and dependencies in separate chunk to avoid EventEmitter issues
+          if (
+            id.includes('socket.io-client') ||
+            id.includes('eventemitter3') ||
+            id.includes('engine.io-client')
+          ) {
+            return 'vendor-websocket';
+          }
+          
           // Everything else in vendor chunk
           return 'vendor';
         },
@@ -110,7 +119,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': resolve(projectRoot, 'src')
+      '@': resolve(projectRoot, 'src'),
+      'eventemitter3': 'eventemitter3/index.js',
     },
     // CRITICAL: Force all dependencies to use YOUR React version
     // This prevents "can't access property 'createContext' of undefined" errors
@@ -128,6 +138,8 @@ export default defineConfig({
       'react',
       'react-dom',
       'canvas-confetti',
+      'socket.io-client',
+      'eventemitter3',
     ],
     // Exclude problematic packages that may not be installed
     exclude: [
