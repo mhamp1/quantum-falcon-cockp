@@ -2,32 +2,19 @@
 import React from 'react';
 
 const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // THIS RUNS FIRST — no Solana imports allowed before this line
+  // In production: do absolutely nothing — no imports, no Solana, no crash
   if (import.meta.env.PROD) {
-    console.log('Solana wallet completely bypassed in production — no crash');
     return <>{children}</>;
   }
 
-  // ONLY executes in development — safe to import here
-  const { ConnectionProvider, WalletProvider: SolanaWalletProvider } = require('@solana/wallet-adapter-react');
-  const { WalletModalProvider } = require('@solana/wallet-adapter-react-ui');
-  const { PhantomWalletAdapter, SolflareWalletAdapter } = require('@solana/wallet-adapter-wallets');
-  const { clusterApiUrl } = require('@solana/web3.js');
-  const { useMemo } = require('react');
-
-  const network = clusterApiUrl('mainnet-beta');
-  const wallets = useMemo(() => [
-    new PhantomWalletAdapter(),
-    new SolflareWalletAdapter(),
-  ], []);
-
+  // In development: dynamically load the real one
+  const RealProvider = React.lazy(() => import('./WalletProvider.DEV_ONLY').then(m => ({ default: m.default })));
   return (
-    <ConnectionProvider endpoint={network}>
-      <SolanaWalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
-      </SolanaWalletProvider>
-    </ConnectionProvider>
+    <React.Suspense fallback={<div>Loading wallet (dev only)...</div>}>
+      <RealProvider>{children}</RealProvider>
+    </React.Suspense>
   );
 };
 
 export { WalletProvider };
+
