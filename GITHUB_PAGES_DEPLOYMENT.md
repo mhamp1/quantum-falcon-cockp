@@ -76,7 +76,7 @@ Available npm scripts:
 
 ### React 19 Compatibility
 
-**Important:** The Solana wallet adapter is temporarily disabled in production to prevent React 19 compatibility issues. This is a known issue as of November 2025.
+**Important:** The Solana wallet adapter is temporarily disabled in production to prevent React 19 compatibility issues. This is a known compatibility issue with the current version of the wallet adapter.
 
 **Status:**
 - ✅ All UI features work perfectly
@@ -84,9 +84,9 @@ Available npm scripts:
 - ⚠️ Wallet connection temporarily disabled in production
 - ✅ Wallet features fully available in development mode (`npm run dev`)
 
-**Why?** The `@solana/wallet-adapter-react` package ships with React 18 internally, causing chunk loading conflicts with React 19. This results in white screens and `createContext undefined` errors.
+**Why?** The `@solana/wallet-adapter-react` package currently has compatibility issues with React 19, causing chunk loading conflicts. This results in white screens and `createContext undefined` errors.
 
-**Solution:** Once the Solana team releases a React 19 compatible version, you can remove the production guards in:
+**Solution:** Once a React 19 compatible version is released, you can remove the production guards in:
 - `src/providers/WalletProvider.tsx`
 - `src/hooks/useWallet.ts`
 

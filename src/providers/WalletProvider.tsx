@@ -8,13 +8,13 @@ interface WalletProviderProps {
  * WalletProvider - Temporarily disabled in production to prevent React 19 + Solana adapter conflicts
  * 
  * Background: @solana/wallet-adapter-react ships with React 18 internally, causing chunk loading
- * errors in production builds with React 19. This is a known issue as of November 2025.
+ * errors in production builds with React 19. This is a known issue.
  * 
  * Solution: Disable wallet functionality in production until the Solana team releases
  * a React 19 compatible version. All wallet features work perfectly in development mode.
  * 
  * Status: Wallet features are available in dev mode (npm run dev)
- * GitHub Issue: https://github.com/solana-labs/wallet-adapter/issues/XXX
+ * Related: https://github.com/anza-xyz/wallet-adapter/issues
  */
 export function WalletProvider({ children }: WalletProviderProps) {
   // Temporary production guard to prevent white screen from React 19 + Solana conflicts

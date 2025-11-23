@@ -8,7 +8,7 @@ import { PublicKey } from '@solana/web3.js'
  * Enhanced wallet hook with security features
  * 
  * IMPORTANT: In production, wallet functionality is temporarily disabled to prevent 
- * React 19 + Solana adapter conflicts. This is a known issue as of November 2025.
+ * React 19 + Solana adapter conflicts. This is a known compatibility issue.
  * Full wallet functionality is available in development mode.
  * 
  * Once @solana/wallet-adapter-react releases a React 19 compatible version, 
@@ -16,7 +16,7 @@ import { PublicKey } from '@solana/web3.js'
  */
 export function useWallet() {
   // Production guard: Return stub implementation to prevent React 19 + Solana chunk loading errors
-  // In dev mode, this would normally use: const { ... } = useWallet() from '@solana/wallet-adapter-react'
+  // In dev mode, this would normally use: const { ... } = useSolanaWallet() from '@solana/wallet-adapter-react'
   // For now, we return safe defaults in production to prevent white screen crashes
   
   const publicKey = null;
