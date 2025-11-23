@@ -71,13 +71,13 @@ export default defineConfig({
     target: 'esnext',
     // Minify options to prevent module issues
     minify: 'esbuild',
-    // Disable sourcemaps in production to prevent module resolution issues
-    sourcemap: false,
-    // Enable CommonJS interop for better module compatibility
-    commonjsOptions: {
-      include: [/node_modules/],
-      transformMixedEsModules: true,
-    },
+    // Generate sourcemaps but don't expose them to users (for debugging production issues)
+    sourcemap: 'hidden',
+  },
+  // Enable CommonJS interop for better module compatibility
+  commonjsOptions: {
+    include: [/node_modules/],
+    transformMixedEsModules: true,
   },
   plugins: [
     react({
