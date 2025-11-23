@@ -524,10 +524,12 @@ export default function App() {
         console.warn('[App] Auth initialization timeout - forcing render');
         setAuthTimeout(true);
       }
-    }, 5000); // 5 second timeout
+    }, 3000); // Reduced to 3 seconds for faster failover
     return () => clearTimeout(timer);
   }, [persistentAuth.isInitialized]);
 
+  // CRITICAL: Always show something - never return null or empty
+  // If auth is stuck, show login page after timeout
   if ((!persistentAuth.isInitialized || (persistentAuth.isLoading && !auth?.isAuthenticated)) && !authTimeout) {
     return (
       <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
@@ -537,7 +539,19 @@ export default function App() {
   }
 
   // Show login page if not authenticated (after initialization is complete or timeout)
+  // CRITICAL: Always render something - never blank screen
   if (!auth?.isAuthenticated && (persistentAuth.isInitialized || authTimeout) && !persistentAuth.isLoading) {
+    return (
+      <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+        <Suspense fallback={<LoadingFallback message="Loading Login..." />}>
+          <LoginPage />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+  
+  // CRITICAL: If we somehow get here without auth, show login as fallback
+  if (!auth && authTimeout) {
     return (
       <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
         <Suspense fallback={<LoadingFallback message="Loading Login..." />}>

@@ -15,6 +15,9 @@ if (!process.env.SPARK_DIR) {
 
 // https://vite.dev/config/
 export default defineConfig({
+  // CRITICAL: Set base path for correct asset loading
+  // Use '/' for Vercel/Spark (root deployment)
+  base: '/',
   // Explicit entry point for build
   build: {
     // Use content-based chunk naming to prevent stale chunk issues
