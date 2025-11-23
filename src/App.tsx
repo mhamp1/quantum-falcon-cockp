@@ -229,21 +229,15 @@ export default function App() {
   console.log('[App] Document available:', typeof document !== 'undefined');
   
   // Production build safety - ensure client-side only rendering
-  // Initialize immediately to prevent hooks from running before client is ready
-  const [isClient, setIsClient] = useState(() => {
+  // In browser, window is always defined, so isClient should always be true
+  const [isClient] = useState(() => {
     const client = typeof window !== 'undefined';
     console.log('[App] Initial isClient state:', client);
+    if (client) {
+      console.log('[App] Client-side detected - app will render');
+    }
     return client;
   });
-  
-  useEffect(() => {
-    console.log('[App] useEffect running, isClient:', isClient);
-    if (typeof window !== 'undefined' && !isClient) {
-      console.log('[App] Setting isClient to true');
-      setIsClient(true);
-      console.log('Quantum Falcon — Production build loaded');
-    }
-  }, [isClient]);
   
   // All hooks must be called unconditionally (React rules)
   // But they should be safe to call even before client is ready
@@ -270,6 +264,24 @@ export default function App() {
   }
   
   console.log('[App] isClient is true, rendering main app');
+  
+  // DEBUG: Log DOM state after render
+  useEffect(() => {
+    setTimeout(() => {
+      const root = document.getElementById('root');
+      if (root) {
+        const contentLength = root.innerHTML.length;
+        const hasChildren = root.children.length > 0;
+        console.log('[App] DOM State Check:');
+        console.log('[App] - Root content length:', contentLength);
+        console.log('[App] - Root has children:', hasChildren);
+        console.log('[App] - Root first child:', root.firstElementChild?.tagName, root.firstElementChild?.className);
+        if (contentLength === 0) {
+          console.error('[App] ========== WHITE SCREEN DETECTED - ROOT IS EMPTY ==========');
+        }
+      }
+    }, 1000);
+  }, []);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
@@ -513,7 +525,25 @@ export default function App() {
 
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')}>
+      {/* DEBUG BANNER - Remove after confirming render */}
+      <div style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0,
+        zIndex: 99999, 
+        background: '#ff1493', 
+        color: 'white', 
+        padding: '8px 16px',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        borderBottom: '2px solid #00ffff'
+      }}>
+        🚀 DEBUG: APP RENDERED - isClient: {String(isClient)} | Active Tab: {activeTab}
+      </div>
+      
+      <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')} style={{ paddingTop: '40px' }}>
         {/* Ambient Background Particles */}
         <AmbientParticles />
         

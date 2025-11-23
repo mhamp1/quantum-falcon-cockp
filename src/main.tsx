@@ -195,13 +195,42 @@ try {
   // Check if render actually happened after a short delay
   setTimeout(() => {
     const rootContent = rootElement.innerHTML;
+    const rootChildren = rootElement.children;
+    console.log('[main.tsx] ========== DOM INSPECTION ==========');
     console.log('[main.tsx] Root element content length:', rootContent.length);
     console.log('[main.tsx] Root element has content:', rootContent.length > 0);
+    console.log('[main.tsx] Root children count:', rootChildren.length);
+    if (rootChildren.length > 0) {
+      console.log('[main.tsx] First child:', rootChildren[0].tagName, rootChildren[0].className);
+      console.log('[main.tsx] First child innerHTML length:', rootChildren[0].innerHTML.length);
+    }
+    
+    // Check for debug banner
+    const debugBanner = document.querySelector('[style*="background: #ff1493"]');
+    if (debugBanner) {
+      console.log('[main.tsx] ✅ DEBUG BANNER FOUND - App is rendering!');
+    } else {
+      console.warn('[main.tsx] ⚠️ DEBUG BANNER NOT FOUND - May indicate render issue');
+    }
+    
+    // Check for overlays that might be blocking
+    const overlays = document.querySelectorAll('[class*="fixed"], [class*="absolute"]');
+    console.log('[main.tsx] Fixed/absolute overlays found:', overlays.length);
+    overlays.forEach((overlay, i) => {
+      const zIndex = window.getComputedStyle(overlay as Element).zIndex;
+      if (parseInt(zIndex) > 1000) {
+        console.log(`[main.tsx] High z-index overlay ${i}:`, overlay.className, 'z-index:', zIndex);
+      }
+    });
+    
     if (rootContent.length === 0) {
       console.error('[main.tsx] ========== WHITE SCREEN DETECTED ==========');
       console.error('[main.tsx] Root element is empty after render!');
+      console.error('[main.tsx] This indicates React failed to mount or render');
+    } else {
+      console.log('[main.tsx] ✅ Root has content - app appears to be rendering');
     }
-  }, 1000);
+  }, 1500);
   
 } catch (error) {
   console.error('[main.tsx] ========== FATAL RENDER ERROR ==========');
