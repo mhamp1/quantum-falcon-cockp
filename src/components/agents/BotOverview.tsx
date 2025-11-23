@@ -63,7 +63,7 @@ export default function BotOverview() {
                     } : {}}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   />
-                  <Robot size={24} weight="duotone" className="text-primary" style={{ filter: 'drop-shadow(0 0 5px var(--primary))' }} />
+                  <Robot size={24} weight="duotone" className="text-primary" style={{ filter: 'drop-shadow(0 0 5px rgba(20, 241, 149, 0.5))' }} />
                 </div>
                 <Switch checked={agent.status === 'active'} />
               </div>
@@ -135,7 +135,7 @@ export default function BotOverview() {
                       }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                     >
-                      <Lightning size={16} weight="duotone" className="text-accent" style={{ filter: 'drop-shadow(0 0 5px var(--accent))' }} />
+                      <Lightning size={16} weight="duotone" className="text-accent" style={{ filter: 'drop-shadow(0 0 5px rgba(153, 69, 255, 0.5))' }} />
                     </motion.div>
                     <span className="text-sm font-bold">Level {agent.level}</span>
                   </div>
