@@ -1,3 +1,4 @@
+import './polyfills';
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

@@ -120,7 +120,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src'),
-      'eventemitter3': 'eventemitter3/index.js',
+      'buffer': 'buffer/',
+      'events': 'eventemitter3',
     },
     // CRITICAL: Force all dependencies to use YOUR React version
     // This prevents "can't access property 'createContext' of undefined" errors
@@ -131,6 +132,10 @@ export default defineConfig({
       '@types/react-dom'
     ],
   },
+  define: {
+    'global': 'globalThis',
+    'process.env': {},
+  },
   optimizeDeps: {
     // Pre-bundle React to ensure it resolves correctly in all environments
     // CRITICAL: Explicitly include React to prevent duplicate React instances
@@ -140,6 +145,7 @@ export default defineConfig({
       'canvas-confetti',
       'socket.io-client',
       'eventemitter3',
+      'buffer',
     ],
     // Exclude problematic packages that may not be installed
     exclude: [
@@ -152,6 +158,9 @@ export default defineConfig({
     // Force Vite to optimize these even if they're large
     esbuildOptions: {
       target: 'esnext',
+      define: {
+        global: 'globalThis',
+      },
     },
   },
   server: {
