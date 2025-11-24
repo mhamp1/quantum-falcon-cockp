@@ -13,6 +13,16 @@ if (!process.env.SPARK_DIR) {
   process.env.SPARK_DIR = projectRoot
 }
 
+// Solana packages to exclude from optimization due to React 19 conflict
+// TODO: Remove when re-enabling Solana integration
+const EXCLUDED_SOLANA_PACKAGES = [
+  '@solana/wallet-adapter-react',
+  '@solana/wallet-adapter-react-ui',
+  '@solana/wallet-adapter-base',
+  '@solana/wallet-adapter-wallets',
+  '@solana/web3.js'
+]
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -37,13 +47,7 @@ export default defineConfig({
     // Force exclude Solana packages to prevent bundling conflicts
     // TODO: Remove this exclusion list when re-enabling Solana integration
     // after React 19 support is added to @solana/wallet-adapter packages
-    exclude: [
-      '@solana/wallet-adapter-react',
-      '@solana/wallet-adapter-react-ui',
-      '@solana/wallet-adapter-base',
-      '@solana/wallet-adapter-wallets',
-      '@solana/web3.js'
-    ]
+    exclude: EXCLUDED_SOLANA_PACKAGES
   },
   server: {
     // Allow requests to GitHub API for Spark runtime KV storage and other services

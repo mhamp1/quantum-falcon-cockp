@@ -7,6 +7,11 @@
 
 import { useCallback } from 'react'
 
+// Centralized warning message for Solana wallet temporary disablement
+const WALLET_DISABLED_MESSAGE = 
+  'Wallet functionality temporarily disabled due to React 19 compatibility issue. ' +
+  'This is a temporary fix. See TODO comments in src/providers/WalletProvider.tsx for re-enabling Solana integration.'
+
 /**
  * STUB Wallet Hook - Returns safe default values
  * This prevents the React 19 + Solana wallet-adapter conflict
@@ -33,16 +38,14 @@ export function useWallet() {
    * Connect wallet stub - does nothing for now
    */
   const connectWallet = useCallback(async () => {
-    console.warn('Wallet connection temporarily disabled due to React 19 compatibility issue. ' +
-      'This is a temporary fix. See TODO comments in src/providers/WalletProvider.tsx for re-enabling Solana integration.')
+    console.warn(WALLET_DISABLED_MESSAGE)
   }, [])
 
   /**
    * Disconnect wallet stub - does nothing for now
    */
   const disconnectWallet = useCallback(async () => {
-    console.warn('Wallet disconnection temporarily disabled due to React 19 compatibility issue. ' +
-      'This is a temporary fix. See TODO comments in src/providers/WalletProvider.tsx for re-enabling Solana integration.')
+    console.warn(WALLET_DISABLED_MESSAGE)
   }, [])
 
   return {

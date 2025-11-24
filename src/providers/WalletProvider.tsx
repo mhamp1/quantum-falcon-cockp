@@ -1,7 +1,7 @@
 // TEMPORARY FIX: Solana Wallet Provider Disabled
 // Reason: React 19 + Solana wallet-adapter conflict causing white page
-// The Solana wallet-adapter packages have internal React 18 dependencies
-// that conflict with React 19, causing React APIs to become undefined
+// The Solana wallet-adapter packages that have internal React 18 dependencies
+// conflict with React 19, causing React APIs to become undefined
 // 
 // TODO: Re-enable Solana integration by doing one of the following:
 // 1. Monitor https://github.com/solana-labs/wallet-adapter/issues for React 19 support
