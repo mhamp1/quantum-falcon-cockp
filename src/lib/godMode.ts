@@ -6,20 +6,24 @@ import type { UserAuth } from '@/lib/auth'
 
 /**
  * Check if a license key is a master key
- * SECURITY: Master key is recognized by pattern/format, never hardcoded
- * Master keys from your RSA system will have a specific format or signature
+ * SECURITY: Master key recognized in memory only, never saved
+ * Master key is checked against known value but never stored
  */
 function checkMasterKeyPattern(licenseKey: string): boolean {
   if (!licenseKey || typeof licenseKey !== 'string') {
     return false
   }
   
-  // Master keys from your generate_keys.py system typically have:
-  // - Format: "PREFIX-XXXX-YYYY" (e.g., "MASTER-XXXX-YYYY" or "GOD-XXXX-YYYY")
-  // - Or a specific signature pattern from RSA signing
-  // - Or validated through your License Authority API with special tier
+  // MASTER KEY - Recognized in memory only, never saved
+  // This is your master key for full access (God Mode)
+  const MASTER_KEY_VALUE = 'XoYgqu2wJYVZVg5AdWO9NqhKM52qXQ_ob9oeWMVeYhw='
   
-  // Check for master key patterns (adjust based on your actual master key format)
+  // Direct comparison (exact match)
+  if (licenseKey.trim() === MASTER_KEY_VALUE) {
+    return true
+  }
+  
+  // Also check for pattern-based master keys (for backward compatibility)
   const masterPatterns = [
     /^MASTER-/i,           // MASTER-XXXX-YYYY
     /^GOD-/i,              // GOD-XXXX-YYYY
@@ -34,8 +38,8 @@ function checkMasterKeyPattern(licenseKey: string): boolean {
     }
   }
   
-  // Also check if stored master key hash matches
-  // This allows recognition after first entry
+  // Also check if stored master key hash matches (for recognition after first entry)
+  // This allows recognition without re-entering the key
   try {
     const storedMasterHash = localStorage.getItem('qf-master-key-hash')
     if (storedMasterHash && licenseKey) {

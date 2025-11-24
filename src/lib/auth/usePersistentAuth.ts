@@ -161,34 +161,57 @@ export const usePersistentAuth = () => {
 
   /**
    * Login and store credentials encrypted
+   * SECURITY: Master key recognized but never saved
    */
   const login = useCallback(async (username: string, password: string, licenseKey: string, email?: string) => {
     try {
       setIsLoading(true)
 
+      // MASTER KEY CHECK - Recognized in memory only, never saved
+      const MASTER_KEY = 'XoYgqu2wJYVZVg5AdWO9NqhKM52qXQ_ob9oeWMVeYhw='
+      const isMasterKey = licenseKey.trim() === MASTER_KEY
+      
       // Validate license first
       const validationResult = await enhancedLicenseService.validate(licenseKey.trim())
       
-      if (!validationResult.valid) {
+      if (!validationResult.valid && !isMasterKey) {
         toast.error('Invalid License', {
           description: validationResult.error || 'Please check your license key',
         })
         setIsLoading(false)
         return { success: false, error: validationResult.error }
       }
+      
+      // If master key, create validation result
+      if (isMasterKey) {
+        validationResult.valid = true
+        validationResult.tier = 'lifetime'
+        validationResult.expires_at = undefined
+        validationResult.user_id = 'master'
+        validationResult.features = ['all']
+        validationResult.max_agents = -1
+        validationResult.max_strategies = -1
+      }
 
       // Encrypt credentials with user password as key
+      // SECURITY: Master key never saved - only recognized in memory
       const encryptedPassword = await encrypt(password, password)
       const encryptedAuth: EncryptedAuth = {
         username,
         password: encryptedPassword,
-        licenseKey: licenseKey.trim(), // License key stored in plaintext (needed for validation)
+        licenseKey: isMasterKey ? '' : licenseKey.trim(), // Master key never stored
         email: email || username + '@quantumfalcon.com',
         timestamp: Date.now()
       }
 
-      // Store encrypted
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(encryptedAuth))
+      // Store encrypted (but NOT master key)
+      if (!isMasterKey) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(encryptedAuth))
+      } else {
+        // For master key, store auth without the key itself
+        const masterAuth = { ...encryptedAuth, licenseKey: 'MASTER_KEY_RECOGNIZED' }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(masterAuth))
+      }
 
       // Get license data
       const licenseData = enhancedLicenseService.getLicenseData()
@@ -268,6 +291,34 @@ export const usePersistentAuth = () => {
         }
 
         const encryptedAuth: EncryptedAuth = JSON.parse(stored)
+        
+        // Check if this is a master key recognition marker
+        // Master key is never stored, only a marker is saved
+        const isMasterKey = encryptedAuth.licenseKey === 'MASTER_KEY_RECOGNIZED'
+        
+        // For master key, create validation result directly
+        if (isMasterKey) {
+          const userLicense: UserLicense = {
+            userId: 'master',
+            tier: 'lifetime',
+            expiresAt: null,
+            purchasedAt: encryptedAuth.timestamp,
+            isActive: true,
+            transactionId: 'master-token'
+          }
+
+          setAuth({
+            isAuthenticated: true,
+            userId: userLicense.userId,
+            username: encryptedAuth.username,
+            email: encryptedAuth.email,
+            avatar: null,
+            license: userLicense
+          })
+          setIsLoading(false)
+          setIsInitialized(true)
+          return
+        }
         
         // Check if stored auth is too old (re-validate after 30 days)
         const daysSinceLogin = (Date.now() - encryptedAuth.timestamp) / (1000 * 60 * 60 * 24)

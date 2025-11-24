@@ -161,9 +161,36 @@ export class EnhancedLicenseService {
   /**
    * Validate a license key with the License Authority API
    * Enhanced with device fingerprinting for hardware binding
+   * SECURITY: Master key recognized in memory only, never saved
    */
   public async validate(licenseKey: string, hardwareId?: string): Promise<LicenseValidationResponse> {
     try {
+      // MASTER KEY CHECK - Recognized in memory only, never saved
+      // This is your master key for full access (God Mode)
+      const MASTER_KEY_VALUE = 'XoYgqu2wJYVZVg5AdWO9NqhKM52qXQ_ob9oeWMVeYhw='
+      const isMasterKey = licenseKey.trim() === MASTER_KEY_VALUE
+      
+      if (isMasterKey) {
+        // Master key recognized - grant full access
+        return {
+          valid: true,
+          tier: 'lifetime',
+          expires_at: undefined, // Never expires
+          user_id: 'master',
+          email: 'master@quantumfalcon.com',
+          features: ['all'], // All features
+          max_agents: -1, // Unlimited
+          max_strategies: -1, // Unlimited
+          strategies: 'all',
+          is_grace_period: false,
+          is_expired: false,
+          auto_renew: false,
+          token: 'master-token',
+          validated_at: new Date().toISOString(),
+          hardware_bound: false,
+        }
+      }
+
       // Ensure device fingerprint is ready
       if (!this.deviceFingerprint && ENABLE_HARDWARE_BINDING) {
         await this.initializeDeviceFingerprint()
@@ -192,8 +219,9 @@ export class EnhancedLicenseService {
 
       const result: LicenseValidationResponse = await response.json()
 
-      // If valid, store in KV
-      if (result.valid && result.token) {
+      // If valid, store in KV (but NOT for master key - master key never saved)
+      
+      if (result.valid && result.token && !isMasterKey) {
         const licenseData: LicenseData = {
           licenseKey,
           tier: result.tier,
@@ -206,6 +234,17 @@ export class EnhancedLicenseService {
           device_fingerprint: this.deviceFingerprint || undefined,
         }
         this.saveToKV(licenseData)
+      } else if (isMasterKey) {
+        // Master key: Don't save to KV, but set licenseData in memory only
+        this.licenseData = {
+          licenseKey: '', // Don't store the actual key
+          tier: 'lifetime',
+          expires_at: undefined,
+          user_id: 'master',
+          features: ['all'],
+          validated_at: new Date().toISOString(),
+          token: 'master-token',
+        }
 
         // If hardware binding is enabled and not yet bound, bind device
         if (ENABLE_HARDWARE_BINDING && !result.hardware_bound && this.deviceFingerprint) {
