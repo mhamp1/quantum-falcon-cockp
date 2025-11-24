@@ -35,37 +35,47 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   // Handle free tier bypass - goes straight to dashboard
-  const handleFreeTierContinue = () => {
-    // Create free tier auth without license
-    setAuth({
-      isAuthenticated: true,
-      userId: `free_${Date.now()}`,
-      username: 'Free User',
-      email: 'free@quantumfalcon.com',
-      avatar: null,
-      license: {
-        userId: `free_${Date.now()}`,
-        tier: 'free',
-        expiresAt: null,
-        purchasedAt: Date.now(),
-        isActive: true,
-        transactionId: 'free-tier'
-      }
-    })
-    
-    // Mark onboarding as seen
-    setHasSeenOnboarding(true)
+  const handleFreeTierContinue = async () => {
     try {
-      window.localStorage.setItem('hasSeenOnboarding', 'true')
-    } catch (e) {
-      // Silent fail
+      // Create free tier auth without license
+      const freeUserId = `free_${Date.now()}`
+      setAuth({
+        isAuthenticated: true,
+        userId: freeUserId,
+        username: 'Free User',
+        email: 'free@quantumfalcon.com',
+        avatar: null,
+        license: {
+          userId: freeUserId,
+          tier: 'free',
+          expiresAt: null,
+          purchasedAt: Date.now(),
+          isActive: true,
+          transactionId: 'free-tier'
+        }
+      })
+      
+      // Mark onboarding as seen
+      setHasSeenOnboarding(true)
+      try {
+        window.localStorage.setItem('hasSeenOnboarding', 'true')
+      } catch (e) {
+        // Silent fail
+      }
+      
+      // Small delay to ensure state updates
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      toast.success('Welcome to Quantum Falcon', {
+        description: 'Free tier activated • Paper trading mode enabled',
+        icon: '🦅',
+        duration: 3000,
+      })
+    } catch (error) {
+      toast.error('Failed to continue', {
+        description: 'Please try again',
+      })
     }
-    
-    toast.success('Welcome to Quantum Falcon', {
-      description: 'Free tier activated • Paper trading mode enabled',
-      icon: '🦅',
-      duration: 3000,
-    })
   }
 
   // Don't show login if still loading or already authenticated

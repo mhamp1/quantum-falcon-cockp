@@ -239,7 +239,12 @@ export const usePersistentAuth = () => {
       // Mark splash as seen
       enhancedLicenseService.markSplashAsSeen()
 
+      // Ensure loading and initialization states are set
       setIsLoading(false)
+      setIsInitialized(true)
+      
+      // Small delay to ensure state propagation
+      await new Promise(resolve => setTimeout(resolve, 50))
       
       toast.success('Welcome Back, Commander', {
         description: `${validationResult.tier.toUpperCase()} tier activated`,
@@ -324,10 +329,15 @@ export const usePersistentAuth = () => {
         const daysSinceLogin = (Date.now() - encryptedAuth.timestamp) / (1000 * 60 * 60 * 24)
         const needsRevalidation = daysSinceLogin > 30
 
-        // Re-validate license
-        const validationResult = await enhancedLicenseService.validate(encryptedAuth.licenseKey)
+        // Re-validate license (with timeout to prevent hanging)
+        const validationPromise = enhancedLicenseService.validate(encryptedAuth.licenseKey)
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Validation timeout')), 10000)
+        )
         
-        if (validationResult.valid) {
+        const validationResult = await Promise.race([validationPromise, timeoutPromise]) as any
+        
+        if (validationResult && validationResult.valid) {
           const licenseData = enhancedLicenseService.getLicenseData()
           
           const userLicense: UserLicense = {
@@ -351,7 +361,7 @@ export const usePersistentAuth = () => {
           // License expired or invalid - clear credentials silently
           localStorage.removeItem(STORAGE_KEY)
           
-          if (validationResult.is_expired) {
+          if (validationResult?.is_expired) {
             toast.warning('License Expired', {
               description: 'Please enter a new license key',
               duration: 5000,
@@ -360,8 +370,10 @@ export const usePersistentAuth = () => {
         }
       } catch (error) {
         // Silent error handling - don't expose details
+        // If validation fails, still allow user to proceed (they can re-login)
         localStorage.removeItem(STORAGE_KEY)
       } finally {
+        // Always set initialized, even on error
         setIsLoading(false)
         setIsInitialized(true)
       }

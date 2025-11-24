@@ -126,18 +126,38 @@ export default function InteractiveOnboardingTour({
       return;
     }
 
-    const elements = Array.from(document.querySelectorAll(currentStep.targetSelector)) as HTMLElement[];
+    let elements = Array.from(document.querySelectorAll(currentStep.targetSelector)) as HTMLElement[];
     
-    // Debug logging for stat cards
+    // CRITICAL FIX: For dashboard-stats step, ensure stat cards are visible and findable
     if (currentStep.id === 'dashboard-stats') {
-      // Debug: Looking for stat cards (removed console.log for production)
+      // Try alternative selectors if main selector fails
       if (elements.length === 0) {
-        // Try alternative selectors
-        const altSelectors = ['.stat-card', '[data-tour="stat-card"]', '.stats-grid > *'];
-        altSelectors.forEach(sel => {
-          const altElements = document.querySelectorAll(sel);
-          // Debug: Alternative selector found elements (removed console.log for production)
-        });
+        const altSelectors = ['.stat-card', '[data-tour="stat-card"]', '.stats-grid > *', '[data-tour-card="true"]', '[role="gridcell"]']
+        for (const sel of altSelectors) {
+          const altElements = document.querySelectorAll(sel)
+          if (altElements.length > 0) {
+            elements = Array.from(altElements) as HTMLElement[]
+            break
+          }
+        }
+      }
+      
+      // Force visibility of all stat cards
+      elements.forEach(el => {
+        el.style.opacity = '1'
+        el.style.visibility = 'visible'
+        el.style.display = 'block'
+        el.style.zIndex = '9998'
+        el.classList.add('!opacity-100', '!visible', '!block')
+        el.setAttribute('data-tour', 'stat-card')
+      })
+      
+      // Also ensure the container is visible
+      const container = document.querySelector('.stats-grid, [data-tour="stats-container"]')
+      if (container) {
+        (container as HTMLElement).style.opacity = '1'
+        (container as HTMLElement).style.visibility = 'visible'
+        (container as HTMLElement).style.display = 'grid'
       }
     }
     
