@@ -469,6 +469,34 @@ export default function App() {
     setShowOnboarding(false);
   };
 
+  // Show LoginPage if not authenticated and initialized
+  if (persistentAuth.isInitialized && !auth?.isAuthenticated) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground text-sm uppercase tracking-wider">Loading...</p>
+          </div>
+        </div>
+      }>
+        <LoginPage />
+      </Suspense>
+    )
+  }
+
+  // Show loading state while initializing
+  if (!persistentAuth.isInitialized || persistentAuth.isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground text-sm uppercase tracking-wider">Initializing Quantum Falcon...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
       <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')}>
@@ -496,6 +524,23 @@ export default function App() {
         
         {/* Tour stat cards fix - makes stat cards visible and clickable during tour */}
         <TourStatCardsFix />
+
+        {/* 10-Second Onboarding Modal - First Launch Only */}
+        <Suspense fallback={null}>
+          {!hasSeenOnboarding && auth?.isAuthenticated && persistentAuth.isInitialized && (
+            <OnboardingModal 
+              onComplete={() => {
+                setHasSeenOnboarding(true)
+                try {
+                  window.localStorage.setItem('hasSeenOnboarding', 'true')
+                } catch (e) {
+                  console.warn('Failed to save onboarding state', e)
+                }
+              }}
+              username={auth?.username || undefined}
+            />
+          )}
+        </Suspense>
 
         {/* Post-Tour Welcome Screen */}
         <Suspense fallback={null}>
