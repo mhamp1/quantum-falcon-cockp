@@ -57,11 +57,16 @@ export default function CreateStrategyLockedHUD({ onUpgradeClick }: LockedHUDPro
           transition={{ duration: 1, ease: "easeOut" }}
           className="text-center"
         >
-          <h1 className="mb-6 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-7xl md:text-8xl font-black text-transparent drop-shadow-2xl">
-            CREATE GOD-TIER
-          </h1>
-          <h1 className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-7xl md:text-8xl font-black text-transparent drop-shadow-2xl">
-            STRATEGIES
+          <h1 
+            className="mb-6 text-7xl md:text-8xl font-black uppercase leading-[0.9]"
+            style={{
+              fontFamily: 'Orbitron, sans-serif',
+              letterSpacing: '0.08em',
+              color: '#FF1493'
+            }}
+          >
+            <span className="block mb-3">CREATE GOD-TIER</span>
+            <span className="block">STRATEGIES</span>
           </h1>
         </motion.div>
 

@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,12 +17,14 @@ import {
   Lock, 
   Sparkle,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  Play
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
-  const { login, isLoading, isAuthenticated, isInitialized } = usePersistentAuth()
+  const { login, isLoading, isAuthenticated, isInitialized, auth, setAuth } = usePersistentAuth()
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false)
   
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -30,6 +33,40 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showLicense, setShowLicense] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Handle free tier bypass - goes straight to dashboard
+  const handleFreeTierContinue = () => {
+    // Create free tier auth without license
+    setAuth({
+      isAuthenticated: true,
+      userId: `free_${Date.now()}`,
+      username: 'Free User',
+      email: 'free@quantumfalcon.com',
+      avatar: null,
+      license: {
+        userId: `free_${Date.now()}`,
+        tier: 'free',
+        expiresAt: null,
+        purchasedAt: Date.now(),
+        isActive: true,
+        transactionId: 'free-tier'
+      }
+    })
+    
+    // Mark onboarding as seen
+    setHasSeenOnboarding(true)
+    try {
+      window.localStorage.setItem('hasSeenOnboarding', 'true')
+    } catch (e) {
+      // Silent fail
+    }
+    
+    toast.success('Welcome to Quantum Falcon', {
+      description: 'Free tier activated • Paper trading mode enabled',
+      icon: '🦅',
+      duration: 3000,
+    })
+  }
 
   // Don't show login if still loading or already authenticated
   if (!isInitialized || isLoading || isAuthenticated) {
@@ -98,71 +135,12 @@ export default function LoginPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="relative z-10 max-w-md w-full mx-4"
       >
-        {/* Falcon Head Logo */}
-        <div className="text-center mb-12">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="relative inline-block mb-6"
-          >
-            <div className="w-32 h-32 mx-auto relative">
-              {/* Falcon Head SVG */}
-              <svg
-                viewBox="0 0 200 200"
-                className="w-full h-full drop-shadow-[0_0_30px_rgba(0,212,255,0.5)]"
-              >
-                <defs>
-                  <linearGradient id="falconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#00d4ff" />
-                    <stop offset="50%" stopColor="#a855f7" />
-                    <stop offset="100%" stopColor="#00d4ff" />
-                  </linearGradient>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                    <feMerge>
-                      <feMergeNode in="coloredBlur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-                
-                {/* Falcon Head Shape */}
-                <path
-                  d="M100 20 L140 60 L160 100 L140 140 L100 180 L60 140 L40 100 L60 60 Z"
-                  fill="url(#falconGradient)"
-                  filter="url(#glow)"
-                  className="animate-pulse"
-                />
-                
-                {/* Eye */}
-                <circle cx="100" cy="100" r="15" fill="#000" />
-                <circle cx="100" cy="100" r="8" fill="#00d4ff" />
-                
-                {/* Beak */}
-                <path d="M100 120 L120 140 L100 130 Z" fill="#ff6b00" />
-              </svg>
-              
-              {/* Pulsing Glow Ring */}
-              <motion.div
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.5, 0.8, 0.5],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                className="absolute inset-0 border-2 border-cyan-400 rounded-full"
-              />
-            </div>
-          </motion.div>
-
+        {/* Title Only - No Floating Logo */}
+        <div className="text-center mb-8">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2 }}
             className="text-6xl font-black uppercase tracking-wider mb-2"
             style={{
               background: 'linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #00d4ff 100%)',
@@ -178,7 +156,7 @@ export default function LoginPage() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.3 }}
             className="text-cyan-400 text-sm uppercase tracking-wider mt-2 flex items-center justify-center gap-2"
           >
             <Sparkle size={16} weight="fill" className="text-purple-400" />
@@ -313,6 +291,23 @@ export default function LoginPage() {
                   <ArrowRight size={20} weight="bold" className="ml-2" />
                 </>
               )}
+            </Button>
+
+            {/* Continue as Free Tier Button */}
+            <Button
+              onClick={handleFreeTierContinue}
+              disabled={isSubmitting}
+              className="w-full h-14 text-lg font-bold uppercase tracking-wider
+                       bg-gradient-to-r from-gray-800/80 to-gray-900/80
+                       hover:from-gray-700/90 hover:to-gray-800/90
+                       border-2 border-cyan-500/50 hover:border-cyan-400/70
+                       text-white
+                       shadow-[0_0_20px_rgba(0,212,255,0.2)] hover:shadow-[0_0_30px_rgba(0,212,255,0.4)]
+                       transition-all duration-300 hover:scale-105
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Play size={18} weight="fill" className="mr-2" />
+              Continue as Free Tier (Paper Trading)
             </Button>
 
             {/* Security Notice */}
