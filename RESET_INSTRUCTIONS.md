@@ -1,5 +1,7 @@
 # Repository Reset Instructions
 
+**For PR Branch**: `copilot/reset-repository-to-commit`
+
 ## Status: Clean Branch Created ✓
 
 A **local** branch `reset-to-0d24c43-clean` has been created pointing to commit `0d24c435d875efd6cd64e77500454cfc4c363892`.
