@@ -28,7 +28,20 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src')
-    }
+    },
+    // CRITICAL FIX: Deduplicate React to prevent multiple versions
+    // This prevents the React 19 + Solana wallet-adapter conflict
+    dedupe: ['react', 'react-dom']
+  },
+  optimizeDeps: {
+    // Force exclude Solana packages to prevent bundling conflicts
+    exclude: [
+      '@solana/wallet-adapter-react',
+      '@solana/wallet-adapter-react-ui',
+      '@solana/wallet-adapter-base',
+      '@solana/wallet-adapter-wallets',
+      '@solana/web3.js'
+    ]
   },
   server: {
     // Allow requests to GitHub API for Spark runtime KV storage and other services
