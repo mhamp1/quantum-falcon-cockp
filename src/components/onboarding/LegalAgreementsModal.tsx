@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
-import { useKV } from '@github/spark/hooks';
+import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 
 const riskDisclosure = `QUANTUM FALCON – RISK DISCLOSURE STATEMENT
 
