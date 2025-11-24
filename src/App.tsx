@@ -70,14 +70,19 @@ import confetti from 'canvas-confetti';
 // Robust lazy loading with retry logic
 import { createRobustLazy } from '@/lib/lazyLoad'
 
-const EnhancedDashboard = createRobustLazy(() => import('@/components/dashboard/EnhancedDashboard'));
-const BotOverview = createRobustLazy(() => import('@/components/dashboard/BotOverview'));
+// Optimized lazy loading with prefetching for common tabs
+const EnhancedDashboard = createRobustLazy(() => import('@/components/dashboard/EnhancedDashboard'), { prefetch: true });
+const BotOverview = createRobustLazy(() => import('@/components/dashboard/BotOverview'), { prefetch: true });
 const EnhancedAnalytics = createRobustLazy(() => import('@/components/dashboard/EnhancedAnalytics'));
 const AdvancedTradingHub = createRobustLazy(() => import('@/components/trade/AdvancedTradingHub'));
 const CreateStrategyPage = createRobustLazy(() => import('@/components/strategy/CreateStrategyPage'));
 const VaultView = createRobustLazy(() => import('@/components/vault/VaultView'));
 const SocialCommunity = createRobustLazy(() => import('@/components/community/SocialCommunity'));
-const MultiAgentSystem = createRobustLazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
+const MultiAgentSystem = createRobustLazy(() => import('@/components/agents/MultiAgentSystemWrapper'), { 
+  retries: 5, 
+  timeout: 5000,
+  prefetch: true 
+});
 const EnhancedSettings = createRobustLazy(() => import('@/components/settings/EnhancedSettings'));
 const SupportOnboarding = createRobustLazy(() => import('@/pages/SupportOnboarding'));
 const LoginPage = createRobustLazy(() => import('@/pages/LoginPage'));
@@ -121,6 +126,13 @@ function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   const errorMessage = error?.message || 'Unknown error occurred';
   const errorStack = error?.stack || 'No stack trace available';
+  
+  // Detect if it's a dynamic import failure
+  const isImportError = 
+    errorMessage.includes('Failed to fetch dynamically imported module') ||
+    errorMessage.includes('Import timeout') ||
+    errorMessage.includes('dynamically imported module') ||
+    errorMessage.includes('Failed to fetch')
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
@@ -129,16 +141,32 @@ function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; r
           <div className="text-destructive text-6xl">⚠️</div>
           <div>
             <h2 className="text-2xl font-bold text-destructive uppercase tracking-wide">
-              Component Failure
+              {isImportError ? 'Loading Failed' : 'Component Failure'}
             </h2>
             <p className="text-sm text-muted-foreground uppercase tracking-wider">
-              A critical error occurred in this module
+              {isImportError 
+                ? 'Failed to load module. This may be a network issue.'
+                : 'A critical error occurred in this module'}
             </p>
           </div>
         </div>
 
         <div className="space-y-3">
           <p className="text-foreground font-mono text-sm break-all">{errorMessage}</p>
+          
+          {isImportError && (
+            <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg">
+              <p className="text-sm text-foreground mb-2">
+                <strong>Possible solutions:</strong>
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>Check your internet connection</li>
+                <li>Try refreshing the page</li>
+                <li>Clear browser cache and reload</li>
+                <li>Wait a moment and retry</li>
+              </ul>
+            </div>
+          )}
 
           <details className="mt-3">
             <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground uppercase tracking-wide font-semibold">
@@ -297,7 +325,7 @@ export default function App() {
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'quests', label: 'Quests', icon: Trophy, component: createRobustLazy(() => import('@/components/quests/QuestBoard')) },
+    { id: 'quests', label: 'Quests', icon: Trophy, component: createRobustLazy(() => import('@/components/quests/QuestBoard'), { timeout: 5000 }) },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },

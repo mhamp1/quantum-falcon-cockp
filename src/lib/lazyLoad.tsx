@@ -1,58 +1,105 @@
-// Robust Lazy Loading with Retry Logic
-// November 22, 2025 — Quantum Falcon Cockpit
-// Handles dynamic import failures gracefully with retries and fallbacks
+// ULTRA-ROBUST LAZY LOADING — Optimized for Production
+// November 22, 2025 — Quantum Falcon Cockpit v2025.1.0
+// Handles dynamic import failures with aggressive retry, prefetching, and error recovery
 
 import { lazy, ComponentType, LazyExoticComponent } from 'react'
 
 interface LazyLoadOptions {
   retries?: number
   retryDelay?: number
+  timeout?: number
+  prefetch?: boolean
 }
 
+// Cache for successfully loaded modules to prevent re-importing
+const moduleCache = new Map<string, Promise<any>>()
+
 /**
- * Create a robust lazy-loaded component with retry logic
- * Automatically retries failed imports up to 3 times with exponential backoff
+ * Create an ultra-robust lazy-loaded component with retry logic
+ * Features:
+ * - Fast timeout (5s) for quick failure detection
+ * - Aggressive retry with exponential backoff
+ * - Module caching to prevent duplicate loads
+ * - Network error detection and recovery
  */
 export function createRobustLazy<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   options: LazyLoadOptions = {}
 ): LazyExoticComponent<T> {
-  const { retries = 3, retryDelay = 1000 } = options
+  const { retries = 5, retryDelay = 300, timeout = 5000, prefetch = false } = options
+  
+  // Create a cache key from the import function
+  const cacheKey = importFn.toString()
 
   const loadWithRetry = async (): Promise<{ default: T }> => {
+    // Check cache first
+    if (moduleCache.has(cacheKey)) {
+      try {
+        return await moduleCache.get(cacheKey)!
+      } catch (e) {
+        // Cache entry failed, remove it and retry
+        moduleCache.delete(cacheKey)
+      }
+    }
+
     let lastError: Error | null = null
     
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        // Add timeout to prevent hanging
-        const module = await Promise.race([
-          importFn(),
-          new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error('Import timeout after 15 seconds')), 15000)
-          )
-        ])
+        // Create the import promise
+        const importPromise = importFn()
+        
+        // Add timeout - reduced from 15s to 5s for faster failure detection
+        const timeoutPromise = new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error(`Import timeout after ${timeout}ms`)), timeout)
+        )
+        
+        const module = await Promise.race([importPromise, timeoutPromise])
         
         // Verify module has default export
         if (!module || !module.default) {
           throw new Error('Module does not have a default export')
         }
         
+        // Cache successful load
+        moduleCache.set(cacheKey, Promise.resolve(module))
+        
         return module
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error))
         
+        // Check if it's a network error (common in production)
+        const isNetworkError = 
+          lastError.message.includes('Failed to fetch') ||
+          lastError.message.includes('NetworkError') ||
+          lastError.message.includes('timeout') ||
+          lastError.message.includes('dynamically imported module')
+        
         // Don't retry on last attempt
         if (attempt < retries) {
-          // Exponential backoff
-          const delay = retryDelay * Math.pow(2, attempt)
+          // Exponential backoff with jitter for network errors
+          const baseDelay = isNetworkError ? retryDelay * 2 : retryDelay
+          const delay = baseDelay * Math.pow(1.5, attempt) + Math.random() * 200
           await new Promise(resolve => setTimeout(resolve, delay))
           continue
         }
       }
     }
     
-    // All retries failed - throw the last error
-    throw lastError || new Error('Failed to load module after retries')
+    // All retries failed - throw the last error with helpful message
+    const errorMsg = lastError?.message || 'Failed to load module'
+    throw new Error(`${errorMsg} (attempted ${retries + 1} times)`)
+  }
+
+  // Prefetch in background if enabled
+  if (prefetch && typeof window !== 'undefined') {
+    // Use requestIdleCallback if available, otherwise setTimeout
+    const schedulePrefetch = window.requestIdleCallback || ((fn: () => void) => setTimeout(fn, 2000))
+    schedulePrefetch(() => {
+      loadWithRetry().catch(() => {
+        // Silent fail for prefetch
+      })
+    })
   }
 
   return lazy(loadWithRetry) as LazyExoticComponent<T>

@@ -49,6 +49,58 @@ export default defineConfig({
     // after React 19 support is added to @solana/wallet-adapter packages
     exclude: EXCLUDED_SOLANA_PACKAGES
   },
+  build: {
+    // Optimize chunk splitting for better loading performance
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor'
+            }
+            if (id.includes('framer-motion')) {
+              return 'framer-motion'
+            }
+            if (id.includes('@phosphor-icons')) {
+              return 'icons'
+            }
+            // Other large vendor libraries
+            return 'vendor'
+          }
+          
+          // Component chunks - split large components
+          if (id.includes('/components/agents/')) {
+            return 'agents'
+          }
+          if (id.includes('/components/dashboard/')) {
+            return 'dashboard'
+          }
+          if (id.includes('/components/trade/')) {
+            return 'trading'
+          }
+          if (id.includes('/components/strategy/')) {
+            return 'strategy'
+          }
+          if (id.includes('/components/settings/')) {
+            return 'settings'
+          }
+        },
+        // Use content hash for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
+    },
+    // Increase chunk size warning limit
+    chunkSizeWarningLimit: 1000,
+    // Source maps for production debugging (can disable for smaller builds)
+    sourcemap: false,
+    // Minify for production
+    minify: 'esbuild',
+    // Target modern browsers for smaller bundles
+    target: 'esnext',
+  },
   server: {
     // Allow requests to GitHub API for Spark runtime KV storage and other services
     // This prevents Vite 6's HTTP blocking from interfering with the Spark plugin's proxy
