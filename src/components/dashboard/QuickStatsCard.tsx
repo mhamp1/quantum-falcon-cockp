@@ -49,6 +49,12 @@ export const QuickStatsCard = memo(({ stat, index }: QuickStatsCardProps) => {
       data-tour="stat-card"
       data-tour-card="true"
       aria-label={`${stat.label}: ${stat.value}, ${stat.change >= 0 ? 'up' : 'down'} ${Math.abs(stat.change).toFixed(2)}%`}
+      style={{ 
+        opacity: 1, 
+        visibility: 'visible', 
+        display: 'block',
+        zIndex: 1
+      }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="p-4 relative z-10">

@@ -415,7 +415,13 @@ export default function EnhancedDashboard() {
         </Suspense>
 
         {/* STAT CARDS - Portfolio Quick Stats - Prominent position for tour */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" role="grid" aria-label="Portfolio Quick Stats" data-tour="stats-container">
+        <div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" 
+          role="grid" 
+          aria-label="Portfolio Quick Stats" 
+          data-tour="stats-container"
+          style={{ opacity: 1, visibility: 'visible', display: 'grid' }}
+        >
           {statsGrid.map((stat, idx) => (
             <QuickStatsCard key={stat.id} stat={stat} index={idx} />
           ))}
