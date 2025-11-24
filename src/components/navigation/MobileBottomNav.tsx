@@ -70,7 +70,7 @@ export default function MobileBottomNav({ tabs, activeTab, onTabChange }: Mobile
       {/* Floating Action Button (FAB) for Strategy Builder */}
       <motion.button
         onClick={handleStrategyClick}
-        className="fixed left-1/2 -translate-x-1/2 z-[60] w-16 h-16 rounded-full flex items-center justify-center shadow-2xl"
+        className="fixed left-1/2 -translate-x-1/2 z-[9998] w-16 h-16 rounded-full flex items-center justify-center shadow-2xl"
         style={{
           bottom: 'calc(80px + env(safe-area-inset-bottom) + 16px)',
           background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
@@ -102,9 +102,9 @@ export default function MobileBottomNav({ tabs, activeTab, onTabChange }: Mobile
         </div>
       </motion.button>
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation Bar — Sacred, never covered — November 22, 2025 */}
       <nav 
-        className="fixed bottom-0 left-0 right-0 z-50"
+        className="fixed bottom-0 left-0 right-0 z-[9999]"
         style={{
           height: '80px',
           paddingBottom: 'env(safe-area-inset-bottom)',

@@ -1,18 +1,16 @@
-// NFT Gallery Component — Display AI-Generated NFT Collection
+// NFT Gallery Component — Display AI-Generated NFT Collection (Payment-Based, No Wallet)
 // November 22, 2025 — Quantum Falcon Cockpit
 
 import { useState, useEffect } from 'react'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
-  Image, Sparkle, Crown, Fire, MagnifyingGlass, 
-  FunnelSimple, Wallet, Rocket, Trophy, Medal
+  Image, Sparkle, Crown, MagnifyingGlass, 
+  FunnelSimple, Rocket, Trophy, Medal, ShoppingCart
 } from '@phosphor-icons/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { RARITY_TIERS, type RarityTier } from '@/lib/nft/AutoNFTGenerator'
 import { isGodMode } from '@/lib/godMode'
@@ -21,20 +19,21 @@ import { UserAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import NFTGenerator from './NFTGenerator'
-import NFTLegalDisclaimer from '@/components/shared/NFTLegalDisclaimer'
+import NFTPurchaseDialog from './NFTPurchaseDialog'
 
 interface NFTItem {
-  mint: string
+  id: string
   name: string
   image: string
   rarity: RarityTier
   edition: number
   metadataUri: string
-  owner?: string
+  price: number
+  available: boolean
+  season?: string
 }
 
 export default function NFTGallery() {
-  const wallet = useWallet()
   const [auth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
@@ -44,29 +43,25 @@ export default function NFTGallery() {
     license: null
   })
 
-  const [nfts, setNfts] = useState<NFTItem[]>([])
+  const [nfts, setNfts] = useKV<NFTItem[]>('nft-collection', [])
+  const [ownedNFTs, setOwnedNFTs] = useKV<string[]>('owned-nfts', [])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRarity, setSelectedRarity] = useState<RarityTier | 'all'>('all')
   const [ownedOnly, setOwnedOnly] = useState(false)
+  const [selectedNFT, setSelectedNFT] = useState<NFTItem | null>(null)
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false)
 
   const isGod = isGodMode(auth)
-  const [showGenerator, setShowGenerator] = useState(false)
-
-  // Listen for generator open event
-  useEffect(() => {
-    const handleOpenGenerator = () => setShowGenerator(true)
-    window.addEventListener('open-nft-generator', handleOpenGenerator)
-    return () => window.removeEventListener('open-nft-generator', handleOpenGenerator)
-  }, [])
 
   // Filter NFTs
   const filteredNFTs = nfts.filter(nft => {
     const matchesSearch = nft.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         nft.mint.toLowerCase().includes(searchQuery.toLowerCase())
+                         nft.id.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesRarity = selectedRarity === 'all' || nft.rarity === selectedRarity
-    const matchesOwned = !ownedOnly || nft.owner === wallet.publicKey?.toString()
-    return matchesSearch && matchesRarity && matchesOwned
+    const matchesOwned = !ownedOnly || ownedNFTs.includes(nft.id)
+    const matchesAvailable = nft.available
+    return matchesSearch && matchesRarity && matchesOwned && matchesAvailable
   })
 
   // Group by rarity
@@ -89,11 +84,23 @@ export default function NFTGallery() {
     }
   }
 
+  const handlePurchase = (nft: NFTItem) => {
+    // Even master key holders must purchase
+    setSelectedNFT(nft)
+    setShowPurchaseDialog(true)
+  }
+
+  const handlePurchaseComplete = (nftId: string) => {
+    setOwnedNFTs(prev => [...prev, nftId])
+    setShowPurchaseDialog(false)
+    setSelectedNFT(null)
+    toast.success('NFT Purchased!', {
+      description: 'Your NFT has been added to your collection',
+    })
+  }
+
   return (
     <div className="space-y-6">
-      {/* Legal Disclaimer */}
-      <NFTLegalDisclaimer variant="banner" />
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -103,14 +110,16 @@ export default function NFTGallery() {
               Quantum Falcon Genesis
             </h2>
             <p className="text-sm text-muted-foreground">
-              AI-Generated NFT Collection • {nfts.length} Total
+              AI-Generated NFT Collection • {nfts.length} Total • {ownedNFTs.length} Owned
             </p>
           </div>
         </div>
         
         {isGod && (
           <Button
-            onClick={() => setShowGenerator(true)}
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('open-nft-generator'))
+            }}
             className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
           >
             <Rocket size={16} weight="fill" className="mr-2" />
@@ -129,7 +138,7 @@ export default function NFTGallery() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" 
             />
             <Input
-              placeholder="Search by name or mint address..."
+              placeholder="Search by name or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -154,16 +163,14 @@ export default function NFTGallery() {
           </div>
 
           {/* Owned Only Toggle */}
-          {wallet.connected && (
-            <Button
-              variant={ownedOnly ? "default" : "outline"}
-              onClick={() => setOwnedOnly(!ownedOnly)}
-              size="sm"
-            >
-              <Wallet size={16} className="mr-2" />
-              My NFTs
-            </Button>
-          )}
+          <Button
+            variant={ownedOnly ? "default" : "outline"}
+            onClick={() => setOwnedOnly(!ownedOnly)}
+            size="sm"
+          >
+            <Image size={16} className="mr-2" />
+            My NFTs ({ownedNFTs.length})
+          </Button>
         </div>
 
         {/* Rarity Stats */}
@@ -193,7 +200,7 @@ export default function NFTGallery() {
           </h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             {nfts.length === 0 
-              ? 'Collection not yet generated. Connect wallet and generate the Genesis collection.'
+              ? 'Collection not yet generated. Generate the Genesis collection to start.'
               : 'No NFTs match your filters. Try adjusting your search criteria.'}
           </p>
         </div>
@@ -211,54 +218,82 @@ export default function NFTGallery() {
           {(['all', ...Object.keys(RARITY_TIERS)] as const).map(tab => (
             <TabsContent key={tab} value={tab} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {(tab === 'all' ? filteredNFTs : nftsByRarity[tab as RarityTier]).map((nft) => (
-                  <motion.div
-                    key={nft.mint}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="cyber-card p-4 space-y-3 group cursor-pointer hover:border-primary/50 transition-all"
-                    style={{
-                      borderColor: getRarityColor(nft.rarity),
-                    }}
-                  >
-                    {/* NFT Image */}
-                    <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={nft.image}
-                        alt={nft.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/512?text=Quantum+Falcon'
-                        }}
-                      />
-                      <div className="absolute top-2 right-2">
-                        <Badge
-                          className="text-xs font-bold"
-                          style={{
-                            backgroundColor: getRarityColor(nft.rarity),
-                            color: '#000',
-                          }}
-                        >
-                          {getRarityIcon(nft.rarity)}
-                          <span className="ml-1">{RARITY_TIERS[nft.rarity].name}</span>
-                        </Badge>
-                      </div>
-                    </div>
+                {(tab === 'all' ? filteredNFTs : nftsByRarity[tab as RarityTier]).map((nft) => {
+                  const isOwned = ownedNFTs.includes(nft.id)
+                  
+                  return (
+                    <motion.div
+                      key={nft.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="cyber-card p-4 space-y-3 group cursor-pointer hover:border-primary/50 transition-all relative"
+                      style={{
+                        borderColor: getRarityColor(nft.rarity),
+                      }}
+                    >
+                      {/* Owned Badge */}
+                      {isOwned && (
+                        <div className="absolute top-2 left-2 z-10">
+                          <Badge className="bg-accent text-black font-bold">
+                            OWNED
+                          </Badge>
+                        </div>
+                      )}
 
-                    {/* NFT Info */}
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-sm uppercase tracking-wider truncate">
-                        {nft.name}
-                      </h4>
-                      <p className="text-xs text-muted-foreground">
-                        Edition #{nft.edition}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground font-mono truncate">
-                        {nft.mint.slice(0, 8)}...{nft.mint.slice(-8)}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
+                      {/* NFT Image */}
+                      <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                        <img
+                          src={nft.image}
+                          alt={nft.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/512?text=Quantum+Falcon'
+                          }}
+                        />
+                        <div className="absolute top-2 right-2">
+                          <Badge
+                            className="text-xs font-bold"
+                            style={{
+                              backgroundColor: getRarityColor(nft.rarity),
+                              color: '#000',
+                            }}
+                          >
+                            {getRarityIcon(nft.rarity)}
+                            <span className="ml-1">{RARITY_TIERS[nft.rarity].name}</span>
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* NFT Info */}
+                      <div className="space-y-2">
+                        <h4 className="font-bold text-sm uppercase tracking-wider truncate">
+                          {nft.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          Edition #{nft.edition}
+                        </p>
+                        <div className="flex items-center justify-between pt-2">
+                          <span className="text-lg font-bold text-primary">
+                            ${nft.price}
+                          </span>
+                          {!isOwned && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePurchase(nft)
+                              }}
+                              className="bg-accent hover:bg-accent/90"
+                            >
+                              <ShoppingCart size={14} className="mr-1" />
+                              Buy
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
               </div>
             </TabsContent>
           ))}
@@ -266,17 +301,26 @@ export default function NFTGallery() {
       )}
 
       {/* NFT Generator Dialog */}
-      <Dialog open={showGenerator} onOpenChange={setShowGenerator}>
+      <Dialog open={false} onOpenChange={() => {}}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold uppercase tracking-wider">
               Generate NFT Collection
             </DialogTitle>
           </DialogHeader>
-          <NFTGenerator onClose={() => setShowGenerator(false)} />
+          <NFTGenerator onClose={() => {}} />
         </DialogContent>
       </Dialog>
+
+      {/* Purchase Dialog */}
+      {selectedNFT && (
+        <NFTPurchaseDialog
+          nft={selectedNFT}
+          open={showPurchaseDialog}
+          onOpenChange={setShowPurchaseDialog}
+          onComplete={handlePurchaseComplete}
+        />
+      )}
     </div>
   )
 }
-

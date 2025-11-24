@@ -1,68 +1,45 @@
-// Profile NFT Gallery — Display User's NFT Collection with Rarity Badges
+// Profile NFT Gallery — Display User's NFT Collection with Rarity Badges (Payment-Based, No Wallet)
 // November 22, 2025 — Quantum Falcon Cockpit
 
-import { useState, useEffect } from 'react'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useState } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   Image, Sparkle, Crown, Trophy, Medal, 
-  MagnifyingGlass, FunnelSimple, Wallet, ExternalLink
+  MagnifyingGlass, FunnelSimple
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { RARITY_TIERS, type RarityTier } from '@/lib/nft/AutoNFTGenerator'
-import { SEASONS, type SeasonKey } from '@/lib/nft/SeasonalFalconNFTGenerator'
+import { SEASONS, type Season } from '@/lib/nft/SeasonalFalconNFTGenerator'
 import { cn } from '@/lib/utils'
 
 interface NFTItem {
-  mint: string
+  id: string
   name: string
   image: string
   rarity: RarityTier
   edition: number
-  metadataUri: string
-  season?: SeasonKey
-  collection?: string
-  owner?: string
+  season?: Season
+  price: number
 }
 
 export default function ProfileNFTGallery() {
-  const wallet = useWallet()
-  const [nfts, setNfts] = useState<NFTItem[]>([])
-  const [loading, setLoading] = useState(false)
+  const [ownedNFTs, setOwnedNFTs] = useKV<string[]>('owned-nfts', [])
+  const [allNFTs, setAllNFTs] = useKV<NFTItem[]>('nft-collection', [])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRarity, setSelectedRarity] = useState<RarityTier | 'all'>('all')
-  const [selectedSeason, setSelectedSeason] = useState<SeasonKey | 'all'>('all')
+  const [selectedSeason, setSelectedSeason] = useState<Season | 'all'>('all')
 
-  // Fetch user's NFTs (would connect to on-chain data or API)
-  useEffect(() => {
-    if (!wallet.connected || !wallet.publicKey) {
-      setNfts([])
-      return
-    }
-
-    setLoading(true)
-    // TODO: Fetch NFTs from on-chain or API
-    // For now, using placeholder - replace with actual fetch
-    fetchUserNFTs(wallet.publicKey.toString())
-      .then(setNfts)
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [wallet.connected, wallet.publicKey])
-
-  // Placeholder fetch function - replace with actual implementation
-  async function fetchUserNFTs(address: string): Promise<NFTItem[]> {
-    // TODO: Implement actual NFT fetching from Solana blockchain
-    // This would use Metaplex DAS API or similar
-    return []
-  }
+  // Get user's owned NFTs
+  const userNFTs = allNFTs.filter(nft => ownedNFTs.includes(nft.id))
 
   // Filter NFTs
-  const filteredNFTs = nfts.filter(nft => {
+  const filteredNFTs = userNFTs.filter(nft => {
     const matchesSearch = nft.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         nft.mint.toLowerCase().includes(searchQuery.toLowerCase())
+                         nft.id.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesRarity = selectedRarity === 'all' || nft.rarity === selectedRarity
     const matchesSeason = selectedSeason === 'all' || nft.season === selectedSeason
     return matchesSearch && matchesRarity && matchesSeason
@@ -88,7 +65,7 @@ export default function ProfileNFTGallery() {
     }
   }
 
-  const totalValue = filteredNFTs.length
+  const totalValue = userNFTs.reduce((sum, nft) => sum + nft.price, 0)
   const rarityCounts = {
     legendary: nftsByRarity.legendary.length,
     epic: nftsByRarity.epic.length,
@@ -97,16 +74,27 @@ export default function ProfileNFTGallery() {
     common: nftsByRarity.common.length,
   }
 
-  if (!wallet.connected) {
+  if (userNFTs.length === 0) {
     return (
       <div className="cyber-card p-8 text-center space-y-4">
-        <Wallet size={48} weight="duotone" className="mx-auto text-muted-foreground opacity-50" />
+        <Image size={48} weight="duotone" className="mx-auto text-muted-foreground opacity-50" />
         <h3 className="text-lg font-bold uppercase tracking-wider text-muted-foreground">
-          Connect Wallet to View NFTs
+          No NFTs Yet
         </h3>
         <p className="text-sm text-muted-foreground">
-          Connect your Solana wallet to see your Quantum Falcon NFT collection
+          Start building your Quantum Falcon collection by purchasing NFTs from the marketplace.
         </p>
+        <Button
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'community' }))
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('open-community-nft-tab'))
+            }, 500)
+          }}
+          variant="outline"
+        >
+          Browse Collection
+        </Button>
       </div>
     )
   }
@@ -116,7 +104,7 @@ export default function ProfileNFTGallery() {
       {/* Header Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="cyber-card p-4 text-center">
-          <div className="text-2xl font-bold text-primary">{totalValue}</div>
+          <div className="text-2xl font-bold text-primary">{userNFTs.length}</div>
           <div className="text-xs text-muted-foreground uppercase">Total NFTs</div>
         </div>
         {Object.entries(rarityCounts).map(([rarity, count]) => (
@@ -132,6 +120,14 @@ export default function ProfileNFTGallery() {
         ))}
       </div>
 
+      {/* Collection Value */}
+      <div className="cyber-card p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground uppercase tracking-wider">Collection Value</span>
+          <span className="text-2xl font-bold text-accent">${totalValue.toLocaleString()}</span>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="cyber-card p-4 space-y-4">
         <div className="flex flex-col md:flex-row gap-4">
@@ -142,7 +138,7 @@ export default function ProfileNFTGallery() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" 
             />
             <Input
-              placeholder="Search by name or mint address..."
+              placeholder="Search by name or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -170,13 +166,13 @@ export default function ProfileNFTGallery() {
           <div className="flex items-center gap-2">
             <select
               value={selectedSeason}
-              onChange={(e) => setSelectedSeason(e.target.value as SeasonKey | 'all')}
+              onChange={(e) => setSelectedSeason(e.target.value as Season | 'all')}
               className="bg-background border border-border rounded-md px-3 py-2 text-sm"
             >
               <option value="all">All Seasons</option>
               {Object.keys(SEASONS).map(season => (
                 <option key={season} value={season}>
-                  {SEASONS[season as SeasonKey].name}
+                  {SEASONS[season as Season].name}
                 </option>
               ))}
             </select>
@@ -185,111 +181,93 @@ export default function ProfileNFTGallery() {
       </div>
 
       {/* NFT Grid */}
-      {loading ? (
-        <div className="cyber-card p-12 text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-muted-foreground mt-4 uppercase tracking-wider">
-            Loading NFTs...
-          </p>
-        </div>
-      ) : filteredNFTs.length === 0 ? (
+      {filteredNFTs.length === 0 ? (
         <div className="cyber-card p-12 text-center space-y-4">
           <Image size={64} weight="duotone" className="mx-auto text-muted-foreground opacity-50" />
           <h3 className="text-xl font-bold uppercase tracking-wider text-muted-foreground">
-            No NFTs Found
+            No NFTs Match Filters
           </h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            {nfts.length === 0 
-              ? 'You don\'t own any Quantum Falcon NFTs yet. Visit the Community tab to purchase.'
-              : 'No NFTs match your filters. Try adjusting your search criteria.'}
+            Try adjusting your search criteria or filters.
           </p>
-          <Button
-            onClick={() => window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'community' }))}
-            variant="outline"
-          >
-            Browse Collection
-          </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredNFTs.map((nft) => (
-            <motion.div
-              key={nft.mint}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="cyber-card p-4 space-y-3 group cursor-pointer hover:border-primary/50 transition-all relative"
-              style={{
-                borderColor: getRarityColor(nft.rarity),
-              }}
-            >
-              {/* Rarity Badge */}
-              <div className="absolute top-2 right-2 z-10">
-                <Badge
-                  className="text-xs font-bold shadow-lg"
-                  style={{
-                    backgroundColor: getRarityColor(nft.rarity),
-                    color: '#000',
-                  }}
-                >
-                  {getRarityIcon(nft.rarity)}
-                  <span className="ml-1">{RARITY_TIERS[nft.rarity].name}</span>
-                </Badge>
-              </div>
+        <Tabs defaultValue="all" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="legendary">Legendary</TabsTrigger>
+            <TabsTrigger value="epic">Epic</TabsTrigger>
+            <TabsTrigger value="rare">Rare</TabsTrigger>
+            <TabsTrigger value="uncommon">Uncommon</TabsTrigger>
+            <TabsTrigger value="common">Common</TabsTrigger>
+          </TabsList>
 
-              {/* NFT Image */}
-              <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-                <img
-                  src={nft.image}
-                  alt={nft.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/512?text=Quantum+Falcon'
-                  }}
-                />
-                {/* Rarity Glow Overlay */}
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
-                  style={{
-                    background: `radial-gradient(circle, ${getRarityColor(nft.rarity)} 0%, transparent 70%)`,
-                  }}
-                />
-              </div>
+          {(['all', ...Object.keys(RARITY_TIERS)] as const).map(tab => (
+            <TabsContent key={tab} value={tab} className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {(tab === 'all' ? filteredNFTs : nftsByRarity[tab as RarityTier]).map((nft) => (
+                  <motion.div
+                    key={nft.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="cyber-card p-3 space-y-2 group cursor-pointer hover:border-primary/50 transition-all relative"
+                    style={{
+                      borderColor: getRarityColor(nft.rarity),
+                    }}
+                  >
+                    {/* Rarity Badge */}
+                    <div className="absolute top-2 right-2 z-10">
+                      <Badge
+                        className="text-[10px] font-bold shadow-lg"
+                        style={{
+                          backgroundColor: getRarityColor(nft.rarity),
+                          color: '#000',
+                        }}
+                      >
+                        {getRarityIcon(nft.rarity)}
+                      </Badge>
+                    </div>
 
-              {/* NFT Info */}
-              <div className="space-y-1">
-                <h4 className="font-bold text-sm uppercase tracking-wider truncate">
-                  {nft.name}
-                </h4>
-                {nft.season && (
-                  <Badge variant="outline" className="text-[10px]">
-                    {SEASONS[nft.season].name}
-                  </Badge>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Edition #{nft.edition}
-                </p>
-                <p className="text-[10px] text-muted-foreground font-mono truncate">
-                  {nft.mint.slice(0, 8)}...{nft.mint.slice(-8)}
-                </p>
-              </div>
+                    {/* NFT Image */}
+                    <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                      <img
+                        src={nft.image}
+                        alt={nft.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/512?text=Quantum+Falcon'
+                        }}
+                      />
+                      {/* Rarity Glow Overlay */}
+                      <div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
+                        style={{
+                          background: `radial-gradient(circle, ${getRarityColor(nft.rarity)} 0%, transparent 70%)`,
+                        }}
+                      />
+                    </div>
 
-              {/* View on Explorer */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full text-xs"
-                onClick={() => {
-                  window.open(`https://solscan.io/token/${nft.mint}`, '_blank')
-                }}
-              >
-                <ExternalLink size={12} className="mr-1" />
-                View on Solscan
-              </Button>
-            </motion.div>
+                    {/* NFT Info */}
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-xs uppercase tracking-wider truncate">
+                        {nft.name}
+                      </h4>
+                      {nft.season && (
+                        <Badge variant="outline" className="text-[8px]">
+                          {SEASONS[nft.season].name}
+                        </Badge>
+                      )}
+                      <p className="text-[10px] text-muted-foreground">
+                        Edition #{nft.edition}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </TabsContent>
           ))}
-        </div>
+        </Tabs>
       )}
     </div>
   )
 }
-

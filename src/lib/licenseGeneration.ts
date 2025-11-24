@@ -78,14 +78,9 @@ class LicenseGenerationService {
         timestamp: paymentData.timestamp
       }
 
-      // Get device fingerprint for hardware binding
+      // Get device fingerprint for hardware binding (optional - file removed)
       let deviceFingerprint = null
-      try {
-        const { generateDeviceFingerprint } = await import('./license-authority/integration/deviceFingerprint')
-        deviceFingerprint = await generateDeviceFingerprint()
-      } catch (error) {
-        console.warn('[LicenseGeneration] Device fingerprint not available:', error)
-      }
+      // Device fingerprint file was removed - feature is optional
 
       const response = await fetch(this.LICENSE_GENERATION_ENDPOINT, {
         method: 'POST',

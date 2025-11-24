@@ -2013,6 +2013,11 @@ a:not(.no-hover):hover,
   100% { background-position: 200% 50%; }
 }
 
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
 [role="slider"] {
   cursor: grab !important;
 }
@@ -2020,6 +2025,40 @@ a:not(.no-hover):hover,
 [role="slider"]:active {
   cursor: grabbing !important;
   transform: scale(1.1);
+}
+
+/* Elite Mode - Gold accents and premium styling */
+.elite-mode {
+  --elite-gold: #FFD700;
+  --elite-gold-glow: rgba(255, 215, 0, 0.4);
+}
+
+.elite-mode .cyber-card {
+  border-color: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.elite-mode [data-tour] {
+  border-color: var(--elite-gold) !important;
+  box-shadow: 0 0 30px var(--elite-gold-glow) !important;
+}
+
+/* Compact Mode - Denser layout */
+.compact-mode .cyber-card {
+  padding: 0.75rem;
+  gap: 0.5rem;
+}
+
+.compact-mode .text-xl {
+  font-size: 1rem;
+}
+
+.compact-mode .text-2xl {
+  font-size: 1.25rem;
+}
+
+.compact-mode .text-3xl {
+  font-size: 1.5rem;
 }
 
 .slider-track {

@@ -20,6 +20,7 @@ interface TourStep {
   actionType: 'click' | 'hover' | 'none';
 }
 
+// FINAL TOUR TEXT — neutral, perfect highlight, mobile-safe — November 22, 2025
 const TOUR_STEPS: TourStep[] = [
   {
     id: 'welcome',
@@ -100,6 +101,12 @@ export default function InteractiveOnboardingTour({
   const [actionCompleted, setActionCompleted] = useState(false);
   const [showLegalScreen, setShowLegalScreen] = useState(true);
   const [hasAcknowledgedLegal, setHasAcknowledgedLegal] = useState(false);
+  const [legalCheckboxes, setLegalCheckboxes] = useState({
+    riskDisclosure: false,
+    ageRequirement: false,
+    tradingRisks: false,
+    liabilityWaiver: false,
+  });
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [shakeCard, setShakeCard] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(true);
@@ -121,20 +128,41 @@ export default function InteractiveOnboardingTour({
 
     const elements = Array.from(document.querySelectorAll(currentStep.targetSelector)) as HTMLElement[];
     
+    // Debug logging for stat cards
+    if (currentStep.id === 'dashboard-stats') {
+      // Debug: Looking for stat cards (removed console.log for production)
+      if (elements.length === 0) {
+        // Try alternative selectors
+        const altSelectors = ['.stat-card', '[data-tour="stat-card"]', '.stats-grid > *'];
+        altSelectors.forEach(sel => {
+          const altElements = document.querySelectorAll(sel);
+          // Debug: Alternative selector found elements (removed console.log for production)
+        });
+      }
+    }
+    
     if (elements.length > 0) {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       
       elements.forEach(el => {
         const rect = el.getBoundingClientRect();
-        minX = Math.min(minX, rect.left);
-        minY = Math.min(minY, rect.top);
-        maxX = Math.max(maxX, rect.right);
-        maxY = Math.max(maxY, rect.bottom);
+        // Only include elements that are actually visible and have dimensions
+        if (rect.width > 0 && rect.height > 0) {
+          minX = Math.min(minX, rect.left);
+          minY = Math.min(minY, rect.top);
+          maxX = Math.max(maxX, rect.right);
+          maxY = Math.max(maxY, rect.bottom);
+        }
       });
 
-      const combinedRect = new DOMRect(minX, minY, maxX - minX, maxY - minY);
-      setTargetRect(combinedRect);
-      targetElementsRef.current = elements;
+      if (minX !== Infinity && minY !== Infinity) {
+        const combinedRect = new DOMRect(minX, minY, maxX - minX, maxY - minY);
+        setTargetRect(combinedRect);
+        targetElementsRef.current = elements;
+      } else {
+        setTargetRect(null);
+        targetElementsRef.current = [];
+      }
     } else {
       setTargetRect(null);
       targetElementsRef.current = [];
@@ -165,7 +193,7 @@ export default function InteractiveOnboardingTour({
   }, []);
 
   const handleActionComplete = useCallback(() => {
-    console.log('✅ Tour: Action completed for step', currentStep.id);
+    // Tour action completed (removed console.log for production)
     setActionCompleted(true);
 
     confetti({
@@ -192,7 +220,7 @@ export default function InteractiveOnboardingTour({
 
     const targetElements = Array.from(document.querySelectorAll(currentStep.targetSelector)) as HTMLElement[];
     
-    console.log(`📍 Tour: Attaching ${currentStep.actionType} listeners to ${targetElements.length} elements`);
+    // Tour: Attaching action listeners (removed console.log for production)
 
     targetElements.forEach(element => {
       element.style.position = 'relative';
@@ -202,7 +230,7 @@ export default function InteractiveOnboardingTour({
 
       if (currentStep.actionType === 'click') {
         const clickHandler = (e: Event) => {
-          console.log('🖱️ Tour: Click detected');
+          // Tour: Click detected (removed console.log for production)
           e.stopPropagation();
           handleActionComplete();
         };
@@ -224,7 +252,7 @@ export default function InteractiveOnboardingTour({
         });
       } else if (currentStep.actionType === 'hover') {
         const hoverHandler = () => {
-          console.log('👆 Tour: Hover detected');
+          // Tour: Hover detected (removed console.log for production)
           handleActionComplete();
         };
         element.addEventListener('mouseenter', hoverHandler);
@@ -235,7 +263,7 @@ export default function InteractiveOnboardingTour({
         // Mobile: Auto-advance hover steps after 2 seconds
         if (isMobile && currentStep.id === 'neural-forecast') {
           const autoAdvanceTimer = setTimeout(() => {
-            console.log('📱 Tour: Auto-advancing hover step on mobile');
+            // Tour: Auto-advancing hover step on mobile (removed console.log for production)
             handleActionComplete();
           }, 2000);
           cleanupFunctionsRef.current.push(() => {
@@ -255,11 +283,37 @@ export default function InteractiveOnboardingTour({
       setActiveTab(currentStep.targetTab);
     }
 
-    const setupTimer = setTimeout(() => {
+    // Longer delay for stat cards step to allow lazy-loaded components to render
+    const baseDelay = currentStep.id === 'dashboard-stats' ? 1500 : 800;
+    const maxRetries = currentStep.id === 'dashboard-stats' ? 10 : 5;
+    let retryCount = 0;
+
+    const findAndSetup = () => {
       updateTargetRect();
+      
+      // Force stat cards to be visible during tour
+      if (currentStep.id === 'dashboard-stats') {
+        const statCards = document.querySelectorAll('[data-tour="stat-card"]')
+        statCards.forEach(card => {
+          (card as HTMLElement).style.opacity = '1'
+          ;(card as HTMLElement).style.visibility = 'visible'
+          card.classList.add('!opacity-100', '!ring-4', '!ring-cyan-400', '!ring-offset-4', '!ring-offset-black', 'animate-pulse')
+        })
+      }
+      
+      // If stat cards step and no elements found, retry
+      if (currentStep.id === 'dashboard-stats' && targetElementsRef.current.length === 0 && retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(findAndSetup, 200);
+        return;
+      }
+      
+      // Elements found or max retries reached, proceed with setup
       scrollTargetIntoView();
       attachActionListeners();
-    }, 800);
+    };
+
+    const setupTimer = setTimeout(findAndSetup, baseDelay);
 
     const updateInterval = setInterval(updateTargetRect, 100);
 
@@ -319,10 +373,14 @@ export default function InteractiveOnboardingTour({
   };
 
   const handleCompleteLegal = () => {
-    if (hasAcknowledgedLegal) {
+    const allChecked = Object.values(legalCheckboxes).every(checked => checked === true);
+    if (allChecked) {
+      setHasAcknowledgedLegal(true);
       setShowLegalScreen(false);
     }
   };
+
+  const allLegalCheckboxesChecked = Object.values(legalCheckboxes).every(checked => checked === true);
 
   const handleAttemptNext = () => {
     if (!canProceed) {
@@ -405,23 +463,78 @@ export default function InteractiveOnboardingTour({
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
-                <Checkbox
-                  id="legal-acknowledgment"
-                  checked={hasAcknowledgedLegal}
-                  onCheckedChange={(checked) => setHasAcknowledgedLegal(checked as boolean)}
-                  className="mt-1"
-                />
-                <label
-                  htmlFor="legal-acknowledgment"
-                  className="text-sm text-foreground cursor-pointer leading-relaxed"
-                >
-                  I have read and agree to the Terms of Service and Risk Disclosure. 
-                  I understand trading involves risk and Quantum Falcon does not guarantee profits.
-                </label>
+              {/* 4 Separate Checkboxes */}
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
+                  <Checkbox
+                    id="risk-disclosure"
+                    checked={legalCheckboxes.riskDisclosure}
+                    onCheckedChange={(checked) => 
+                      setLegalCheckboxes(prev => ({ ...prev, riskDisclosure: checked as boolean }))
+                    }
+                    className="mt-1"
+                  />
+                  <label
+                    htmlFor="risk-disclosure"
+                    className="text-sm text-foreground cursor-pointer leading-relaxed flex-1"
+                  >
+                    I understand that trading cryptocurrency involves substantial risk of loss and Quantum Falcon provides software tools only — not financial advice.
+                  </label>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <Checkbox
+                    id="age-requirement"
+                    checked={legalCheckboxes.ageRequirement}
+                    onCheckedChange={(checked) => 
+                      setLegalCheckboxes(prev => ({ ...prev, ageRequirement: checked as boolean }))
+                    }
+                    className="mt-1"
+                  />
+                  <label
+                    htmlFor="age-requirement"
+                    className="text-sm text-foreground cursor-pointer leading-relaxed flex-1"
+                  >
+                    I am 18+ years old and legally able to trade cryptocurrency in my jurisdiction.
+                  </label>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <Checkbox
+                    id="trading-risks"
+                    checked={legalCheckboxes.tradingRisks}
+                    onCheckedChange={(checked) => 
+                      setLegalCheckboxes(prev => ({ ...prev, tradingRisks: checked as boolean }))
+                    }
+                    className="mt-1"
+                  />
+                  <label
+                    htmlFor="trading-risks"
+                    className="text-sm text-foreground cursor-pointer leading-relaxed flex-1"
+                  >
+                    I understand algorithmic trading risks and will test in Paper Mode before risking real capital.
+                  </label>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <Checkbox
+                    id="liability-waiver"
+                    checked={legalCheckboxes.liabilityWaiver}
+                    onCheckedChange={(checked) => 
+                      setLegalCheckboxes(prev => ({ ...prev, liabilityWaiver: checked as boolean }))
+                    }
+                    className="mt-1"
+                  />
+                  <label
+                    htmlFor="liability-waiver"
+                    className="text-sm text-foreground cursor-pointer leading-relaxed flex-1"
+                  >
+                    I will not hold Quantum Falcon liable for any trading losses and I am responsible for tax reporting.
+                  </label>
+                </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-4">
                 <Button
                   onClick={handleSkipTour}
                   variant="outline"
@@ -432,17 +545,27 @@ export default function InteractiveOnboardingTour({
                 </Button>
                 <Button
                   onClick={handleCompleteLegal}
-                  disabled={!hasAcknowledgedLegal}
+                  disabled={!allLegalCheckboxesChecked}
                   size="lg"
-                  className="flex-1 bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                  className={cn(
+                    "flex-1 bg-gradient-to-r from-primary to-secondary transition-all font-bold uppercase tracking-wider",
+                    allLegalCheckboxesChecked 
+                      ? "hover:opacity-90 cursor-pointer animate-pulse" 
+                      : "opacity-50 cursor-not-allowed"
+                  )}
                   style={{
-                    boxShadow: hasAcknowledgedLegal ? '0 0 20px rgba(0,255,255,0.3)' : 'none',
+                    boxShadow: allLegalCheckboxesChecked ? '0 0 30px rgba(0,255,255,0.5)' : '0 0 10px rgba(0,255,255,0.1)',
                   }}
                 >
                   Accept & Continue
                   <ArrowRight size={20} weight="bold" className="ml-2" />
                 </Button>
               </div>
+              {!allLegalCheckboxesChecked && (
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  Please check all 4 boxes above to continue
+                </p>
+              )}
             </div>
           </motion.div>
         </motion.div>
@@ -495,7 +618,7 @@ export default function InteractiveOnboardingTour({
                   ? '0 0 60px rgba(0, 255, 255, 0.9), 0 0 120px rgba(0, 255, 255, 0.5)' 
                   : '0 0 40px rgba(0, 255, 255, 0.7)',
                 pointerEvents: 'none',
-                zIndex: 10000,
+                zIndex: 9997, // Below mobile nav (z-9999) but above everything else
                 transform: 'scale(1.05)',
               }}
             >
@@ -516,82 +639,7 @@ export default function InteractiveOnboardingTour({
               />
             </motion.div>
 
-            {/* ARROW - Points DOWN for neural-forecast (confidence bar below), UP for others */}
-            {currentStep.id === 'neural-forecast' ? (
-              <motion.div
-                key={`arrow-${currentStepIndex}`}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
-                className="absolute flex flex-col items-center gap-2"
-                style={{
-                  left: targetRect.left + targetRect.width / 2,
-                  top: targetRect.top - 60,
-                  transform: 'translateX(-50%)',
-                  pointerEvents: 'none',
-                  zIndex: 10000,
-                }}
-              >
-                <motion.div
-                  animate={{
-                    y: [0, 8, 0],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="text-6xl"
-                  style={{
-                    filter: 'drop-shadow(0 0 12px rgba(0, 255, 255, 0.9))',
-                  }}
-                >
-                  ↓
-                </motion.div>
-                <div 
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 border-2 border-cyan-400 rounded-full text-cyan-300 font-bold text-sm"
-                >
-                  Look here ↓
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key={`arrow-${currentStepIndex}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
-                className="absolute flex flex-col items-center gap-2"
-                style={{
-                  left: targetRect.left + targetRect.width / 2,
-                  top: targetRect.bottom + 40,
-                  transform: 'translateX(-50%)',
-                  pointerEvents: 'none',
-                  zIndex: 10000,
-                }}
-              >
-                <motion.div
-                  animate={{
-                    y: [0, -8, 0],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="text-6xl"
-                  style={{
-                    filter: 'drop-shadow(0 0 12px rgba(0, 255, 255, 0.9))',
-                  }}
-                >
-                  ↑
-                </motion.div>
-                <div 
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 border-2 border-cyan-400 rounded-full text-cyan-300 font-bold text-sm"
-                >
-                  Look here ↑
-                </div>
-              </motion.div>
-            )}
+            {/* ARROWS REMOVED — Using pulsing highlight only for perfect neutral UX — November 22, 2025 */}
           </>
         )}
 

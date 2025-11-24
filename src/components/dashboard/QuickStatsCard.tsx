@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { TrendUp, TrendDown } from '@phosphor-icons/react'
 
@@ -20,6 +20,24 @@ export const QuickStatsCard = memo(({ stat, index }: QuickStatsCardProps) => {
   const isPositive = stat.change >= 0
   const cornerClasses = ['angled-corner-tr', 'angled-corner-br', 'cut-corner-tr', 'angled-corners-dual-tr-bl']
   
+  // Check if tour is active and this is the dashboard-stats step
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const tourActive = document.querySelector('[data-tour="stat-card"]') !== null
+      const isTourStep = window.location.hash.includes('tour') || document.querySelector('.pulsing-highlight')
+      
+      if (tourActive || isTourStep) {
+        // Ensure stat cards are visible during tour
+        const elements = document.querySelectorAll('[data-tour="stat-card"]')
+        elements.forEach(el => {
+          (el as HTMLElement).style.opacity = '1'
+          (el as HTMLElement).style.visibility = 'visible'
+          el.classList.add('!opacity-100')
+        })
+      }
+    }
+  }, [])
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -28,6 +46,8 @@ export const QuickStatsCard = memo(({ stat, index }: QuickStatsCardProps) => {
       whileHover={{ scale: 1.02 }}
       className={`cyber-card stat-card group cursor-pointer relative overflow-hidden ${cornerClasses[index % 4]}`}
       role="gridcell"
+      data-tour="stat-card"
+      data-tour-card="true"
       aria-label={`${stat.label}: ${stat.value}, ${stat.change >= 0 ? 'up' : 'down'} ${Math.abs(stat.change).toFixed(2)}%`}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

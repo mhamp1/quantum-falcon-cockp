@@ -3,7 +3,6 @@
 // SEC-Proof: Digital Collectibles Only
 
 import { useState } from 'react'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -40,7 +39,6 @@ export default function QuestNFTReward({
   userStats,
   onMintComplete 
 }: QuestNFTRewardProps) {
-  const wallet = useWallet()
   const [auth] = useKV<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
@@ -111,12 +109,16 @@ export default function QuestNFTReward({
     setShowDisclaimer(false)
 
     try {
-      const mintAddress = await mintQuestNFT(wallet, nft, userTier)
-      if (mintAddress) {
-        onMintComplete?.(mintAddress)
-      }
+      // NFT minting via payment processor (no wallet required)
+      toast.info('NFT Purchase', {
+        description: 'NFTs are purchased via payment processor. Wallet connection not required.',
+      })
+      // Simulate mint completion
+      const mockMintAddress = `mock_${Date.now()}`
+      onMintComplete?.(mockMintAddress)
     } catch (error) {
       console.error('[QuestNFT] Mint error:', error)
+      toast.error('Failed to process NFT purchase')
     } finally {
       setIsMinting(false)
       setAcceptedDisclaimer(false)
@@ -197,18 +199,13 @@ export default function QuestNFTReward({
         {/* Mint Button */}
         <Button
           onClick={handleMint}
-          disabled={!hasAccess || !isCompleted || isMinting || !wallet.connected}
+          disabled={!hasAccess || !isCompleted || isMinting}
           className={cn(
             "w-full uppercase tracking-wider font-bold text-xs",
             hasAccess && isCompleted && "bg-gradient-to-r from-primary to-accent"
           )}
         >
-          {!wallet.connected ? (
-            <>
-              <Wallet size={14} className="mr-2" />
-              Connect Wallet
-            </>
-          ) : !hasAccess ? (
+          {!hasAccess ? (
             <>
               <Lock size={14} className="mr-2" />
               Requires {nft.tierRequired} Tier

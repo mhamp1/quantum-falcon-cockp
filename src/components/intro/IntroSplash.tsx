@@ -177,31 +177,13 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
               </div>
             </motion.div>
 
-            {/* CTA Button with Falcon Head */}
+            {/* CTA Button - Falcon Head Logo Removed */}
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               className="qf-intro-cta-container"
             >
-              {/* Falcon Head Logo Over Button */}
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", delay: 1.0, stiffness: 200 }}
-                className="qf-intro-falcon-logo"
-              >
-                <img 
-                  src="/falcon-head-official.png" 
-                  alt="Quantum Falcon" 
-                  className="qf-intro-falcon-img"
-                  onError={(e) => {
-                    // Hide if image fails to load
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </motion.div>
-              
               <button
                 onClick={finish}
                 className="qf-intro-cta"

@@ -1,21 +1,20 @@
-// NFT Collection Generator — Admin Component (God Mode Only)
+// NFT Collection Generator — Admin Component (God Mode Only, No Wallet Required)
 // November 22, 2025 — Quantum Falcon Cockpit
 
-import { useState } from 'react'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { 
-  Rocket, Wallet, Sparkle, Crown, Fire, 
+  Rocket, Sparkle, Crown, 
   Trophy, Medal, Image, X
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
 import { toast } from 'sonner'
-import { generateAndMintNFTCollection, RARITY_TIERS, type MintProgress, type RarityTier } from '@/lib/nft/AutoNFTGenerator'
-import { generateSeasonalFalconCollection, SEASONS, getCurrentSeason, type SeasonalMintProgress } from '@/lib/nft/SeasonalFalconNFTGenerator'
+import { RARITY_TIERS, type RarityTier } from '@/lib/nft/AutoNFTGenerator'
+import { generateSeasonalFalconCollection, SEASONS, getCurrentSeason, type SeasonalMintProgress, type NFTItem } from '@/lib/nft/SeasonalFalconNFTGenerator'
+import { useKV } from '@github/spark/hooks'
 import { cn } from '@/lib/utils'
 
 interface NFTGeneratorProps {
@@ -23,23 +22,23 @@ interface NFTGeneratorProps {
 }
 
 export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
-  const wallet = useWallet()
-  const [totalSupply, setTotalSupply] = useState(3510)
+  const [totalSupply, setTotalSupply] = useState(888)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [progress, setProgress] = useState<MintProgress | null>(null)
-  const [mintAddresses, setMintAddresses] = useState<string[]>([])
-  const [collectionType, setCollectionType] = useState<'genesis' | 'seasonal'>('genesis')
   const [seasonalProgress, setSeasonalProgress] = useState<SeasonalMintProgress | null>(null)
+  const [collectionType, setCollectionType] = useState<'seasonal'>('seasonal')
   const [selectedSeason, setSelectedSeason] = useState<string>('auto')
+  const [nfts, setNfts] = useKV<NFTItem[]>('nft-collection', [])
+
+  // Listen for open event
+  useEffect(() => {
+    const handleOpen = () => {
+      // Dialog will be opened by parent
+    }
+    window.addEventListener('open-nft-generator', handleOpen)
+    return () => window.removeEventListener('open-nft-generator', handleOpen)
+  }, [])
 
   const handleGenerate = async () => {
-    if (!wallet.connected || !wallet.publicKey) {
-      toast.error('Wallet not connected', {
-        description: 'Please connect your Solana wallet to generate NFTs'
-      })
-      return
-    }
-
     if (totalSupply < 1 || totalSupply > 10000) {
       toast.error('Invalid supply', {
         description: 'Supply must be between 1 and 10,000'
@@ -48,56 +47,33 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
     }
 
     setIsGenerating(true)
-    setProgress(null)
     setSeasonalProgress(null)
-    setMintAddresses([])
 
     try {
-      if (collectionType === 'seasonal') {
-        const season = selectedSeason === 'auto' ? undefined : selectedSeason as any
-        const addresses = await generateSeasonalFalconCollection(wallet, {
-          supply: totalSupply,
-          season,
-          onProgress: (prog) => {
-            setSeasonalProgress(prog)
-          },
-          onComplete: (addresses) => {
-            setMintAddresses(addresses)
-            setIsGenerating(false)
-            toast.success('Seasonal collection generation complete!', {
-              description: `${addresses.length} NFTs successfully minted`,
-              duration: 10000
-            })
-          },
-          onError: (error) => {
-            setIsGenerating(false)
-            toast.error('Generation failed', {
-              description: error.message
-            })
-          }
-        })
-      } else {
-        const addresses = await generateAndMintNFTCollection(wallet, {
-          totalSupply,
-          onProgress: (prog) => {
-            setProgress(prog)
-          },
-          onComplete: (addresses) => {
-            setMintAddresses(addresses)
-            setIsGenerating(false)
-            toast.success('Collection generation complete!', {
-              description: `${addresses.length} NFTs successfully minted`,
-              duration: 10000
-            })
-          },
-          onError: (error) => {
-            setIsGenerating(false)
-            toast.error('Generation failed', {
-              description: error.message
-            })
-          }
-        })
-      }
+      const season = selectedSeason === 'auto' ? undefined : selectedSeason as any
+      const generatedNFTs = await generateSeasonalFalconCollection({
+        supply: totalSupply,
+        season,
+        onProgress: (prog) => {
+          setSeasonalProgress(prog)
+        },
+        onComplete: (items) => {
+          // Add to collection
+          setNfts(prev => [...prev, ...items])
+          setIsGenerating(false)
+          toast.success('Seasonal collection generation complete!', {
+            description: `${items.length} NFTs successfully generated`,
+            duration: 10000
+          })
+          onClose?.()
+        },
+        onError: (error) => {
+          setIsGenerating(false)
+          toast.error('Generation failed', {
+            description: error.message
+          })
+        }
+      })
     } catch (error) {
       setIsGenerating(false)
       const err = error instanceof Error ? error : new Error('Unknown error')
@@ -107,9 +83,14 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
     }
   }
 
-  const progressPercent = (progress || seasonalProgress)
-    ? Math.round(((progress || seasonalProgress)!.current / (progress || seasonalProgress)!.total) * 100)
+  const progressPercent = seasonalProgress
+    ? Math.round((seasonalProgress.current / seasonalProgress.total) * 100)
     : 0
+
+  const currentSeason = selectedSeason === 'auto' ? getCurrentSeason() : selectedSeason
+  const seasonData = SEASONS[currentSeason as keyof typeof SEASONS]
+  const maxSupply = seasonData?.maxSupply || totalSupply
+  const finalSupply = Math.min(totalSupply, maxSupply)
 
   return (
     <div className="cyber-card p-6 space-y-6">
@@ -122,7 +103,7 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
               Generate NFT Collection
             </h2>
             <p className="text-sm text-muted-foreground">
-              AI-generated Quantum Falcon Genesis collection
+              AI-generated Quantum Falcon seasonal collection
             </p>
           </div>
         </div>
@@ -138,93 +119,32 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
         )}
       </div>
 
-      {/* Wallet Status */}
-      {!wallet.connected ? (
-        <div className="cyber-card-accent p-4 space-y-3">
-          <div className="flex items-center gap-2 text-accent">
-            <Wallet size={20} weight="fill" />
-            <span className="font-bold uppercase text-sm">Wallet Required</span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Connect your Solana wallet to generate the NFT collection. You'll need SOL for transaction fees.
-          </p>
-          <Button
-            onClick={() => wallet.select && wallet.select()}
-            className="w-full"
-          >
-            <Wallet size={16} className="mr-2" />
-            Connect Wallet
-          </Button>
-        </div>
-      ) : (
-        <div className="cyber-card-accent p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Wallet size={20} className="text-accent" weight="fill" />
-              <span className="font-bold text-sm">
-                {wallet.publicKey?.toString().slice(0, 8)}...{wallet.publicKey?.toString().slice(-8)}
-              </span>
-            </div>
-            <Badge variant="outline" className="border-accent text-accent">
-              Connected
-            </Badge>
-          </div>
-        </div>
-      )}
-
       {/* Configuration */}
       <div className="space-y-4">
-        {/* Collection Type Selector */}
+        {/* Season Selector */}
         <div className="space-y-2">
           <Label className="uppercase tracking-wider text-sm font-bold">
-            Collection Type
+            Season
           </Label>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant={collectionType === 'genesis' ? 'default' : 'outline'}
-              onClick={() => setCollectionType('genesis')}
-              disabled={isGenerating}
-              className="w-full"
-            >
-              Genesis
-            </Button>
-            <Button
-              variant={collectionType === 'seasonal' ? 'default' : 'outline'}
-              onClick={() => setCollectionType('seasonal')}
-              disabled={isGenerating}
-              className="w-full"
-            >
-              Seasonal
-            </Button>
-          </div>
+          <select
+            value={selectedSeason}
+            onChange={(e) => setSelectedSeason(e.target.value)}
+            disabled={isGenerating}
+            className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm"
+          >
+            <option value="auto">Auto (Current Season)</option>
+            {Object.keys(SEASONS).map(season => (
+              <option key={season} value={season}>
+                {SEASONS[season as keyof typeof SEASONS].name}
+              </option>
+            ))}
+          </select>
+          {selectedSeason !== 'auto' && seasonData?.maxSupply && (
+            <p className="text-xs text-accent font-bold">
+              ⚠️ Limited to {seasonData.maxSupply} NFTs
+            </p>
+          )}
         </div>
-
-        {/* Season Selector (for seasonal) */}
-        {collectionType === 'seasonal' && (
-          <div className="space-y-2">
-            <Label className="uppercase tracking-wider text-sm font-bold">
-              Season
-            </Label>
-            <select
-              value={selectedSeason}
-              onChange={(e) => setSelectedSeason(e.target.value)}
-              disabled={isGenerating}
-              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm"
-            >
-              <option value="auto">Auto (Current Season)</option>
-              {Object.keys(SEASONS).map(season => (
-                <option key={season} value={season}>
-                  {SEASONS[season as keyof typeof SEASONS].name}
-                </option>
-              ))}
-            </select>
-            {selectedSeason !== 'auto' && SEASONS[selectedSeason as keyof typeof SEASONS]?.maxSupply && (
-              <p className="text-xs text-accent font-bold">
-                ⚠️ Limited to {SEASONS[selectedSeason as keyof typeof SEASONS].maxSupply} NFTs
-              </p>
-            )}
-          </div>
-        )}
 
         <div className="space-y-2">
           <Label htmlFor="supply" className="uppercase tracking-wider text-sm font-bold">
@@ -234,27 +154,26 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
             id="supply"
             type="number"
             min={1}
-            max={10000}
+            max={maxSupply}
             value={totalSupply}
             onChange={(e) => setTotalSupply(parseInt(e.target.value) || 0)}
             disabled={isGenerating}
             className="font-mono"
           />
           <p className="text-xs text-muted-foreground">
-            {collectionType === 'genesis' 
-              ? 'Recommended: 3,510 (perfect rarity distribution)'
-              : 'Recommended: 888 (seasonal collection)'}
+            Recommended: {maxSupply} (seasonal collection) • Will generate: {finalSupply}
           </p>
         </div>
 
         {/* Rarity Distribution Preview */}
         <div className="cyber-card-accent p-4 space-y-3">
           <h3 className="font-bold uppercase tracking-wider text-sm text-accent">
-            Rarity Distribution
+            Rarity Distribution (with {seasonData.rarityBoost}x boost)
           </h3>
           <div className="space-y-2">
             {Object.entries(RARITY_TIERS).map(([rarity, tier]) => {
-              const count = Math.floor(totalSupply * tier.chance)
+              const boostedChance = tier.chance * seasonData.rarityBoost
+              const count = Math.floor(finalSupply * Math.min(boostedChance, 1))
               const Icon = rarity === 'legendary' ? Crown :
                           rarity === 'epic' ? Trophy :
                           rarity === 'rare' ? Medal :
@@ -268,7 +187,7 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-muted-foreground">
-                      {(tier.chance * 100).toFixed(1)}%
+                      {(boostedChance * 100).toFixed(1)}%
                     </span>
                     <span className="text-sm font-mono font-bold" style={{ color: tier.color }}>
                       {count}
@@ -282,24 +201,22 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
       </div>
 
       {/* Progress */}
-      {isGenerating && (progress || seasonalProgress) && (
+      {isGenerating && seasonalProgress && (
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="font-bold uppercase tracking-wider">
-              Minting {(progress || seasonalProgress)!.current} / {(progress || seasonalProgress)!.total}
+              Generating {seasonalProgress.current} / {seasonalProgress.total}
             </span>
             <span className="text-muted-foreground">{progressPercent}%</span>
           </div>
           <Progress value={progressPercent} className="h-2" />
-          {seasonalProgress && (
-            <div className="text-center">
-              <Badge variant="outline" className="text-xs">
-                Season: {SEASONS[seasonalProgress.season].name}
-              </Badge>
-            </div>
-          )}
+          <div className="text-center">
+            <Badge variant="outline" className="text-xs">
+              Season: {SEASONS[seasonalProgress.season].name}
+            </Badge>
+          </div>
           <div className="flex flex-wrap gap-2 text-xs">
-            {Object.entries((progress || seasonalProgress)!.minted).map(([rarity, count]) => (
+            {Object.entries(seasonalProgress.minted).map(([rarity, count]) => (
               <Badge
                 key={rarity}
                 variant="outline"
@@ -312,16 +229,16 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
               </Badge>
             ))}
           </div>
-          {(progress?.rarity || seasonalProgress?.rarity) && (
+          {seasonalProgress.rarity && (
             <div className="text-center">
               <Badge
                 className="text-sm font-bold"
                 style={{
-                  backgroundColor: RARITY_TIERS[(progress || seasonalProgress)!.rarity as RarityTier].color,
+                  backgroundColor: RARITY_TIERS[seasonalProgress.rarity].color,
                   color: '#000',
                 }}
               >
-                Current: {RARITY_TIERS[(progress || seasonalProgress)!.rarity as RarityTier].name}
+                Current: {RARITY_TIERS[seasonalProgress.rarity].name}
               </Badge>
             </div>
           )}
@@ -331,7 +248,7 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
       {/* Generate Button */}
       <Button
         onClick={handleGenerate}
-        disabled={!wallet.connected || isGenerating || totalSupply < 1}
+        disabled={isGenerating || totalSupply < 1}
         className={cn(
           "w-full uppercase tracking-wider font-bold text-lg py-6",
           "bg-gradient-to-r from-primary via-accent to-primary",
@@ -347,19 +264,18 @@ export default function NFTGenerator({ onClose }: NFTGeneratorProps) {
         ) : (
           <>
             <Rocket size={20} className="mr-2" weight="fill" />
-            Generate {totalSupply} NFTs
+            Generate {finalSupply} NFTs
           </>
         )}
       </Button>
 
-      {/* Warning */}
-      <div className="cyber-card-accent p-3 border-l-4 border-yellow-500">
+      {/* Info */}
+      <div className="cyber-card-accent p-3 border-l-4 border-primary">
         <p className="text-xs text-muted-foreground">
-          <strong className="text-yellow-500">Warning:</strong> This will mint {totalSupply} NFTs on-chain. 
-          You'll need SOL for transaction fees (~0.001 SOL per NFT). This action cannot be undone.
+          <strong className="text-primary">Info:</strong> This will generate {finalSupply} AI-created NFTs with perfect rarity distribution. 
+          All NFTs will be available for purchase. 7.77% royalty on all sales.
         </p>
       </div>
     </div>
   )
 }
-

@@ -311,6 +311,57 @@ class PaymentProcessor {
 
 export const paymentProcessor = new PaymentProcessor()
 
+/**
+ * Process NFT purchase payment
+ */
+export async function processPayment(params: {
+  itemId: string
+  itemType: 'nft' | 'subscription' | 'strategy'
+  amount: number
+  description: string
+}): Promise<{ success: boolean; error?: string; paymentId?: string }> {
+  try {
+    // For NFT purchases, use microtransaction
+    if (params.itemType === 'nft') {
+      // Get user ID from auth
+      const authStr = localStorage.getItem('user-auth')
+      const auth = authStr ? JSON.parse(authStr) : null
+      const userId = auth?.userId || 'anonymous'
+
+      const paymentIntent = await paymentProcessor.createMicrotransaction({
+        amount: params.amount,
+        description: params.description,
+        userId,
+        itemId: params.itemId,
+        provider: 'stripe'
+      })
+
+      if (paymentIntent.status === 'succeeded') {
+        return {
+          success: true,
+          paymentId: paymentIntent.id
+        }
+      } else {
+        return {
+          success: false,
+          error: `Payment ${paymentIntent.status}`
+        }
+      }
+    }
+
+    // For other types, use existing checkout flow
+    return {
+      success: false,
+      error: 'Unsupported item type'
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Payment processing failed'
+    }
+  }
+}
+
 export async function initializePaymentProviders() {
   try {
     await Promise.all([

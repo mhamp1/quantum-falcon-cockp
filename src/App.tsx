@@ -18,7 +18,7 @@
 //    - Auto-invite to Quantum Falcon server
 //    - Clean disconnect functionality
 
-import { useEffect, useMemo, Suspense, lazy, useState } from 'react';
+import { useEffect, useMemo, Suspense, lazy, useState, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { cn } from '@/lib/utils';
@@ -54,9 +54,11 @@ import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
 import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
+import TourStatCardsFix from '@/components/onboarding/TourStatCardsFix';
 import MasterSearch from '@/components/shared/MasterSearch';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import IntroSplash from '@/components/intro/IntroSplash';
+import SupportOnboardingSplash from '@/components/intro/SupportOnboardingSplash';
 import AmbientParticles from '@/components/shared/AmbientParticles';
 import ConnectionStatusIndicator from '@/components/shared/ConnectionStatusIndicator';
 import { useDailyLearning } from '@/hooks/useDailyLearning';
@@ -200,6 +202,7 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
+  const [showSupportSplash, setShowSupportSplash] = useState(false);
   const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false);
   // Use persistent auth for auto-login
   const persistentAuth = usePersistentAuth();
@@ -227,16 +230,44 @@ export default function App() {
     }
   }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
   
-  // Show interactive tour after onboarding modal completes
+  // Show support splash after intro video completes (for first-time users)
+  const handleIntroFinished = useCallback(() => {
+    // Check if user has seen support splash
+    try {
+      const seen = window.localStorage.getItem('qf:supportSplashSeen_v1');
+      if (!seen && persistentAuth.isInitialized && auth?.isAuthenticated) {
+        setShowSupportSplash(true);
+      }
+    } catch (e) {
+      // If localStorage fails, show it anyway
+      if (persistentAuth.isInitialized && auth?.isAuthenticated) {
+        setShowSupportSplash(true);
+      }
+    }
+  }, [persistentAuth.isInitialized, auth?.isAuthenticated]);
+
+  // Show interactive tour after support splash completes (or if already seen)
   useEffect(() => {
-    if (persistentAuth.isInitialized && auth?.isAuthenticated && hasSeenOnboarding && !isFirstLogin) {
+    if (persistentAuth.isInitialized && auth?.isAuthenticated && hasSeenOnboarding && !isFirstLogin && !showSupportSplash) {
       // Small delay to let dashboard load
       const timer = setTimeout(() => {
         setShowOnboarding(true);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding, isFirstLogin]);
+  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding, isFirstLogin, showSupportSplash]);
+
+  // Handle support splash completion - then show tour
+  const handleSupportSplashFinished = useCallback(() => {
+    setShowSupportSplash(false);
+    // Small delay to let dashboard load, then start tour (for first-time users)
+    setTimeout(() => {
+      // Show tour if user hasn't seen onboarding yet (first-time user)
+      if (!hasSeenOnboarding && persistentAuth.isInitialized && auth?.isAuthenticated) {
+        setShowOnboarding(true);
+      }
+    }, 500);
+  }, [hasSeenOnboarding, persistentAuth.isInitialized, auth?.isAuthenticated]);
 
   // GOD MODE Activation
   useEffect(() => {
@@ -300,7 +331,7 @@ export default function App() {
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'quests', label: 'Quests', icon: Trophy, component: lazy(() => import('@/components/quests/QuestBoard').then(m => ({ default: m.default }))) },
+    { id: 'quests', label: 'Quests', icon: Trophy, component: lazy(() => import('@/components/quests/QuestBoard')) },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
@@ -449,15 +480,22 @@ export default function App() {
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
         
-        {/* First-time user intro splash - appears before onboarding */}
-        <IntroSplash />
+        {/* First-time user intro splash - appears first */}
+        <IntroSplash onFinished={handleIntroFinished} />
         
+        {/* Support/Onboarding splash - appears after MP4 intro, full screen */}
+        <SupportOnboardingSplash onFinished={handleSupportSplashFinished} />
+        
+        {/* Interactive tour - appears after support splash, on dashboard */}
         <InteractiveOnboardingTour
           isOpen={showOnboarding}
           onComplete={handleOnboardingComplete}
           onSkip={handleOnboardingSkip}
           setActiveTab={setActiveTab}
         />
+        
+        {/* Tour stat cards fix - makes stat cards visible and clickable during tour */}
+        <TourStatCardsFix />
 
         {/* Post-Tour Welcome Screen */}
         <Suspense fallback={null}>
@@ -647,7 +685,9 @@ export default function App() {
                   transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                   className="h-full"
                 >
-                  <ActiveComponent />
+                  <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+                    <ActiveComponent />
+                  </ErrorBoundary>
                 </motion.div>
               </AnimatePresence>
             </Suspense>

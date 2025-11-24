@@ -34,7 +34,8 @@ import NewsOpportunitiesDisplay from '@/components/intelligence/NewsOpportunitie
 // Lazy load heavy components for better performance
 const NewsTicker = lazy(() => import('@/components/shared/NewsTicker'))
 const Wireframe3D = lazy(() => import('@/components/shared/Wireframe3D'))
-const QuickStatsCard = lazy(() => import('./QuickStatsCard').then(m => ({ default: m.QuickStatsCard })))
+// QuickStatsCard is NOT lazy-loaded - needed immediately for tour
+import { QuickStatsCard } from './QuickStatsCard'
 const QuickActionButton = lazy(() => import('./QuickActionButton').then(m => ({ default: m.QuickActionButton })))
 const AIAdvisor = lazy(() => import('./AIAdvisor').then(m => ({ default: m.AIAdvisor })))
 
@@ -385,7 +386,7 @@ export default function EnhancedDashboard() {
         {/* First Profit Celebration (small milestones) */}
         <Suspense fallback={null}>
           {(() => {
-            const FirstProfitCelebration = lazy(() => import('@/components/shared/FirstProfitCelebration').then(m => ({ default: m.default })));
+            const FirstProfitCelebration = lazy(() => import('@/components/shared/FirstProfitCelebration'));
             return (
               <FirstProfitCelebration
                 currentProfit={currentProfit}
@@ -398,7 +399,7 @@ export default function EnhancedDashboard() {
         {/* Progress to First Profit Indicator */}
         <Suspense fallback={null}>
           {(() => {
-            const ProgressToFirstProfit = lazy(() => import('@/components/shared/ProgressToFirstProfit').then(m => ({ default: m.default })));
+            const ProgressToFirstProfit = lazy(() => import('@/components/shared/ProgressToFirstProfit'));
             return (
               <ProgressToFirstProfit
                 currentProfit={currentProfit}
@@ -412,6 +413,13 @@ export default function EnhancedDashboard() {
         <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
           <NewsTicker />
         </Suspense>
+
+        {/* STAT CARDS - Portfolio Quick Stats - Prominent position for tour */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" role="grid" aria-label="Portfolio Quick Stats" data-tour="stats-container">
+          {statsGrid.map((stat, idx) => (
+            <QuickStatsCard key={stat.id} stat={stat} index={idx} />
+          ))}
+        </div>
 
         {/* Tax Dashboard Card */}
         <TaxDashboardCard />
@@ -617,16 +625,6 @@ export default function EnhancedDashboard() {
             />
           </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" role="grid" aria-label="Portfolio Quick Stats">
-        {statsGrid.map((stat, idx) => (
-          <div key={stat.id} data-tour="stat-card">
-            <Suspense fallback={<div className="animate-pulse h-32 bg-muted/20 rounded border border-primary/20" />}>
-              <QuickStatsCard stat={stat} index={idx} />
-            </Suspense>
-          </div>
-        ))}
       </div>
 
       <div className="cyber-card p-6 angled-corners-dual-tl-br quick-actions" data-tour="quick-actions">

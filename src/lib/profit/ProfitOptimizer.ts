@@ -94,8 +94,22 @@ export const useProfitOptimizer = () => {
     }
   }
 
+  // Optimize position size (wrapper for getOptimalSize)
+  const optimizePositionSize = (price: number, volatility: number, portfolioValue: number = 10000) => {
+    const edge = 0.55; // 55% edge estimate
+    const winRate = 0.6; // 60% win rate estimate
+    return getOptimalSize(edge, winRate, volatility * 100, portfolioValue);
+  };
+
+  // Optimize exit timing (wrapper for shouldDelayForLongTerm)
+  const optimizeExit = (entryTime: number, currentProfit: number) => {
+    return shouldDelayForLongTerm(entryTime, currentProfit);
+  };
+
   return {
     getOptimalSize,
+    optimizePositionSize,
+    optimizeExit,
     shouldDelayForLongTerm,
     rebalanceIfNeeded,
     compoundProfit,

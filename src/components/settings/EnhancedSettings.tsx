@@ -240,6 +240,13 @@ export default function EnhancedSettings() {
 
   useEffect(() => {
     if (settings?.theme) {
+      // Apply dark mode
+      if (settings.theme.darkMode) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+      
       if (settings.theme.themeStyle) {
         document.documentElement.classList.remove('default', 'matrix', 'synthwave')
         document.documentElement.classList.add(settings.theme.themeStyle)
@@ -264,6 +271,23 @@ export default function EnhancedSettings() {
       soundEffects.setMuted(!settings.audio.soundEffects);
     }
   }, [settings?.audio?.soundEffects]);
+
+  // Apply display settings (elite mode, compact mode, etc.)
+  useEffect(() => {
+    if (settings?.display) {
+      if (settings.display.eliteMode) {
+        document.documentElement.classList.add('elite-mode')
+      } else {
+        document.documentElement.classList.remove('elite-mode')
+      }
+      
+      if (settings.display.compactMode) {
+        document.documentElement.classList.add('compact-mode')
+      } else {
+        document.documentElement.classList.remove('compact-mode')
+      }
+    }
+  }, [settings?.display])
 
   const achievements: Achievement[] = [
     {
@@ -465,7 +489,13 @@ export default function EnhancedSettings() {
         <h2 className="text-2xl md:text-3xl font-bold tracking-[0.25em] uppercase">
           <span className="text-primary neon-glow-primary">SETTINGS</span>
         </h2>
-        <button className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group">
+        <button 
+          onClick={() => {
+            window.location.reload()
+          }}
+          className="p-2 bg-card border border-primary/30 hover:bg-primary/10 hover:border-primary transition-all relative group"
+          title="Refresh Settings"
+        >
           <ArrowsClockwise size={18} weight="duotone" className="text-primary" />
           <div className="hud-corner-tl" />
           <div className="hud-corner-br" />
@@ -629,7 +659,7 @@ export default function EnhancedSettings() {
               </div>
               <Suspense fallback={<div className="animate-pulse h-64 bg-muted/20 rounded" />}>
                 {(() => {
-                  const AchievementBadges = lazy(() => import('@/components/shared/AchievementBadges').then(m => ({ default: m.default })));
+                  const AchievementBadges = lazy(() => import('@/components/shared/AchievementBadges'));
                   return (
                     <AchievementBadges
                       userStats={{
@@ -710,7 +740,7 @@ export default function EnhancedSettings() {
         <TabsContent value="arena" className="space-y-6">
           <Suspense fallback={<div className="animate-pulse h-96 bg-muted/20 rounded" />}>
             {(() => {
-              const ArenaAchievements = lazy(() => import('@/components/shared/ArenaAchievements').then(m => ({ default: m.default })));
+              const ArenaAchievements = lazy(() => import('@/components/shared/ArenaAchievements'));
               return <ArenaAchievements />;
             })()}
           </Suspense>
@@ -719,7 +749,7 @@ export default function EnhancedSettings() {
         <TabsContent value="analysis" className="space-y-6">
           <Suspense fallback={<div className="animate-pulse h-96 bg-muted/20 rounded" />}>
             {(() => {
-              const StrategyAnalysisDashboard = lazy(() => import('@/components/shared/StrategyAnalysisDashboard').then(m => ({ default: m.default })));
+              const StrategyAnalysisDashboard = lazy(() => import('@/components/shared/StrategyAnalysisDashboard'));
               return <StrategyAnalysisDashboard />;
             })()}
           </Suspense>
@@ -1582,6 +1612,38 @@ export default function EnhancedSettings() {
                         }
                         toast.success(v ? 'High Contrast Mode Enabled' : 'High Contrast Mode Disabled', {
                           description: v ? 'Enhanced readability with black & white theme' : 'Default color theme restored'
+                        })
+                      }}
+                    />
+                  </div>
+
+                  {/* Dark Mode Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-background/40 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all group/item relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/50 group-hover/item:w-2 transition-all" />
+                    <div className="flex items-center gap-3">
+                      {settings.theme?.darkMode ? (
+                        <MoonStars size={18} weight="duotone" className="text-accent" />
+                      ) : (
+                        <SunDim size={18} weight="duotone" className="text-accent" />
+                      )}
+                      <div>
+                        <Label className="font-bold uppercase text-xs tracking-wider cursor-pointer">DARK_MODE</Label>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {settings.theme?.darkMode ? 'Dark theme active' : 'Light theme active'}
+                        </p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={settings.theme?.darkMode ?? true}
+                      onCheckedChange={(v) => {
+                        handleUpdateSetting(['theme', 'darkMode'], v)
+                        if (v) {
+                          document.documentElement.classList.add('dark')
+                        } else {
+                          document.documentElement.classList.remove('dark')
+                        }
+                        toast.success(v ? 'Dark Mode Enabled' : 'Light Mode Enabled', {
+                          description: v ? 'Cyberpunk dark theme activated' : 'Light theme activated'
                         })
                       }}
                     />

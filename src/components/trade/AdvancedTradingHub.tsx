@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Lightning, ChartLine, Target, Brain, Sparkle } from '@phosphor-icons/react'
 import TradingStrategyCard from './TradingStrategyCard'
 import AdvancedTradingStrategies from './AdvancedTradingStrategies'
+import Strategies from './Strategies'
 import { toast } from 'sonner'
 
 interface Strategy {
@@ -387,6 +388,13 @@ export default function AdvancedTradingHub() {
             <Sparkle size={14} weight="duotone" />
             Special
           </TabsTrigger>
+          <TabsTrigger 
+            value="enhanced" 
+            className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary uppercase tracking-wider text-xs font-bold whitespace-nowrap flex items-center gap-1"
+          >
+            <Lightning size={14} weight="duotone" />
+            Enhanced
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4 mt-6 strategy-cards" data-tour="strategy-cards">
@@ -452,6 +460,10 @@ export default function AdvancedTradingHub() {
               />
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="enhanced" className="space-y-4 mt-6">
+          <Strategies />
         </TabsContent>
       </Tabs>
     </div>
