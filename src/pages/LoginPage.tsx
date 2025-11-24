@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { enhancedLicenseService } from '@/lib/license/enhancedLicenseService'
+import { useKVSafe } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -45,6 +46,21 @@ export default function LoginPage() {
       const freeUserId = `free_${Date.now()}`
       const freeLicense = enhancedLicenseService.createFreeTierLicense(freeUserId)
       
+      // Store minimal auth data in localStorage for auto-login
+      const freeAuthData = {
+        username: 'Free User',
+        password: '', // No password needed for free tier
+        licenseKey: 'free-tier',
+        email: 'free@quantumfalcon.com',
+        timestamp: Date.now()
+      }
+      
+      try {
+        localStorage.setItem('qf-persistent-auth', JSON.stringify(freeAuthData))
+      } catch (e) {
+        console.warn('Failed to store free tier auth', e)
+      }
+      
       // Set auth state with free tier license
       setAuth({
         isAuthenticated: true,
@@ -71,15 +87,28 @@ export default function LoginPage() {
         // Silent fail
       }
       
-      // Small delay to ensure state updates propagate
-      await new Promise(resolve => setTimeout(resolve, 200))
+      // Mark splash as seen
+      enhancedLicenseService.markSplashAsSeen()
+      
+      // Mark that user just logged in (for tour timing)
+      try {
+        window.localStorage.setItem('justLoggedIn', 'true')
+      } catch (e) {
+        // Silent fail
+      }
+      
+      // Force a page reload to trigger auto-login and ensure proper initialization
+      // This ensures isInitialized is set correctly
+      setTimeout(() => {
+        window.location.reload()
+      }, 500)
       
       setIsSubmitting(false)
       
       toast.success('Welcome to Quantum Falcon', {
         description: 'Free tier activated • Paper trading mode enabled',
         icon: '🦅',
-        duration: 3000,
+        duration: 2000,
       })
     } catch (error) {
       console.error('[LoginPage] Free tier activation error:', error)
@@ -91,12 +120,15 @@ export default function LoginPage() {
   }
 
   // Don't show login if still loading or already authenticated
+  // Note: For free tier, isAuthenticated will be true after handleFreeTierContinue
   if (!isInitialized || isLoading || isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground text-sm uppercase tracking-wider">Initializing...</p>
+          <p className="text-muted-foreground text-sm uppercase tracking-wider">
+            {isAuthenticated ? 'Loading dashboard...' : 'Initializing...'}
+          </p>
         </div>
       </div>
     )
@@ -129,7 +161,13 @@ export default function LoginPage() {
     const result = await login(username, password, licenseKey, email || undefined)
 
     if (result.success) {
-      // Login successful - App.tsx will handle showing dashboard
+      // Login successful - mark that user just logged in (for tour timing)
+      try {
+        window.localStorage.setItem('justLoggedIn', 'true')
+      } catch (e) {
+        // Silent fail
+      }
+      // App.tsx will handle showing dashboard
       setIsSubmitting(false)
     } else {
       setIsSubmitting(false)

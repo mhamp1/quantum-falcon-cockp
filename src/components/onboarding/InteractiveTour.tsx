@@ -294,10 +294,17 @@ export default function InteractiveTour({
           transform: 'translateY(-50%)',
         }
       case 'right':
+        // For step 10 (settings), position higher to ensure next button is visible
+        const isStep10 = currentStepIndex === 9 // Settings is step 10 (0-indexed = 9)
+        const verticalOffset = isStep10 ? -150 : 0 // Raise step 10 by 150px to ensure button is accessible
+        const calculatedTop = targetRect.top + targetRect.height / 2 + verticalOffset
+        // Ensure card doesn't go above viewport
+        const safeTop = Math.max(20, calculatedTop)
         return {
-          top: `${targetRect.top + targetRect.height / 2}px`,
+          top: `${safeTop}px`,
           left: `${targetRect.right + spacing}px`,
           transform: 'translateY(-50%)',
+          maxHeight: 'calc(100vh - 40px)', // Ensure card fits in viewport
         }
       default:
         return {
@@ -383,7 +390,11 @@ export default function InteractiveTour({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
             className="absolute pointer-events-auto"
-            style={getCardPosition()}
+            style={{
+              ...getCardPosition(),
+              maxHeight: 'calc(100vh - 40px)',
+              overflowY: 'auto',
+            }}
           >
             <div className={cn(
               "relative w-[400px] max-w-[90vw] bg-gradient-to-br from-background via-background to-primary/10",

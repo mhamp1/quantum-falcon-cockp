@@ -210,14 +210,28 @@ export default function App() {
     console.info('🔒 [App] Security systems online');
   }, []);
 
-  // Show interactive tour for first-time users
+  // Show interactive tour for first-time users - only after they've entered cockpit
   useEffect(() => {
     if (persistentAuth.isInitialized && auth?.isAuthenticated && !hasSeenOnboarding) {
-      // Small delay to let dashboard load
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 1000);
-      return () => clearTimeout(timer);
+      // Check if user just logged in (clicked Enter Cockpit)
+      const justLoggedIn = typeof window !== 'undefined' 
+        ? window.localStorage.getItem('justLoggedIn') === 'true'
+        : false;
+      
+      if (justLoggedIn) {
+        // Clear the flag
+        try {
+          window.localStorage.removeItem('justLoggedIn');
+        } catch (e) {
+          // Silent fail
+        }
+        
+        // Wait for dashboard to fully load before showing tour
+        const timer = setTimeout(() => {
+          setShowOnboarding(true);
+        }, 2000); // Increased delay to ensure dashboard is visible
+        return () => clearTimeout(timer);
+      }
     }
   }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
 

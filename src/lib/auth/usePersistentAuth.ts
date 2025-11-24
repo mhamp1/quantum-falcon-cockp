@@ -297,6 +297,34 @@ export const usePersistentAuth = () => {
 
         const encryptedAuth: EncryptedAuth = JSON.parse(stored)
         
+        // Check if this is a free tier login
+        const isFreeTier = encryptedAuth.licenseKey === 'free-tier'
+        
+        // Handle free tier - no validation needed
+        if (isFreeTier) {
+          const freeLicense = enhancedLicenseService.getLicenseData()
+          const userLicense: UserLicense = {
+            userId: freeLicense?.user_id || `free_${encryptedAuth.timestamp}`,
+            tier: 'free',
+            expiresAt: null,
+            purchasedAt: encryptedAuth.timestamp,
+            isActive: true,
+            transactionId: 'free-tier'
+          }
+
+          setAuth({
+            isAuthenticated: true,
+            userId: userLicense.userId,
+            username: encryptedAuth.username,
+            email: encryptedAuth.email,
+            avatar: null,
+            license: userLicense
+          })
+          setIsLoading(false)
+          setIsInitialized(true)
+          return
+        }
+        
         // Check if this is a master key recognition marker
         // Master key is never stored, only a marker is saved
         const isMasterKey = encryptedAuth.licenseKey === 'MASTER_KEY_RECOGNIZED'
@@ -329,10 +357,10 @@ export const usePersistentAuth = () => {
         const daysSinceLogin = (Date.now() - encryptedAuth.timestamp) / (1000 * 60 * 60 * 24)
         const needsRevalidation = daysSinceLogin > 30
 
-        // Re-validate license (with timeout to prevent hanging)
+        // Re-validate license (with shorter timeout for faster initialization)
         const validationPromise = enhancedLicenseService.validate(encryptedAuth.licenseKey)
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Validation timeout')), 10000)
+          setTimeout(() => reject(new Error('Validation timeout')), 3000) // Reduced from 10s to 3s
         )
         
         const validationResult = await Promise.race([validationPromise, timeoutPromise]) as any
@@ -371,9 +399,12 @@ export const usePersistentAuth = () => {
       } catch (error) {
         // Silent error handling - don't expose details
         // If validation fails, still allow user to proceed (they can re-login)
-        localStorage.removeItem(STORAGE_KEY)
+        // Don't remove stored auth on timeout - allow offline mode
+        if (error instanceof Error && !error.message.includes('timeout')) {
+          localStorage.removeItem(STORAGE_KEY)
+        }
       } finally {
-        // Always set initialized, even on error
+        // Always set initialized quickly, even on error or timeout
         setIsLoading(false)
         setIsInitialized(true)
       }
