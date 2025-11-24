@@ -2,48 +2,60 @@
 // November 22, 2025 — Quantum Falcon Cockpit
 // Handles dynamic import failures gracefully with retries and fallbacks
 
-import { lazy, ComponentType, Suspense } from 'react'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { lazy, ComponentType, LazyExoticComponent } from 'react'
 
 interface LazyLoadOptions {
   retries?: number
   retryDelay?: number
-  fallback?: ComponentType<any>
-  errorFallback?: ComponentType<{ error: Error; retry: () => void }>
 }
 
 /**
  * Create a robust lazy-loaded component with retry logic
+ * Automatically retries failed imports up to 3 times with exponential backoff
  */
 export function createRobustLazy<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   options: LazyLoadOptions = {}
-): T {
+): LazyExoticComponent<T> {
   const { retries = 3, retryDelay = 1000 } = options
 
-  let retryCount = 0
-  let lastError: Error | null = null
-
   const loadWithRetry = async (): Promise<{ default: T }> => {
-    try {
-      const module = await importFn()
-      retryCount = 0
-      lastError = null
-      return module
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error))
-      
-      if (retryCount < retries) {
-        retryCount++
-        await new Promise(resolve => setTimeout(resolve, retryDelay * retryCount))
-        return loadWithRetry()
+    let lastError: Error | null = null
+    
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        // Add timeout to prevent hanging
+        const module = await Promise.race([
+          importFn(),
+          new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error('Import timeout after 15 seconds')), 15000)
+          )
+        ])
+        
+        // Verify module has default export
+        if (!module || !module.default) {
+          throw new Error('Module does not have a default export')
+        }
+        
+        return module
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+        
+        // Don't retry on last attempt
+        if (attempt < retries) {
+          // Exponential backoff
+          const delay = retryDelay * Math.pow(2, attempt)
+          await new Promise(resolve => setTimeout(resolve, delay))
+          continue
+        }
       }
-      
-      throw lastError
     }
+    
+    // All retries failed - throw the last error
+    throw lastError || new Error('Failed to load module after retries')
   }
 
-  return lazy(loadWithRetry) as T
+  return lazy(loadWithRetry) as LazyExoticComponent<T>
 }
 
 /**

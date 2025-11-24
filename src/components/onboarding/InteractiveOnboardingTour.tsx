@@ -423,7 +423,7 @@ export default function InteractiveOnboardingTour({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/95 backdrop-blur-2xl"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -595,7 +595,8 @@ export default function InteractiveOnboardingTour({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[99998]" style={{ pointerEvents: 'none' }}>
+      {/* Spotlight overlay - lower z-index so content is visible */}
+      <div className="fixed inset-0 z-[50]" style={{ pointerEvents: 'none' }}>
         {/* Dark overlay with cut-out for target elements - SPOTLIGHT */}
         <div 
           className="absolute inset-0 bg-black/80 backdrop-blur-md transition-all duration-300"
