@@ -1,10 +1,11 @@
 // NUCLEAR LEGAL MODAL REBUILD — Exact replica with perfect aesthetic
 // November 22, 2025 — Quantum Falcon Cockpit
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
+import { useKV } from '@github/spark/hooks';
 
 const riskDisclosure = `QUANTUM FALCON – RISK DISCLOSURE STATEMENT
 
@@ -29,6 +30,21 @@ interface LegalAgreementsModalProps {
   isOpen?: boolean;
 }
 
+interface LegalAcceptanceLog {
+  timestamp: number;
+  version: string;
+  userId?: string;
+  username?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  checks: {
+    age: boolean;
+    risk: boolean;
+    advice: boolean;
+    terms: boolean;
+  };
+}
+
 export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalAgreementsModalProps) {
   const [tab, setTab] = useState<'risk' | 'terms'>('risk');
   const [checks, setChecks] = useState({
@@ -37,8 +53,31 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
     advice: false,
     terms: false
   });
+  const [acceptanceLog, setAcceptanceLog] = useKV<LegalAcceptanceLog[]>('legal-acceptance-log', []);
 
   const allChecked = Object.values(checks).every(Boolean);
+
+  // Auto-close and log when all 4 checkboxes are checked
+  useEffect(() => {
+    if (allChecked) {
+      // Log acceptance for tax/legal purposes
+      const logEntry: LegalAcceptanceLog = {
+        timestamp: Date.now(),
+        version: '2025-11-22',
+        userAgent: navigator.userAgent,
+        checks: { ...checks }
+      };
+
+      setAcceptanceLog(prev => [...prev, logEntry]);
+
+      // Auto-close after 500ms to show the button enabled state
+      const timer = setTimeout(() => {
+        onAccept();
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [allChecked, checks, onAccept, setAcceptanceLog]);
 
   if (!isOpen) return null;
 

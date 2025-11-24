@@ -18,7 +18,7 @@
 //    - Auto-invite to Quantum Falcon server
 //    - Clean disconnect functionality
 
-import { useEffect, useMemo, Suspense, lazy, useState, useCallback } from 'react';
+import { useEffect, useMemo, Suspense, useState, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { cn } from '@/lib/utils';
@@ -69,19 +69,22 @@ import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
-const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
-const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
-const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
-const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTradingHub'));
-const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
-const VaultView = lazy(() => import('@/components/vault/VaultView'));
-const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
-const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
-const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
-const SupportOnboarding = lazy(() => import('@/pages/SupportOnboarding'));
-const PostTourWelcome = lazy(() => import('@/components/shared/PostTourWelcome'));
-const LoginPage = lazy(() => import('@/pages/LoginPage'));
-const OnboardingModal = lazy(() => import('@/components/onboarding/OnboardingModal'));
+// Robust lazy loading with retry logic
+import { createRobustLazy } from '@/lib/lazyLoad'
+
+const EnhancedDashboard = createRobustLazy(() => import('@/components/dashboard/EnhancedDashboard'));
+const BotOverview = createRobustLazy(() => import('@/components/dashboard/BotOverview'));
+const EnhancedAnalytics = createRobustLazy(() => import('@/components/dashboard/EnhancedAnalytics'));
+const AdvancedTradingHub = createRobustLazy(() => import('@/components/trade/AdvancedTradingHub'));
+const CreateStrategyPage = createRobustLazy(() => import('@/components/strategy/CreateStrategyPage'));
+const VaultView = createRobustLazy(() => import('@/components/vault/VaultView'));
+const SocialCommunity = createRobustLazy(() => import('@/components/community/SocialCommunity'));
+const MultiAgentSystem = createRobustLazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
+const EnhancedSettings = createRobustLazy(() => import('@/components/settings/EnhancedSettings'));
+const SupportOnboarding = createRobustLazy(() => import('@/pages/SupportOnboarding'));
+const PostTourWelcome = createRobustLazy(() => import('@/components/shared/PostTourWelcome'));
+const LoginPage = createRobustLazy(() => import('@/pages/LoginPage'));
+const OnboardingModal = createRobustLazy(() => import('@/components/onboarding/OnboardingModal'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -331,7 +334,7 @@ export default function App() {
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'quests', label: 'Quests', icon: Trophy, component: lazy(() => import('@/components/quests/QuestBoard')) },
+    { id: 'quests', label: 'Quests', icon: Trophy, component: createRobustLazy(() => import('@/components/quests/QuestBoard')) },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
@@ -699,17 +702,87 @@ export default function App() {
 
             <div className="p-4 border-t border-primary/30 space-y-2">
               <div className="flex items-center justify-center gap-2">
-                <Crown 
-                  size={14} 
-                  weight="fill" 
-                  className={cn(
-                    "text-yellow-400",
-                    (!auth.license?.tier || auth.license?.tier === 'FREE') && "crown-pulse"
-                  )}
-                />
-                <span className="text-xs text-yellow-400 font-bold uppercase">
-                  {auth.license?.tier || 'FREE'} TIER
-                </span>
+                {(() => {
+                  const tier = auth.license?.tier?.toUpperCase() || 'FREE'
+                  // Tier color mapping with distinct colors
+                  const tierColors: Record<string, { color: string; glow: string; pulse?: boolean }> = {
+                    'FREE': { 
+                      color: '#9CA3AF', // Gray
+                      glow: 'rgba(156, 163, 175, 0.4)',
+                      pulse: true
+                    },
+                    'STARTER': { 
+                      color: '#3B82F6', // Blue
+                      glow: 'rgba(59, 130, 246, 0.4)'
+                    },
+                    'TRADER': { 
+                      color: '#10B981', // Green
+                      glow: 'rgba(16, 185, 129, 0.4)'
+                    },
+                    'PRO': { 
+                      color: '#8B5CF6', // Purple
+                      glow: 'rgba(139, 92, 246, 0.4)'
+                    },
+                    'ELITE': { 
+                      color: '#F59E0B', // Amber/Gold
+                      glow: 'rgba(245, 158, 11, 0.4)'
+                    },
+                    'LIFETIME': { 
+                      // Platinum with Solana hue (cyan/purple blend)
+                      color: '#E5E7EB', // Platinum base
+                      glow: 'rgba(0, 212, 255, 0.6), rgba(168, 85, 247, 0.4)', // Solana cyan + purple
+                      pulse: true
+                    }
+                  }
+                  
+                  const tierStyle = tierColors[tier] || tierColors['FREE']
+                  const isLifetime = tier === 'LIFETIME'
+                  
+                  return (
+                    <>
+                      <motion.div
+                        animate={isLifetime ? {
+                          scale: [1, 1.05, 1],
+                          filter: [
+                            'drop-shadow(0 0 8px rgba(0, 212, 255, 0.6)) drop-shadow(0 0 12px rgba(168, 85, 247, 0.4))',
+                            'drop-shadow(0 0 12px rgba(0, 212, 255, 0.8)) drop-shadow(0 0 16px rgba(168, 85, 247, 0.6))',
+                            'drop-shadow(0 0 8px rgba(0, 212, 255, 0.6)) drop-shadow(0 0 12px rgba(168, 85, 247, 0.4))'
+                          ]
+                        } : tierStyle.pulse ? {
+                          scale: [1, 1.03, 1],
+                          filter: [`drop-shadow(0 0 6px ${tierStyle.glow})`]
+                        } : {}}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <Crown 
+                          size={14} 
+                          weight="fill" 
+                          style={{
+                            color: isLifetime ? '#E5E7EB' : tierStyle.color,
+                            filter: isLifetime 
+                              ? 'drop-shadow(0 0 8px rgba(0, 212, 255, 0.6)) drop-shadow(0 0 12px rgba(168, 85, 247, 0.4))'
+                              : `drop-shadow(0 0 6px ${tierStyle.glow})`
+                          }}
+                        />
+                      </motion.div>
+                      <span 
+                        className="text-xs font-bold uppercase"
+                        style={{
+                          color: isLifetime ? '#E5E7EB' : tierStyle.color,
+                          textShadow: isLifetime
+                            ? '0 0 8px rgba(0, 212, 255, 0.6), 0 0 12px rgba(168, 85, 247, 0.4)'
+                            : `0 0 6px ${tierStyle.glow}`
+                        }}
+                      >
+                        {tier} TIER
+                      </span>
+                    </>
+                  )
+                })()}
               </div>
               <p className="text-xs text-muted-foreground text-center font-mono">
                 v2025.1.0 • Production
@@ -719,8 +792,28 @@ export default function App() {
         )}
 
         <div className={cn('flex-1 relative z-10', !isMobile && 'ml-[240px]')}>
-          <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-            <Suspense fallback={<LoadingFallback message={`Loading ${activeTab}...`} />}>
+          <ErrorBoundary 
+            FallbackComponent={ComponentErrorFallback}
+            onError={(error, errorInfo) => {
+              // Log component load failures
+              if (error.message.includes('Failed to fetch dynamically imported module') || 
+                  error.message.includes('Import timeout')) {
+                logError(error, `Tab: ${activeTab}`, errorInfo.componentStack)
+              }
+            }}
+          >
+            <Suspense 
+              fallback={
+                <div className="min-h-screen bg-background flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                    <p className="text-muted-foreground text-xs uppercase tracking-wider">
+                      {activeTab}
+                    </p>
+                  </div>
+                </div>
+              }
+            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
@@ -730,7 +823,12 @@ export default function App() {
                   transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                   className="h-full"
                 >
-                  <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
+                  <ErrorBoundary 
+                    FallbackComponent={ComponentErrorFallback}
+                    onError={(error, errorInfo) => {
+                      logError(error, `Component: ${activeTab}`, errorInfo.componentStack)
+                    }}
+                  >
                     <ActiveComponent />
                   </ErrorBoundary>
                 </motion.div>
