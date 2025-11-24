@@ -81,7 +81,7 @@ class LicenseGenerationService {
       // Get device fingerprint for hardware binding
       let deviceFingerprint = null
       try {
-        const { generateDeviceFingerprint } = await import('@/lib/license-authority/integration/deviceFingerprint')
+        const { generateDeviceFingerprint } = await import('@/lib/deviceFingerprint')
         deviceFingerprint = await generateDeviceFingerprint()
       } catch (error) {
         // Device fingerprint optional - continue without it
