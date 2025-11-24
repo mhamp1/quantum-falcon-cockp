@@ -1,16 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getKVValue, setKVValue, deleteKVValue } from '@/lib/kv-storage';
 
-/**
- * Safe KV hook with localStorage fallback
- * CRITICAL FIX: Never block render - always return immediately with default
- * 
- * Gracefully handles:
- * - RestError: The specified blob does not exist
- * - Azure Blob Storage failures
- * - GitHub Spark KV storage unavailability
- * - All errors silently fall back to localStorage
- */
 export function useKVSafe<T>(
   key: string,
   defaultValue: T
@@ -39,20 +29,10 @@ export function useKVSafe<T>(
       }
     };
 
-    // CRITICAL FIX: Much shorter timeout - 1 second max
-    const timeoutId = setTimeout(() => {
-      if (isMountedRef.current && !isInitialized) {
-        console.warn(`[useKVSafe] Timeout loading key "${key}", using default`);
-        setIsInitialized(true);
-      }
-    }, 1000);
-
-    // Load in background - don't block
     loadInitialValue();
 
     return () => {
       isMountedRef.current = false;
-      clearTimeout(timeoutId);
     };
   }, [key]);
 
@@ -85,9 +65,3 @@ export function useKVSafe<T>(
 
   return [value, updateValue, deleteValue];
 }
-
-/**
- * Alias for useKVSafe - drop-in replacement for @github/spark/hooks useKV
- * Use this to avoid blob storage errors
- */
-export const useKV = useKVSafe;

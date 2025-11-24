@@ -41,28 +41,8 @@ export default function ErrorFallback({ error, resetErrorBoundary }: ErrorFallba
   };
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-4 bg-background"
-      style={{ 
-        minHeight: '100vh',
-        backgroundColor: '#0a0e27',
-        color: '#00ffff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem'
-      }}
-    >
-      <div 
-        className="cyber-card p-8 max-w-2xl w-full space-y-6"
-        style={{
-          backgroundColor: '#1a1f3a',
-          border: '2px solid #00ffff',
-          padding: '2rem',
-          maxWidth: '600px',
-          width: '100%'
-        }}
-      >
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <div className="cyber-card p-8 max-w-2xl w-full space-y-6">
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-full bg-destructive/20">
             <Warning size={32} weight="duotone" className="text-destructive" />

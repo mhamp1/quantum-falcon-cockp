@@ -93,14 +93,9 @@ export class DiscordOAuth {
         connection.serverMemberSince = serverInfo.joinedAt;
       }
 
-      // Use localStorage fallback for KV storage
-      try {
-        localStorage.setItem('discord-connection', JSON.stringify(connection));
-        localStorage.setItem('discord-access-token', tokenData.access_token);
-        localStorage.setItem('discord-refresh-token', tokenData.refresh_token);
-      } catch {
-        // Silent fail
-      }
+      await window.spark.kv.set('discord-connection', connection);
+      await window.spark.kv.set('discord-access-token', tokenData.access_token);
+      await window.spark.kv.set('discord-refresh-token', tokenData.refresh_token);
 
       window.history.replaceState({}, document.title, window.location.pathname);
 
@@ -195,23 +190,14 @@ export class DiscordOAuth {
   }
 
   static async disconnect(): Promise<void> {
-    try {
-      localStorage.removeItem('discord-connection');
-      localStorage.removeItem('discord-access-token');
-      localStorage.removeItem('discord-refresh-token');
-    } catch {
-      // Silent fail
-    }
+    await window.spark.kv.delete('discord-connection');
+    await window.spark.kv.delete('discord-access-token');
+    await window.spark.kv.delete('discord-refresh-token');
   }
 
   static async getConnection(): Promise<DiscordConnection | null> {
-    try {
-      const stored = localStorage.getItem('discord-connection');
-      if (!stored) return null;
-      return JSON.parse(stored) as DiscordConnection;
-    } catch {
-      return null;
-    }
+    const connection = await window.spark.kv.get<DiscordConnection>('discord-connection');
+    return connection ?? null;
   }
 
   static getInviteUrl(): string {

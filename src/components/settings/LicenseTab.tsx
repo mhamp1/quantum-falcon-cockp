@@ -138,7 +138,7 @@ export default function LicenseTab() {
       case 'free':
         return 'bg-muted/30 border-muted text-muted-foreground'
       case 'pro':
-        return 'bg-primary/20 border-primary text-primary'
+        return 'bg-blue-500/20 border-blue-500 text-blue-400'
       case 'elite':
         return 'bg-purple-500/20 border-purple-500 text-purple-400'
       case 'lifetime':
