@@ -256,33 +256,27 @@ export const usePersistentAuth = () => {
 
   /**
    * Auto-login on app launch
-   * CRITICAL FIX: Never block - always complete initialization
    */
   useEffect(() => {
-    let mounted = true;
-    
     const autoLogin = async () => {
       try {
         const stored = localStorage.getItem(STORAGE_KEY)
         if (!stored) {
-          if (mounted) {
-            setIsLoading(false)
-            setIsInitialized(true)
-          }
+          setIsLoading(false)
+          setIsInitialized(true)
           return
         }
 
         const encryptedAuth: EncryptedAuth = JSON.parse(stored)
         
-        // Re-validate license with timeout
-        const validationPromise = enhancedLicenseService.validate(encryptedAuth.licenseKey)
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Validation timeout')), 2000)
-        )
+        // Check if stored auth is too old (re-validate after 30 days)
+        const daysSinceLogin = (Date.now() - encryptedAuth.timestamp) / (1000 * 60 * 60 * 24)
+        const needsRevalidation = daysSinceLogin > 30
+
+        // Re-validate license
+        const validationResult = await enhancedLicenseService.validate(encryptedAuth.licenseKey)
         
-        const validationResult = await Promise.race([validationPromise, timeoutPromise]) as any
-        
-        if (mounted && validationResult.valid) {
+        if (validationResult.valid) {
           const licenseData = enhancedLicenseService.getLicenseData()
           
           const userLicense: UserLicense = {
@@ -302,11 +296,11 @@ export const usePersistentAuth = () => {
             avatar: null,
             license: userLicense
           })
-        } else if (mounted) {
+        } else {
           // License expired or invalid - clear credentials silently
           localStorage.removeItem(STORAGE_KEY)
           
-          if (validationResult?.is_expired) {
+          if (validationResult.is_expired) {
             toast.warning('License Expired', {
               description: 'Please enter a new license key',
               duration: 5000,
@@ -315,34 +309,14 @@ export const usePersistentAuth = () => {
         }
       } catch (error) {
         // Silent error handling - don't expose details
-        console.debug('[usePersistentAuth] Auto-login failed:', error);
-        if (mounted) {
-          localStorage.removeItem(STORAGE_KEY)
-        }
+        localStorage.removeItem(STORAGE_KEY)
       } finally {
-        if (mounted) {
-          setIsLoading(false)
-          setIsInitialized(true)
-        }
+        setIsLoading(false)
+        setIsInitialized(true)
       }
     }
 
-    // CRITICAL FIX: Much shorter timeout - force initialization after 1.5 seconds
-    const timeoutId = setTimeout(() => {
-      if (mounted && !isInitialized) {
-        console.warn('[usePersistentAuth] Auto-login timeout - forcing initialization');
-        setIsLoading(false);
-        setIsInitialized(true);
-      }
-    }, 1500);
-
-    // Start auto-login immediately
-    autoLogin();
-    
-    return () => {
-      mounted = false;
-      clearTimeout(timeoutId);
-    };
+    autoLogin()
   }, [setAuth])
 
   return {

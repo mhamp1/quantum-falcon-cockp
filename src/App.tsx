@@ -29,7 +29,6 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { logError } from '@/lib/errorLogger';
 import { soundEffects } from '@/lib/soundEffects';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WhiteScreenPrevention } from '@/lib/whiteScreenPrevention';
 import {
   House,
   Terminal,
@@ -54,14 +53,12 @@ import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
+import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
 import MasterSearch from '@/components/shared/MasterSearch';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
-import OnboardingFlowManager from '@/components/onboarding/OnboardingFlowManager';
+import IntroSplash from '@/components/intro/IntroSplash';
 import AmbientParticles from '@/components/shared/AmbientParticles';
 import ConnectionStatusIndicator from '@/components/shared/ConnectionStatusIndicator';
-import TabVerificationTester from '@/components/shared/TabVerificationTester';
-import AppHealthMonitor from '@/components/shared/AppHealthMonitor';
-import { BuildHealthCheck } from '@/components/shared/BuildHealthCheck';
 import { useDailyLearning } from '@/hooks/useDailyLearning';
 import { SecurityManager } from '@/lib/security';
 import { updateDiscordRichPresence } from '@/lib/discord/oauth';
@@ -70,91 +67,19 @@ import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
-// Lazy load with error handling and retry logic for production builds
-// CRITICAL FIX: Better error messages and faster failure detection
-const lazyWithRetry = (importFn: () => Promise<any>, componentName: string, retries = 2) => {
-  return lazy(async () => {
-    for (let i = 0; i < retries; i++) {
-      try {
-        const module = await importFn();
-        console.log(`[LazyLoad] Successfully loaded ${componentName}`);
-        return module;
-      } catch (error) {
-        console.warn(`[LazyLoad] ${componentName} - Attempt ${i + 1}/${retries} failed:`, error);
-        
-        // Check if it's a chunk loading error (stale cache)
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        const isChunkError = errorMessage.includes('Failed to fetch dynamically imported module') || 
-                            errorMessage.includes('error loading dynamically imported module') ||
-                            errorMessage.includes('Loading chunk');
-        
-        if (isChunkError) {
-          console.error(`[LazyLoad] ${componentName} - Chunk loading error detected`);
-          // On first chunk error, try to reload immediately
-          if (i === 0) {
-            // Wait a bit and try again
-            await new Promise(resolve => setTimeout(resolve, 500));
-            continue;
-          } else {
-            // On second failure, force reload
-            console.error(`[LazyLoad] ${componentName} - Multiple chunk errors, forcing reload`);
-            setTimeout(() => window.location.reload(), 100);
-            // Return placeholder while reloading
-            return { default: () => <LoadingFallback message="Updating application..." /> };
-          }
-        }
-        
-        if (i === retries - 1) {
-          console.error(`[LazyLoad] ${componentName} - All retries exhausted`);
-          // Return a safe fallback component instead of throwing
-          return { 
-            default: () => (
-              <div className="min-h-screen flex items-center justify-center p-4">
-                <div className="cyber-card p-8 max-w-md text-center space-y-4">
-                  <h2 className="text-xl font-bold text-destructive">Component Load Error</h2>
-                  <p className="text-muted-foreground text-sm">
-                    {componentName} failed to load. This is usually caused by network issues or stale cache.
-                  </p>
-                  <div className="flex gap-2 justify-center">
-                    <Button onClick={() => window.location.reload()}>Reload Page</Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => {
-                        localStorage.clear();
-                        sessionStorage.clear();
-                        window.location.reload();
-                      }}
-                    >
-                      Clear Cache
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )
-          };
-        }
-        // Wait before retry (exponential backoff)
-        await new Promise(resolve => setTimeout(resolve, 300 * (i + 1)));
-      }
-    }
-    // Fallback - should never reach here
-    return { 
-      default: () => <LoadingFallback message={`Loading ${componentName}...`} /> 
-    };
-  });
-};
-
-const EnhancedDashboard = lazyWithRetry(() => import('@/components/dashboard/EnhancedDashboard'), 'EnhancedDashboard');
-const BotOverview = lazyWithRetry(() => import('@/components/dashboard/BotOverview'), 'BotOverview');
-const EnhancedAnalytics = lazyWithRetry(() => import('@/components/dashboard/EnhancedAnalytics'), 'EnhancedAnalytics');
-const AdvancedTradingHub = lazyWithRetry(() => import('@/components/trade/AdvancedTradingHub'), 'AdvancedTradingHub');
-const CreateStrategyPage = lazyWithRetry(() => import('@/components/strategy/CreateStrategyPage'), 'CreateStrategyPage');
-const VaultView = lazyWithRetry(() => import('@/components/vault/VaultView'), 'VaultView');
-const SocialCommunity = lazyWithRetry(() => import('@/components/community/SocialCommunity'), 'SocialCommunity');
-const MultiAgentSystem = lazyWithRetry(() => import('@/components/agents/MultiAgentSystemWrapper'), 'MultiAgentSystem');
-const EnhancedSettings = lazyWithRetry(() => import('@/components/settings/EnhancedSettings'), 'EnhancedSettings');
-const SupportOnboarding = lazyWithRetry(() => import('@/pages/SupportOnboarding'), 'SupportOnboarding');
-// Removed: PostTourWelcome, LoginPage, OnboardingModal - handled by OnboardingFlowManager
+const EnhancedDashboard = lazy(() => import('@/components/dashboard/EnhancedDashboard'));
+const BotOverview = lazy(() => import('@/components/dashboard/BotOverview'));
+const EnhancedAnalytics = lazy(() => import('@/components/dashboard/EnhancedAnalytics'));
+const AdvancedTradingHub = lazy(() => import('@/components/trade/AdvancedTradingHub'));
+const CreateStrategyPage = lazy(() => import('@/components/strategy/CreateStrategyPage'));
+const VaultView = lazy(() => import('@/components/vault/VaultView'));
+const SocialCommunity = lazy(() => import('@/components/community/SocialCommunity'));
+const MultiAgentSystem = lazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
+const EnhancedSettings = lazy(() => import('@/components/settings/EnhancedSettings'));
+const SupportOnboarding = lazy(() => import('@/pages/SupportOnboarding'));
+const PostTourWelcome = lazy(() => import('@/components/shared/PostTourWelcome'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const OnboardingModal = lazy(() => import('@/components/onboarding/OnboardingModal'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -179,52 +104,14 @@ interface Tab {
 
 function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center bg-background" 
-      style={{ 
-        minHeight: '100vh',
-        width: '100%',
-        backgroundColor: 'oklch(0.08 0.02 280)',
-        color: 'oklch(0.85 0.12 195)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'system-ui, -apple-system, sans-serif'
-      }}
-    >
-      <div className="text-center space-y-6" style={{ textAlign: 'center' }}>
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-          className="mx-auto w-16 h-16"
-          style={{ margin: '0 auto', width: '64px', height: '64px' }}
-        >
-          <div 
-            className="premium-spinner w-16 h-16 rounded-full" 
-            style={{
-              width: '64px',
-              height: '64px',
-              border: '3px solid oklch(0.35 0.12 195 / 0.3)',
-              borderTopColor: 'oklch(0.72 0.20 195)',
-              borderRightColor: 'oklch(0.68 0.18 330)',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }}
-          ></div>
-        </motion.div>
-        <div className="space-y-2">
-          <p className="text-sm text-primary font-bold uppercase tracking-wider neon-glow-primary">{message}</p>
-          <div className="flex items-center justify-center gap-2">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-                className="w-2 h-2 rounded-full bg-primary"
-              />
-            ))}
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0ms' }} />
+          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
+          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
         </div>
+        <p className="text-sm text-muted-foreground uppercase tracking-wider">{message}</p>
       </div>
     </div>
   );
@@ -302,50 +189,17 @@ const getOnboardingSeenStatus = (): boolean => {
 };
 
 export default function App() {
-  console.log('[App] ========== APP COMPONENT RENDERING ==========');
-  console.log('[App] Window available:', typeof window !== 'undefined');
-  console.log('[App] Document available:', typeof document !== 'undefined');
-  
-  // CRITICAL FIX: Mark that we're attempting to render
-  if (typeof window !== 'undefined') {
-    (window as any).__appRenderAttempted = true;
-  }
-  
-  // All hooks must be called unconditionally (React rules)
-  // These hooks are safe to call - they handle errors internally
   const isMobile = useIsMobile();
+  
+  // Initialize daily learning system
   useDailyLearning();
   const [activeTab, setActiveTab] = useKV<string>('active-tab', 'dashboard');
   const [botAggression, setBotAggression] = useKV<number>('bot-aggression', 50);
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
-  
-  console.log('[App] All hooks called successfully');
-  console.log('[App] Rendering main app - no guards blocking');
-  
-  // DEBUG: Log DOM state after render
-  useEffect(() => {
-    console.log('[App] useEffect running - component is mounting');
-    
-    setTimeout(() => {
-      const root = document.getElementById('root');
-      if (root) {
-        const contentLength = root.innerHTML.length;
-        const hasChildren = root.children.length > 0;
-        console.log('[App] DOM State Check:');
-        console.log('[App] - Root content length:', contentLength);
-        console.log('[App] - Root has children:', hasChildren);
-        console.log('[App] - Root first child:', root.firstElementChild?.tagName, root.firstElementChild?.className);
-        if (contentLength === 0) {
-          console.error('[App] ========== WHITE SCREEN DETECTED - ROOT IS EMPTY ==========');
-        } else {
-          console.log('[App] ✅ Root has content - render successful');
-        }
-      }
-    }, 1000);
-  }, []);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
-  const [showVerificationTester, setShowVerificationTester] = useState(false);
   const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false);
   // Use persistent auth for auto-login
   const persistentAuth = usePersistentAuth();
@@ -354,15 +208,35 @@ export default function App() {
   useEffect(() => {
     SecurityManager.initialize();
     console.info('🔒 [App] Security systems online');
-    
-    // CRITICAL: Mark successful render for white screen prevention
-    WhiteScreenPrevention.markRenderSuccess();
-    
-    // Log successful mount
-    console.log('[App] ✅ Component mounted successfully');
   }, []);
 
-  // Onboarding is now handled by OnboardingFlowManager - no manual state management needed
+  // Track if this is first login (for showing OnboardingModal)
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
+  
+  // Show onboarding modal after first successful login
+  useEffect(() => {
+    if (persistentAuth.isInitialized && auth?.isAuthenticated && !hasSeenOnboarding) {
+      // Check if this is a first-time login (no stored onboarding seen)
+      const stored = typeof window !== 'undefined' 
+        ? window.localStorage.getItem('hasSeenOnboarding') 
+        : null;
+      
+      if (!stored) {
+        setIsFirstLogin(true);
+      }
+    }
+  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
+  
+  // Show interactive tour after onboarding modal completes
+  useEffect(() => {
+    if (persistentAuth.isInitialized && auth?.isAuthenticated && hasSeenOnboarding && !isFirstLogin) {
+      // Small delay to let dashboard load
+      const timer = setTimeout(() => {
+        setShowOnboarding(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding, isFirstLogin]);
 
   // GOD MODE Activation
   useEffect(() => {
@@ -407,29 +281,16 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl + K = Master Search
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         soundEffects.playClick();
         setShowMasterSearch(prev => !prev);
       }
-      // Cmd/Ctrl + Shift + V = Verification Tester
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'V') {
-        e.preventDefault();
-        soundEffects.playClick();
-        setShowVerificationTester(prev => !prev);
-        if (!showVerificationTester) {
-          toast.info('🔍 Tab Verification Test Suite', {
-            description: 'Testing all components for white screens...',
-            duration: 3000
-          });
-        }
-      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showVerificationTester]);
+  }, []);
 
   const tabs: Tab[] = useMemo(() => [
     { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
@@ -439,7 +300,7 @@ export default function App() {
     { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
     { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
     { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'quests', label: 'Quests', icon: Trophy, component: lazyWithRetry(() => import('@/components/quests/QuestBoard'), 'QuestBoard') },
+    { id: 'quests', label: 'Quests', icon: Trophy, component: lazy(() => import('@/components/quests/QuestBoard').then(m => ({ default: m.default }))) },
     { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
     { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
     { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
@@ -503,33 +364,28 @@ export default function App() {
     return () => window.removeEventListener('navigate-tab', handler);
   }, [tabs, setActiveTab]);
 
-  // Listen for verification tester close event
-  useEffect(() => {
-    const handler = () => setShowVerificationTester(false);
-    window.addEventListener('close-verification-tester', handler);
-    return () => window.removeEventListener('close-verification-tester', handler);
-  }, []);
-
-  // Handle tour tab switching
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const { tab } = (e as CustomEvent<{ tab: string }>).detail;
-      if (tabs.some(t => t.id === tab)) {
-        soundEffects.playTabSwitch();
-        setActiveTab(tab);
-      }
-    };
-    window.addEventListener('tour-set-active-tab', handler);
-    return () => window.removeEventListener('tour-set-active-tab', handler);
-  }, [tabs, setActiveTab]);
-
   useEffect(() => {
     const handler = () => setTimeout(() => window.dispatchEvent(new CustomEvent('open-settings-legal-tab')), 100);
     window.addEventListener('open-legal-risk-disclosure', handler);
     return () => window.removeEventListener('open-legal-risk-disclosure', handler);
   }, []);
 
-  // Onboarding is handled by OnboardingFlowManager - no manual tour triggers needed
+  useEffect(() => {
+    if (!hasSeenOnboarding) {
+      const timer = setTimeout(() => {
+        setShowOnboarding(true);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [hasSeenOnboarding]);
+
+  useEffect(() => {
+    const handler = () => {
+      setShowOnboarding(true);
+    };
+    window.addEventListener('restart-onboarding-tour', handler);
+    return () => window.removeEventListener('restart-onboarding-tour', handler);
+  }, []);
 
   // Listen for bot start from tour
   useEffect(() => {
@@ -543,28 +399,6 @@ export default function App() {
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
   const showAggressionControl = activeTab === 'multi-agent';
-
-  // CRITICAL FIX: Never block render - always show UI
-  // Auth initialization happens in background, UI stays responsive
-  const [authTimeout, setAuthTimeout] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!persistentAuth.isInitialized) {
-        console.warn('[App] Auth initialization timeout - forcing render');
-        setAuthTimeout(true);
-      }
-    }, 1500); // 1.5 second max wait - then force render
-    return () => clearTimeout(timer);
-  }, [persistentAuth.isInitialized]);
-
-  // CRITICAL FIX: Never show loading screen - always render app
-  // This prevents white screens caused by stuck auth initialization
-  // OnboardingFlowManager will handle auth UI overlay when needed
-
-  // Authentication is now handled by OnboardingFlowManager's AuthenticationStep
-  // Authentication is handled by OnboardingFlowManager's AuthenticationStep
-  // Always render app structure - OnboardingFlowManager will overlay when needed
-  // This allows the onboarding flow to work even if user is not authenticated yet
 
   const getAggressionLabel = (value: number) => {
     if (value < 33) return 'CAUTIOUS';
@@ -584,9 +418,26 @@ export default function App() {
     { label: 'Aggressive', value: 75, icon: Flame, color: '#FF4444' },
   ];
 
-  // Onboarding is now handled by OnboardingFlowManager - no handlers needed
+  const handleOnboardingComplete = () => {
+    setHasSeenOnboarding(true);
+    try {
+      window.localStorage.setItem('hasSeenOnboarding', 'true');
+    } catch (e) {
+      console.warn('Failed to save onboarding state to localStorage', e);
+    }
+    setShowOnboarding(false);
+    
+    // Show post-tour welcome screen
+    setTimeout(() => {
+      setShowPostTourWelcome(true);
+    }, 500);
+  };
 
-  // ALWAYS render - no conditions, no guards
+  const handleOnboardingSkip = () => {
+    // Hide tour for this session but don't mark as seen
+    setShowOnboarding(false);
+  };
+
   return (
     <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
       <div className={cn('min-h-screen bg-background text-foreground flex relative', isMobile && 'flex-col')}>
@@ -597,33 +448,32 @@ export default function App() {
         <AIBotAssistant />
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
-        <AppHealthMonitor />
-        <BuildHealthCheck />
         
-        {/* Tab Verification Tester - Cmd/Ctrl+Shift+V to open */}
-        {showVerificationTester && (
-          <TabVerificationTester />
-        )}
+        {/* First-time user intro splash - appears before onboarding */}
+        <IntroSplash />
         
-        {/* NEW: 5-Step Onboarding Flow Manager - Orchestrates entire onboarding sequence */}
+        <InteractiveOnboardingTour
+          isOpen={showOnboarding}
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
+          setActiveTab={setActiveTab}
+        />
+
+        {/* Post-Tour Welcome Screen */}
         <Suspense fallback={null}>
-          <OnboardingFlowManager
-            onComplete={() => {
-              // Onboarding complete - user can now use the app
-              setHasSeenOnboarding(true);
-              try {
-                window.localStorage.setItem('hasSeenOnboarding', 'true');
-              } catch (e) {
-                console.warn('Failed to save onboarding state', e);
-              }
+          <PostTourWelcome
+            isOpen={showPostTourWelcome}
+            onClose={() => setShowPostTourWelcome(false)}
+            onStartBot={() => {
+              setBotRunning(true);
+              // Toast will be shown by PostTourWelcome component
             }}
+            onNavigate={setActiveTab}
           />
         </Suspense>
-        
-        {/* OnboardingFlowManager handles all onboarding steps - no legacy components needed */}
 
         {/* GOD MODE Crown */}
-        {auth && isGodMode(auth) && (
+        {isGodMode(auth) && (
           <div className="god-mode-crown" title="GOD MODE ACTIVE">
             👑
           </div>
@@ -674,7 +524,7 @@ export default function App() {
               {tabs.map(tab => {
                 const isActive = activeTab === tab.id;
                 const IconComponent = tab.icon;
-                const isEliteOrLifetime = auth?.license?.tier === 'ELITE' || auth?.license?.tier === 'LIFETIME';
+                const isEliteOrLifetime = auth.license?.tier === 'ELITE' || auth.license?.tier === 'LIFETIME';
                 const showCrownBadge = tab.id === 'settings' && isEliteOrLifetime;
                 
                 return (
@@ -771,11 +621,11 @@ export default function App() {
                   weight="fill" 
                   className={cn(
                     "text-yellow-400",
-                    (!auth?.license?.tier || auth?.license?.tier === 'FREE') && "crown-pulse"
+                    (!auth.license?.tier || auth.license?.tier === 'FREE') && "crown-pulse"
                   )}
                 />
                 <span className="text-xs text-yellow-400 font-bold uppercase">
-                  {auth?.license?.tier || 'FREE'} TIER
+                  {auth.license?.tier || 'FREE'} TIER
                 </span>
               </div>
               <p className="text-xs text-muted-foreground text-center font-mono">
@@ -788,20 +638,18 @@ export default function App() {
         <div className={cn('flex-1 relative z-10', !isMobile && 'ml-[240px]')}>
           <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
             <Suspense fallback={<LoadingFallback message={`Loading ${activeTab}...`} />}>
-              <ErrorBoundary FallbackComponent={ComponentErrorFallback}>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                    className="h-full"
-                  >
-                    <ActiveComponent />
-                  </motion.div>
-                </AnimatePresence>
-              </ErrorBoundary>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  className="h-full"
+                >
+                  <ActiveComponent />
+                </motion.div>
+              </AnimatePresence>
             </Suspense>
           </ErrorBoundary>
         </div>
@@ -932,14 +780,10 @@ export default function App() {
               soundEffects.playClick();
               setShowAggressionPanel(true);
             }}
-            className="fixed bottom-28 right-4 z-40 p-3 border rounded-full transition-all"
-            style={{ 
-              backgroundColor: 'rgba(20, 241, 149, 0.2)',
-              borderColor: '#14F195',
-              boxShadow: '0 0 12px rgba(20, 241, 149, 0.3)',
-            }}
+            className="fixed bottom-28 right-4 z-40 p-3 bg-cyan-500/20 border border-cyan-500/40 rounded-full hover:bg-cyan-500/30 transition-all"
+            style={{ boxShadow: '0 0 12px rgba(0,255,255,0.2)' }}
           >
-            <Flame size={24} style={{ color: '#14F195' }} />
+            <Flame size={24} className="text-cyan-400" />
           </button>
         )}
       </div>

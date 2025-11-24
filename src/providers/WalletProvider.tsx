@@ -1,20 +1,72 @@
-// src/providers/WalletProvider.tsx
-import React from 'react';
+// Secure Solana Wallet Provider — Production Ready
+// November 21, 2025 — Quantum Falcon Cockpit
 
-const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // In production: do absolutely nothing — no imports, no Solana, no crash
-  if (import.meta.env.PROD) {
-    return <>{children}</>;
-  }
+import { useMemo, ReactNode } from 'react'
+import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react'
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  LedgerWalletAdapter,
+  TorusWalletAdapter,
+} from '@solana/wallet-adapter-wallets'
+import { clusterApiUrl } from '@solana/web3.js'
 
-  // In development: dynamically load the real one
-  const RealProvider = React.lazy(() => import('./WalletProvider.DEV_ONLY').then(m => ({ default: m.default })));
+// Import wallet adapter CSS
+import '@solana/wallet-adapter-react-ui/styles.css'
+
+interface WalletProviderProps {
+  children: ReactNode
+}
+
+/**
+ * Secure Solana Wallet Provider
+ * Supports: Phantom, Solflare, Ledger, Torus
+ * Network: Mainnet (production) or Devnet (development)
+ */
+export function WalletProvider({ children }: WalletProviderProps) {
+  // Determine network from environment
+  const network = useMemo(() => {
+    const envNetwork = import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta'
+    return envNetwork === 'mainnet-beta' 
+      ? WalletAdapterNetwork.Mainnet 
+      : WalletAdapterNetwork.Devnet
+  }, [])
+
+  // RPC endpoint - use environment variable or default
+  const endpoint = useMemo(() => {
+    const customRpc = import.meta.env.VITE_SOLANA_RPC_URL
+    if (customRpc) {
+      return customRpc
+    }
+    
+    // Default to Helius or public RPC
+    if (network === WalletAdapterNetwork.Mainnet) {
+      return import.meta.env.VITE_HELIUS_RPC_URL || clusterApiUrl('mainnet-beta')
+    }
+    return clusterApiUrl('devnet')
+  }, [network])
+
+  // Initialize wallet adapters
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+      new LedgerWalletAdapter(),
+      new TorusWalletAdapter(),
+    ],
+    []
+  )
+
   return (
-    <React.Suspense fallback={<div>Loading wallet (dev only)...</div>}>
-      <RealProvider>{children}</RealProvider>
-    </React.Suspense>
-  );
-};
-
-export { WalletProvider };
+    <ConnectionProvider endpoint={endpoint}>
+      <SolanaWalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          {children}
+        </WalletModalProvider>
+      </SolanaWalletProvider>
+    </ConnectionProvider>
+  )
+}
 

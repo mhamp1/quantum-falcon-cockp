@@ -56,33 +56,19 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
       return () => clearInterval(interval)
     }
     
-    // If no URL configured, use mock data silently (suppress error toast)
+    // Production: Require WebSocket URL - NO MOCK DATA FALLBACK
     if (!url) {
-      const isProduction = import.meta.env.PROD || import.meta.env.VITE_ENV === 'production';
-      
-      if (!isProduction) {
-        console.warn('⚠️ Market Feed: No WebSocket URL configured. Using mock data fallback.');
-      }
-      
-      // Use mock data silently - no error toast
-      setIsConnected(false);
-      setError(null);
-      setSnapshot(createMockMarketSnapshot());
-      
-      // Update mock data periodically
-      const interval = setInterval(() => {
-        const mock = createMockMarketSnapshot();
-        mock.orderbook.mid *= 0.98 + Math.random() * 0.04;
-        mock.orderbook.change1hPct = -10 + Math.random() * 30;
-        mock.sentiment.score = 0.3 + Math.random() * 0.6;
-        mock.onchain.volumeChange1h = -20 + Math.random() * 100;
-        setSnapshot(mock);
-      }, 5000);
-      
-      return () => clearInterval(interval);
+      const errorMsg = '❌ Market Feed: No WebSocket URL configured. Set VITE_MARKET_FEED_URL environment variable. Live market data is required.'
+      console.error(errorMsg)
+      setError('Market feed URL not configured - Live data required')
+      setIsConnected(false)
+      toast?.error('Market Feed Error', {
+        description: 'Please configure VITE_MARKET_FEED_URL in your environment variables for live market data.',
+      })
+      return
     }
 
-    // Real WebSocket connection (url is configured)
+    // Real WebSocket connection
     let reconnectAttempts = 0
     const maxReconnectAttempts = 5
     const reconnectDelay = 3000
@@ -158,8 +144,8 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
         wsRef.current.close()
         wsRef.current = null
       }
-      }
-    }, [url, useMockData, mockUpdateInterval])
+    }
+  }, [url, useMockData, mockUpdateInterval])
 
   return {
     snapshot,

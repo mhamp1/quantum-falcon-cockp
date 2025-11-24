@@ -136,7 +136,7 @@ export default function ProfitMilestoneCelebration({
               transition={{ duration: 0.5, type: 'spring' }}
               className="text-primary mb-4 flex justify-center"
               style={{
-                filter: 'drop-shadow(0 0 20px rgba(20, 241, 149, 0.5))',
+                filter: 'drop-shadow(0 0 20px var(--primary))',
               }}
             >
               {activeCelebration.icon}

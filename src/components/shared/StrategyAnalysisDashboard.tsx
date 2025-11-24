@@ -195,7 +195,7 @@ export default function StrategyAnalysisDashboard() {
           {
             label: 'Average Win Rate',
             value: `${(strategies.reduce((sum, s) => sum + s.winRate, 0) / strategies.length).toFixed(1)}%`,
-            icon: <Target size={24} className="text-primary" style={{ color: '#14F195' }} />,
+            icon: <Target size={24} className="text-blue-400" />,
             change: '+2.1%'
           },
           {

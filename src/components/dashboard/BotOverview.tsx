@@ -322,7 +322,7 @@ export default function BotOverview() {
                     ease: 'linear'
                   }}
                 />
-                <Robot size={64} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 10px rgba(153, 69, 255, 0.5))' }} />
+                <Robot size={64} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 10px var(--secondary))' }} />
               </motion.div>
             </motion.div>
             <div className="flex-1 space-y-4">
@@ -437,7 +437,7 @@ export default function BotOverview() {
                 transition={{ duration: 2, repeat: Infinity }}
               >
                 <div className="absolute inset-0 bg-secondary opacity-5" />
-                <Cube size={16} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 4px rgba(153, 69, 255, 0.5))' }} />
+                <Cube size={16} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 4px var(--secondary))' }} />
               </motion.div>
             </div>
             <motion.p 
@@ -483,7 +483,7 @@ export default function BotOverview() {
                 transition={{ duration: 2, repeat: Infinity }}
               >
                 <div className="absolute inset-0 bg-primary opacity-5" />
-                <Hexagon size={16} weight="duotone" className="text-primary relative z-10" style={{ filter: 'drop-shadow(0 0 5px rgba(20, 241, 149, 0.5))' }} />
+                <Hexagon size={16} weight="duotone" className="text-primary relative z-10" style={{ filter: 'drop-shadow(0 0 5px var(--primary))' }} />
               </motion.div>
             </div>
             <motion.p 
@@ -534,7 +534,7 @@ export default function BotOverview() {
                 transition={{ duration: 2, repeat: Infinity }}
               >
                 <div className="absolute inset-0 bg-secondary opacity-5" />
-                <Pentagon size={16} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 5px rgba(153, 69, 255, 0.5))' }} />
+                <Pentagon size={16} weight="duotone" className="text-secondary relative z-10" style={{ filter: 'drop-shadow(0 0 5px var(--secondary))' }} />
               </motion.div>
             </div>
             <motion.p 
@@ -616,7 +616,7 @@ export default function BotOverview() {
                 transition={{ duration: 2, repeat: Infinity }}
               >
                 <div className="absolute inset-0 bg-accent opacity-5" />
-                <Polygon size={16} weight="fill" className="text-accent relative z-10" style={{ filter: 'drop-shadow(0 0 5px rgba(153, 69, 255, 0.5))' }} />
+                <Polygon size={16} weight="fill" className="text-accent relative z-10" style={{ filter: 'drop-shadow(0 0 5px var(--accent))' }} />
               </motion.div>
             </div>
             <motion.p 
