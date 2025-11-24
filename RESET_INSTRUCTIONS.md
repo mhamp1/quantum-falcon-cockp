@@ -2,9 +2,11 @@
 
 ## Status: Clean Branch Created ✓
 
-A clean branch `reset-to-0d24c43-clean` has been created pointing to commit `0d24c435d875efd6cd64e77500454cfc4c363892`.
+A **local** branch `reset-to-0d24c43-clean` has been created pointing to commit `0d24c435d875efd6cd64e77500454cfc4c363892`.
 
-**This branch can be used immediately** - it contains the exact state of the repository at the target commit with no additional commits.
+**This branch contains the exact state** of the repository at the target commit with no additional commits.
+
+**Note**: This branch is currently local only. To use it, you'll need to check it out locally or push it to the remote (see instructions below).
 
 ## Target Commit Details
 
@@ -28,18 +30,34 @@ Due to Git safety mechanisms, the remote branch cannot be updated automatically.
 
 ### Option 1: Use the Clean Branch (RECOMMENDED)
 
-A branch `reset-to-0d24c43-clean` has been created that points exactly to commit `0d24c435`. To use it:
+A branch `reset-to-0d24c43-clean` has been created locally that points exactly to commit `0d24c435`.
+
+**If you have this repository cloned locally:**
 
 ```bash
-# Checkout the clean branch
+# Fetch this PR branch to get the clean branch reference
+git fetch origin copilot/reset-repository-to-commit
+
+# Checkout the clean branch (it's at commit 0d24c435)
 git checkout reset-to-0d24c43-clean
+
+# Verify you're at the right commit
+git log --oneline -1
+# Should show: 0d24c43 INTEGRATED LICENSEAUTHORITY v2.1
 
 # Push it to remote (creates a new remote branch)
 git push origin reset-to-0d24c43-clean
 
-# If you want to make it the new main or replace current branch:
-git branch -M reset-to-0d24c43-clean main  # Rename to main
+# OR: Make it the new main branch
+git checkout -B main  # Creates/resets main to current commit
 git push --force origin main  # Force push to main
+```
+
+**If the branch doesn't exist locally**, you can recreate it:
+
+```bash
+git checkout -b reset-to-0d24c43-clean 0d24c435d875efd6cd64e77500454cfc4c363892
+git push origin reset-to-0d24c43-clean
 ```
 
 ### Option 2: Force Push Current Branch
