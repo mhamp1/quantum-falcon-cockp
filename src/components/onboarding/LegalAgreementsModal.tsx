@@ -2,7 +2,7 @@
 // November 22, 2025 — Quantum Falcon Cockpit
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
@@ -82,12 +82,14 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
   if (!isOpen) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95"
-    >
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95"
+        >
       <motion.div
         initial={{ scale: 0.9 }}
         animate={{ scale: 1 }}
@@ -174,6 +176,7 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
           </button>
         </div>
       </motion.div>
-    </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
