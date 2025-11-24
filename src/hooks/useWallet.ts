@@ -1,68 +1,28 @@
-// Secure Wallet Hook — Production Ready
-// November 21, 2025 — Quantum Falcon Cockpit
+// TEMPORARY FIX: Wallet Hook Stub
+// Reason: React 19 + Solana wallet-adapter conflict causing white page
+// This stub prevents import errors while Solana integration is disabled
+//
+// TODO: Re-enable once Solana wallet-adapter supports React 19
+// November 24, 2025 — Quantum Falcon Cockpit
 
-import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useCallback } from 'react'
-import { PublicKey } from '@solana/web3.js'
+
+// Centralized warning message for Solana wallet temporary disablement
+const WALLET_DISABLED_MESSAGE = 
+  'Wallet functionality temporarily disabled due to React 19 compatibility issue. ' +
+  'This is a temporary fix. See TODO comments in src/providers/WalletProvider.tsx for re-enabling Solana integration.'
 
 /**
- * Enhanced wallet hook with security features
+ * STUB Wallet Hook - Returns safe default values
+ * This prevents the React 19 + Solana wallet-adapter conflict
  */
 export function useWallet() {
-  const {
-    publicKey,
-    wallet,
-    connected,
-    connecting,
-    disconnecting,
-    connect,
-    disconnect,
-    select,
-    wallets,
-  } = useSolanaWallet()
-
   /**
-   * Get wallet address as string (safe)
-   */
-  const walletAddress = publicKey?.toBase58() || null
-
-  /**
-   * Connect wallet with error handling
-   */
-  const connectWallet = useCallback(async () => {
-    try {
-      if (!wallet) {
-        throw new Error('No wallet selected. Please select a wallet first.')
-      }
-      await connect()
-    } catch (error: any) {
-      console.error('Wallet connection error:', error)
-      throw new Error(error.message || 'Failed to connect wallet')
-    }
-  }, [wallet, connect])
-
-  /**
-   * Disconnect wallet with cleanup
-   */
-  const disconnectWallet = useCallback(async () => {
-    try {
-      await disconnect()
-    } catch (error: any) {
-      console.error('Wallet disconnection error:', error)
-      throw new Error(error.message || 'Failed to disconnect wallet')
-    }
-  }, [disconnect])
-
-  /**
-   * Validate wallet address format
+   * Validate wallet address format (basic validation)
    */
   const isValidAddress = useCallback((address: string): boolean => {
-    try {
-      new PublicKey(address)
-      return true
-    } catch {
-      return false
-    }
+    // Basic Solana address validation (base58, 32-44 chars)
+    return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)
   }, [])
 
   /**
@@ -74,28 +34,42 @@ export function useWallet() {
     return `${address.slice(0, 4)}...${address.slice(-4)}`
   }, [])
 
+  /**
+   * Connect wallet stub - does nothing for now
+   */
+  const connectWallet = useCallback(async () => {
+    console.warn(WALLET_DISABLED_MESSAGE)
+  }, [])
+
+  /**
+   * Disconnect wallet stub - does nothing for now
+   */
+  const disconnectWallet = useCallback(async () => {
+    console.warn(WALLET_DISABLED_MESSAGE)
+  }, [])
+
   return {
-    // Solana wallet adapter props
-    publicKey,
-    wallet,
-    connected,
-    connecting,
-    disconnecting,
-    wallets,
-    select,
+    // Solana wallet adapter props (stubbed)
+    publicKey: null,
+    wallet: null,
+    connected: false,
+    connecting: false,
+    disconnecting: false,
+    wallets: [],
+    select: () => {},
     
     // Enhanced helpers
-    walletAddress,
+    walletAddress: null,
     connectWallet,
     disconnectWallet,
     isValidAddress,
     getShortAddress,
     
     // Status helpers
-    isConnected: connected,
-    isConnecting: connecting,
-    isDisconnecting: disconnecting,
-    hasWallet: wallets.length > 0,
+    isConnected: false,
+    isConnecting: false,
+    isDisconnecting: false,
+    hasWallet: false,
   }
 }
 
