@@ -532,11 +532,21 @@ export default function EnhancedDashboard() {
                 <span className="text-foreground ml-2">{auth.username}</span>
               </h1>
               <div className="flex flex-wrap items-center gap-3 mt-2">
-                <div className="px-3 py-1 bg-accent/20 border border-accent jagged-corner-small">
-                  <span className="text-xs font-bold text-accent uppercase tracking-wider">
-                    {auth.license?.tier.toUpperCase()} Tier
-                  </span>
-                </div>
+                {auth.license?.tier === 'free' ? (
+                  <div className="px-4 py-1.5 bg-gradient-to-r from-gray-800/90 to-gray-900/90 border-2 border-cyan-500/50 jagged-corner-small shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+                    <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                      <span>Free Tier</span>
+                      <span className="text-cyan-500">—</span>
+                      <span className="text-white">Upgrade for Elite Power</span>
+                    </span>
+                  </div>
+                ) : (
+                  <div className="px-3 py-1 bg-accent/20 border border-accent jagged-corner-small">
+                    <span className="text-xs font-bold text-accent uppercase tracking-wider">
+                      {auth.license?.tier.toUpperCase()} Tier
+                    </span>
+                  </div>
+                )}
                 <div className="px-3 py-1 bg-primary/20 border border-primary jagged-corner-small">
                   <span className="text-xs font-bold text-primary uppercase tracking-wider">
                     Bot: {botRunning ? 'RUNNING' : 'STOPPED'}
