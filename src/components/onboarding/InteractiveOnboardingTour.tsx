@@ -423,7 +423,7 @@ export default function InteractiveOnboardingTour({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-2xl"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -639,7 +639,7 @@ export default function InteractiveOnboardingTour({
                   ? '0 0 60px rgba(0, 255, 255, 0.9), 0 0 120px rgba(0, 255, 255, 0.5)' 
                   : '0 0 40px rgba(0, 255, 255, 0.7)',
                 pointerEvents: 'none',
-                zIndex: 9997, // Below mobile nav (z-9999) but above everything else
+                zIndex: 55, // Above spotlight but below tour card
                 transform: 'scale(1.05)',
               }}
             >
@@ -688,7 +688,7 @@ export default function InteractiveOnboardingTour({
               : 'bottom-8 left-1/2 -translate-x-1/2 mx-4'
           )}
           style={{
-            zIndex: 100000,
+            zIndex: 70,
             pointerEvents: 'auto',
             boxShadow: '0 0 60px rgba(0, 255, 255, 0.5)',
             border: '2px solid rgba(0, 255, 255, 0.4)',
