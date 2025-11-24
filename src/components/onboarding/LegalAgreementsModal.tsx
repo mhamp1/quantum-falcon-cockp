@@ -85,6 +85,7 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
     <AnimatePresence mode="wait">
       {isOpen && (
         <motion.div
+          key="legal-modal"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -175,7 +176,8 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
             {allChecked ? 'I ACCEPT & ENTER COCKPIT →' : 'Complete all checkboxes to continue'}
           </button>
         </div>
-      </motion.div>
+        </motion.div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
