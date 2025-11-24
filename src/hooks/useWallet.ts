@@ -33,14 +33,16 @@ export function useWallet() {
    * Connect wallet stub - does nothing for now
    */
   const connectWallet = useCallback(async () => {
-    console.warn('Wallet connection disabled: React 19 compatibility issue')
+    console.warn('Wallet connection temporarily disabled due to React 19 compatibility issue. ' +
+      'This is a temporary fix. See TODO comments in src/providers/WalletProvider.tsx for re-enabling Solana integration.')
   }, [])
 
   /**
    * Disconnect wallet stub - does nothing for now
    */
   const disconnectWallet = useCallback(async () => {
-    console.warn('Wallet disconnection disabled: React 19 compatibility issue')
+    console.warn('Wallet disconnection temporarily disabled due to React 19 compatibility issue. ' +
+      'This is a temporary fix. See TODO comments in src/providers/WalletProvider.tsx for re-enabling Solana integration.')
   }, [])
 
   return {

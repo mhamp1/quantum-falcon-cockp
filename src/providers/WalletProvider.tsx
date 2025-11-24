@@ -3,8 +3,11 @@
 // The Solana wallet-adapter packages have internal React 18 dependencies
 // that conflict with React 19, causing React APIs to become undefined
 // 
-// TODO: Re-enable once Solana wallet-adapter supports React 19
-// or downgrade to React 18.3.1
+// TODO: Re-enable Solana integration by doing one of the following:
+// 1. Monitor https://github.com/solana-labs/wallet-adapter/issues for React 19 support
+// 2. Check if @solana/wallet-adapter-react version > 0.15.39 supports React 19
+// 3. Alternatively, downgrade to React 18.3.1 if Solana integration is critical
+// 4. Restore original code from git history when ready
 //
 // November 24, 2025 — Quantum Falcon Cockpit
 

@@ -35,6 +35,8 @@ export default defineConfig({
   },
   optimizeDeps: {
     // Force exclude Solana packages to prevent bundling conflicts
+    // TODO: Remove this exclusion list when re-enabling Solana integration
+    // after React 19 support is added to @solana/wallet-adapter packages
     exclude: [
       '@solana/wallet-adapter-react',
       '@solana/wallet-adapter-react-ui',
