@@ -3,7 +3,7 @@
 // Merges license-authority integration with existing license system for optimal functionality
 
 import { licenseGenerationService, type PaymentCompletionData } from '../licenseGeneration'
-import { generateDeviceFingerprint, type DeviceFingerprint } from '../license-authority/integration/deviceFingerprint'
+import { generateDeviceFingerprint, type DeviceFingerprint } from '@/lib/license-authority/integration/deviceFingerprint'
 
 /**
  * License validation response from the License Authority API
