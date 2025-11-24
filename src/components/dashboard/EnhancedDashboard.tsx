@@ -518,6 +518,7 @@ export default function EnhancedDashboard() {
       
       <div 
         className="cyber-card relative overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300"
+        data-tour="dashboard"
       >
         <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
         <div className="p-6 relative z-10">

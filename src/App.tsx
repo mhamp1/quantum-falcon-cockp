@@ -53,12 +53,10 @@ import DebugHelper from '@/components/shared/DebugHelper';
 import AIBotAssistant from '@/components/shared/AIBotAssistant';
 import HolographicBotIcon from '@/components/shared/HolographicBotIcon';
 import RiskDisclosureBanner from '@/components/shared/RiskDisclosureBanner';
-import InteractiveOnboardingTour from '@/components/onboarding/InteractiveOnboardingTour';
-import TourStatCardsFix from '@/components/onboarding/TourStatCardsFix';
+import InteractiveTour from '@/components/onboarding/InteractiveTour';
 import MasterSearch from '@/components/shared/MasterSearch';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import IntroSplash from '@/components/intro/IntroSplash';
-import SupportOnboardingSplash from '@/components/intro/SupportOnboardingSplash';
 import AmbientParticles from '@/components/shared/AmbientParticles';
 import ConnectionStatusIndicator from '@/components/shared/ConnectionStatusIndicator';
 import { useDailyLearning } from '@/hooks/useDailyLearning';
@@ -82,9 +80,7 @@ const SocialCommunity = createRobustLazy(() => import('@/components/community/So
 const MultiAgentSystem = createRobustLazy(() => import('@/components/agents/MultiAgentSystemWrapper'));
 const EnhancedSettings = createRobustLazy(() => import('@/components/settings/EnhancedSettings'));
 const SupportOnboarding = createRobustLazy(() => import('@/pages/SupportOnboarding'));
-const PostTourWelcome = createRobustLazy(() => import('@/components/shared/PostTourWelcome'));
 const LoginPage = createRobustLazy(() => import('@/pages/LoginPage'));
-const OnboardingModal = createRobustLazy(() => import('@/components/onboarding/OnboardingModal'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -203,9 +199,7 @@ export default function App() {
   const [showAggressionPanel, setShowAggressionPanel] = useKV<boolean>('show-aggression-panel', false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showPostTourWelcome, setShowPostTourWelcome] = useState(false);
   const [showMasterSearch, setShowMasterSearch] = useState(false);
-  const [showSupportSplash, setShowSupportSplash] = useState(false);
   const [botRunning, setBotRunning] = useKV<boolean>('bot-running', false);
   // Use persistent auth for auto-login
   const persistentAuth = usePersistentAuth();
@@ -216,61 +210,16 @@ export default function App() {
     console.info('🔒 [App] Security systems online');
   }, []);
 
-  // Track if this is first login (for showing OnboardingModal)
-  const [isFirstLogin, setIsFirstLogin] = useState(false);
-  
-  // Show onboarding modal after first successful login
+  // Show interactive tour for first-time users
   useEffect(() => {
     if (persistentAuth.isInitialized && auth?.isAuthenticated && !hasSeenOnboarding) {
-      // Check if this is a first-time login (no stored onboarding seen)
-      const stored = typeof window !== 'undefined' 
-        ? window.localStorage.getItem('hasSeenOnboarding') 
-        : null;
-      
-      if (!stored) {
-        setIsFirstLogin(true);
-      }
-    }
-  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
-  
-  // Show support splash after intro video completes (for first-time users)
-  const handleIntroFinished = useCallback(() => {
-    // Check if user has seen support splash
-    try {
-      const seen = window.localStorage.getItem('qf:supportSplashSeen_v1');
-      if (!seen && persistentAuth.isInitialized && auth?.isAuthenticated) {
-        setShowSupportSplash(true);
-      }
-    } catch (e) {
-      // If localStorage fails, show it anyway
-      if (persistentAuth.isInitialized && auth?.isAuthenticated) {
-        setShowSupportSplash(true);
-      }
-    }
-  }, [persistentAuth.isInitialized, auth?.isAuthenticated]);
-
-  // Show interactive tour after support splash completes (or if already seen)
-  useEffect(() => {
-    if (persistentAuth.isInitialized && auth?.isAuthenticated && hasSeenOnboarding && !isFirstLogin && !showSupportSplash) {
       // Small delay to let dashboard load
       const timer = setTimeout(() => {
         setShowOnboarding(true);
-      }, 500);
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding, isFirstLogin, showSupportSplash]);
-
-  // Handle support splash completion - then show tour
-  const handleSupportSplashFinished = useCallback(() => {
-    setShowSupportSplash(false);
-    // Small delay to let dashboard load, then start tour (for first-time users)
-    setTimeout(() => {
-      // Show tour if user hasn't seen onboarding yet (first-time user)
-      if (!hasSeenOnboarding && persistentAuth.isInitialized && auth?.isAuthenticated) {
-        setShowOnboarding(true);
-      }
-    }, 500);
-  }, [hasSeenOnboarding, persistentAuth.isInitialized, auth?.isAuthenticated]);
+  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
 
   // GOD MODE Activation
   useEffect(() => {
@@ -404,15 +353,7 @@ export default function App() {
     return () => window.removeEventListener('open-legal-risk-disclosure', handler);
   }, []);
 
-  useEffect(() => {
-    if (!hasSeenOnboarding) {
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 600);
-      return () => clearTimeout(timer);
-    }
-  }, [hasSeenOnboarding]);
-
+  // Listen for tour restart event
   useEffect(() => {
     const handler = () => {
       setShowOnboarding(true);
@@ -420,15 +361,6 @@ export default function App() {
     window.addEventListener('restart-onboarding-tour', handler);
     return () => window.removeEventListener('restart-onboarding-tour', handler);
   }, []);
-
-  // Listen for bot start from tour
-  useEffect(() => {
-    const handler = () => {
-      setBotRunning(true);
-    };
-    window.addEventListener('start-bot-from-tour', handler);
-    return () => window.removeEventListener('start-bot-from-tour', handler);
-  }, [setBotRunning]);
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
@@ -461,10 +393,10 @@ export default function App() {
     }
     setShowOnboarding(false);
     
-    // Show post-tour welcome screen
-    setTimeout(() => {
-      setShowPostTourWelcome(true);
-    }, 500);
+    toast.success('Tour Complete!', {
+      description: 'You\'re ready to start trading. Welcome to Quantum Falcon!',
+      duration: 3000,
+    });
   };
 
   const handleOnboardingSkip = () => {
@@ -511,52 +443,16 @@ export default function App() {
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
         
-        {/* First-time user intro splash - appears first */}
-        <IntroSplash onFinished={handleIntroFinished} />
+        {/* First-time user intro splash */}
+        <IntroSplash onFinished={() => {}} />
         
-        {/* Support/Onboarding splash - appears after MP4 intro, full screen */}
-        <SupportOnboardingSplash onFinished={handleSupportSplashFinished} />
-        
-        {/* Interactive tour - appears after support splash, on dashboard */}
-        <InteractiveOnboardingTour
+        {/* Interactive Tour - Comprehensive onboarding experience */}
+        <InteractiveTour
           isOpen={showOnboarding}
           onComplete={handleOnboardingComplete}
           onSkip={handleOnboardingSkip}
           setActiveTab={setActiveTab}
         />
-        
-        {/* Tour stat cards fix - makes stat cards visible and clickable during tour */}
-        <TourStatCardsFix />
-
-        {/* 10-Second Onboarding Modal - First Launch Only */}
-        <Suspense fallback={null}>
-          {!hasSeenOnboarding && auth?.isAuthenticated && persistentAuth.isInitialized && (
-            <OnboardingModal 
-              onComplete={() => {
-                setHasSeenOnboarding(true)
-                try {
-                  window.localStorage.setItem('hasSeenOnboarding', 'true')
-                } catch (e) {
-                  console.warn('Failed to save onboarding state', e)
-                }
-              }}
-              username={auth?.username || undefined}
-            />
-          )}
-        </Suspense>
-
-        {/* Post-Tour Welcome Screen */}
-        <Suspense fallback={null}>
-          <PostTourWelcome
-            isOpen={showPostTourWelcome}
-            onClose={() => setShowPostTourWelcome(false)}
-            onStartBot={() => {
-              setBotRunning(true);
-              // Toast will be shown by PostTourWelcome component
-            }}
-            onNavigate={setActiveTab}
-          />
-        </Suspense>
 
         {/* GOD MODE Crown */}
         {isGodMode(auth) && (
@@ -616,6 +512,7 @@ export default function App() {
                 return (
                   <motion.button
                     key={tab.id}
+                    data-tab={tab.id}
                     onClick={() => {
                       soundEffects.playTabSwitch();
                       setActiveTab(tab.id);
