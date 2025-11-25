@@ -161,7 +161,7 @@ export class EnhancedLicenseService {
       
       if (isMasterKey) {
         // Master key recognized - grant full access
-        return {
+        const masterResult = {
           valid: true,
           tier: 'lifetime',
           expires_at: undefined, // Never expires
@@ -178,6 +178,19 @@ export class EnhancedLicenseService {
           validated_at: new Date().toISOString(),
           hardware_bound: false,
         }
+        
+        // Store master key license data in memory (not in KV for security)
+        this.licenseData = {
+          licenseKey: 'MASTER_KEY_RECOGNIZED',
+          tier: 'lifetime',
+          expires_at: undefined,
+          user_id: 'master',
+          features: ['all'],
+          validated_at: new Date().toISOString(),
+          token: 'master-token',
+        }
+        
+        return masterResult
       }
 
       // Ensure device fingerprint is ready
@@ -225,8 +238,9 @@ export class EnhancedLicenseService {
         this.saveToKV(licenseData)
       } else if (isMasterKey) {
         // Master key: Don't save to KV, but set licenseData in memory only
+        // Use 'MASTER_KEY_RECOGNIZED' as the licenseKey marker (matches what's stored in auth)
         this.licenseData = {
-          licenseKey: '', // Don't store the actual key
+          licenseKey: 'MASTER_KEY_RECOGNIZED', // Marker for master key (actual key never stored)
           tier: 'lifetime',
           expires_at: undefined,
           user_id: 'master',

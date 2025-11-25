@@ -57,27 +57,29 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
 
   const allChecked = Object.values(checks).every(Boolean);
 
-  // Auto-close and log when all 4 checkboxes are checked
+  // Auto-close when all checkboxes are checked
   useEffect(() => {
-    if (allChecked) {
-      // Log acceptance for tax/legal purposes
-      const logEntry: LegalAcceptanceLog = {
-        timestamp: Date.now(),
-        version: '2025-11-22',
-        userAgent: navigator.userAgent,
-        checks: { ...checks }
-      };
-
-      setAcceptanceLog(prev => [...prev, logEntry]);
-
-      // Auto-close after 500ms to show the button enabled state
+    if (allChecked && isOpen) {
       const timer = setTimeout(() => {
-        onAccept();
-      }, 500);
-
+        handleAccept();
+      }, 500); // Small delay for UX
       return () => clearTimeout(timer);
     }
-  }, [allChecked, checks, onAccept, setAcceptanceLog]);
+  }, [allChecked, isOpen]);
+
+  const handleAccept = () => {
+    if (!allChecked) return;
+
+    const logEntry: LegalAcceptanceLog = {
+      timestamp: Date.now(),
+      version: '2025-11-22',
+      userAgent: navigator.userAgent,
+      checks: { ...checks }
+    };
+
+    setAcceptanceLog(prev => [...prev, logEntry]);
+    onAccept();
+  };
 
   if (!isOpen) return null;
 
@@ -164,7 +166,7 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
           })}
 
           <button
-            onClick={allChecked ? onAccept : () => {}}
+            onClick={handleAccept}
             disabled={!allChecked}
             className={cn(
               'mt-10 w-full py-8 text-3xl font-bold rounded-2xl transition-all',

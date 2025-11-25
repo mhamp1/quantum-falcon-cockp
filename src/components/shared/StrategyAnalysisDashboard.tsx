@@ -126,65 +126,108 @@ export default function StrategyAnalysisDashboard() {
     ? strategies
     : strategies.filter(s => s.strategyName === selectedStrategy)
 
-  const topStrategy = strategies.reduce((best, current) =>
-    current.riskAdjustedReturn > best.riskAdjustedReturn ? current : best
-  )
+  const topStrategy = strategies.length > 0 
+    ? strategies.reduce((best, current) =>
+        current.riskAdjustedReturn > best.riskAdjustedReturn ? current : best
+      )
+    : null
+
+  if (isLoading) {
+    return (
+      <div className="cyber-card p-12 text-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground uppercase tracking-wider">Loading Strategy Analysis...</p>
+      </div>
+    )
+  }
+
+  if (strategies.length === 0) {
+    return (
+      <div className="cyber-card p-12 text-center space-y-4">
+        <Activity size={64} className="mx-auto text-muted-foreground opacity-50" />
+        <h3 className="text-xl font-bold uppercase tracking-wider text-muted-foreground">
+          No Strategy Data Available
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Start trading to see detailed performance analysis
+        </p>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-black uppercase tracking-wider text-primary">
-            Strategy Analysis
-          </h2>
-          <p className="text-muted-foreground">Deep performance metrics and optimization insights</p>
-        </div>
-        <div className="flex gap-3">
-          <select
-            value={selectedStrategy}
-            onChange={(e) => setSelectedStrategy(e.target.value)}
-            className="cyber-input px-3 py-2"
-          >
-            <option value="all">All Strategies</option>
-            {strategies.map(s => (
-              <option key={s.strategyName} value={s.strategyName}>{s.strategyName}</option>
-            ))}
-          </select>
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value as any)}
-            className="cyber-input px-3 py-2"
-          >
-            <option value="1d">1 Day</option>
-            <option value="7d">7 Days</option>
-            <option value="30d">30 Days</option>
-            <option value="90d">90 Days</option>
-          </select>
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 diagonal-stripes opacity-5" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-transparent blur-3xl" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <h2 className="text-4xl font-black uppercase tracking-[0.2em] text-primary mb-2">
+              Strategy Analysis
+            </h2>
+            <p className="text-muted-foreground text-sm">Deep performance metrics and optimization insights</p>
+          </div>
+          <div className="flex gap-3 w-full md:w-auto">
+            <select
+              value={selectedStrategy}
+              onChange={(e) => setSelectedStrategy(e.target.value)}
+              className="flex-1 md:flex-none px-4 py-2 bg-background/50 border border-primary/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="all">All Strategies</option>
+              {strategies.map(s => (
+                <option key={s.strategyName} value={s.strategyName}>{s.strategyName}</option>
+              ))}
+            </select>
+            <select
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value as any)}
+              className="flex-1 md:flex-none px-4 py-2 bg-background/50 border border-primary/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="1d">1 Day</option>
+              <option value="7d">7 Days</option>
+              <option value="30d">30 Days</option>
+              <option value="90d">90 Days</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Top Performer Highlight */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="cyber-card p-6 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/50"
-      >
-        <div className="flex items-center gap-4">
-          <Award size={48} className="text-yellow-400" />
-          <div>
-            <h3 className="text-xl font-bold text-yellow-400">Top Performer: {topStrategy.strategyName}</h3>
-            <p className="text-muted-foreground">
-              Risk-Adjusted Return: {topStrategy.riskAdjustedReturn.toFixed(2)} •
-              Win Rate: {topStrategy.winRate.toFixed(1)}% •
-              Consistency: {topStrategy.consistency}/100
-            </p>
+      {topStrategy && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="cyber-card p-8 bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/50"
+        >
+          <div className="flex items-center gap-6">
+            <Award size={56} weight="duotone" className="text-yellow-400" />
+            <div>
+              <h3 className="text-2xl font-black uppercase tracking-wider text-yellow-400 mb-2">
+                Top Performer: {topStrategy.strategyName}
+              </h3>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Risk-Adjusted Return: </span>
+                  <span className="font-bold text-primary">{topStrategy.riskAdjustedReturn.toFixed(2)}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Win Rate: </span>
+                  <span className="font-bold text-green-400">{topStrategy.winRate.toFixed(1)}%</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Consistency: </span>
+                  <span className="font-bold text-accent">{topStrategy.consistency}/100</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Performance Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           {
             label: 'Total Profit',
@@ -216,38 +259,60 @@ export default function StrategyAnalysisDashboard() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="cyber-card p-4"
+            className="glass-morph-card p-6 border border-primary/30"
           >
-            <div className="flex items-center justify-between mb-2">
-              {metric.icon}
-              <Badge className="bg-green-500/20 text-green-400 text-xs">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                {metric.icon}
+              </div>
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
                 {metric.change}
               </Badge>
             </div>
-            <p className="text-2xl font-bold text-primary">{metric.value}</p>
+            <p className="text-3xl font-black text-primary mb-2">{metric.value}</p>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">{metric.label}</p>
           </motion.div>
         ))}
       </div>
 
       {/* Analysis Tabs */}
-      <Tabs defaultValue="performance" className="space-y-6">
-        <TabsList className="grid grid-cols-4 w-full max-w-2xl">
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="risk">Risk Analysis</TabsTrigger>
-          <TabsTrigger value="comparison">Comparison</TabsTrigger>
-          <TabsTrigger value="optimization">Optimization</TabsTrigger>
+      <Tabs defaultValue="performance" className="space-y-8">
+        <TabsList className="grid grid-cols-4 w-full bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
+          <TabsTrigger 
+            value="performance"
+            className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-2 data-[state=active]:border-primary jagged-corner-small transition-all"
+          >
+            Performance
+          </TabsTrigger>
+          <TabsTrigger 
+            value="risk"
+            className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 data-[state=active]:border-2 data-[state=active]:border-red-500 jagged-corner-small transition-all"
+          >
+            Risk Analysis
+          </TabsTrigger>
+          <TabsTrigger 
+            value="comparison"
+            className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 data-[state=active]:border-2 data-[state=active]:border-blue-500 jagged-corner-small transition-all"
+          >
+            Comparison
+          </TabsTrigger>
+          <TabsTrigger 
+            value="optimization"
+            className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 data-[state=active]:border-2 data-[state=active]:border-purple-500 jagged-corner-small transition-all"
+          >
+            Optimization
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="performance" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="performance" className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Profit Over Time */}
-            <Card className="cyber-card p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <TrendingUp size={20} />
+            <Card className="cyber-card p-8">
+              <h3 className="text-xl font-black uppercase tracking-wider mb-6 flex items-center gap-3">
+                <TrendingUp size={24} weight="duotone" className="text-primary" />
                 Profit Over Time
               </h3>
-              <div className="h-64">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={timeSeriesData}>
                     <defs>
@@ -282,12 +347,12 @@ export default function StrategyAnalysisDashboard() {
             </Card>
 
             {/* Win Rate Distribution */}
-            <Card className="cyber-card p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <BarChart3 size={20} />
+            <Card className="cyber-card p-8">
+              <h3 className="text-xl font-black uppercase tracking-wider mb-6 flex items-center gap-3">
+                <BarChart3 size={24} weight="duotone" className="text-primary" />
                 Win Rate Distribution
               </h3>
-              <div className="h-64">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={performanceData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -305,15 +370,15 @@ export default function StrategyAnalysisDashboard() {
           </div>
         </TabsContent>
 
-        <TabsContent value="risk" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="risk" className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Risk-Return Scatter */}
-            <Card className="cyber-card p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <Target size={20} />
+            <Card className="cyber-card p-8">
+              <h3 className="text-xl font-black uppercase tracking-wider mb-6 flex items-center gap-3">
+                <Target size={24} weight="duotone" className="text-primary" />
                 Risk vs Return
               </h3>
-              <div className="h-64">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={riskReturnData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -330,17 +395,19 @@ export default function StrategyAnalysisDashboard() {
             </Card>
 
             {/* Strategy Consistency */}
-            <Card className="cyber-card p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <Star size={20} />
+            <Card className="cyber-card p-8">
+              <h3 className="text-xl font-black uppercase tracking-wider mb-6 flex items-center gap-3">
+                <Star size={24} weight="duotone" className="text-primary" />
                 Strategy Consistency
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {strategies.map((strategy) => (
-                  <div key={strategy.strategyName} className="flex items-center gap-4">
-                    <div className="w-32 text-sm truncate">{strategy.strategyName}</div>
-                    <Progress value={strategy.consistency} className="flex-1" />
-                    <span className="text-sm font-bold w-12 text-right">{strategy.consistency}</span>
+                  <div key={strategy.strategyName} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-foreground">{strategy.strategyName}</span>
+                      <span className="text-sm font-black text-primary">{strategy.consistency}/100</span>
+                    </div>
+                    <Progress value={strategy.consistency} className="h-3" />
                   </div>
                 ))}
               </div>
@@ -348,22 +415,22 @@ export default function StrategyAnalysisDashboard() {
           </div>
         </TabsContent>
 
-        <TabsContent value="comparison" className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">
+        <TabsContent value="comparison" className="space-y-8">
+          <div className="grid grid-cols-1 gap-8">
             {/* Strategy Comparison Table */}
-            <Card className="cyber-card p-6">
-              <h3 className="text-lg font-bold mb-4">Strategy Comparison Matrix</h3>
+            <Card className="cyber-card p-8">
+              <h3 className="text-xl font-black uppercase tracking-wider mb-6">Strategy Comparison Matrix</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-primary/30">
-                      <th className="text-left py-2">Strategy</th>
-                      <th className="text-right py-2">Trades</th>
-                      <th className="text-right py-2">Win Rate</th>
-                      <th className="text-right py-2">Profit</th>
-                      <th className="text-right py-2">Sharpe</th>
-                      <th className="text-right py-2">Max DD</th>
-                      <th className="text-right py-2">Consistency</th>
+                    <tr className="border-b-2 border-primary/30">
+                      <th className="text-left py-4 px-4 uppercase tracking-wider font-bold">Strategy</th>
+                      <th className="text-right py-4 px-4 uppercase tracking-wider font-bold">Trades</th>
+                      <th className="text-right py-4 px-4 uppercase tracking-wider font-bold">Win Rate</th>
+                      <th className="text-right py-4 px-4 uppercase tracking-wider font-bold">Profit</th>
+                      <th className="text-right py-4 px-4 uppercase tracking-wider font-bold">Sharpe</th>
+                      <th className="text-right py-4 px-4 uppercase tracking-wider font-bold">Max DD</th>
+                      <th className="text-right py-4 px-4 uppercase tracking-wider font-bold">Consistency</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -372,22 +439,22 @@ export default function StrategyAnalysisDashboard() {
                         key={strategy.strategyName}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b border-primary/10 hover:bg-primary/5"
+                        className="border-b border-primary/10 hover:bg-primary/5 transition-colors"
                       >
-                        <td className="py-3 font-bold text-primary">{strategy.strategyName}</td>
-                        <td className="text-right py-3">{strategy.totalTrades}</td>
-                        <td className="text-right py-3 text-green-400">{strategy.winRate.toFixed(1)}%</td>
-                        <td className="text-right py-3 text-accent">
+                        <td className="py-4 px-4 font-black text-primary">{strategy.strategyName}</td>
+                        <td className="text-right py-4 px-4 font-bold">{strategy.totalTrades}</td>
+                        <td className="text-right py-4 px-4 font-bold text-green-400">{strategy.winRate.toFixed(1)}%</td>
+                        <td className="text-right py-4 px-4 font-bold text-accent">
                           ${strategy.profitLoss.toLocaleString()}
                         </td>
-                        <td className="text-right py-3 text-purple-400">{strategy.sharpeRatio.toFixed(2)}</td>
-                        <td className="text-right py-3 text-red-400">
+                        <td className="text-right py-4 px-4 font-bold text-purple-400">{strategy.sharpeRatio.toFixed(2)}</td>
+                        <td className="text-right py-4 px-4 font-bold text-red-400">
                           ${Math.abs(strategy.maxDrawdown).toLocaleString()}
                         </td>
-                        <td className="text-right py-3">
-                          <div className="flex items-center gap-2">
-                            <Progress value={strategy.consistency} className="w-16 h-2" />
-                            <span className="w-8 text-right">{strategy.consistency}</span>
+                        <td className="text-right py-4 px-4">
+                          <div className="flex items-center justify-end gap-3">
+                            <Progress value={strategy.consistency} className="w-20 h-3" />
+                            <span className="w-10 text-right font-bold">{strategy.consistency}</span>
                           </div>
                         </td>
                       </motion.tr>
@@ -399,15 +466,15 @@ export default function StrategyAnalysisDashboard() {
           </div>
         </TabsContent>
 
-        <TabsContent value="optimization" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="optimization" className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Optimization Recommendations */}
-            <Card className="cyber-card p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <Zap size={20} />
+            <Card className="cyber-card p-8">
+              <h3 className="text-xl font-black uppercase tracking-wider mb-6 flex items-center gap-3">
+                <Zap size={24} weight="duotone" className="text-primary" />
                 Optimization Recommendations
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {strategies.map((strategy) => {
                   const recommendations = []
                   if (strategy.winRate < 70) recommendations.push('Consider adjusting entry criteria')
@@ -416,16 +483,16 @@ export default function StrategyAnalysisDashboard() {
                   if (strategy.maxDrawdown > 1000) recommendations.push('Implement stricter stop-losses')
 
                   return (
-                    <div key={strategy.strategyName} className="p-4 bg-background/60 rounded-lg">
-                      <h4 className="font-bold text-primary mb-2">{strategy.strategyName}</h4>
-                      <ul className="text-sm space-y-1">
+                    <div key={strategy.strategyName} className="p-6 bg-background/60 rounded-lg border border-primary/20">
+                      <h4 className="font-black text-primary mb-4 uppercase tracking-wider">{strategy.strategyName}</h4>
+                      <ul className="text-sm space-y-2">
                         {recommendations.length > 0 ? recommendations.map((rec, i) => (
-                          <li key={i} className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-accent rounded-full" />
-                            {rec}
+                          <li key={i} className="flex items-start gap-3">
+                            <div className="w-2 h-2 bg-accent rounded-full mt-1.5 shrink-0" />
+                            <span className="leading-relaxed">{rec}</span>
                           </li>
                         )) : (
-                          <li className="text-green-400">Strategy performing optimally!</li>
+                          <li className="text-green-400 font-bold">Strategy performing optimally!</li>
                         )}
                       </ul>
                     </div>
@@ -435,23 +502,23 @@ export default function StrategyAnalysisDashboard() {
             </Card>
 
             {/* Performance Forecast */}
-            <Card className="cyber-card p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <TrendingUp size={20} />
+            <Card className="cyber-card p-8">
+              <h3 className="text-xl font-black uppercase tracking-wider mb-6 flex items-center gap-3">
+                <TrendingUp size={24} weight="duotone" className="text-primary" />
                 Performance Forecast
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {strategies.slice(0, 3).map((strategy) => (
-                  <div key={strategy.strategyName} className="flex items-center justify-between p-3 bg-background/60 rounded-lg">
+                  <div key={strategy.strategyName} className="flex items-center justify-between p-6 bg-background/60 rounded-lg border border-primary/20">
                     <div>
-                      <p className="font-bold text-sm">{strategy.strategyName}</p>
-                      <p className="text-xs text-muted-foreground">Next 30 days</p>
+                      <p className="font-black text-lg text-primary mb-1">{strategy.strategyName}</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Next 30 days</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-green-400 font-bold">
+                      <p className="text-green-400 font-black text-xl">
                         +${(strategy.profitLoss * 0.1).toFixed(0)}
                       </p>
-                      <p className="text-xs text-muted-foreground">Projected</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Projected</p>
                     </div>
                   </div>
                 ))}

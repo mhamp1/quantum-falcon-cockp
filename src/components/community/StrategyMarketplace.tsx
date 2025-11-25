@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { 
-  ShoppingCart, Upload, TrendUp, TrendDown, Eye, Heart, 
+  ShoppingCart, Upload, TrendUp, TrendDown, EyeSlash, Heart, 
   Lightning, Crown, Star, CheckCircle, Lock, Coins, Clock,
   User, Download, ChartLine, Fire, Trophy, Sparkle, CaretUp,
   CaretDown, MagnifyingGlass, FunnelSimple, SortAscending
@@ -826,7 +826,7 @@ function StrategyMarketplaceCard({ strategy, isPurchased, isLiked, onPurchase, o
             {strategy.social.rating}
           </div>
           <div className="flex items-center gap-1">
-            <Eye size={14} />
+            <EyeSlash size={14} />
             {strategy.social.views}
           </div>
           <div className="flex items-center gap-1">

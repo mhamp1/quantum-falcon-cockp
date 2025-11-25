@@ -11,7 +11,7 @@ import {
   Lock,
   Lightning,
   Heart,
-  Eye,
+  EyeSlash,
   TrendUp,
   CheckCircle,
   ArrowRight

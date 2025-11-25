@@ -5,10 +5,48 @@ import { getFeaturedStrategiesForTier, getStrategyCountByTier } from '@/lib/stra
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity as InfinityIcon, Info, Lock, Plus } from '@phosphor-icons/react'
+import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity as InfinityIcon, Info, Lock, Plus, X } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import SubscriptionUpgrade from './SubscriptionUpgrade'
 import { motion } from 'framer-motion'
+import { FREE_TIER_LIMITS } from '@/lib/freeTier'
+
+type TierId = keyof typeof LICENSE_TIERS
+type MatrixValue = boolean | string | number
+
+const tierOrder: TierId[] = ['free', 'starter', 'trader', 'pro', 'elite', 'lifetime']
+
+const COMPARISON_FEATURES: Array<{
+  label: string
+  description: string
+  tiers: Record<TierId, MatrixValue>
+}> = [
+  {
+    label: 'Live Trading Access',
+    description: 'Execute on-chain & CEX trades',
+    tiers: { free: false, starter: true, trader: true, pro: true, elite: true, lifetime: true },
+  },
+  {
+    label: 'AI Agents Included',
+    description: 'Simultaneous elite copilots',
+    tiers: { free: '1', starter: '1', trader: '2', pro: '3', elite: '5', lifetime: '∞' },
+  },
+  {
+    label: 'Custom Strategy Builder',
+    description: 'Monaco editor + GPT-4o copilots',
+    tiers: { free: false, starter: false, trader: false, pro: true, elite: true, lifetime: true },
+  },
+  {
+    label: 'Arbitrage & MEV Scanner',
+    description: 'Whale tracking + protection',
+    tiers: { free: false, starter: false, trader: false, pro: true, elite: true, lifetime: true },
+  },
+  {
+    label: 'API / White-label Access',
+    description: 'Deploy under your own brand',
+    tiers: { free: false, starter: false, trader: false, pro: false, elite: false, lifetime: true },
+  },
+]
 
 export default function SubscriptionTiersWithStrategies() {
   const [auth] = useKV<UserAuth>('user-auth', {
@@ -68,6 +106,32 @@ export default function SubscriptionTiersWithStrategies() {
     setCheckoutOpen(true)
   }
 
+  const totalStrategies = getStrategyCountByTier('lifetime')
+  const summaryData = [
+    { label: 'Strategy Library', value: `${totalStrategies}+`, detail: 'Battle-tested bots ready to deploy' },
+    { label: 'Elite AI Agents', value: '15', detail: 'Full multi-agent war chest' },
+    { label: 'XP Boost', value: 'Up to 5x', detail: 'Compounding progress + rewards' },
+  ]
+
+  const freeTierHighlights = [
+    `Unlimited paper trading with live market data`,
+    `1 AI agent (${FREE_TIER_LIMITS.allowedStrategies.includes('dca_basic') ? 'DCA Basic' : FREE_TIER_LIMITS.allowedStrategies[0]})`,
+    `Exchange access: ${FREE_TIER_LIMITS.allowedExchanges.map(e => e.toUpperCase()).join(', ')} (read-only)`,
+    `${FREE_TIER_LIMITS.maxNotificationsPerDay} price alerts per day`,
+    `${FREE_TIER_LIMITS.communityAccess === 'full' ? 'Full' : 'Read-only'} community access`,
+  ]
+
+  const renderMatrixCell = (value: MatrixValue) => {
+    if (typeof value === 'boolean') {
+      return value ? (
+        <CheckCircle size={14} weight="fill" className="text-primary" />
+      ) : (
+        <X size={14} weight="bold" className="text-muted-foreground/60" />
+      )
+    }
+    return <span className="text-xs font-semibold text-foreground">{value}</span>
+  }
+
   return (
     <TooltipProvider delayDuration={200}>
       <div className="space-y-6" id="subscription-tiers-section">
@@ -88,15 +152,45 @@ export default function SubscriptionTiersWithStrategies() {
           </div>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {summaryData.map(metric => (
+            <div key={metric.label} className="glass-morph-card p-4 border border-white/10">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground">{metric.label}</p>
+              <p className="text-2xl font-black text-foreground">{metric.value}</p>
+              <p className="text-xs text-muted-foreground">{metric.detail}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="cyber-card-accent p-6 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-primary/20 border border-primary text-primary text-[9px] tracking-[0.3em]">
+              FREE TIER PERFECTED
+            </Badge>
+            <span className="text-xs text-muted-foreground uppercase tracking-[0.35em]">Hooks 80% • Converts 50%</span>
+          </div>
+          <p className="text-sm text-foreground">
+            Unlimited paper trading with real market data, DCA Basic agent, Binance read-only exchange access, onboarding tour, tax reserve tracking,
+            and notifications capped to drive upgrade urgency.
+          </p>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-muted-foreground">
+            {freeTierHighlights.map(item => (
+              <li key={item} className="flex items-center gap-2">
+                <CheckCircle size={12} weight="fill" className="text-primary" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(LICENSE_TIERS).map(([tierId, tier]) => {
             const isCurrentTier = currentTier === tierId
             const Icon = tierIcons[tierId as keyof typeof tierIcons]
             const featuredStrategies = getFeaturedStrategiesForTier(tierId, 4)
             const strategyCount = getStrategyCountByTier(tierId)
-            const tierHierarchy = ['free', 'starter', 'trader', 'pro', 'elite', 'lifetime']
-            const currentTierLevel = tierHierarchy.indexOf(currentTier)
-            const cardTierLevel = tierHierarchy.indexOf(tierId)
+            const currentTierLevel = tierOrder.indexOf(currentTier as TierId)
+            const cardTierLevel = tierOrder.indexOf(tierId as TierId)
             const isLocked = cardTierLevel > currentTierLevel
 
             return (
@@ -104,7 +198,7 @@ export default function SubscriptionTiersWithStrategies() {
                 key={tierId}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: tierHierarchy.indexOf(tierId) * 0.1 }}
+                transition={{ delay: tierOrder.indexOf(tierId as TierId) * 0.1 }}
                 className={`cyber-card relative overflow-hidden transition-all duration-300 ${
                   isCurrentTier ? 'ring-2 ring-accent scale-[1.02]' : 'hover:scale-[1.01]'
                 }`}
@@ -330,6 +424,42 @@ export default function SubscriptionTiersWithStrategies() {
               <p className="text-xs text-muted-foreground mb-2">1.5x profits on winning trades for 3 days</p>
               <div className="text-xs font-bold text-secondary">Cost: 1000 XP</div>
             </div>
+          </div>
+        </div>
+
+        <div className="cyber-card p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <Info size={24} weight="duotone" className="text-accent" />
+            <h3 className="text-lg font-bold uppercase tracking-wider text-accent">Feature Comparison</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs md:text-sm text-left">
+              <thead>
+                <tr>
+                  <th className="py-2 pr-4 text-muted-foreground font-semibold">Feature</th>
+                  {tierOrder.map(tierId => (
+                    <th key={tierId} className="py-2 px-2 text-center uppercase tracking-[0.2em] text-muted-foreground">
+                      {LICENSE_TIERS[tierId].name.replace('Trader', '').trim()}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON_FEATURES.map(feature => (
+                  <tr key={feature.label} className="border-t border-border/40">
+                    <td className="py-3 pr-4">
+                      <p className="font-semibold text-foreground">{feature.label}</p>
+                      <p className="text-[11px] text-muted-foreground">{feature.description}</p>
+                    </td>
+                    {tierOrder.map(tierId => (
+                      <td key={`${feature.label}-${tierId}`} className="py-3 px-2 text-center">
+                        {renderMatrixCell(feature.tiers[tierId])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

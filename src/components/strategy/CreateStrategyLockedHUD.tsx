@@ -9,7 +9,6 @@ import {
   Code, Brain, Rocket, Share2, CheckCircle, Lock, TrendingUp, Zap, Crown 
 } from 'lucide-react';
 import { FeatureCardWithTooltip } from '@/components/shared/FeatureCardWithTooltip';
-import { IconRSIDivergenceAnimated } from '@/components/icons/IconRSIDivergenceAnimated';
 
 interface LockedHUDProps {
   onUpgradeClick?: () => void;
@@ -78,16 +77,6 @@ export default function CreateStrategyLockedHUD({ onUpgradeClick }: LockedHUDPro
         >
           Build, backtest, and share custom bots with the community — the same tools Elite traders use to print money.
         </motion.p>
-
-        {/* Feature Icon Showcase */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-          className="mt-12 mb-8"
-        >
-          <IconRSIDivergenceAnimated size={180} className="drop-shadow-2xl" />
-        </motion.div>
 
         {/* Feature HUD Cards */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl w-full">

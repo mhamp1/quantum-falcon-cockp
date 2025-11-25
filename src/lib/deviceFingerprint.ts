@@ -46,7 +46,7 @@ function generateCanvasFingerprint(): string {
     const dataUrl = canvas.toDataURL();
     return hashString(dataUrl);
   } catch (e) {
-    console.error('Canvas fingerprint error:', e);
+    logger.error('Canvas fingerprint error', 'deviceFingerprint', e);
     return '';
   }
 }
@@ -87,7 +87,7 @@ function generateWebGLFingerprint(): string {
     
     return hashString(JSON.stringify(glInfo));
   } catch (e) {
-    console.error('WebGL fingerprint error:', e);
+    logger.error('WebGL fingerprint error', 'deviceFingerprint', e);
     return '';
   }
 }
@@ -137,7 +137,7 @@ function generateFontsFingerprint(): string {
     
     return hashString(detectedFonts.sort().join(','));
   } catch (e) {
-    console.error('Fonts fingerprint error:', e);
+    logger.error('Fonts fingerprint error', 'deviceFingerprint', e);
     return '';
   }
 }

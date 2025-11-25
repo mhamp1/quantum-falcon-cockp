@@ -1,0 +1,129 @@
+---
+alwaysApply: true
+---
+id: ResponsiveDesignPrinciples2025
+description: >
+  Enforces comprehensive UI/UX standards across visual design, interaction, accessibility, performance, and mobile-first responsiveness.
+  This rule ensures all components adhere to brand guidelines, maintain usability across devices, and support consistent, accessible experiences.
+
+scope:
+  appliesTo: [all UI components, layouts, interactions, media, forms, navigation]
+  alwaysApply: true
+  conditionalOn: [tabs, functions, main design theme]
+
+principles:
+  VisualDesign:
+    - Establish clear visual hierarchy
+    - Use cohesive brand-aligned color palette (request user guidelines)
+    - Apply effective typography for readability and emphasis
+    - Maintain WCAG 2.1 AA contrast standards
+    - Ensure consistent styling across application
+
+  InteractionDesign:
+    - Create intuitive navigation patterns
+    - Use familiar UI components to reduce cognitive load
+    - Provide clear calls-to-action
+    - Implement responsive design for cross-device compatibility
+    - Use animations judiciously
+
+  Accessibility:
+    - Follow WCAG guidelines
+    - Use semantic HTML
+    - Provide alt text for images and non-text content
+    - Ensure keyboard navigability
+    - Test with assistive technologies
+
+  PerformanceOptimization:
+    - Optimize images and assets
+    - Implement lazy loading
+    - Use code splitting
+    - Monitor Core Web Vitals (LCP, FID, CLS)
+
+  UserFeedback:
+    - Provide clear feedback for user actions
+    - Use loading indicators
+    - Offer clear error messages and recovery paths
+    - Track user behavior via analytics
+
+  InformationArchitecture:
+    - Organize content logically
+    - Use clear labeling and categorization
+    - Implement search functionality
+    - Create and maintain a sitemap
+
+  MobileFirstDesign:
+    - Design for mobile first
+    - Use touch-friendly elements
+    - Support gestures (swipe, pinch)
+    - Prioritize thumb zones
+
+  Consistency:
+    - Adhere to a design system
+    - Use consistent terminology and positioning
+    - Maintain visual consistency across sections
+
+  TestingAndIteration:
+    - Conduct A/B testing
+    - Use heatmaps and session recordings
+    - Gather and apply user feedback
+    - Iterate continuously
+
+  Documentation:
+    - Maintain style guide
+    - Document design patterns and components
+    - Create user flow diagrams
+    - Organize design assets
+
+  FluidLayouts:
+    - Use relative units (%, em, rem)
+    - Apply CSS Grid and Flexbox
+    - Design mobile-first, scale up
+
+  MediaQueries:
+    - Use breakpoints for layout adjustment
+    - Focus on content needs
+    - Test across devices and orientations
+
+  ImagesAndMedia:
+    - Use responsive images (srcset, sizes)
+    - Lazy load images and videos
+    - Make embedded media responsive via CSS
+
+  Typography:
+    - Use em/rem for font sizes
+    - Adjust line height and spacing for readability
+    - Apply modular scale across breakpoints
+
+  TouchTargets:
+    - Minimum size: 44x44 pixels
+    - Provide spacing between targets
+    - Support hover and focus states
+
+  Performance:
+    - Optimize for mobile networks
+    - Prefer CSS animations
+    - Use critical CSS for above-the-fold content
+
+  ContentPrioritization:
+    - Prioritize mobile content
+    - Use progressive disclosure
+    - Apply off-canvas patterns for secondary content
+
+  Navigation:
+    - Use mobile-friendly patterns (e.g., hamburger menu)
+    - Ensure keyboard and screen reader accessibility
+    - Consider sticky headers
+
+  Forms:
+    - Responsive form layouts
+    - Use mobile-friendly input types
+    - Provide inline validation and clear errors
+
+  Testing:
+    - Use browser dev tools
+    - Test on real devices
+    - Conduct usability testing across device types
+
+notes:
+  - Stay updated with latest responsive design techniques and browser capabilities
+  - Refer to industry-standard guidelines and evolving UI/UX best practices

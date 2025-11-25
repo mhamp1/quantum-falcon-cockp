@@ -77,15 +77,24 @@ const EnhancedAnalytics = createRobustLazy(() => import('@/components/dashboard/
 const AdvancedTradingHub = createRobustLazy(() => import('@/components/trade/AdvancedTradingHub'));
 const CreateStrategyPage = createRobustLazy(() => import('@/components/strategy/CreateStrategyPage'));
 const VaultView = createRobustLazy(() => import('@/components/vault/VaultView'));
-const SocialCommunity = createRobustLazy(() => import('@/components/community/SocialCommunity'));
+const SocialCommunity = createRobustLazy(() => import('@/components/community/SocialCommunity'), { 
+  retries: 6, 
+  timeout: 10000, // Increased timeout for Community tab
+  prefetch: false 
+});
 const MultiAgentSystem = createRobustLazy(() => import('@/components/agents/MultiAgentSystemWrapper'), { 
   retries: 5, 
   timeout: 5000,
   prefetch: true 
 });
-const EnhancedSettings = createRobustLazy(() => import('@/components/settings/EnhancedSettings'));
+const EnhancedSettings = createRobustLazy(() => import('@/components/settings/EnhancedSettings'), { 
+  retries: 6, 
+  timeout: 10000, // Increased timeout for Settings tab
+  prefetch: true 
+});
 const SupportOnboarding = createRobustLazy(() => import('@/pages/SupportOnboarding'));
 const LoginPage = createRobustLazy(() => import('@/pages/LoginPage'));
+const MasterAdminPanel = createRobustLazy(() => import('@/components/admin/MasterAdminPanel'));
 
 interface UserAuth {
   isAuthenticated: boolean;
@@ -317,19 +326,33 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const tabs: Tab[] = useMemo(() => [
-    { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
-    { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
-    { id: 'multi-agent', label: 'AI Agents', icon: Robot, component: MultiAgentSystem },
-    { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
-    { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
-    { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
-    { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
-    { id: 'quests', label: 'Quests', icon: Trophy, component: createRobustLazy(() => import('@/components/quests/QuestBoard'), { timeout: 5000 }) },
-    { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
-    { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
-    { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
-  ], []);
+  const tabs: Tab[] = useMemo(() => {
+    const baseTabs: Tab[] = [
+      { id: 'dashboard', label: 'Dashboard', icon: House, component: EnhancedDashboard },
+      { id: 'bot-overview', label: 'Bot Overview', icon: Terminal, component: BotOverview },
+      { id: 'multi-agent', label: 'AI Agents', icon: Robot, component: MultiAgentSystem },
+      { id: 'analytics', label: 'Analytics', icon: ChartLine, component: EnhancedAnalytics },
+      { id: 'trading', label: 'Trading', icon: Lightning, component: AdvancedTradingHub },
+      { id: 'strategy-builder', label: 'Strategy Builder', icon: Code, component: CreateStrategyPage },
+      { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
+      { id: 'quests', label: 'Quests', icon: Trophy, component: createRobustLazy(() => import('@/components/quests/QuestBoard'), { timeout: 5000 }) },
+      { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
+      { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
+      { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
+    ];
+
+    // Add Master Admin Panel only for master key users
+    if (isGodMode(auth)) {
+      baseTabs.push({ 
+        id: 'master-admin', 
+        label: 'Master Admin', 
+        icon: ShieldCheck, 
+        component: MasterAdminPanel 
+      });
+    }
+
+    return baseTabs;
+  }, [auth]);
 
   useEffect(() => {
     let isMounted = true;

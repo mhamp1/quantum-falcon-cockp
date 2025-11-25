@@ -2,7 +2,7 @@
 // November 21, 2025 — Quantum Falcon Cockpit
 
 import { 
-  Brain, FishSimple, Waves, Shield, Eye, Sparkle, Atom, 
+  Brain, FishSimple, Waves, Shield, MagnifyingGlass, Sparkle, Atom, 
   Lightning, Flame, Clock, RocketLaunch, 
   ArrowsCounterClockwise, Cube, CalendarPlus
 } from '@phosphor-icons/react'
@@ -418,7 +418,7 @@ const SentimentOracleAgent: EliteAgentInstance = {
  */
 const OnChainProphetAgent: EliteAgentInstance = {
   name: 'On-Chain Prophet',
-  icon: Eye,
+    icon: MagnifyingGlass,
   color: '#9945FF',
   description: 'Helius + Dune deep analytics',
   personality: 'balanced',

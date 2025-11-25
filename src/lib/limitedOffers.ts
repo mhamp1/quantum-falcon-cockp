@@ -20,7 +20,7 @@
 
 import {
   Lightning, Gauge, Target, TrendUp, Shield, Coin,
-  ChartLineUp, Brain, Eye, Crosshair, Fire, Sparkle,
+  ChartLineUp, Brain, MagnifyingGlass, Crosshair, Fire, Sparkle,
   ArrowsOutSimple, Clock, ChartBar, Diamond, Gift,
   Rocket, Lock, Cpu, Graph, Robot
 } from '@phosphor-icons/react'
@@ -182,7 +182,7 @@ export const ALL_LIMITED_OFFERS: LimitedOffer[] = [
     subtitle: '12H SMART MONEY',
     description: 'Real-time notifications when whale wallets make significant moves',
     price: 2.99,
-    icon: Eye,
+    icon: MagnifyingGlass,
     category: 'analytics',
     duration: 12,
     benefit: 'Whale alerts for 12 hours',

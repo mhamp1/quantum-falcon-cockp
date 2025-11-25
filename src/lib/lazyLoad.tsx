@@ -2,7 +2,8 @@
 // November 22, 2025 — Quantum Falcon Cockpit v2025.1.0
 // Handles dynamic import failures with aggressive retry, prefetching, and error recovery
 
-import { lazy, ComponentType, LazyExoticComponent } from 'react'
+import { lazy, ComponentType, LazyExoticComponent, Suspense } from 'react'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface LazyLoadOptions {
   retries?: number

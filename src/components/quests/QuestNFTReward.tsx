@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
-  Trophy, Crown, Medal, Sparkle, Image, Lock, 
+  Trophy, Crown, Medal, Sparkle, SquaresFour, Lock, 
   CheckCircle, XCircle, Wallet, AlertCircle
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
@@ -75,7 +75,7 @@ export default function QuestNFTReward({
       case 'epic': return <Trophy size={16} weight="fill" />
       case 'rare': return <Medal size={16} weight="fill" />
       case 'uncommon': return <Sparkle size={16} weight="fill" />
-      default: return <Image size={16} weight="fill" />
+      default: return <SquaresFour size={16} weight="fill" />
     }
   }
 
@@ -217,7 +217,7 @@ export default function QuestNFTReward({
             </>
           ) : isMinting ? (
             <>
-              <Image size={14} className="mr-2 animate-spin" />
+              <SquaresFour size={14} className="mr-2 animate-spin" />
               Minting...
             </>
           ) : (

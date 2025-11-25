@@ -87,11 +87,16 @@ export default function RiskDisclosureBanner() {
     localStorage.setItem(`risk_accepted_${CURRENT_VERSION}`, 'true')
     clearOldVersions()
     
+    // Close modal immediately
     setShowModal(false)
+    
+    // Hide banner immediately
     setIsBannerVisible(false)
     
+    // Store acknowledgment
     await setAcknowledgment(acknowledgmentData)
     
+    // Add to audit log
     await setAuditLog((currentLog) => {
       const newLog = [...(currentLog || []), acknowledgmentData]
       return newLog

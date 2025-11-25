@@ -37,17 +37,23 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': resolve(projectRoot, 'src')
+      '@': resolve(projectRoot, 'src'),
+      'eventemitter3': resolve(projectRoot, 'node_modules/eventemitter3/index.mjs')
     },
     // CRITICAL FIX: Deduplicate React to prevent multiple versions
     // This prevents the React 19 + Solana wallet-adapter conflict
     dedupe: ['react', 'react-dom']
   },
+  define: {
+    'global': 'globalThis',
+    'process.env': {}
+  },
   optimizeDeps: {
     // Force exclude Solana packages to prevent bundling conflicts
     // TODO: Remove this exclusion list when re-enabling Solana integration
     // after React 19 support is added to @solana/wallet-adapter packages
-    exclude: EXCLUDED_SOLANA_PACKAGES
+    exclude: EXCLUDED_SOLANA_PACKAGES,
+    include: ['eventemitter3', 'buffer']
   },
   build: {
     // Optimize chunk splitting for better loading performance

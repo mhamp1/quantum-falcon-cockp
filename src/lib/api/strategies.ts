@@ -30,6 +30,7 @@ export interface Strategy {
   likes?: number
   views?: number
   comments?: number
+  icon?: string // Phosphor icon name
 }
 
 export interface StrategyFilters {
@@ -65,7 +66,7 @@ export async function fetchAllStrategies(filters: StrategyFilters = {}): Promise
     if (!response.ok) throw new Error('Failed to fetch strategies')
     return await response.json()
   } catch (error) {
-    console.error('Error fetching strategies:', error)
+    // Silent error - using fallback strategies
     return getFallbackStrategies(filters)
   }
 }
@@ -77,7 +78,7 @@ export async function fetchFeaturedStrategies(): Promise<Strategy[]> {
     const data = await response.json()
     return data.strategies || data
   } catch (error) {
-    console.error('Error fetching featured strategies:', error)
+    // Silent error - using fallback featured strategies
     return getFallbackFeatured()
   }
 }
@@ -89,7 +90,7 @@ export async function fetchNewStrategies(): Promise<Strategy[]> {
     const data = await response.json()
     return data.strategies || data
   } catch (error) {
-    console.error('Error fetching new strategies:', error)
+    // Silent error - return empty array
     return []
   }
 }
@@ -101,7 +102,7 @@ export async function fetchHotStrategies(): Promise<Strategy[]> {
     const data = await response.json()
     return data.strategies || data
   } catch (error) {
-    console.error('Error fetching hot strategies:', error)
+    // Silent error - return empty array
     return []
   }
 }
@@ -113,7 +114,7 @@ export async function searchStrategies(query: string): Promise<Strategy[]> {
     const data = await response.json()
     return data.strategies || data
   } catch (error) {
-    console.error('Error searching strategies:', error)
+    // Silent error - return empty array
     return []
   }
 }
@@ -127,7 +128,7 @@ export async function claimStrategy(strategyId: string): Promise<{ success: bool
     if (!response.ok) throw new Error('Failed to claim strategy')
     return await response.json()
   } catch (error) {
-    console.error('Error claiming strategy:', error)
+    // Return error response for caller to handle
     return { success: false, message: 'Failed to claim strategy' }
   }
 }
@@ -212,6 +213,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_002',
       name: 'RSI Divergence Hunter',
       slug: 'rsi-divergence-hunter',
+      icon: 'Activity',
       description: 'Detects hidden and regular RSI divergences with multi-timeframe confirmation for high-probability reversals',
       code: 'strategy("RSI Divergence", overlay=false)',
       thumbnail: '/strategies/rsi-divergence.png',
@@ -260,6 +262,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_004',
       name: 'On-Chain Whale Tracker',
       slug: 'onchain-whale-tracker',
+      icon: 'FishSimple',
       description: 'Monitors large wallet movements and whale accumulation patterns on Solana with real-time alerts',
       code: 'strategy("Whale Tracker", overlay=true)',
       thumbnail: '/strategies/whale-tracker.png',
@@ -285,6 +288,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_005',
       name: 'ML Arbitrage Engine',
       slug: 'ml-arbitrage-engine',
+      icon: 'Brain',
       description: 'Machine learning-powered cross-exchange arbitrage with automated execution and risk management',
       code: 'strategy("ML Arbitrage", overlay=false)',
       thumbnail: '/strategies/ml-arbitrage.png',
@@ -309,6 +313,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_006',
       name: 'Bollinger Breakout Pro',
       slug: 'bollinger-breakout-pro',
+      icon: 'ArrowsDownUp',
       description: 'Enhanced Bollinger Band breakout system with squeeze detection and volatility expansion confirmation',
       code: 'strategy("Bollinger Breakout", overlay=true)',
       thumbnail: '/strategies/bollinger-breakout.png',
@@ -333,6 +338,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_007',
       name: 'MACD Momentum Surge',
       slug: 'macd-momentum-surge',
+      icon: 'ChartLine',
       description: 'MACD-based momentum strategy with histogram analysis and signal line crossover confirmation',
       code: 'strategy("MACD Momentum", overlay=false)',
       thumbnail: '/strategies/macd-momentum.png',
@@ -356,6 +362,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_008',
       name: 'Grid Trading Bot',
       slug: 'grid-trading-bot',
+      icon: 'ArrowsCounterClockwise',
       description: 'Automated grid trading with dynamic grid sizing based on volatility and range detection',
       code: 'strategy("Grid Trading", overlay=true)',
       thumbnail: '/strategies/grid-trading.png',
@@ -379,6 +386,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_009',
       name: 'Scalper Supreme',
       slug: 'scalper-supreme',
+      icon: 'Lightning',
       description: 'Ultra-fast scalping strategy with tick-level precision and sub-second execution',
       code: 'strategy("Scalper", overlay=true)',
       thumbnail: '/strategies/scalper.png',
@@ -404,6 +412,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_010',
       name: 'Support & Resistance Laser',
       slug: 'support-resistance-laser',
+      icon: 'Crosshair',
       description: 'Advanced S/R detection using multiple timeframe analysis and historical price action',
       code: 'strategy("S&R Laser", overlay=true)',
       thumbnail: '/strategies/sr-laser.png',
@@ -427,6 +436,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_011',
       name: 'Fibonacci Retracement Master',
       slug: 'fibonacci-retracement-master',
+      icon: 'ArrowsCounterClockwise',
       description: 'Automated Fibonacci level identification with golden ratio extensions and confluence zones',
       code: 'strategy("Fibonacci", overlay=true)',
       thumbnail: '/strategies/fibonacci.png',
@@ -450,6 +460,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_012',
       name: 'Liquidity Sweep Detector',
       slug: 'liquidity-sweep-detector',
+      icon: 'Waves',
       description: 'Identifies liquidity sweeps and stop hunts for optimal entry timing after shakeouts',
       code: 'strategy("Liquidity Sweep", overlay=true)',
       thumbnail: '/strategies/liquidity-sweep.png',

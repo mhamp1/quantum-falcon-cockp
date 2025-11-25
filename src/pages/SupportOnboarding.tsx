@@ -1,10 +1,29 @@
 // Support Page — Simple placeholder
 // November 22, 2025 — Quantum Falcon Cockpit
 
+import { useState } from 'react'
 import { Lifebuoy, Envelope, MessageCircle, BookOpen } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
+import DocumentationViewer from '@/components/shared/DocumentationViewer'
+
+const DISCORD_URL = 'https://discord.gg/quantumfalcon'
+const SUPPORT_EMAIL = 'support@quantumfalcon.com'
 
 export default function SupportOnboarding() {
+  const [showDocs, setShowDocs] = useState(false)
+
+  const handleDiscord = () => {
+    window.open(DISCORD_URL, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleDocs = () => {
+    setShowDocs(true)
+  }
+
+  const handleEmail = () => {
+    window.open(`mailto:${SUPPORT_EMAIL}?subject=Quantum%20Falcon%20Support`, '_self')
+  }
+
   return (
     <div className="min-h-screen p-6 space-y-6">
       <div className="cyber-card p-8 text-center space-y-6">
@@ -22,9 +41,11 @@ export default function SupportOnboarding() {
           <MessageCircle size={32} className="text-primary" weight="duotone" />
           <h3 className="text-xl font-bold uppercase">Community</h3>
           <p className="text-sm text-muted-foreground">
-            Join our Discord community for real-time support and discussions
+            Join our Discord community for real-time support and elite alpha drops.
           </p>
-          <Button className="w-full">Join Discord</Button>
+          <Button className="w-full" onClick={handleDiscord}>
+            Join Discord
+          </Button>
         </div>
 
         <div className="cyber-card p-6 space-y-4">
@@ -33,7 +54,9 @@ export default function SupportOnboarding() {
           <p className="text-sm text-muted-foreground">
             Reach out directly via email for technical support
           </p>
-          <Button className="w-full" variant="outline">Send Email</Button>
+          <Button className="w-full" variant="outline" onClick={handleEmail}>
+            Send Email
+          </Button>
         </div>
 
         <div className="cyber-card p-6 space-y-4">
@@ -42,9 +65,13 @@ export default function SupportOnboarding() {
           <p className="text-sm text-muted-foreground">
             Browse our comprehensive guides and tutorials
           </p>
-          <Button className="w-full" variant="outline">View Docs</Button>
+          <Button className="w-full" variant="outline" onClick={handleDocs}>
+            View Docs
+          </Button>
         </div>
       </div>
+
+      <DocumentationViewer isOpen={showDocs} onClose={() => setShowDocs(false)} />
     </div>
   )
 }

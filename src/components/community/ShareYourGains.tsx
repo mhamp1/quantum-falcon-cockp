@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  ShareNetwork, TwitterLogo, Copy, CheckCircle, 
+  ShareNetwork, Copy, CheckCircle, 
   Trophy, TrendingUp, Sparkle, X
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
@@ -52,10 +52,10 @@ Try it free: quantumfalcon.io`
     }
   }
 
-  const handleTwitterShare = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`
-    window.open(twitterUrl, '_blank', 'width=550,height=420')
-    toast.success('Opening Twitter...', { icon: '🐦' })
+  const handleXShare = () => {
+    const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`
+    window.open(xUrl, '_blank', 'width=550,height=420')
+    toast.success('Opening X...', { icon: '✖️' })
   }
 
   const handleDiscordShare = () => {
@@ -88,11 +88,11 @@ Try it free: quantumfalcon.io`
             className="absolute z-50 mt-2 glass-morph-card p-4 space-y-2 min-w-[200px] border-2 border-primary/50"
           >
             <button
-              onClick={handleTwitterShare}
+              onClick={handleXShare}
               className="w-full flex items-center gap-2 px-3 py-2 hover:bg-primary/20 rounded transition-colors"
             >
-              <TwitterLogo size={18} weight="fill" className="text-[#1DA1F2]" />
-              <span className="text-sm">Share on Twitter</span>
+              <X size={18} weight="fill" className="text-foreground" />
+              <span className="text-sm">Share on X</span>
             </button>
             <button
               onClick={handleDiscordShare}
@@ -160,12 +160,12 @@ Try it free: quantumfalcon.io`
 
         <div className="space-y-2">
           <Button
-            onClick={handleTwitterShare}
-            className="w-full bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white font-bold uppercase tracking-wider"
+            onClick={handleXShare}
+            className="w-full bg-black hover:bg-black/90 text-white font-bold uppercase tracking-wider border-2 border-white/20"
             size="lg"
           >
-            <TwitterLogo size={20} weight="fill" className="mr-2" />
-            Share on Twitter
+            <X size={20} weight="bold" className="mr-2" />
+            Share on X
           </Button>
 
           <div className="grid grid-cols-2 gap-2">

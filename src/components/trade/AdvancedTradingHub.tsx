@@ -22,6 +22,7 @@ interface Strategy {
   tradesExecuted?: number
   winRate?: number
   risk: 'low' | 'medium' | 'high'
+  icon?: string // Icon name from Phosphor Icons
 }
 
 const ALL_STRATEGIES: Strategy[] = [
@@ -29,6 +30,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'dca-basic',
     name: 'DCA Basic',
     type: 'Dollar Cost Averaging',
+    icon: 'CalendarPlus',
     description: 'Systematic buying at regular intervals regardless of price',
     longDescription: 'Dollar Cost Averaging (DCA) helps reduce the impact of volatility by spreading purchases over time. This basic strategy executes buys at fixed intervals.',
     benefits: [
@@ -49,6 +51,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'dca-advanced',
     name: 'DCA Advanced',
     type: 'Smart DCA',
+    icon: 'ChartLineUp',
     description: 'AI-optimized DCA that adjusts purchase amounts based on market conditions',
     longDescription: 'Advanced DCA uses machine learning to optimize purchase timing and amounts. Buys more during dips and less during peaks for improved cost basis.',
     benefits: [
@@ -69,6 +72,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'momentum-basic',
     name: 'Momentum Basic',
     type: 'Trend Following',
+    icon: 'TrendUp',
     description: 'Identifies and trades with strong price momentum',
     longDescription: 'Momentum trading captures trends by entering positions when price action shows strong directional movement. Uses technical indicators to confirm trend strength.',
     benefits: [
@@ -89,6 +93,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'rsi-strategy',
     name: 'RSI Divergence',
     type: 'Oscillator',
+    icon: 'Activity',
     description: 'Trades RSI overbought/oversold conditions and divergences',
     longDescription: 'RSI strategy identifies overbought (>70) and oversold (<30) conditions, entering counter-trend positions. Advanced divergence detection finds high-probability reversals.',
     benefits: [
@@ -109,6 +114,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'momentum-advanced',
     name: 'Momentum Advanced',
     type: 'Multi-Timeframe',
+    icon: 'ChartLine',
     description: 'Advanced momentum detection across multiple timeframes',
     longDescription: 'Multi-timeframe momentum analysis confirms trends across 5m, 15m, 1h, and 4h charts. Only enters when all timeframes align for maximum probability.',
     benefits: [
@@ -125,6 +131,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'macd-strategy',
     name: 'MACD Crossover',
     type: 'Trend Indicator',
+    icon: 'ChartLine',
     description: 'MACD signal line crossovers for trend entries and exits',
     longDescription: 'MACD strategy uses the Moving Average Convergence Divergence indicator to identify trend changes. Enters on bullish crossovers, exits on bearish crossovers.',
     benefits: [
@@ -141,6 +148,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'bollinger-bands',
     name: 'Bollinger Bands',
     type: 'Volatility',
+    icon: 'ArrowsDownUp',
     description: 'Trades price action relative to volatility bands',
     longDescription: 'Bollinger Bands adapt to market volatility, expanding during volatile periods and contracting during calm periods. Strategy trades bounces and breakouts.',
     benefits: [
@@ -157,6 +165,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'mean-reversion',
     name: 'Mean Reversion',
     type: 'Statistical',
+    icon: 'ArrowsCounterClockwise',
     description: 'Trades price deviations from statistical mean',
     longDescription: 'Mean reversion strategy identifies when prices have deviated significantly from their average, entering positions expecting a return to the mean.',
     benefits: [
@@ -173,6 +182,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'token-sniping',
     name: 'Token Sniping',
     type: 'Launch Detection',
+    icon: 'Crosshair',
     description: 'Automatically detects and buys new token launches',
     longDescription: 'Token sniping bot monitors Raydium and other DEXs for new liquidity pools, executing buy orders within seconds of launch for first-mover advantage.',
     benefits: [
@@ -193,6 +203,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'arbitrage',
     name: 'Arbitrage Scanner',
     type: 'Multi-Exchange',
+    icon: 'ArrowsLeftRight',
     description: 'Identifies and executes arbitrage opportunities across exchanges',
     longDescription: 'Arbitrage scanner monitors price discrepancies across multiple exchanges, automatically executing trades to capture risk-free profit from price differences.',
     benefits: [
@@ -209,6 +220,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'ai-adaptive',
     name: 'AI Adaptive',
     type: 'Machine Learning',
+    icon: 'Brain',
     description: 'AI that selects and switches between strategies based on market regime',
     longDescription: 'Advanced AI analyzes current market conditions (trending, ranging, volatile) and automatically activates the most suitable strategy. Continuously learns from results.',
     benefits: [
@@ -225,6 +237,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'custom-builder',
     name: 'Custom Strategy Builder',
     type: 'Advanced',
+    icon: 'Code',
     description: 'Build your own strategies with visual programming interface',
     longDescription: 'Create custom trading strategies using a no-code visual builder. Combine indicators, set conditions, and backtest before deployment.',
     benefits: [

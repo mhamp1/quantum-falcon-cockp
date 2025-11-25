@@ -7,11 +7,12 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
-  ChatCircle, ThumbsUp, Eye, Clock, Plus, Fire, Star, 
+  ChatCircle, ThumbsUp, EyeSlash, Clock, Plus, Fire, Star, 
   TrendUp, MagnifyingGlass, Funnel, PaperPlaneRight, User
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
+import { formatRelativeTime } from '@/lib/utils'
 
 interface ForumPost {
   id: string
@@ -118,17 +119,6 @@ export default function Forum() {
   const [newComment, setNewComment] = useState('')
 
   const allTags = ['All', 'Question', 'Success Story', 'Tips', 'Feature Request', 'RSI', 'DCA', 'Strategy', 'Analysis', 'Help']
-
-  const formatTimeAgo = (timestamp: number) => {
-    const seconds = Math.floor((Date.now() - timestamp) / 1000)
-    if (seconds < 60) return `${seconds}s ago`
-    const minutes = Math.floor(seconds / 60)
-    if (minutes < 60) return `${minutes}m ago`
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) return `${hours}h ago`
-    const days = Math.floor(hours / 24)
-    return `${days}d ago`
-  }
 
   const handleCreatePost = () => {
     if (!newPostTitle.trim() || !newPostContent.trim()) {
@@ -414,7 +404,7 @@ export default function Forum() {
                         <span>•</span>
                         <div className="flex items-center gap-1">
                           <Clock size={12} weight="duotone" />
-                          {formatTimeAgo(post.timestamp)}
+                          {formatRelativeTime(post.timestamp)}
                         </div>
                       </div>
                     </div>
@@ -451,7 +441,7 @@ export default function Forum() {
                         {post.comments.length}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Eye size={16} weight="duotone" />
+                        <EyeSlash size={16} weight="duotone" />
                         {post.views}
                       </div>
                     </div>
@@ -510,7 +500,7 @@ export default function Forum() {
                   <span className="font-bold">{selectedPost.likes}</span>
                 </button>
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <Eye size={18} weight="duotone" />
+                  <EyeSlash size={18} weight="duotone" />
                   <span className="font-bold">{selectedPost.views} views</span>
                 </div>
               </div>

@@ -91,6 +91,83 @@ const FEATURED_STRATEGIES: FeaturedStrategy[] = [
   { name: "Momentum Tsunami", roi: "+223%", likes: "11.7k", description: "Rides explosive momentum waves to max profit", category: "Momentum" },
 ]
 
+const HERO_METRICS = [
+  { label: 'Live ROI (24h)', value: '+214%', helper: 'Average of top 50 bots' },
+  { label: 'Backtests Run /day', value: '18,742', helper: 'Global war-room activity' },
+  { label: 'Win Rate (elite set)', value: '78.6%', helper: 'Verified elite deploys' },
+]
+
+const HERO_PILLARS = [
+  {
+    title: 'Alpha Pipeline',
+    bullets: ['AI Monaco editor', 'Auto risk calibration', 'Multi-chain deploy'],
+    accent: 'rgba(0,212,255,0.18), rgba(0,212,255,0)',
+  },
+  {
+    title: 'War Room Collaboration',
+    bullets: ['Ghost cursors', 'Live audit trails', 'Signature-required merges'],
+    accent: 'rgba(220,31,255,0.18), rgba(220,31,255,0)',
+  },
+  {
+    title: 'Profit Safeguards',
+    bullets: ['Per-trade kill-switch', 'Vault sweeps', 'Compliance logging'],
+    accent: 'rgba(20,241,149,0.18), rgba(20,241,149,0)',
+  },
+]
+
+const HERO_COMMANDMENTS = [
+  {
+    title: 'Ship faster than everyone else',
+    detail: 'Drag + drop logic blocks, instant Monaco previews, GPT-4o copilots tuned for Falcon syntax.',
+  },
+  {
+    title: 'Backtest ruthlessly',
+    detail: 'Stream live tick data + regime shifts, mark up anomalies, and tag best cohorts for redeploy.',
+  },
+  {
+    title: 'Auto-monetize winning code',
+    detail: 'One-click share to marketplace, enforce royalties, route gatekeeping through tier badges.',
+  },
+]
+
+const HERO_ACTIONS = [
+  {
+    title: 'Blueprint Forge',
+    detail: 'Spin up Monaco templates with AI copilots tuned for Solana order flow.',
+    stat: '+14 elite drops/day',
+  },
+  {
+    title: 'Backtest Arena',
+    detail: 'Stream historical regimes + real-time tick data without leaving the editor.',
+    stat: '18,742 sims/24h',
+  },
+  {
+    title: 'Royalties On Tap',
+    detail: 'One-click syndication to the marketplace with enforced splits + tier gating.',
+    stat: '$8,421 top payout',
+  },
+]
+
+const CREATOR_TICKER = [
+  { handle: '@AtlasQuant', stat: '+$18.4K / 24h', highlight: 'Momentum Tsunami v12' },
+  { handle: '@AbyssWatch', stat: '+$9.7K / 12h', highlight: 'Flash Crash Hunter' },
+  { handle: '@HedgedBot', stat: '+$4.2K / 6h', highlight: 'Grid Master Auto' },
+  { handle: '@EliteDesk', stat: '+$21.1K / 24h', highlight: 'Multi-Strategy Portfolio' },
+]
+
+const CREATOR_TAPE = [
+  { label: 'Last deploy', value: '48 sec ago', meta: 'Neon Whale Sniper' },
+  { label: 'Royalty drip', value: '$342/min', meta: 'Community payouts' },
+  { label: 'AI assists served', value: '1,108', meta: 'Past 60 min' },
+  { label: 'Kill-switch events', value: '12', meta: 'Auto-protected vaults' },
+]
+
+const ADDICTION_STACK = [
+  { label: 'Idea → Live', value: '12 min avg', description: 'Editor → backtest → deploy' },
+  { label: 'Retention', value: '92%', description: 'Creators returning weekly' },
+  { label: 'Marketplace fill', value: '37%', description: 'Strategies earning royalties' },
+]
+
 const STRATEGY_CATEGORIES = [
   'Trend Following',
   'Mean Reversion',
@@ -368,71 +445,185 @@ Return only improved code with comments explaining changes.`
       />
       
       <div className="relative z-10 container mx-auto p-6 space-y-8">
-        <motion.div
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-8 py-16 relative min-h-[calc(100vh-6rem)] strategy-hero"
+          className="space-y-16 py-16 relative min-h-[calc(100vh-6rem)]"
         >
-          {/* SPINNING Q DELETED FOREVER — NO ANIMATION, NO PARTICLES, NO GARBAGE */}
-          {/* FINAL HERO FIX: Spinning image DELETED forever — title SOLID PINK — November 21, 2025 */}
-          
-          <motion.h1 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-7xl md:text-9xl font-black uppercase leading-[0.9] mb-6 relative z-10"
-            style={{
-              fontFamily: 'Orbitron, sans-serif',
-              letterSpacing: '0.08em',
-              color: '#FF1493'
-            }}
-          >
-            <span className="block mb-3">
-              CREATE GOD-TIER
-            </span>
-            <span className="block">
-              STRATEGIES
-            </span>
-          </motion.h1>
+          <div className="grid gap-12 lg:grid-cols-[1.35fr_0.65fr] items-start relative z-10">
+            <div className="space-y-10 text-left">
+              <motion.h1
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.15, duration: 0.6 }}
+                className="text-7xl md:text-8xl font-black uppercase leading-[0.9]"
+                style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '0.08em', color: '#FF1493' }}
+              >
+                Create God-Tier Strategies
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="text-xl md:text-2xl max-w-4xl text-foreground/80"
+                style={{ fontFamily: 'Rajdhani, sans-serif' }}
+              >
+                This is the $8K cockpit founders fly nightly: Monaco editor with GPT-4o copilots, ruthless backtesting,
+                vault-safe deploys, and royalties wired straight to your wallet. No rainbow gradients, just profit dashboards.
+              </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="text-xl md:text-2xl max-w-4xl mx-auto mb-8 relative z-10"
-            style={{
-              color: '#8892b0',
-              fontFamily: 'Rajdhani, sans-serif'
-            }}
-          >
-            Build, backtest, and share custom bots with the community — the same tools Elite traders use to print money.
-          </motion.p>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {HERO_METRICS.map((metric) => (
+                  <div key={metric.label} className="glass-morph-card p-4 border border-white/10">
+                    <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{metric.label}</p>
+                    <p className="text-3xl font-black text-primary mt-2">{metric.value}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">{metric.helper}</p>
+                  </div>
+                ))}
+              </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto mt-12 px-4"
-            data-tour="feature-cards"
-          >
+              <div className="grid gap-4 md:grid-cols-3">
+                {HERO_ACTIONS.map((action) => (
+                  <div key={action.title} className="cyber-card p-5 border border-white/10 space-y-2">
+                    <p className="text-[11px] uppercase tracking-[0.4em] text-primary/80">{action.title}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{action.detail}</p>
+                    <p className="text-xs font-bold text-secondary uppercase tracking-[0.3em]">{action.stat}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="glass-morph-card p-6 border border-primary/30 space-y-4">
+                <div className="flex items-center gap-3">
+                  <Sparkle size={20} className="text-primary" weight="fill" />
+                  <h3 className="text-xl font-black uppercase tracking-[0.2em]">Commandments</h3>
+                </div>
+                <div className="space-y-4">
+                  {HERO_COMMANDMENTS.map((commandment) => (
+                    <div key={commandment.title} className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                      <p className="text-sm font-bold uppercase tracking-wider text-primary">{commandment.title}</p>
+                      <p className="text-sm text-foreground/80 leading-relaxed flex-1">{commandment.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-4">
+                <Button
+                  size="lg"
+                  className="bg-primary text-primary-foreground rounded-2xl px-8 py-6 font-black tracking-[0.2em]"
+                  onClick={() => setActiveTab('editor')}
+                >
+                  Launch Editor
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-2xl px-8 py-6 font-black tracking-[0.2em]"
+                  onClick={() => setActiveTab('templates')}
+                >
+                  Load Template
+                </Button>
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="rounded-2xl px-8 py-6 font-black tracking-[0.2em]"
+                  onClick={() => window.open('https://quantumfalcon.gitbook.io/docs/creator-handbook', '_blank')}
+                >
+                  Creator Handbook
+                </Button>
+              </div>
+
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/50">
+                <motion.div
+                  className="flex items-center gap-8 py-4"
+                  animate={{ x: ['0%', '-50%'] }}
+                  transition={{ repeat: Infinity, duration: 30, ease: 'linear' }}
+                >
+                  {CREATOR_TICKER.concat(CREATOR_TICKER).map((item, index) => (
+                    <div key={`${item.handle}-${index}`} className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <Badge className="bg-primary/20 border border-primary text-primary text-[10px]">{item.handle}</Badge>
+                      <span className="font-bold text-foreground">{item.stat}</span>
+                      <span className="text-xs text-muted-foreground/80">{item.highlight}</span>
+                    </div>
+                  ))}
+                </motion.div>
+                <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+                <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="relative overflow-hidden rounded-3xl border border-primary/40 bg-black/50 backdrop-blur-xl shadow-[0_40px_120px_rgba(20,241,149,0.2)]">
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute inset-0 technical-grid" />
+                </div>
+                <div className="relative z-10 p-8 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-black uppercase tracking-[0.3em] text-primary">War Room Pulse</h3>
+                    <Badge className="bg-primary/15 border border-primary/50 text-primary uppercase tracking-wider">LIVE</Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {CREATOR_TAPE.slice(0, 2).map(item => (
+                      <div key={item.label} className="cyber-card p-4 border border-white/5">
+                        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">{item.label}</p>
+                        <p className="text-2xl font-black text-primary mt-1">{item.value}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{item.meta}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Creator Tape</p>
+                    <div className="flex flex-col gap-2">
+                      {CREATOR_TAPE.map(item => (
+                        <div key={item.label} className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>{item.meta}</span>
+                          <span className="text-primary font-bold">{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4">
+                {HERO_PILLARS.map((pillar) => (
+                  <div
+                    key={pillar.title}
+                    className="border border-white/5 rounded-2xl p-5 bg-gradient-to-r"
+                    style={{ backgroundImage: `linear-gradient(135deg, ${pillar.accent})` }}
+                  >
+                    <h4 className="text-lg font-black uppercase tracking-wider">{pillar.title}</h4>
+                    <ul className="text-sm text-muted-foreground mt-3 space-y-1">
+                      {pillar.bullets.map((item) => (
+                        <li key={item} className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tour="feature-cards">
             {[
-              { icon: <Sparkle size={24} weight="fill" />, text: "Full Monaco Editor with AI code completion", dataCard: "monaco-editor" },
-              { icon: <ChartLine size={24} weight="duotone" />, text: "Real-time backtesting + live PNL tracking" },
-              { icon: <ShareNetwork size={24} weight="fill" />, text: "One-click sharing (earn royalties)" },
-              { icon: <Brain size={24} weight="duotone" />, text: "200+ premium indicators & on-chain data" },
-              { icon: <Lock size={24} weight="duotone" />, text: "On-chain proof via Solana NFT" },
-              { icon: <Star size={24} weight="fill" />, text: "Access to private Elite templates" },
+              { icon: <Sparkle size={24} weight="fill" />, text: 'Full Monaco Editor with AI code completion', dataCard: 'monaco-editor' },
+              { icon: <ChartLine size={24} weight="duotone" />, text: 'Real-time backtesting + live PNL tracking' },
+              { icon: <ShareNetwork size={24} weight="fill" />, text: 'One-click sharing (earn royalties)' },
+              { icon: <Brain size={24} weight="duotone" />, text: '200+ premium indicators & on-chain data' },
+              { icon: <Lock size={24} weight="duotone" />, text: 'On-chain proof via Solana NFT' },
+              { icon: <Star size={24} weight="fill" />, text: 'Access to private Elite templates' },
             ].map((feature, i) => (
               <motion.div
                 key={i}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.7 + i * 0.08, duration: 0.4 }}
+                transition={{ delay: 0.6 + i * 0.06, duration: 0.4 }}
                 data-card={feature.dataCard}
-                className="group relative flex items-center gap-3 text-left bg-gradient-to-br from-card/60 to-card/40 backdrop-blur-md border border-white/10 rounded-xl p-4 hover:border-primary/50 transition-all duration-300"
-                style={{
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
-                }}
+                className="group relative flex items-center gap-3 text-left bg-gradient-to-br from-card/60 to-card/40 backdrop-blur-md border border-white/10 rounded-xl p-4"
+                style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)' }}
               >
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <span className="text-primary">{feature.icon}</span>
@@ -440,16 +631,26 @@ Return only improved code with comments explaining changes.`
                 <span className="text-sm text-foreground/80 font-medium leading-snug">{feature.text}</span>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {ADDICTION_STACK.map(item => (
+              <div key={item.label} className="glass-morph-card p-5 border border-white/10">
+                <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{item.label}</p>
+                <p className="text-2xl font-black text-primary mt-2">{item.value}</p>
+                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+              </div>
+            ))}
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.5 }}
-            className="mt-20"
+            transition={{ delay: 0.8, duration: 0.5 }}
+            className="space-y-10"
           >
-            <h2 
-              className="text-3xl md:text-4xl font-black uppercase mb-10"
+            <h2
+              className="text-3xl md:text-4xl font-black uppercase"
               style={{
                 fontFamily: 'Orbitron, sans-serif',
                 letterSpacing: '0.08em',
@@ -457,48 +658,44 @@ Return only improved code with comments explaining changes.`
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                filter: 'drop-shadow(0 0 6px rgba(0, 255, 255, 0.3))'
               }}
             >
               🔥 Top Community Strategies This Week
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {FEATURED_STRATEGIES.slice(0, 3).map((strategy, i) => (
                 <motion.div
-                  key={i}
+                  key={strategy.name}
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1.1 + i * 0.12, duration: 0.5 }}
-                  className="group relative bg-gradient-to-br from-card/70 to-card/40 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:border-accent/50 transition-all duration-300 overflow-hidden"
-                  style={{
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
-                  }}
+                  transition={{ delay: 0.9 + i * 0.12, duration: 0.5 }}
+                  className="group relative bg-gradient-to-br from-card/70 to-card/40 backdrop-blur-lg border border-white/10 rounded-2xl p-6 overflow-hidden"
+                  style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' }}
                 >
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-accent/10 to-transparent rounded-full blur-3xl group-hover:scale-150 transition-transform duration-500" />
                   <Badge className="relative z-10 mb-4 bg-accent/20 text-accent border border-accent/40 rounded-lg px-3 py-1 font-semibold">
                     {strategy.category}
                   </Badge>
-                  <h3 
-                    className="relative z-10 text-xl md:text-2xl font-black mb-3 group-hover:scale-105 transition-transform duration-300"
+                  <h3
+                    className="relative z-10 text-xl md:text-2xl font-black mb-3"
                     style={{
                       fontFamily: 'Orbitron, sans-serif',
                       background: 'linear-gradient(135deg, #00FFFF 0%, #14F195 100%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text'
+                      backgroundClip: 'text',
                     }}
                   >
                     {strategy.name}
                   </h3>
                   <p className="relative z-10 text-sm text-foreground/70 mb-5 leading-relaxed">{strategy.description}</p>
                   <div className="relative z-10 flex justify-between items-center text-base font-bold">
-                    <span 
+                    <span
                       className="font-black text-lg"
                       style={{
                         background: 'linear-gradient(90deg, #00FFFF 0%, #14F195 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
+                        backgroundClip: 'text',
                       }}
                     >
                       {strategy.roi} ROI
@@ -515,20 +712,18 @@ Return only improved code with comments explaining changes.`
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 1.5, duration: 0.5 }}
-            className="mt-16 inline-block bg-gradient-to-r from-card/80 to-card/60 backdrop-blur-lg border border-accent/30 rounded-2xl px-8 py-4"
-            style={{
-              boxShadow: '0 8px 32px rgba(220, 31, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
-            }}
+            transition={{ delay: 1.1, duration: 0.5 }}
+            className="inline-block bg-gradient-to-r from-card/80 to-card/60 backdrop-blur-lg border border-accent/30 rounded-2xl px-8 py-4"
+            style={{ boxShadow: '0 8px 32px rgba(220, 31, 255, 0.2)' }}
           >
-            <p 
+            <p
               className="text-xl md:text-2xl font-bold"
               style={{
                 fontFamily: 'Rajdhani, sans-serif',
                 background: 'linear-gradient(90deg, #DC1FFF 0%, #14F195 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
+                backgroundClip: 'text',
               }}
             >
               🔥 1,247 strategies created this week • Top creator earned $8,421
@@ -539,8 +734,8 @@ Return only improved code with comments explaining changes.`
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.8, duration: 0.5 }}
-              className="mt-20 flex flex-col items-center gap-8"
+              transition={{ delay: 1.3, duration: 0.5 }}
+              className="flex flex-col items-center gap-8"
             >
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Button
@@ -570,7 +765,7 @@ Return only improved code with comments explaining changes.`
               </div>
             </motion.div>
           )}
-        </motion.div>
+        </motion.section>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-card/60 to-card/40 backdrop-blur-lg border border-white/10 p-1 rounded-xl">

@@ -1,9 +1,10 @@
-import { Component, ReactNode, Suspense, lazy } from 'react';
+import { Component, ReactNode, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { ShimmerCard } from '@/components/shared/ShimmerCard';
 import { Robot, Network } from '@phosphor-icons/react';
+import { createRobustLazy } from '@/lib/lazyLoad';
 
-const MultiAgentSystem = lazy(() => import('./MultiAgentSystem'));
+const MultiAgentSystem = createRobustLazy(() => import('./MultiAgentSystem'));
 
 interface Props {
   children?: ReactNode;

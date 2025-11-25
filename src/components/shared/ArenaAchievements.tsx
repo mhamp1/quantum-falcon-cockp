@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Trophy, Medal, Star, Crown, Flame, Target, Zap, Award, Swords, Users } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useKVSafe } from '@/hooks/useKVFallback'
@@ -275,49 +276,54 @@ export default function ArenaAchievements() {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header Stats */}
-      <Card className="cyber-card p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-2xl font-black uppercase tracking-wider text-primary">
-              Arena Achievements
-            </h3>
-            <p className="text-muted-foreground">Battle glory and legendary status</p>
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 diagonal-stripes opacity-5" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-red-500/20 via-orange-500/20 to-transparent blur-3xl" />
+        
+        <div className="relative z-10 cyber-card p-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-3xl font-black uppercase tracking-[0.2em] text-primary mb-2">
+                Arena Achievements
+              </h3>
+              <p className="text-muted-foreground text-sm">Battle glory and legendary status</p>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-black text-accent">{completionRate}%</p>
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">Complete</p>
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-accent">{completionRate}%</p>
-            <p className="text-sm text-muted-foreground">Complete</p>
-          </div>
-        </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-green-400">{userStats.battlesWon}</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Victories</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-red-400">{userStats.currentStreak}</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Win Streak</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-blue-400">{userStats.cheersReceived}</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Cheers</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-purple-400">
-              {achievementsWithProgress.filter(a => a.unlocked).length}
-            </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Unlocked</p>
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="glass-morph-card p-5 text-center border border-green-500/30">
+              <p className="text-3xl font-black text-green-400 mb-2">{userStats.battlesWon}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Victories</p>
+            </div>
+            <div className="glass-morph-card p-5 text-center border border-red-500/30">
+              <p className="text-3xl font-black text-red-400 mb-2">{userStats.currentStreak}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Win Streak</p>
+            </div>
+            <div className="glass-morph-card p-5 text-center border border-blue-500/30">
+              <p className="text-3xl font-black text-blue-400 mb-2">{userStats.cheersReceived}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Cheers</p>
+            </div>
+            <div className="glass-morph-card p-5 text-center border border-purple-500/30">
+              <p className="text-3xl font-black text-purple-400 mb-2">
+                {achievementsWithProgress.filter(a => a.unlocked).length}
+              </p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Unlocked</p>
+            </div>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Category Filter */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-3 flex-wrap">
         {[
-          { id: 'all', label: 'All', icon: <Award size={16} /> },
+          { id: 'all', label: 'All', icon: <Award size={18} /> },
           { id: 'combat', label: 'Combat', icon: CATEGORY_ICONS.combat },
           { id: 'social', label: 'Social', icon: CATEGORY_ICONS.social },
           { id: 'strategic', label: 'Strategic', icon: CATEGORY_ICONS.strategic },
@@ -326,9 +332,9 @@ export default function ArenaAchievements() {
           <Button
             key={category.id}
             variant={selectedCategory === category.id ? 'default' : 'outline'}
-            size="sm"
+            size="lg"
             onClick={() => setSelectedCategory(category.id)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 uppercase tracking-wider font-bold"
           >
             {category.icon}
             {category.label}
@@ -337,61 +343,65 @@ export default function ArenaAchievements() {
       </div>
 
       {/* Achievements Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredAchievements.map((achievement, index) => (
           <motion.div
             key={achievement.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
           >
-            <Card className={`p-4 border-2 transition-all hover:scale-105 ${
+            <Card className={`p-6 border-2 transition-all hover:shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.3)] ${
               achievement.unlocked
                 ? RARITY_COLORS[achievement.rarity]
                 : 'border-muted bg-muted/20'
             }`}>
-              <div className="flex items-start gap-3">
-                <div className={`text-2xl ${achievement.unlocked ? '' : 'grayscale opacity-50'}`}>
+              <div className="flex items-start gap-4">
+                <div className={`text-4xl shrink-0 ${achievement.unlocked ? '' : 'grayscale opacity-50'}`}>
                   {achievement.icon}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className={`font-bold truncate ${
-                      achievement.unlocked ? '' : 'text-muted-foreground'
+                <div className="flex-1 min-w-0 space-y-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className={`font-black text-lg uppercase tracking-wider truncate ${
+                      achievement.unlocked ? 'text-primary' : 'text-muted-foreground'
                     }`}>
                       {achievement.name}
                     </h4>
-                    <Badge className={`text-xs ${
-                      achievement.rarity === 'legendary' ? 'bg-yellow-500/20 text-yellow-400' :
-                      achievement.rarity === 'epic' ? 'bg-purple-500/20 text-purple-400' :
-                      achievement.rarity === 'rare' ? 'bg-blue-500/20 text-blue-400' :
-                      'bg-gray-500/20 text-gray-400'
+                    <Badge className={`text-xs shrink-0 ${
+                      achievement.rarity === 'legendary' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                      achievement.rarity === 'epic' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                      achievement.rarity === 'rare' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                      'bg-gray-500/20 text-gray-400 border-gray-500/30'
                     }`}>
                       {achievement.rarity}
                     </Badge>
                   </div>
 
-                  <p className={`text-sm mb-3 ${
+                  <p className={`text-sm leading-relaxed ${
                     achievement.unlocked ? 'text-muted-foreground' : 'text-muted-foreground/70'
                   }`}>
                     {achievement.description}
                   </p>
 
                   {/* Progress Bar */}
-                  <div className="mb-2">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Progress</span>
-                      <span>{achievement.progress}/{achievement.maxProgress}</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="uppercase tracking-wider text-muted-foreground">Progress</span>
+                      <span className="font-bold text-primary">{achievement.progress}/{achievement.maxProgress}</span>
                     </div>
                     <Progress
                       value={(achievement.progress / achievement.maxProgress) * 100}
-                      className="h-2"
+                      className="h-3"
                     />
                   </div>
 
                   {/* Reward */}
-                  <div className="text-xs text-muted-foreground">
-                    Reward: {achievement.reward.type} - {achievement.reward.value}
+                  <div className="pt-2 border-t border-border/50">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Reward</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {achievement.reward.type} - {achievement.reward.value}
+                    </p>
                   </div>
 
                   {/* Unlocked Badge */}
@@ -399,7 +409,7 @@ export default function ArenaAchievements() {
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="mt-2"
+                      className="pt-2"
                     >
                       <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
                         ✅ Unlocked {achievement.unlockedAt ? new Date(achievement.unlockedAt).toLocaleDateString() : ''}

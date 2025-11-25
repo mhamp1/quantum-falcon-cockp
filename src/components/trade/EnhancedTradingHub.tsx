@@ -19,6 +19,7 @@ import {
   ArrowsClockwise
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { formatRelativeTime } from '@/lib/utils'
 
 interface Strategy {
   id: string
@@ -101,14 +102,6 @@ export default function EnhancedTradingHub() {
     }
   }
 
-  const formatTimeSince = (timestamp: number) => {
-    const seconds = Math.floor((Date.now() - timestamp) / 1000)
-    if (seconds < 60) return `${seconds}s ago`
-    const minutes = Math.floor(seconds / 60)
-    if (minutes < 60) return `${minutes}m ago`
-    const hours = Math.floor(minutes / 60)
-    return `${hours}h ago`
-  }
 
   if (!strategies) return null
 
@@ -218,7 +211,7 @@ export default function EnhancedTradingHub() {
                   </div>
                   <div>
                     <span className="text-muted-foreground uppercase">Last Trade:</span>
-                    <span className="ml-2 font-bold">{formatTimeSince(strategy.lastTrade)}</span>
+                    <span className="ml-2 font-bold">{formatRelativeTime(strategy.lastTrade)}</span>
                   </div>
                 </div>
               </div>

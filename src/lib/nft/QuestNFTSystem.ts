@@ -2,11 +2,12 @@
 // November 22, 2025 — Quantum Falcon Cockpit
 // SEC-Proof: Digital Collectibles Only, No Investment Promise
 
-import { useWallet } from '@solana/wallet-adapter-react'
 import { toast } from 'sonner'
-import { generateSigner, publicKey } from '@metaplex-foundation/umi'
-import { createV1 } from '@metaplex-foundation/mpl-core'
-import { createMetaplexUmi } from '@/lib/metaplex'
+import { logger } from '../logger'
+// Lazy load Metaplex to avoid Buffer import issues at module level
+// import { generateSigner, publicKey } from '@metaplex-foundation/umi'
+// import { createV1 } from '@metaplex-foundation/mpl-core'
+// import { createMetaplexUmi } from '@/lib/metaplex'
 import { generateImageWithAI } from './generateImageWithAI'
 import { uploadNFTMetadata } from './arweaveUpload'
 import { RARITY_TIERS, type RarityTier } from './AutoNFTGenerator'
@@ -485,7 +486,7 @@ export async function mintQuestNFT(
     return null
   }
 
-  if (!wallet.connected || !wallet.publicKey) {
+  if (!wallet?.connected || !wallet?.publicKey) {
     toast.error('Wallet not connected', {
       description: 'Please connect your Solana wallet to mint the NFT'
     })
@@ -493,6 +494,11 @@ export async function mintQuestNFT(
   }
 
   try {
+    // Dynamic import to avoid Buffer issues at module load time
+    const { generateSigner, publicKey } = await import('@metaplex-foundation/umi')
+    const { createV1 } = await import('@metaplex-foundation/mpl-core')
+    const { createMetaplexUmi } = await import('@/lib/metaplex')
+
     // Generate AI image
     const imageUrl = await generateImageWithAI(questNFT.imagePrompt, {
       size: '1024x1024',
@@ -555,7 +561,7 @@ export async function mintQuestNFT(
     return mintAddress
 
   } catch (error) {
-    console.error('[QuestNFT] Minting failed:', error)
+    logger.error('Minting failed', 'QuestNFTSystem', error)
     toast.error('NFT Minting Failed', {
       description: error instanceof Error ? error.message : 'Unknown error'
     })

@@ -32,7 +32,6 @@ import {
 } from '@/lib/checkout'
 import { paymentProcessor } from '@/lib/payment/paymentProcessor'
 import { enhancedLicenseService } from '@/lib/license/enhancedLicenseService'
-import { useKV } from '@github/spark/hooks'
 import { UserAuth } from '@/lib/auth'
 
 interface CheckoutDialogProps {

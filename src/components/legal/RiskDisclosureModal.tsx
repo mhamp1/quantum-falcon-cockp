@@ -297,44 +297,43 @@ export default function RiskDisclosureModal({
     }
   }
 
-  const isAcceptEnabled = check1 && check2 && check3 && canAccept && canAcceptTos
+  // All 4 checkboxes must be checked AND both documents scrolled to 98%
+  const isAcceptEnabled = check1 && check2 && check3 && check4 && canAccept && canAcceptTos
 
   const handleAccept = async () => {
-    if (isAcceptEnabled) {
-      console.log('[Risk Modal] ✅ User clicked "Accept & Continue" - all checkboxes checked')
-      console.log('[Risk Modal] 📋 Check 1 (Read risk disclosure):', check1)
-      console.log('[Risk Modal] 📋 Check 2 (Accept responsibility):', check2)
-      console.log('[Risk Modal] 📋 Check 3 (Accept terms of service):', check3)
-      console.log('[Risk Modal] 📊 Risk Disclosure scroll progress:', scrollProgress.toFixed(1) + '%')
-      console.log('[Risk Modal] 📊 Terms of Service scroll progress:', scrollProgressTos.toFixed(1) + '%')
-      
-      try {
-        await fetch('/api/legal/accept-risk', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            version,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            scrollProgressRisk: scrollProgress.toFixed(2),
-            scrollProgressTos: scrollProgressTos.toFixed(2),
-            acceptedBoth: true
-          })
+    if (!isAcceptEnabled) return
+    
+    // Log acceptance
+    try {
+      await fetch('/api/legal/accept-risk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          version,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          scrollProgressRisk: scrollProgress.toFixed(2),
+          scrollProgressTos: scrollProgressTos.toFixed(2),
+          acceptedBoth: true,
+          checks: {
+            age: check1,
+            risk: check2,
+            advice: check3,
+            terms: check4
+          }
         })
-      } catch (err) {
-        console.log('[Risk Modal] Backend logging failed (OK - using KV):', err)
-      }
-
-      console.log('[Risk Modal] 🎉 Calling onAccept() - banner should now DISAPPEAR IMMEDIATELY')
-      
-      await onAccept()
-      
-      toast.success('Legal Agreements Accepted', {
-        description: 'Risk Disclosure and Terms of Service accepted. Banner removed permanently.'
       })
-      
-      console.log('[Risk Modal] ✅ Modal closed - banner should be GONE')
+    } catch (err) {
+      // Silent fail - using KV storage as fallback
     }
+
+    // Close modal and hide banner
+    onAccept()
+    
+    toast.success('Legal Agreements Accepted', {
+      description: 'Risk Disclosure and Terms of Service accepted. Banner removed permanently.',
+      duration: 3000
+    })
   }
 
   return (
@@ -507,14 +506,25 @@ export default function RiskDisclosureModal({
                 <Button
                   onClick={handleAccept}
                   disabled={!isAcceptEnabled}
-                  className={`flex-1 jagged-corner-small uppercase tracking-wider font-bold ${
+                  className={`flex-1 jagged-corner-small uppercase tracking-wider font-bold transition-all ${
                     isAcceptEnabled 
-                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_30px_rgba(20,241,149,0.5)] animate-pulse-glow' 
-                      : 'bg-muted text-muted-foreground cursor-not-allowed'
+                      ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:scale-105 shadow-[0_0_30px_rgba(20,241,149,0.5)] animate-pulse-glow' 
+                      : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
                   }`}
                   size="lg"
                 >
-                  Accept Both & Continue
+                  {isAcceptEnabled ? (
+                    <span className="flex items-center justify-center gap-2">
+                      ✓ I ACCEPT & ENTER COCKPIT
+                      <span className="text-xl">→</span>
+                    </span>
+                  ) : (
+                    <span>
+                      {check1 && check2 && check3 && check4 
+                        ? 'Scroll both documents to 98% to continue'
+                        : 'Complete all checkboxes to continue'}
+                    </span>
+                  )}
                 </Button>
               </div>
             </div>

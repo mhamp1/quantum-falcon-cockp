@@ -1,6 +1,6 @@
 // Enhanced Dashboard with React 19 performance optimizations and AI integration
 import { useKVSafe } from '@/hooks/useKVFallback'
-import { useEffect, useState, useMemo, useTransition, lazy, Suspense, memo } from 'react'
+import { useEffect, useState, useMemo, useTransition, Suspense, memo } from 'react'
 import { UserAuth } from '@/lib/auth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
@@ -30,14 +30,22 @@ import { useAutonomousTradingLoop } from '@/lib/bot/AutonomousTradingLoop'
 import { useLegalProtection } from '@/lib/legal/LegalProtection'
 import AutonomousBotDisclaimer from '@/components/legal/AutonomousBotDisclaimer'
 import NewsOpportunitiesDisplay from '@/components/intelligence/NewsOpportunitiesDisplay'
+import { createRobustLazy } from '@/lib/lazyLoad'
 
 // Lazy load heavy components for better performance
-const NewsTicker = lazy(() => import('@/components/shared/NewsTicker'))
-const Wireframe3D = lazy(() => import('@/components/shared/Wireframe3D'))
+const NewsTicker = createRobustLazy(() => import('@/components/shared/NewsTicker'))
+const LivePriceTicker = createRobustLazy(() => import('@/components/shared/LivePriceTicker'))
+const Wireframe3D = createRobustLazy(() => import('@/components/shared/Wireframe3D'))
 // QuickStatsCard is NOT lazy-loaded - needed immediately for tour
 import { QuickStatsCard } from './QuickStatsCard'
-const QuickActionButton = lazy(() => import('./QuickActionButton').then(m => ({ default: m.QuickActionButton })))
-const AIAdvisor = lazy(() => import('./AIAdvisor').then(m => ({ default: m.AIAdvisor })))
+const QuickActionButton = createRobustLazy(() =>
+  import('./QuickActionButton').then(m => ({ default: m.QuickActionButton }))
+)
+const AIAdvisor = createRobustLazy(() =>
+  import('./AIAdvisor').then(m => ({ default: m.AIAdvisor }))
+)
+const FirstProfitCelebration = createRobustLazy(() => import('@/components/shared/FirstProfitCelebration'))
+const ProgressToFirstProfit = createRobustLazy(() => import('@/components/shared/ProgressToFirstProfit'))
 
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
@@ -385,33 +393,26 @@ export default function EnhancedDashboard() {
         
         {/* First Profit Celebration (small milestones) */}
         <Suspense fallback={null}>
-          {(() => {
-            const FirstProfitCelebration = lazy(() => import('@/components/shared/FirstProfitCelebration'));
-            return (
-              <FirstProfitCelebration
-                currentProfit={currentProfit}
-                previousProfit={previousProfit}
-              />
-            );
-          })()}
+          <FirstProfitCelebration
+            currentProfit={currentProfit}
+            previousProfit={previousProfit}
+          />
         </Suspense>
         
         {/* Progress to First Profit Indicator */}
         <Suspense fallback={null}>
-          {(() => {
-            const ProgressToFirstProfit = lazy(() => import('@/components/shared/ProgressToFirstProfit'));
-            return (
-              <ProgressToFirstProfit
-                currentProfit={currentProfit}
-                targetProfit={10}
-              />
-            );
-          })()}
+          <ProgressToFirstProfit
+            currentProfit={currentProfit}
+            targetProfit={10}
+          />
         </Suspense>
 
         {/* News Ticker - Top of Dashboard */}
         <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
           <NewsTicker />
+        </Suspense>
+        <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
+          <LivePriceTicker />
         </Suspense>
 
         {/* STAT CARDS - Portfolio Quick Stats - Prominent position for tour */}

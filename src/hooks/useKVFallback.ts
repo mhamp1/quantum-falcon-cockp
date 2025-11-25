@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getKVValue, setKVValue, deleteKVValue } from '@/lib/kv-storage';
+import { logger } from '@/lib/logger';
 
 export function useKVSafe<T>(
   key: string,
@@ -22,7 +23,7 @@ export function useKVSafe<T>(
           setIsInitialized(true);
         }
       } catch (error) {
-        console.debug(`[useKVSafe] Failed to load key "${key}":`, error);
+        logger.debug(`Failed to load key "${key}"`, 'useKVSafe', error);
         if (isMountedRef.current) {
           setIsInitialized(true);
         }
@@ -46,7 +47,7 @@ export function useKVSafe<T>(
         // Async save to KV without blocking UI
         Promise.resolve().then(() => {
           setKVValue(key, valueToSet).catch((error) => {
-            console.debug(`[useKVSafe] Failed to save key "${key}":`, error);
+            logger.debug(`Failed to save key "${key}"`, 'useKVSafe', error);
           });
         });
         
@@ -59,7 +60,7 @@ export function useKVSafe<T>(
   const deleteValue = useCallback(() => {
     setValue(defaultValue);
     deleteKVValue(key).catch((error) => {
-      console.debug(`[useKVSafe] Failed to delete key "${key}":`, error);
+      logger.debug(`Failed to delete key "${key}"`, 'useKVSafe', error);
     });
   }, [key, defaultValue]);
 

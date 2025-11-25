@@ -34,6 +34,8 @@ export interface PaymentCompletionData {
   timestamp: number
 }
 
+import { logger } from './logger'
+
 class LicenseGenerationService {
   private readonly LICENSE_API_ENDPOINT: string
   private readonly LICENSE_GENERATION_ENDPOINT: string
@@ -52,7 +54,7 @@ class LicenseGenerationService {
     paymentData: PaymentCompletionData
   ): Promise<LicenseGenerationResponse> {
     if (!this.AUTO_GENERATION_ENABLED) {
-      console.warn('[LicenseGeneration] Auto-generation is disabled')
+      logger.warn('Auto-generation is disabled', 'LicenseGeneration')
       return {
         success: false,
         error: 'Auto-generation is disabled',
@@ -64,7 +66,7 @@ class LicenseGenerationService {
     }
 
     try {
-      console.log('[LicenseGeneration] Generating license for payment:', paymentData.paymentIntentId)
+      logger.info(`Generating license for payment: ${paymentData.paymentIntentId}`, 'LicenseGeneration')
 
       // Determine duration based on tier
       const duration = this.getDurationForTier(paymentData.tier as any)
@@ -85,7 +87,7 @@ class LicenseGenerationService {
         deviceFingerprint = await generateDeviceFingerprint()
       } catch (error) {
         // Device fingerprint optional - continue without it
-        console.debug('[LicenseGeneration] Device fingerprint unavailable:', error)
+        logger.debug('Device fingerprint unavailable', 'LicenseGeneration', error)
       }
 
       const response = await fetch(this.LICENSE_GENERATION_ENDPOINT, {
@@ -108,7 +110,7 @@ class LicenseGenerationService {
 
       const result: LicenseGenerationResponse = await response.json()
 
-      console.log('[LicenseGeneration] License generated successfully:', result.license?.substring(0, 20) + '...')
+      logger.info(`License generated successfully: ${result.license?.substring(0, 20)}...`, 'LicenseGeneration')
 
       // Store the generated license locally
       if (result.success && result.license) {
@@ -117,7 +119,7 @@ class LicenseGenerationService {
 
       return result
     } catch (error) {
-      console.error('[LicenseGeneration] Failed to generate license:', error)
+      logger.error('Failed to generate license', 'LicenseGeneration', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : 'License generation failed',
@@ -138,7 +140,7 @@ class LicenseGenerationService {
     tier: 'free' | 'pro' | 'elite' | 'lifetime'
   ): Promise<LicenseGenerationResponse> {
     if (!this.AUTO_GENERATION_ENABLED) {
-      console.warn('[LicenseGeneration] Auto-generation is disabled')
+      logger.warn('Auto-generation is disabled', 'LicenseGeneration')
       return {
         success: false,
         error: 'Auto-generation is disabled',
@@ -150,7 +152,7 @@ class LicenseGenerationService {
     }
 
     try {
-      console.log('[LicenseGeneration] Generating renewal license for user:', userId)
+      logger.info(`Generating renewal license for user: ${userId}`, 'LicenseGeneration')
 
       const duration = this.getDurationForTier(tier)
 
@@ -179,7 +181,7 @@ class LicenseGenerationService {
 
       const result: LicenseGenerationResponse = await response.json()
 
-      console.log('[LicenseGeneration] Renewal license generated successfully')
+      logger.info('Renewal license generated successfully', 'LicenseGeneration')
 
       // Store the generated license locally
       if (result.success && result.license) {
@@ -188,7 +190,7 @@ class LicenseGenerationService {
 
       return result
     } catch (error) {
-      console.error('[LicenseGeneration] Failed to generate renewal license:', error)
+      logger.error('Failed to generate renewal license', 'LicenseGeneration', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : 'License generation failed',
@@ -218,7 +220,7 @@ class LicenseGenerationService {
 
       return now >= renewalThreshold
     } catch (error) {
-      console.error('[LicenseGeneration] Error checking renewal status:', error)
+      logger.error('Error checking renewal status', 'LicenseGeneration', error)
       return true
     }
   }
@@ -267,9 +269,9 @@ class LicenseGenerationService {
       const encrypted = btoa(JSON.stringify(licenseData))
       localStorage.setItem('qf_license', encrypted)
 
-      console.log('[LicenseGeneration] License stored locally')
+      logger.info('License stored locally', 'LicenseGeneration')
     } catch (error) {
-      console.error('[LicenseGeneration] Failed to store license:', error)
+      logger.error('Failed to store license', 'LicenseGeneration', error)
     }
   }
 
@@ -348,7 +350,7 @@ export async function requestLicenseRenewal(
   userEmail: string,
   tier: 'free' | 'pro' | 'elite' | 'lifetime'
 ): Promise<LicenseGenerationResponse> {
-  console.log('[LicenseGeneration] Manual renewal requested')
+  logger.info('Manual renewal requested', 'LicenseGeneration')
   return await licenseGenerationService.generateLicenseForRenewal(userId, userEmail, tier)
 }
 
