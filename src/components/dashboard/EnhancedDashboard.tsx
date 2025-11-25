@@ -574,8 +574,7 @@ export default function EnhancedDashboard() {
               variant="outline"
               onClick={() => {
                 setBotRunning(false)
-                // Use proper logout function - will immediately show login page
-                const { logout } = require('@/lib/auth/usePersistentAuth').usePersistentAuth()
+                // Use proper logout function - immediately shows login page
                 logout()
               }}
               className="border-primary/50 hover:border-primary hover:bg-primary/10 jagged-corner-small"
