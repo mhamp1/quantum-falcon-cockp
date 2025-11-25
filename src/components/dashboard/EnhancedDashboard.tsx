@@ -2,6 +2,7 @@
 import { useKVSafe } from '@/hooks/useKVFallback'
 import { useEffect, useState, useMemo, useTransition, Suspense, memo } from 'react'
 import { UserAuth } from '@/lib/auth'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
   Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database, Vault
@@ -59,6 +60,8 @@ interface QuickStat {
 }
 
 export default function EnhancedDashboard() {
+  const { logout } = usePersistentAuth()
+  
   const [auth, setAuth] = useKVSafe<UserAuth>('user-auth', {
     isAuthenticated: false,
     userId: null,
