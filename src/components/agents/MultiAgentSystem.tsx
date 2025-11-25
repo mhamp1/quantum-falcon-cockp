@@ -161,7 +161,7 @@ export default function MultiAgentSystem() {
       requiredTier: 'free',
       specialties: ['Trend Detection', 'Volume Analysis', 'Sentiment Scanning'],
       metrics: { cpu: 45, memory: 32, latency: 12 },
-      recentOutcomes: generateMockOutcomes(20, 0.85),
+      recentOutcomes: [], // Will be populated from real API once account is active
       synergy: { 'strategy-engine': 95, 'rl-optimizer': 88 }
     },
     {
@@ -917,18 +917,5 @@ import { formatRelativeTime } from '@/lib/utils';
   );
 }
 
-function generateMockOutcomes(count: number, winRate: number): Array<{ date: string; pnl: number; confidence: number }> {
-  const outcomes: Array<{ date: string; pnl: number; confidence: number }> = [];
-  let cumulative = 0;
-  for (let i = 0; i < count; i++) {
-    const isWin = Math.random() < winRate;
-    const pnl = isWin ? Math.random() * 100 + 20 : -(Math.random() * 50 + 10);
-    cumulative += pnl;
-    outcomes.push({
-      date: new Date(Date.now() - (count - i) * 3600000 * 6).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      pnl: cumulative,
-      confidence: Math.floor(Math.random() * 30 + 70)
-    });
-  }
-  return outcomes;
-}
+// REMOVED: generateMockOutcomes - All agent outcomes now fetched from real API
+// See: src/lib/api/agentDataApi.ts for real data fetching

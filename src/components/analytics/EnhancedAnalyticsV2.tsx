@@ -103,30 +103,29 @@ const EnhancedAnalyticsV2: React.FC = () => {
       setAssets(calculatedAssets);
       setEquityCurve(calculatedCurve);
       setIsLoading(false);
-    }, 500);
+    } catch (error) {
+      console.error('[Analytics] Failed to load data:', error);
+      setIsLoading(false);
+    }
   };
 
-  // Mock data generators - Replace with real API calls
-  const generateMockTrades = (filter: string) => {
-    const count = filter === '24h' ? 20 : filter === '7d' ? 100 : filter === '30d' ? 300 : 1000;
-    const trades: Array<{ id: number; asset: string; pnl: number; win: boolean; timestamp: number; equity: number }> = [];
-    let equity = 10000;
-
-    for (let i = 0; i < count; i++) {
-      const isWin = Math.random() > 0.35;
-      const pnl = isWin ? Math.random() * 200 + 50 : -(Math.random() * 100 + 20);
-      equity += pnl;
-      
-      trades.push({
-        id: i,
-        asset: ['SOL', 'BTC', 'ETH', 'BONK', 'WIF'][Math.floor(Math.random() * 5)],
-        pnl,
-        win: isWin,
-        timestamp: Date.now() - (count - i) * 3600000,
-        equity
-      });
+  // Fetch real trade history from API
+  const fetchTrades = async (filter: string) => {
+    try {
+      const { fetchTradeHistory } = await import('@/lib/api/analyticsApi')
+      const trades = await fetchTradeHistory(filter as '24h' | '7d' | '30d' | 'all')
+      return trades
+    } catch (error) {
+      console.error('[Analytics] Failed to fetch trades:', error)
+      // Return empty array - no mock data
+      return []
     }
-    return trades;
+  };
+
+  // REMOVED: generateMockTrades - All trades now fetched from real API
+  const _generateMockTrades_DEPRECATED = (filter: string) => {
+    // This function is deprecated - use fetchTrades() instead
+    return []
   };
 
   const calculateMetrics = (trades: any[]): Metrics => {

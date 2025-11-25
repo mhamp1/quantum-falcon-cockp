@@ -107,11 +107,24 @@ export default function StrategyMarketplace() {
 
   useEffect(() => {
     if (!marketplaceStrategies || marketplaceStrategies.length === 0) {
-      generateSampleMarketplace()
+      loadMarketplaceStrategies()
     }
   }, [])
 
-  const generateSampleMarketplace = () => {
+  const loadMarketplaceStrategies = async () => {
+    try {
+      const { fetchMarketplaceStrategies } = await import('@/lib/api/strategyMarketplaceApi')
+      const strategies = await fetchMarketplaceStrategies()
+      setMarketplaceStrategies(strategies)
+    } catch (error) {
+      console.error('[StrategyMarketplace] Failed to load:', error)
+      // Keep empty array - no mock data
+      setMarketplaceStrategies([])
+    }
+  }
+
+  // REMOVED: generateSampleMarketplace - All strategies now fetched from real API
+  const _generateSampleMarketplace_DEPRECATED = () => {
     const sampleStrategies: MarketplaceStrategy[] = [
       {
         id: 'mp-001',
