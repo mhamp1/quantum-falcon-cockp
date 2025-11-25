@@ -5,7 +5,8 @@ import { UserAuth } from '@/lib/auth'
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import {
   Lightning, Robot, ChartLine, Brain, CheckCircle, 
-  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database, Vault
+  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database, Vault,
+  TrendUp as TrendingUp
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'

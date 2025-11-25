@@ -8,7 +8,7 @@ import {
   Bug, Wrench, Activity, Warning, CheckCircle,
   XCircle, Clock, Database, Network, Cpu, 
   HardDrive, AlertTriangle, FileX, Refresh,
-  Terminal, ChartLine, Shield, Eye
+  Terminal, ChartLine, Shield, EyeSlash as Eye
 } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -69,7 +69,19 @@ export default function MasterAdminPanel() {
 
   const isMaster = isGodMode(auth)
 
+  // CRITICAL: Ensure master tab always shows content when master key is detected
+  // Don't return null too early - let the component render and show diagnostic info
   useEffect(() => {
+    // Log for debugging
+    if (auth?.isAuthenticated) {
+      console.log('[MasterAdminPanel] Auth state:', {
+        isAuthenticated: auth.isAuthenticated,
+        userId: auth.userId,
+        tier: auth.license?.tier,
+        isMaster: isMaster
+      })
+    }
+    
     if (!isMaster) return
 
     // Collect console errors
@@ -255,8 +267,31 @@ export default function MasterAdminPanel() {
     return 'Review error details and check component implementation.'
   }
 
+  // CRITICAL FIX: Show diagnostic info even if isMaster check fails
+  // This helps debug why master tab isn't showing
   if (!isMaster) {
-    return null
+    return (
+      <div className="space-y-6 p-8">
+        <div className="cyber-card p-6 border-2 border-yellow-500/50">
+          <h3 className="text-xl font-black uppercase tracking-wider text-yellow-400 mb-4 flex items-center gap-3">
+            <Shield size={24} weight="fill" />
+            Master Access Not Detected
+          </h3>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p><strong>Auth Status:</strong> {auth?.isAuthenticated ? '✅ Authenticated' : '❌ Not Authenticated'}</p>
+            <p><strong>User ID:</strong> {auth?.userId || 'None'}</p>
+            <p><strong>Tier:</strong> {auth?.license?.tier || 'None'}</p>
+            <p><strong>License User ID:</strong> {auth?.license?.userId || 'None'}</p>
+            <p className="text-yellow-400 mt-4 font-bold">
+              If you're using a master key, ensure it's properly recognized in the license system.
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Master key should set userId to 'master' and tier to 'lifetime'
+            </p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const criticalErrors = errors.filter(e => e.severity === 'critical')
