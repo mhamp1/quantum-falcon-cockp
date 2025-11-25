@@ -329,6 +329,15 @@ export const usePersistentAuth = () => {
       try {
         const stored = localStorage.getItem(STORAGE_KEY)
         if (!stored) {
+          // No stored auth - ensure clean state
+          setAuth({
+            isAuthenticated: false,
+            userId: null,
+            username: null,
+            email: null,
+            avatar: null,
+            license: null
+          })
           setIsLoading(false)
           setIsInitialized(true)
           return
@@ -429,6 +438,16 @@ export const usePersistentAuth = () => {
           // License expired or invalid - clear credentials silently
           localStorage.removeItem(STORAGE_KEY)
           
+          // Ensure auth state is cleared
+          setAuth({
+            isAuthenticated: false,
+            userId: null,
+            username: null,
+            email: null,
+            avatar: null,
+            license: null
+          })
+          
           if (validationResult?.is_expired) {
             toast.warning('License Expired', {
               description: 'Please enter a new license key',
@@ -442,9 +461,33 @@ export const usePersistentAuth = () => {
         // Don't remove stored auth on timeout - allow offline mode
         if (error instanceof Error && !error.message.includes('timeout')) {
           localStorage.removeItem(STORAGE_KEY)
+          // Ensure auth state is cleared on error
+          setAuth({
+            isAuthenticated: false,
+            userId: null,
+            username: null,
+            email: null,
+            avatar: null,
+            license: null
+          })
         }
       } finally {
         // Always set initialized quickly, even on error or timeout
+        // CRITICAL: Ensure auth state is always set (even if null) to prevent black screen
+        setAuth(prev => {
+          // If auth is already set, keep it; otherwise set to logged out state
+          if (prev && prev.isAuthenticated) {
+            return prev
+          }
+          return {
+            isAuthenticated: false,
+            userId: null,
+            username: null,
+            email: null,
+            avatar: null,
+            license: null
+          }
+        })
         setIsLoading(false)
         setIsInitialized(true)
       }

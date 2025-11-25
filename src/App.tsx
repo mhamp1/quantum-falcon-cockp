@@ -469,8 +469,21 @@ export default function App() {
     setShowOnboarding(false);
   };
 
+  // Show loading state while initializing
+  if (!persistentAuth.isInitialized || persistentAuth.isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground text-sm uppercase tracking-wider">Initializing Quantum Falcon...</p>
+        </div>
+      </div>
+    )
+  }
+
   // Show LoginPage if not authenticated and initialized
-  if (persistentAuth.isInitialized && !auth?.isAuthenticated) {
+  // CRITICAL: Check auth state explicitly to prevent black screen
+  if (persistentAuth.isInitialized && (!auth || !auth.isAuthenticated)) {
     return (
       <Suspense fallback={
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -482,18 +495,6 @@ export default function App() {
       }>
         <LoginPage />
       </Suspense>
-    )
-  }
-
-  // Show loading state while initializing
-  if (!persistentAuth.isInitialized || persistentAuth.isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground text-sm uppercase tracking-wider">Initializing Quantum Falcon...</p>
-        </div>
-      </div>
     )
   }
 
