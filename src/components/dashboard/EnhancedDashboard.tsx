@@ -159,7 +159,7 @@ export default function EnhancedDashboard() {
           sp500Change30d: liveData.sp500Change30d,
         })
       } catch (error) {
-        console.error('❌ Failed to update bear market data:', error)
+        // Error logged silently - keep last known state
         // Don't update if fetch fails - keep last known state
       }
     }

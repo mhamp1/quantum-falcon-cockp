@@ -72,12 +72,13 @@ export default function MasterAdminPanel() {
   // CRITICAL: Ensure master tab always shows content when master key is detected
   // Don't return null too early - let the component render and show diagnostic info
   useEffect(() => {
-    // Log for debugging
-    if (auth?.isAuthenticated) {
+    // Log for debugging (only in dev mode)
+    if (auth?.isAuthenticated && import.meta.env.DEV) {
       console.log('[MasterAdminPanel] Auth state:', {
         isAuthenticated: auth.isAuthenticated,
         userId: auth.userId,
         tier: auth.license?.tier,
+        licenseUserId: auth.license?.userId,
         isMaster: isMaster
       })
     }
@@ -230,8 +231,26 @@ export default function MasterAdminPanel() {
     updateMetrics()
     const interval = setInterval(updateMetrics, 5000)
 
-    return () => clearInterval(interval)
-  }, [isMaster])
+    // Collect system logs
+    const logInterval = setInterval(() => {
+      setSystemLogs(prev => {
+        const newLogs = [
+          {
+            timestamp: Date.now(),
+            level: 'info',
+            message: `System check: ${metrics.filter(m => m.status === 'healthy').length}/${metrics.length} metrics healthy`
+          },
+          ...prev
+        ]
+        return newLogs.slice(0, 100) // Keep last 100 logs
+      })
+    }, 10000) // Update logs every 10 seconds
+
+    return () => {
+      clearInterval(interval)
+      clearInterval(logInterval)
+    }
+  }, [isMaster, metrics])
 
   const refreshData = useCallback(() => {
     setIsRefreshing(true)
