@@ -85,7 +85,7 @@ const aggressionLevels = [
   },
 ];
 
-import { clamp, formatCurrency } from '@/lib/utils';
+import { clamp, formatCurrency, formatRelativeTime } from '@/lib/utils';
 
 const pipelineSteps = [
   { title: 'Market Data Ingestion', desc: 'Real-time data from multiple DEXs and oracles', progress: 95 },
@@ -374,8 +374,6 @@ export default function MultiAgentSystem() {
     ? (autonomyTelemetry.profitableTrades / autonomyTelemetry.totalTrades) * 100
     : 0;
   const goalPercent = Math.min(100, Math.max(0, (autonomyTelemetry.goalProgress / 600) * 100));
-
-import { formatRelativeTime } from '@/lib/utils';
 
   return (
     <div className="min-h-screen bg-background p-6 overflow-auto">
