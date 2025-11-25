@@ -18,7 +18,7 @@
 //    - Auto-invite to Quantum Falcon server
 //    - Clean disconnect functionality
 
-import { useEffect, useMemo, Suspense, useState, useCallback } from 'react';
+import { useEffect, useMemo, Suspense, useState, useCallback, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { cn } from '@/lib/utils';
@@ -241,6 +241,10 @@ export default function App() {
   // Use persistent auth for auto-login
   const persistentAuth = usePersistentAuth();
   const auth = persistentAuth.auth;
+  
+  // Refs to prevent duplicate toasts/tours
+  const godModeToastShown = useRef(false);
+  const tourShownRef = useRef(false);
 
   useEffect(() => {
     SecurityManager.initialize();
@@ -272,34 +276,41 @@ export default function App() {
     }
   }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
 
-  // GOD MODE Activation
+  // GOD MODE Activation - Use ref to prevent double toast
+  const godModeToastShown = useRef(false);
   useEffect(() => {
     const godModeActive = isGodMode(auth);
     
     if (godModeActive) {
       activateGodMode();
       
-      // Show celebration toast
-      toast.success('⚡ GOD MODE ACTIVATED ⚡', {
-        description: 'Unlimited everything. Rainbow mode engaged. You are the Falcon.',
-        duration: 10000,
-        style: {
-          background: 'linear-gradient(135deg, #ff00ff, #00ffff)',
-          color: 'white',
-          border: '2px solid gold',
-          boxShadow: '0 0 40px rgba(255, 215, 0, 0.8)',
-        },
-      });
+      // Only show toast once per session
+      if (!godModeToastShown.current) {
+        godModeToastShown.current = true;
+        
+        // Show celebration toast
+        toast.success('⚡ GOD MODE ACTIVATED ⚡', {
+          description: 'Unlimited everything. Rainbow mode engaged. You are the Falcon.',
+          duration: 10000,
+          style: {
+            background: 'linear-gradient(135deg, #ff00ff, #00ffff)',
+            color: 'white',
+            border: '2px solid gold',
+            boxShadow: '0 0 40px rgba(255, 215, 0, 0.8)',
+          },
+        });
 
-      // Confetti celebration
-      confetti({
-        particleCount: 300,
-        spread: 120,
-        origin: { y: 0.4 },
-        colors: ['#ff00ff', '#00ffff', '#ffff00', '#ff1493', '#00ff00', '#ffd700'],
-      });
+        // Confetti celebration
+        confetti({
+          particleCount: 300,
+          spread: 120,
+          origin: { y: 0.4 },
+          colors: ['#ff00ff', '#00ffff', '#ffff00', '#ff1493', '#00ff00', '#ffd700'],
+        });
+      }
     } else {
       deactivateGodMode();
+      godModeToastShown.current = false; // Reset when God Mode is deactivated
     }
 
     return () => {
