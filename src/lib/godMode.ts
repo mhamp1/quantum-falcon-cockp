@@ -104,7 +104,13 @@ export function isGodMode(auth: UserAuth | null): boolean {
     return false
   }
   
-  // Get the actual license key from encrypted storage
+  // PRIMARY CHECK: If userId is 'master' and tier is 'lifetime', it's God Mode
+  if (auth.license.userId === 'master' && auth.license.tier === 'lifetime') {
+    cachedIsMasterKey = true
+    return true
+  }
+  
+  // SECONDARY CHECK: Check stored license key for master key pattern
   try {
     const storedAuth = localStorage.getItem('qf-persistent-auth')
     if (storedAuth) {
@@ -112,6 +118,12 @@ export function isGodMode(auth: UserAuth | null): boolean {
       const licenseKey = encryptedAuth.licenseKey
       
       if (licenseKey) {
+        // Check if this is the master key marker
+        if (licenseKey === 'MASTER_KEY_RECOGNIZED') {
+          cachedIsMasterKey = true
+          return true
+        }
+        
         // Check if we've already validated this key
         if (cachedIsMasterKey !== null && lastCheckedLicenseKey === licenseKey) {
           return cachedIsMasterKey
@@ -152,21 +164,11 @@ export function isGodMode(auth: UserAuth | null): boolean {
           })
           
           // For now, return false and let async update cache
-          // This ensures we don't block, but will recognize on next check
           cachedIsMasterKey = false
           lastCheckedLicenseKey = licenseKey
-    return false
-  }
-  
-        // Also check if license tier indicates master (from License Authority API)
-        // Your master key should return a special tier or flag
-        if (auth.license.tier === 'lifetime' && licenseKey.includes('MASTER')) {
-          storeMasterKeyHash(licenseKey)
-          cachedIsMasterKey = true
-          lastCheckedLicenseKey = licenseKey
-    return true
-  }
-  
+          return false
+        }
+        
         cachedIsMasterKey = false
         lastCheckedLicenseKey = licenseKey
         return false

@@ -370,7 +370,7 @@ export default function EnhancedDashboard() {
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle size={14} className="text-primary" weight="fill" />
-                    <span>Access to 4 tier levels (Free, Pro, Elite, Lifetime)</span>
+                    <span>Access to 6 tier levels (Free, Starter, Trader, Pro, Elite, Lifetime)</span>
                   </div>
                 </div>
               </div>

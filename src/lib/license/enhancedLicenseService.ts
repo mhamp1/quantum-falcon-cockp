@@ -160,14 +160,14 @@ export class EnhancedLicenseService {
       const isMasterKey = licenseKey.trim() === MASTER_KEY_VALUE
       
       if (isMasterKey) {
-        // Master key recognized - grant full access
+        // Master key recognized - grant full access (CREATOR PRIVILEGES)
         const masterResult = {
           valid: true,
           tier: 'lifetime',
           expires_at: undefined, // Never expires
           user_id: 'master',
           email: 'master@quantumfalcon.com',
-          features: ['all'], // All features
+          features: ['all'], // All features including creator tabs
           max_agents: -1, // Unlimited
           max_strategies: -1, // Unlimited
           strategies: 'all',
@@ -180,6 +180,7 @@ export class EnhancedLicenseService {
         }
         
         // Store master key license data in memory (not in KV for security)
+        // This ensures isGodMode() recognizes it
         this.licenseData = {
           licenseKey: 'MASTER_KEY_RECOGNIZED',
           tier: 'lifetime',

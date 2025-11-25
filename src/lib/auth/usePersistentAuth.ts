@@ -252,10 +252,15 @@ export const usePersistentAuth = () => {
       // Small delay to ensure state propagation
       await new Promise(resolve => setTimeout(resolve, 50))
       
+      // Show appropriate message based on tier
+      const tierMessage = isMasterKey 
+        ? 'MASTER KEY ACTIVATED • Creator privileges enabled • God Mode active'
+        : `${finalTier.toUpperCase()} tier activated`
+      
       toast.success('Welcome Back, Commander', {
-        description: `${validationResult.tier.toUpperCase()} tier activated`,
-        icon: '🦅',
-        duration: 3000,
+        description: tierMessage,
+        icon: isMasterKey ? '👑' : '🦅',
+        duration: 5000,
       })
 
       return { success: true }
@@ -338,17 +343,18 @@ export const usePersistentAuth = () => {
         // For master key, create validation result directly
         if (isMasterKey) {
           const userLicense: UserLicense = {
-            userId: 'master',
-            tier: 'lifetime',
+            userId: 'master', // CRITICAL: Must be 'master' for creator privileges
+            tier: 'lifetime', // CRITICAL: Must be 'lifetime' for God Mode
             expiresAt: null,
             purchasedAt: encryptedAuth.timestamp,
             isActive: true,
-            transactionId: 'master-token'
+            transactionId: 'master-token',
+            features: ['all'] // All features including creator tabs
           }
 
           setAuth({
             isAuthenticated: true,
-            userId: userLicense.userId,
+            userId: 'master', // Ensure userId is 'master'
             username: encryptedAuth.username,
             email: encryptedAuth.email,
             avatar: null,

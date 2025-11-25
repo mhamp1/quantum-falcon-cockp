@@ -18,6 +18,7 @@ export interface UserLicense {
   purchasedAt: number
   isActive: boolean
   transactionId?: string
+  features?: string[] // Features array for master key and other tiers
 }
 
 export interface UserAuth {
