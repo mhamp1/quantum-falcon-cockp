@@ -251,16 +251,22 @@ export default function App() {
     console.info('🔒 [App] Security systems online');
   }, []);
 
-  // Show interactive tour for first-time users - only after they've entered cockpit
+  // Show interactive tour for first-time users - ONLY after they've clicked "Enter Cockpit"
+  // CRITICAL: Tour must NOT show on login page - only after dashboard is loaded
   useEffect(() => {
-    if (persistentAuth.isInitialized && auth?.isAuthenticated && !hasSeenOnboarding) {
-      // Check if user just logged in (clicked Enter Cockpit)
-      const justLoggedIn = typeof window !== 'undefined' 
+    // Only check for tour if we're past the login page (authenticated and initialized)
+    // AND we haven't shown the tour yet this session
+    if (persistentAuth.isInitialized && auth?.isAuthenticated && !hasSeenOnboarding && !tourShownRef.current) {
+      // Check if user just clicked "Enter Cockpit" (not just logged in)
+      const justEnteredCockpit = typeof window !== 'undefined' 
         ? window.localStorage.getItem('justLoggedIn') === 'true'
         : false;
       
-      if (justLoggedIn) {
-        // Clear the flag
+      if (justEnteredCockpit) {
+        // Mark tour as shown to prevent duplicate
+        tourShownRef.current = true;
+        
+        // Clear the flag immediately
         try {
           window.localStorage.removeItem('justLoggedIn');
         } catch (e) {
@@ -268,9 +274,10 @@ export default function App() {
         }
         
         // Wait for dashboard to fully load before showing tour
+        // This ensures the tour doesn't show on the login page
         const timer = setTimeout(() => {
           setShowOnboarding(true);
-        }, 2000); // Increased delay to ensure dashboard is visible
+        }, 2000); // Delay to ensure dashboard is visible
         return () => clearTimeout(timer);
       }
     }
