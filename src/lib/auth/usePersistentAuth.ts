@@ -167,30 +167,42 @@ export const usePersistentAuth = () => {
     try {
       setIsLoading(true)
 
-      // MASTER KEY CHECK - Recognized in memory only, never saved
+      // MASTER KEY CHECK - Recognized FIRST, before any validation
+      // This ensures master key always gets proper recognition
       const MASTER_KEY = 'XoYgqu2wJYVZVg5AdWO9NqhKM52qXQ_ob9oeWMVeYhw='
       const isMasterKey = licenseKey.trim() === MASTER_KEY
       
-      // Validate license first
-      const validationResult = await enhancedLicenseService.validate(licenseKey.trim())
-      
-      if (!validationResult.valid && !isMasterKey) {
-        toast.error('Invalid License', {
-          description: validationResult.error || 'Please check your license key',
-        })
-        setIsLoading(false)
-        return { success: false, error: validationResult.error }
-      }
-      
-      // If master key, create validation result
+      // If master key, skip validation and create master result directly
+      let validationResult: any
       if (isMasterKey) {
-        validationResult.valid = true
-        validationResult.tier = 'lifetime'
-        validationResult.expires_at = undefined
-        validationResult.user_id = 'master'
-        validationResult.features = ['all']
-        validationResult.max_agents = -1
-        validationResult.max_strategies = -1
+        // Master key - create validation result directly
+        validationResult = {
+          valid: true,
+          tier: 'lifetime',
+          expires_at: undefined,
+          user_id: 'master',
+          features: ['all'],
+          max_agents: -1,
+          max_strategies: -1,
+          strategies: 'all',
+          is_grace_period: false,
+          is_expired: false,
+          auto_renew: false,
+          token: 'master-token',
+          validated_at: new Date().toISOString(),
+          hardware_bound: false,
+        }
+      } else {
+        // Regular license - validate with API
+        validationResult = await enhancedLicenseService.validate(licenseKey.trim())
+        
+        if (!validationResult.valid) {
+          toast.error('Invalid License', {
+            description: validationResult.error || 'Please check your license key',
+          })
+          setIsLoading(false)
+          return { success: false, error: validationResult.error }
+        }
       }
 
       // Encrypt credentials with user password as key
@@ -204,14 +216,12 @@ export const usePersistentAuth = () => {
         timestamp: Date.now()
       }
 
-      // Store encrypted (but NOT master key)
-      if (!isMasterKey) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(encryptedAuth))
-      } else {
-        // For master key, store auth without the key itself
-        const masterAuth = { ...encryptedAuth, licenseKey: 'MASTER_KEY_RECOGNIZED' }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(masterAuth))
-      }
+      // Store encrypted auth (master key uses marker 'MASTER_KEY_RECOGNIZED')
+      // Always store - master key uses marker instead of actual key
+      const authToStore = isMasterKey 
+        ? { ...encryptedAuth, licenseKey: 'MASTER_KEY_RECOGNIZED' }
+        : encryptedAuth
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(authToStore))
 
       // Get license data
       const licenseData = enhancedLicenseService.getLicenseData()
