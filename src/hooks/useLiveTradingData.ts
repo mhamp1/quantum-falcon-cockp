@@ -53,14 +53,18 @@ export function useLiveTradingData() {
       }
     };
 
-    // Initial fetch
-    updateLiveData();
+    // DEFER initial fetch by 300ms to allow dashboard to render first
+    // This prevents blocking the initial render
+    const initialTimer = setTimeout(() => {
+      updateLiveData();
+    }, 300);
 
     // Update every 5 seconds with live data
     const interval = setInterval(updateLiveData, 5000);
 
     return () => {
       isMounted = false;
+      clearTimeout(initialTimer);
       clearInterval(interval);
     };
   }, []);

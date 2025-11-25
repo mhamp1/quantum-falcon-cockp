@@ -101,17 +101,24 @@ export default function EnhancedDashboard() {
 
   const currentProfit = portfolio.totalValue - 5000 // Assuming starting capital
 
-  // Get live trading data for achievements
+  // Get live trading data for achievements (deferred fetch - non-blocking)
   const liveTradingData = useLiveTradingData()
+  
+  // Use default values until data loads to prevent blocking render
+  const safeLiveData = {
+    weeklyWinRate: liveTradingData.weeklyWinRate || 0,
+    totalTrades: liveTradingData.totalTrades || 0,
+    dailyStreak: liveTradingData.dailyStreak || 0,
+  }
 
   // Track achievements with LIVE data
   useAchievements({
     userStats: {
       totalProfit: currentProfit,
       portfolioValue: portfolio.totalValue,
-      weeklyWinRate: liveTradingData.weeklyWinRate || 0,
-      totalTrades: liveTradingData.totalTrades || 0,
-      dailyStreak: liveTradingData.dailyStreak || 0,
+      weeklyWinRate: safeLiveData.weeklyWinRate,
+      totalTrades: safeLiveData.totalTrades,
+      dailyStreak: safeLiveData.dailyStreak,
     },
     auth,
   })
@@ -132,7 +139,7 @@ export default function EnhancedDashboard() {
   const { hasAcknowledgedBot } = useLegalProtection()
   const [showBotDisclaimer, setShowBotDisclaimer] = useState(false)
   
-  // Update bear market detection with LIVE market data
+  // Update bear market detection with LIVE market data - DEFER until after initial render
   useEffect(() => {
     const updateBearMarketData = async () => {
       try {
@@ -156,13 +163,19 @@ export default function EnhancedDashboard() {
       }
     }
 
-    // Initial fetch
-    updateBearMarketData()
+    // DEFER initial fetch by 500ms to allow dashboard to render first
+    // This prevents blocking the initial render
+    const initialTimer = setTimeout(() => {
+      updateBearMarketData()
+    }, 500)
 
     // Update every 60 seconds with live data
     const interval = setInterval(updateBearMarketData, 60000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(initialTimer)
+      clearInterval(interval)
+    }
   }, [calculateBearConfidence])
 
   const [quickStats, setQuickStats] = useState<QuickStat[]>([
@@ -223,13 +236,13 @@ export default function EnhancedDashboard() {
           setBotRunning(newRunningState)
           
           // Activate/deactivate autonomous trading
-          if (newRunningState) {
+          if (newRunningState && autonomousBot) {
             autonomousBot.setIsActive(true)
             toast.success('🤖 Autonomous Bot Activated', {
               description: 'Bot is now self-sufficient and making autonomous trading decisions',
               duration: 3000,
             })
-          } else {
+          } else if (autonomousBot) {
             autonomousBot.setIsActive(false)
             toast.success('Bot stopped - will persist until manually restarted', {
               description: 'All trading activities paused'
@@ -705,7 +718,9 @@ export default function EnhancedDashboard() {
           // Now allow bot to start
           startTransition(() => {
             setBotRunning(true)
-            autonomousBot.setIsActive(true)
+            if (autonomousBot) {
+              autonomousBot.setIsActive(true)
+            }
             toast.success('🤖 Autonomous Bot Activated', {
               description: 'Bot is now self-sufficient and making autonomous trading decisions',
               duration: 3000,

@@ -97,11 +97,8 @@ export default function LoginPage() {
         // Silent fail
       }
       
-      // Force a page reload to trigger auto-login and ensure proper initialization
-      // This ensures isInitialized is set correctly
-      setTimeout(() => {
-        window.location.reload()
-      }, 500)
+      // NO PAGE RELOAD - Let React handle state updates naturally
+      // This is much faster and provides better UX
       
       setIsSubmitting(false)
       
