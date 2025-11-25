@@ -2,7 +2,7 @@
 // November 21, 2025 — Quantum Falcon Cockpit
 // Tracks and unlocks achievements, mints NFTs
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useWallet } from '@/hooks/useWallet'
 import { 
   ACHIEVEMENT_NFTS, 
@@ -28,8 +28,8 @@ interface UseAchievementsProps {
 
 export function useAchievements({ userStats, auth }: UseAchievementsProps) {
   const { publicKey, signTransaction, signAllTransactions } = useWallet()
-  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([])
   const [mintedAchievements, setMintedAchievements] = useState<string[]>([])
+  const unlockedSessionRef = useRef<Set<string>>(new Set())
 
   const handleMintAchievement = useCallback(async (achievementId: string) => {
     if (!publicKey || !signTransaction || mintedAchievements.includes(achievementId)) {
@@ -66,11 +66,11 @@ export function useAchievements({ userStats, auth }: UseAchievementsProps) {
 
     Object.keys(ACHIEVEMENT_NFTS).forEach((achievementId) => {
       const isUnlocked = checkAchievementUnlock(achievementId, statsWithGodMode)
-      const wasUnlocked = unlockedAchievements.includes(achievementId)
+      const hasAnnounced = unlockedSessionRef.current.has(achievementId)
 
-      if (isUnlocked && !wasUnlocked) {
-        // New achievement unlocked!
-        setUnlockedAchievements((prev) => [...prev, achievementId])
+      if (isUnlocked && !hasAnnounced) {
+        // Track so we only announce once per session (handles StrictMode double effects)
+        unlockedSessionRef.current.add(achievementId)
         
         const achievement = ACHIEVEMENT_NFTS[achievementId]
         
@@ -96,7 +96,7 @@ export function useAchievements({ userStats, auth }: UseAchievementsProps) {
         }
       }
     })
-  }, [userStats, auth, unlockedAchievements, publicKey, handleMintAchievement])
+  }, [userStats, auth, publicKey, handleMintAchievement])
 
   const allUnlocked = getUnlockedAchievements({
     ...userStats,
