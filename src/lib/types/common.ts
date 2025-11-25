@@ -2,6 +2,8 @@
 // November 24, 2025 — Quantum Falcon Cockpit
 // Centralized type definitions to replace 'any' types
 
+import type React from 'react'
+
 /**
  * Generic API Response
  */

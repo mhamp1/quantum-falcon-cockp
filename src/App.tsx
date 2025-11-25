@@ -18,7 +18,7 @@
 //    - Auto-invite to Quantum Falcon server
 //    - Clean disconnect functionality
 
-import { useEffect, useMemo, Suspense, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useMemo, Suspense, useState, useCallback, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { cn } from '@/lib/utils';

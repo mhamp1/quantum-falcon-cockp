@@ -2,7 +2,7 @@
 // November 22, 2025 — Quantum Falcon Cockpit v2025.1.0
 // Modern, helpful, comprehensive onboarding experience
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   X, 

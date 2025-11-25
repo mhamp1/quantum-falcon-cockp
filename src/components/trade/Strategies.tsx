@@ -2,7 +2,7 @@
 // November 22, 2025 — Quantum Falcon Cockpit v2025.1.0
 // Integrated with Tax Reserve Engine and Profit Optimizer
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ChartLine, Lightning, Target, ArrowsIn, ArrowsOut, Cpu, UsersThree, CoinVertical, Flask, TrendUp, TrendDown } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
