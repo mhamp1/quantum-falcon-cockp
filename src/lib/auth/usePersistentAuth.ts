@@ -216,20 +216,24 @@ export const usePersistentAuth = () => {
       // Get license data
       const licenseData = enhancedLicenseService.getLicenseData()
       
-      // Determine tier - prioritize master key recognition
+      // Determine tier and userId - prioritize master key recognition
       let finalTier = validationResult.tier || 'free'
+      let finalUserId = licenseData?.user_id || `user_${Date.now()}`
+      
       if (isMasterKey) {
         finalTier = 'lifetime' // Master key always gets lifetime tier
+        finalUserId = 'master' // Master key always gets master userId (for creator privileges)
       }
       
       // Create user license
       const userLicense: UserLicense = {
-        userId: isMasterKey ? 'master' : (licenseData?.user_id || `user_${Date.now()}`),
+        userId: finalUserId,
         tier: finalTier as 'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime',
         expiresAt: isMasterKey ? null : (validationResult.expires_at ? validationResult.expires_at * 1000 : null),
         purchasedAt: Date.now(),
         isActive: true,
-        transactionId: isMasterKey ? 'master-token' : `tx_${Date.now()}`
+        transactionId: isMasterKey ? 'master-token' : `tx_${Date.now()}`,
+        features: isMasterKey ? ['all'] : (validationResult.features || [])
       }
 
       // Update auth state
