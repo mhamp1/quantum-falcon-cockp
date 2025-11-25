@@ -89,10 +89,9 @@ const EnhancedAnalyticsV2: React.FC = () => {
   const loadAnalyticsData = async () => {
     setIsLoading(true);
     
-    // Simulate API call - Replace with real API in production
-    setTimeout(() => {
-      // Generate realistic mock data based on filter
-      const trades = generateMockTrades(timeFilter);
+    try {
+      // Fetch real trade history from API
+      const trades = await fetchTrades(timeFilter);
       const calculatedMetrics = calculateMetrics(trades);
       const calculatedDist = calculateDistribution(trades);
       const calculatedAssets = calculateAssetPerformance(trades);
@@ -102,9 +101,17 @@ const EnhancedAnalyticsV2: React.FC = () => {
       setDistribution(calculatedDist);
       setAssets(calculatedAssets);
       setEquityCurve(calculatedCurve);
-      setIsLoading(false);
     } catch (error) {
       console.error('[Analytics] Failed to load data:', error);
+      // Set empty metrics on error
+      setMetrics({
+        totalPnl: 0, winRate: 0, totalTrades: 0, sharpe: 0,
+        maxDrawdown: 0, profitFactor: 0, avgWin: 0, avgLoss: 0
+      });
+      setDistribution({ wins: 0, losses: 0, avgWinAmount: 0, avgLossAmount: 0 });
+      setAssets([]);
+      setEquityCurve([]);
+    } finally {
       setIsLoading(false);
     }
   };
