@@ -570,23 +570,14 @@ export default function EnhancedDashboard() {
             <Button
               variant="outline"
               onClick={() => {
-                startTransition(() => {
-                  setBotRunning(false)
-                  setAuth({
-                    isAuthenticated: false,
-                    userId: null,
-                    username: null,
-                    email: null,
-                    avatar: null,
-                    license: null
-                  })
-                  toast.info('Logged out successfully - Bot stopped')
-                })
+                setBotRunning(false)
+                // Use proper logout function - will immediately show login page
+                const { logout } = require('@/lib/auth/usePersistentAuth').usePersistentAuth()
+                logout()
               }}
               className="border-primary/50 hover:border-primary hover:bg-primary/10 jagged-corner-small"
-              disabled={isPending}
             >
-              {isPending ? 'Logging out...' : 'Logout'}
+              Logout
             </Button>
           </div>
         </div>

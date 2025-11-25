@@ -34,6 +34,7 @@ import LicenseTab from './LicenseTab'
 import ProfileNFTGallery from '@/components/shared/ProfileNFTGallery'
 import RentalManagement from './RentalManagement'
 import { UserAuth } from '@/lib/auth'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { logSettingChange } from '@/lib/changeLogger'
 import { debounce } from '@/lib/debounce'
 import { soundEffects } from '@/lib/soundEffects'
@@ -125,6 +126,8 @@ interface AppSettings {
 }
 
 export default function EnhancedSettings() {
+  const { logout } = usePersistentAuth()
+  
   const [profile, setProfile] = useKVSafe<UserProfile>('user-profile-full', {
     username: 'QuantumTrader',
     email: 'trader@quantumfalcon.ai',
@@ -183,16 +186,9 @@ export default function EnhancedSettings() {
   }, [])
 
   const handleLogout = () => {
-    setAuth({
-      isAuthenticated: false,
-      userId: null,
-      username: null,
-      email: null,
-      avatar: null,
-      license: null
-    })
-    toast.success('Logged out successfully')
-    window.location.reload()
+    // Use the proper logout function from usePersistentAuth
+    // This immediately clears all state and shows login page
+    logout()
   }
 
   const [settings, setSettings] = useKVSafe<AppSettings>('app-settings', {

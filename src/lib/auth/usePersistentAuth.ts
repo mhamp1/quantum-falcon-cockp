@@ -290,9 +290,18 @@ export const usePersistentAuth = () => {
 
   /**
    * Logout and clear stored credentials
+   * Immediately returns to login page without loading state
    */
   const logout = useCallback(() => {
+    // Clear all auth-related storage
     localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem('qf-master-key-hash')
+    localStorage.removeItem('justLoggedIn')
+    
+    // Clear license service
+    enhancedLicenseService.clearLicense()
+    
+    // Immediately set auth state to logged out
     setAuth({
       isAuthenticated: false,
       userId: null,
@@ -301,9 +310,14 @@ export const usePersistentAuth = () => {
       avatar: null,
       license: null
     })
-    enhancedLicenseService.clearLicense()
+    
+    // CRITICAL: Set initialized to true immediately to prevent loading state
+    setIsInitialized(true)
+    setIsLoading(false)
+    
     toast.info('Logged Out', {
       description: 'Your session has been cleared',
+      duration: 2000,
     })
   }, [setAuth])
 
