@@ -53,20 +53,30 @@ export default defineConfig({
     // TODO: Remove this exclusion list when re-enabling Solana integration
     // after React 19 support is added to @solana/wallet-adapter packages
     exclude: EXCLUDED_SOLANA_PACKAGES,
-    include: ['eventemitter3', 'buffer']
+    include: [
+      'eventemitter3', 
+      'buffer',
+      'react',
+      'react-dom',
+      'framer-motion' // Pre-bundle framer-motion with React to ensure React is available
+    ]
   },
   build: {
     // Optimize chunk splitting for better loading performance
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks
+          // Vendor chunks - CRITICAL: React must load first
           if (id.includes('node_modules')) {
+            // React and React-DOM must be in the same chunk and load first
             if (id.includes('react') || id.includes('react-dom')) {
               return 'react-vendor'
             }
+            // CRITICAL FIX: framer-motion depends on React.createContext
+            // Ensure it's bundled with React or in a chunk that loads after React
+            // By putting it in 'vendor', it will load after 'react-vendor' due to dependency order
             if (id.includes('framer-motion')) {
-              return 'framer-motion'
+              return 'vendor'
             }
             if (id.includes('@phosphor-icons')) {
               return 'icons'
