@@ -10,7 +10,7 @@ import {
   Fire,
   Lightning,
   Target,
-  Activity,
+  Pulse,
   Lock,
   Crown,
   TrendUp,
@@ -32,6 +32,18 @@ import { toast } from 'sonner';
 import { AGGRESSION_BLUEPRINTS, DEFAULT_AGGRESSION_BLUEPRINT, type AggressionBlueprint } from '@/lib/agents/aggressionProfiles';
 import type { AutonomyTelemetry } from '@/lib/bot/AutonomousTradingLoop';
 import { DEFAULT_AUTONOMY_TELEMETRY } from '@/lib/bot/AutonomousTradingLoop';
+
+const generateMockOutcomes = (count: number, successProbability: number) => {
+  return Array.from({ length: count }, (_, index) => {
+    const isSuccess = Math.random() < successProbability;
+    const pnl = parseFloat(((isSuccess ? 1 : -1) * (50 + Math.random() * 150)).toFixed(2));
+    return {
+      date: new Date(Date.now() - index * 60 * 60 * 1000).toISOString(),
+      pnl,
+      confidence: Math.round(65 + Math.random() * 30),
+    };
+  });
+};
 
 interface Agent {
   id: string;
@@ -430,7 +442,7 @@ export default function MultiAgentSystem() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {[
-            { label: 'UPTIME', value: `${stats.uptime.toFixed(1)}%`, color: 'text-primary', icon: Activity },
+            { label: 'UPTIME', value: `${stats.uptime.toFixed(1)}%`, color: 'text-primary', icon: Pulse },
             { label: 'TRADES', value: stats.trades.toString(), color: 'text-secondary', icon: Lightning },
             { label: 'SUCCESS', value: `${stats.success.toFixed(1)}%`, color: 'text-accent', icon: Target },
             { label: 'PROFIT', value: `+$${Math.floor(stats.profit)}`, color: 'text-primary', icon: TrendUp },
@@ -608,7 +620,7 @@ export default function MultiAgentSystem() {
 
                         <div className="grid grid-cols-3 gap-4">
                           <div className="glass-morph-card p-4 text-center border border-accent/30 bg-accent/10">
-                            <Activity size={20} weight="duotone" className="text-accent mx-auto mb-2" />
+                            <Pulse size={20} weight="duotone" className="text-accent mx-auto mb-2" />
                             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">CONFIDENCE</div>
                             <div className="text-2xl font-black text-accent">{agent.confidence}%</div>
                             <div className="text-[10px] text-muted-foreground mt-1">

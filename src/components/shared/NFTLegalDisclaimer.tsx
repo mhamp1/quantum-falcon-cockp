@@ -1,7 +1,7 @@
 // NFT Legal Disclaimer Component — SEC-Proof
 // November 22, 2025 — Quantum Falcon Cockpit
 
-import { AlertCircle } from '@phosphor-icons/react'
+import { WarningCircle as AlertCircle } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
 export const NFT_LEGAL_DISCLAIMER_TEXT = `QUANTUM FALCON NFTs ARE DIGITAL COLLECTIBLES ONLY

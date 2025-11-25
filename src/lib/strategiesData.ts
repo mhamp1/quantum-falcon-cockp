@@ -528,7 +528,7 @@ export const ALL_STRATEGIES: StrategyData[] = [
   {
     id: 'market-maker-strategy',
     name: 'Market Maker Strategy',
-    icon: 'Activity',
+    icon: 'Pulse',
     category: 'Advanced',
     tier_required: 'pro',
     is_unlocked: false,

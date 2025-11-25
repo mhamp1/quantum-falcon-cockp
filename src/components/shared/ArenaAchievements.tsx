@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Trophy, Medal, Star, Crown, Flame, Target, Zap, Award, Swords, Users } from '@phosphor-icons/react'
+import { Trophy, Medal, Star, Crown, Flame, Target, Lightning as Zap, Sword, Users } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -178,7 +178,7 @@ const RARITY_COLORS = {
 }
 
 const CATEGORY_ICONS = {
-  combat: <Swords size={16} />,
+  combat: <Sword size={16} />,
   social: <Users size={16} />,
   strategic: <Target size={16} />,
   legendary: <Crown size={16} />,
@@ -323,7 +323,7 @@ export default function ArenaAchievements() {
       {/* Category Filter */}
       <div className="flex gap-3 flex-wrap">
         {[
-          { id: 'all', label: 'All', icon: <Award size={18} /> },
+          { id: 'all', label: 'All', icon: <Medal size={18} /> },
           { id: 'combat', label: 'Combat', icon: CATEGORY_ICONS.combat },
           { id: 'social', label: 'Social', icon: CATEGORY_ICONS.social },
           { id: 'strategic', label: 'Strategic', icon: CATEGORY_ICONS.strategic },

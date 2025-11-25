@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { 
   Play, Pause, Lock, TrendUp, TrendDown, Info, Crown, Sparkle, Clock, Gift,
   ChartLine, ChartLineUp, Target, Brain, Lightning, Waves, FishSimple, Crosshair, 
-  ArrowsCounterClockwise, Scales, Activity, Rocket, Shield, Database,
+  ArrowsCounterClockwise, Scales, Pulse, Rocket, Shield, Database,
   CalendarPlus, ChartBar, ArrowsDownUp, ArrowsLeftRight, Code
 } from '@phosphor-icons/react'
 import { canAccessFeature } from '@/lib/auth'
@@ -275,7 +275,7 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle, onUp
                   'Crosshair': Crosshair,
                   'ArrowsCounterClockwise': ArrowsCounterClockwise,
                   'Scales': Scales,
-                  'Activity': Activity,
+                  'Pulse': Pulse,
                   'Rocket': Rocket,
                   'Shield': Shield,
                   'Database': Database,
@@ -290,7 +290,7 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle, onUp
                   ? iconMap[strategy.icon] 
                   : (strategy.type.includes('DCA') ? CalendarPlus : 
                      strategy.type.includes('Momentum') || strategy.type.includes('Trend') ? TrendUp :
-                     strategy.type.includes('RSI') || strategy.type.includes('Oscillator') ? Activity :
+                    strategy.type.includes('RSI') || strategy.type.includes('Oscillator') ? Pulse :
                      strategy.type.includes('AI') || strategy.type.includes('ML') ? Brain :
                      strategy.type.includes('On-Chain') || strategy.name.includes('Whale') ? FishSimple :
                      strategy.name.includes('Liquidity') || strategy.name.includes('Sweep') ? Waves :

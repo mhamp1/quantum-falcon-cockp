@@ -3,7 +3,7 @@
 
 import { useTaxReserve } from '@/lib/tax/TaxReserveEngine'
 import { Button } from '@/components/ui/button'
-import { PiggyBank, Download, Shield, AlertCircle, TrendingUp } from '@phosphor-icons/react'
+import { PiggyBank, Download, Shield, WarningCircle as AlertCircle, TrendUp as TrendingUp } from '@phosphor-icons/react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'

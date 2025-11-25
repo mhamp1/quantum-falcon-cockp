@@ -2,7 +2,7 @@
 // November 21, 2025 — Quantum Falcon Cockpit
 
 import { useEffect, useState } from 'react'
-import { Brain, TrendingUp, Target, Award, Clock } from '@phosphor-icons/react'
+import { Brain, TrendUp as TrendingUp, Target, Medal as Award, Clock } from '@phosphor-icons/react'
 import { getLearningSystem, type LearningMetrics } from '@/lib/ai/learning/AdaptiveLearningSystem'
 import { motion } from 'framer-motion'
 

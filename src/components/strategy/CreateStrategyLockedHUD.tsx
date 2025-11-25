@@ -6,8 +6,8 @@ import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Button } from '@/components/ui/button';
 import { 
-  Code, Brain, Rocket, Share2, CheckCircle, Lock, TrendingUp, Zap, Crown 
-} from 'lucide-react';
+  Code, Brain, Rocket, ShareFat as Share2, CheckCircle, Lock, TrendUp as TrendingUp, Lightning as Zap, Crown 
+} from '@phosphor-icons/react';
 import { FeatureCardWithTooltip } from '@/components/shared/FeatureCardWithTooltip';
 
 interface LockedHUDProps {

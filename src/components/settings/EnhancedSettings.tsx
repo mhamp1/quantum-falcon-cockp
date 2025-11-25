@@ -411,11 +411,11 @@ export default function EnhancedSettings() {
   const handleUpdateSetting = (path: string[], value: any) => {
     const settingKey = path.join('.')
     setIsSaving(prev => ({ ...prev, [settingKey]: true }))
-    
+
     logSettingChange(settingKey, value)
     
     setTimeout(() => {
-      setIsSaving(prev => ({ ...prev, [settingKey]: false }))
+    setIsSaving(prev => ({ ...prev, [settingKey]: false }))
       toast.success('Setting saved', { duration: 1500 })
     }, 500)
   }
@@ -442,7 +442,7 @@ export default function EnhancedSettings() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary/20 via-accent/20 to-transparent blur-3xl" />
         
         <div className="relative z-10 cyber-card p-6">
-          <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <motion.div
                 animate={{ rotate: [0, 5, -5, 0] }}
@@ -453,7 +453,7 @@ export default function EnhancedSettings() {
               <div>
                 <h2 className="text-3xl font-black uppercase tracking-[0.2em] text-primary">
                   SETTINGS
-                </h2>
+        </h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Configure your Quantum Falcon experience
                 </p>
@@ -547,44 +547,44 @@ export default function EnhancedSettings() {
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
           <div className="cyber-card p-6">
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-              <ProfileUpload size="xl" showUploadButton={true} />
-              
-              <div className="flex-1 space-y-4">
-                <div>
-                  <h3 className="text-2xl font-bold uppercase tracking-wide mb-1">@{profile.username}</h3>
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <ProfileUpload size="xl" showUploadButton={true} />
+                
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h3 className="text-2xl font-bold uppercase tracking-wide mb-1">@{profile.username}</h3>
                   <p className="text-muted-foreground">{profile.email}</p>
-                </div>
+                  </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-3 bg-primary/10 border border-primary/30">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Level</div>
-                    <div className="text-2xl font-bold text-primary flex items-center gap-2">
-                      <Medal size={20} weight="fill" />
-                      {profile.level}
+                    <div className="p-3 bg-primary/10 border border-primary/30">
+                      <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Level</div>
+                      <div className="text-2xl font-bold text-primary flex items-center gap-2">
+                        <Medal size={20} weight="fill" />
+                        {profile.level}
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-3 bg-muted/30 border border-muted/50">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Total Trades</div>
-                    <div className="text-2xl font-bold">{profile.totalTrades}</div>
-                  </div>
-                  <div className="p-3 bg-muted/30 border border-muted/50">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Win Rate</div>
-                    <div className="text-2xl font-bold text-accent">{profile.winRate}%</div>
-                  </div>
-                  <div className="p-3 bg-muted/30 border border-muted/50">
+                    <div className="p-3 bg-muted/30 border border-muted/50">
+                      <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Total Trades</div>
+                      <div className="text-2xl font-bold">{profile.totalTrades}</div>
+                    </div>
+                    <div className="p-3 bg-muted/30 border border-muted/50">
+                      <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Win Rate</div>
+                      <div className="text-2xl font-bold text-accent">{profile.winRate}%</div>
+                    </div>
+                    <div className="p-3 bg-muted/30 border border-muted/50">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">XP</div>
                     <div className="text-2xl font-bold">{profile.xp} / {profile.xpToNextLevel}</div>
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
+                  <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">XP Progress</span>
                     <span className="font-bold">{Math.round((profile.xp / profile.xpToNextLevel) * 100)}%</span>
-                  </div>
+                    </div>
                   <Progress value={(profile.xp / profile.xpToNextLevel) * 100} className="h-2" />
-                </div>
+                  </div>
 
                 <Button
                   onClick={() => setShowEditProfile(true)}
@@ -592,7 +592,7 @@ export default function EnhancedSettings() {
                 >
                   <User size={16} className="mr-2" />
                   Edit Profile
-                </Button>
+                  </Button>
               </div>
             </div>
           </div>
@@ -607,7 +607,7 @@ export default function EnhancedSettings() {
         <TabsContent value="achievements" className="space-y-6">
           <Suspense fallback={<div className="cyber-card p-12 text-center"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" /></div>}>
             <AchievementBadges />
-          </Suspense>
+              </Suspense>
         </TabsContent>
 
         {/* Arena Tab */}
@@ -642,109 +642,109 @@ export default function EnhancedSettings() {
           {/* Notifications */}
           <div className="cyber-card p-6 space-y-6">
             <div className="flex items-center gap-3 mb-4">
-              <Bell size={24} weight="duotone" className="text-primary" />
+                    <Bell size={24} weight="duotone" className="text-primary" />
               <h3 className="text-xl font-bold uppercase tracking-wider">Notifications</h3>
-            </div>
-            
+                </div>
+                
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Trade Alerts</Label>
                   <p className="text-xs text-muted-foreground">Get notified when trades execute</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.notifications?.tradeAlerts ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['notifications', 'tradeAlerts'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+                  
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Price Alerts</Label>
                   <p className="text-xs text-muted-foreground">Market price movement notifications</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.notifications?.priceAlerts ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['notifications', 'priceAlerts'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+                  
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Forum Replies</Label>
                   <p className="text-xs text-muted-foreground">Community interaction notifications</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.notifications?.forumReplies ?? false}
                   onCheckedChange={(checked) => handleSliderChange(['notifications', 'forumReplies'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Push Notifications</Label>
                   <p className="text-xs text-muted-foreground">Browser push notifications</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.notifications?.pushEnabled ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['notifications', 'pushEnabled'], checked, true)}
-                />
+                    />
+                </div>
               </div>
             </div>
-          </div>
 
           {/* Theme Settings */}
           <div className="cyber-card p-6 space-y-6">
             <div className="flex items-center gap-3 mb-4">
               <Palette size={24} weight="duotone" className="text-primary" />
               <h3 className="text-xl font-bold uppercase tracking-wider">Theme</h3>
-            </div>
-            
+                </div>
+                
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Dark Mode</Label>
                   <p className="text-xs text-muted-foreground">Enable dark theme</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.theme?.darkMode ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['theme', 'darkMode'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+                  
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Animations</Label>
                   <p className="text-xs text-muted-foreground">Enable motion effects</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.theme?.animations ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['theme', 'animations'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+                  
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Glass Effect</Label>
                   <p className="text-xs text-muted-foreground">Frosted glass card styling</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.theme?.glassEffect ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['theme', 'glassEffect'], checked, true)}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
+                    />
+                  </div>
+
+                    <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-sm font-bold">Neon Glow</Label>
                   <p className="text-xs text-muted-foreground">Cyberpunk glow effects</p>
-                </div>
+                    </div>
                 <Switch
                   checked={settings?.theme?.neonGlow ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['theme', 'neonGlow'], checked, true)}
                 />
-              </div>
-              
+            </div>
+
               <div className="space-y-2">
                 <Label className="text-sm font-bold">Theme Style</Label>
                 <Select
@@ -760,87 +760,87 @@ export default function EnhancedSettings() {
                     <SelectItem value="synthwave">Synthwave</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-          </div>
-
+                  </div>
+                  </div>
+                </div>
+                
           {/* Audio Settings */}
           <div className="cyber-card p-6 space-y-6">
             <div className="flex items-center gap-3 mb-4">
               <SpeakerHigh size={24} weight="duotone" className="text-primary" />
               <h3 className="text-xl font-bold uppercase tracking-wider">Audio</h3>
-            </div>
-            
+                  </div>
+                  
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Sound Effects</Label>
                   <p className="text-xs text-muted-foreground">UI interaction sounds</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.audio?.soundEffects ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['audio', 'soundEffects'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Ambient Music</Label>
                   <p className="text-xs text-muted-foreground">Background audio</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.audio?.ambientMusic ?? false}
                   onCheckedChange={(checked) => handleSliderChange(['audio', 'ambientMusic'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+                  
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between">
                   <Label className="text-sm font-bold">Volume</Label>
                   <span className="text-sm font-bold text-primary">{settings?.audio?.volume ?? 70}%</span>
-                </div>
+                    </div>
                 <input
-                  type="range"
+                      type="range"
                   min="0"
                   max="100"
                   value={settings?.audio?.volume ?? 70}
                   onChange={(e) => handleSliderChange(['audio', 'volume'], parseInt(e.target.value), false)}
-                  className="w-full"
-                />
+                      className="w-full"
+                    />
+                </div>
               </div>
             </div>
-          </div>
 
           {/* Trading Settings */}
           <div className="cyber-card p-6 space-y-6">
             <div className="flex items-center gap-3 mb-4">
               <CurrencyDollar size={24} weight="duotone" className="text-primary" />
               <h3 className="text-xl font-bold uppercase tracking-wider">Trading</h3>
-            </div>
-            
+                </div>
+                
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Paper Trading</Label>
                   <p className="text-xs text-muted-foreground">Simulated trading mode</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.trading?.paperMode ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['trading', 'paperMode'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+                  
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Confirm Trades</Label>
                   <p className="text-xs text-muted-foreground">Require confirmation before execution</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.trading?.confirmTrades ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['trading', 'confirmTrades'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+
               <div className="space-y-2">
                 <Label className="text-sm font-bold">Default Trade Amount</Label>
                 <Input
@@ -849,13 +849,13 @@ export default function EnhancedSettings() {
                   onChange={(e) => handleSliderChange(['trading', 'defaultAmount'], parseFloat(e.target.value) || 100, false)}
                   className="w-full"
                 />
-              </div>
-              
+                  </div>
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-bold">Slippage Tolerance</Label>
                   <span className="text-sm font-bold text-primary">{settings?.trading?.slippage ?? 1.0}%</span>
-                </div>
+                  </div>
                 <input
                   type="range"
                   min="0.1"
@@ -865,94 +865,94 @@ export default function EnhancedSettings() {
                   onChange={(e) => handleSliderChange(['trading', 'slippage'], parseFloat(e.target.value), false)}
                   className="w-full"
                 />
+                </div>
               </div>
             </div>
-          </div>
 
           {/* Network Settings */}
           <div className="cyber-card p-6 space-y-6">
             <div className="flex items-center gap-3 mb-4">
-              <WifiHigh size={24} weight="duotone" className="text-primary" />
+                    <WifiHigh size={24} weight="duotone" className="text-primary" />
               <h3 className="text-xl font-bold uppercase tracking-wider">Network</h3>
-            </div>
-            
+                </div>
+                
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-sm font-bold">RPC Endpoint</Label>
-                <Select
+                    <Select 
                   value={settings?.network?.rpcEndpoint || 'mainnet'}
                   onValueChange={(value) => handleSliderChange(['network', 'rpcEndpoint'], value, true)}
-                >
+                    >
                   <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="mainnet">Mainnet</SelectItem>
-                    <SelectItem value="devnet">Devnet</SelectItem>
+                        <SelectItem value="devnet">Devnet</SelectItem>
                     <SelectItem value="custom">Custom</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
+                      </SelectContent>
+                    </Select>
+                  </div>
+
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Priority Fees</Label>
                   <p className="text-xs text-muted-foreground">Faster transaction processing</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.network?.priorityFees ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['network', 'priorityFees'], checked, true)}
-                />
+                    />
+                  </div>
               </div>
             </div>
-          </div>
 
           {/* Display Settings */}
           <div className="cyber-card p-6 space-y-6">
             <div className="flex items-center gap-3 mb-4">
               <Cpu size={24} weight="duotone" className="text-primary" />
               <h3 className="text-xl font-bold uppercase tracking-wider">Display</h3>
-            </div>
+                  </div>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div>
+                        <div>
                   <Label className="text-sm font-bold">Compact Mode</Label>
                   <p className="text-xs text-muted-foreground">Dense layout option</p>
-                </div>
-                <Switch
+                      </div>
+                      <Switch 
                   checked={settings?.display?.compactMode ?? false}
                   onCheckedChange={(checked) => handleSliderChange(['display', 'compactMode'], checked, true)}
                 />
-              </div>
-              
+                </div>
+                
               <div className="flex items-center justify-between">
-                <div>
+                      <div>
                   <Label className="text-sm font-bold">Show Balances</Label>
                   <p className="text-xs text-muted-foreground">Display wallet balances</p>
-                </div>
-                <Switch
+                    </div>
+                    <Switch 
                   checked={settings?.display?.showBalances ?? true}
                   onCheckedChange={(checked) => handleSliderChange(['display', 'showBalances'], checked, true)}
-                />
-              </div>
-              
+                    />
+                  </div>
+
               <div className="space-y-2">
                 <Label className="text-sm font-bold">Chart Type</Label>
-                <Select
+                    <Select 
                   value={settings?.display?.chartType || 'candlestick'}
                   onValueChange={(value) => handleSliderChange(['display', 'chartType'], value, true)}
                 >
                   <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="candlestick">Candlestick</SelectItem>
+                        <SelectItem value="candlestick">Candlestick</SelectItem>
                     <SelectItem value="line">Line</SelectItem>
                     <SelectItem value="area">Area</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                      </SelectContent>
+                    </Select>
+                  </div>
             </div>
           </div>
         </TabsContent>

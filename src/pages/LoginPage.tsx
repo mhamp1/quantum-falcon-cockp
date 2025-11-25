@@ -23,6 +23,7 @@ import {
   Play
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { InputSanitizer } from '@/lib/security/inputSanitizer'
 
 export default function LoginPage() {
   const { login, isLoading, isAuthenticated, isInitialized, auth, setAuth } = usePersistentAuth()
@@ -58,7 +59,7 @@ export default function LoginPage() {
       try {
         localStorage.setItem('qf-persistent-auth', JSON.stringify(freeAuthData))
       } catch (e) {
-        console.warn('Failed to store free tier auth', e)
+        // Silent fail - localStorage unavailable
       }
       
       // Set auth state with free tier license
@@ -108,7 +109,6 @@ export default function LoginPage() {
         duration: 2000,
       })
     } catch (error) {
-      console.error('[LoginPage] Free tier activation error:', error)
       setIsSubmitting(false)
       toast.error('Failed to continue', {
         description: 'Please try again',
@@ -146,7 +146,11 @@ export default function LoginPage() {
   }
 
   const handleLogin = async () => {
-    if (!username.trim()) {
+    // Sanitize inputs
+    const sanitizedUsername = InputSanitizer.sanitizeHTML(username.trim())
+    const sanitizedLicenseKey = InputSanitizer.sanitizeHTML(licenseKey.trim())
+    
+    if (!sanitizedUsername) {
       toast.error('Username Required', {
         description: 'Please enter your username',
       })
@@ -160,7 +164,7 @@ export default function LoginPage() {
       return
     }
 
-    if (!licenseKey.trim()) {
+    if (!sanitizedLicenseKey) {
       toast.error('License Key Required', {
         description: 'Please enter your license key',
       })
@@ -169,7 +173,16 @@ export default function LoginPage() {
 
     setIsSubmitting(true)
 
-    const result = await login(username, password, licenseKey, email || undefined)
+    // Validate email if provided
+    if (email && !InputSanitizer.validateEmail(email)) {
+      setIsSubmitting(false)
+      toast.error('Invalid Email', {
+        description: 'Please enter a valid email address',
+      })
+      return
+    }
+
+    const result = await login(sanitizedUsername, password, sanitizedLicenseKey, email || undefined)
 
     if (result.success) {
       // Login successful - mark that user just logged in (for tour timing)

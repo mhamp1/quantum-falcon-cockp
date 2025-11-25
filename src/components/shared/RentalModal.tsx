@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
   X, Clock, CreditCard, CheckCircle, Sparkle,
-  ArrowRight, Zap, Shield, Crown
+  ArrowRight, Lightning as Zap, Shield, Crown
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'

@@ -2,7 +2,7 @@
 // November 22, 2025 — Quantum Falcon Cockpit
 
 import { useState } from 'react'
-import { Lifebuoy, Envelope, MessageCircle, BookOpen } from '@phosphor-icons/react'
+import { Lifebuoy, Envelope, ChatCircleDots, BookOpen } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import DocumentationViewer from '@/components/shared/DocumentationViewer'
 
@@ -38,7 +38,7 @@ export default function SupportOnboarding() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="cyber-card p-6 space-y-4">
-          <MessageCircle size={32} className="text-primary" weight="duotone" />
+          <ChatCircleDots size={32} className="text-primary" weight="duotone" />
           <h3 className="text-xl font-bold uppercase">Community</h3>
           <p className="text-sm text-muted-foreground">
             Join our Discord community for real-time support and elite alpha drops.

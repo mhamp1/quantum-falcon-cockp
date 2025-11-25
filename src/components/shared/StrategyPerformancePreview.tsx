@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  TrendingUp, TrendingDown, ChartLine, Target, 
+  TrendUp as TrendingUp, TrendDown as TrendingDown, ChartLine, Target, 
   Lightning, Coins, Trophy, Shield, Info
 } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'

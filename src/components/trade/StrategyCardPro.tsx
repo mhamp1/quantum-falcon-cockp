@@ -1,7 +1,7 @@
 // components/trade/StrategyCardPro.tsx — The Final Version with FOMO Hover Effects
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Zap, TrendingUp, Crown, Play, Pause, Target, ChartLine } from 'lucide-react';
+import { Lock, Lightning as Zap, TrendUp as TrendingUp, Crown, Play, Pause, Target, ChartLine } from '@phosphor-icons/react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

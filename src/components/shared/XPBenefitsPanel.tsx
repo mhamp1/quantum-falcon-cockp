@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Trophy, Lightning, Sparkle, Crown, Gift, 
-  Target, TrendingUp, Zap, Coins, Rocket, Lock
+  Target, TrendUp as TrendingUp, Lightning as Zap, Coins, Rocket, Lock
 } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

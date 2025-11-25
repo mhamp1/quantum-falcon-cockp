@@ -1,736 +1,911 @@
-// Enhanced Dashboard with React 19 performance optimizations and AI integration
-import { useKVSafe } from '@/hooks/useKVFallback'
-import { useEffect, useState, useMemo, useTransition, Suspense, memo } from 'react'
-import { UserAuth } from '@/lib/auth'
-import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
+import { Suspense, useEffect, useMemo, useState, useTransition, useCallback, type ComponentProps } from 'react'
+import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import {
-  Lightning, Robot, ChartLine, Brain, CheckCircle, 
-  Play, Users, Crown, Cube, Hexagon, Pentagon, Polygon, Stop, Database, Vault,
-  TrendUp as TrendingUp
+  Lightning,
+  Robot,
+  ChartLine,
+  Brain,
+  Play,
+  Stop,
+  Crown,
+  Users,
+  Vault,
+  Database,
+  TrendUp as TrendingUp,
+  WarningCircle as AlertCircle,
+  ShieldCheck,
+  WaveSine,
+  Sparkle
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import LoginDialog from '@/components/shared/LoginDialog'
+import { useKVSafe } from '@/hooks/useKVFallback'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
+import { UserAuth } from '@/lib/auth'
+import { useLiveTradingData, type SessionEvent } from '@/hooks/useLiveTradingData'
+import { useBearMarketDetector } from '@/lib/market/BearMarketDetector'
+import { useAutonomousTradingLoop } from '@/lib/bot/AutonomousTradingLoop'
+import { useLegalProtection } from '@/lib/legal/LegalProtection'
+import { useTaxReserve } from '@/lib/tax/TaxReserveEngine'
+import { useProfitOptimizer } from '@/lib/profit/ProfitOptimizer'
+import { useAchievements } from '@/hooks/useAchievements'
+import ProfitMilestoneCelebration from '@/components/shared/ProfitMilestoneCelebration'
+import FirstProfitCelebration from '@/components/shared/FirstProfitCelebration'
+import ProgressToFirstProfit from '@/components/shared/ProgressToFirstProfit'
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
-import { toast } from 'sonner'
-import { motion } from 'framer-motion'
+import BestPerformingAgentBadge from '@/components/shared/BestPerformingAgentBadge'
+import NewsOpportunitiesDisplay from '@/components/intelligence/NewsOpportunitiesDisplay'
+import TaxDashboardCard from '@/components/dashboard/TaxDashboardCard'
+import AutonomousBotDisclaimer from '@/components/legal/AutonomousBotDisclaimer'
 import { AgentStatusCard } from './AgentStatusCard'
 import { ActivityFeed } from './ActivityFeed'
 import { LogicStream } from './LogicStream'
-import BestPerformingAgentBadge from '@/components/shared/BestPerformingAgentBadge'
-import ProfitMilestoneCelebration from '@/components/shared/ProfitMilestoneCelebration'
 import LearningMetricsDisplay from '@/components/shared/LearningMetricsDisplay'
-import { useAchievements } from '@/hooks/useAchievements'
-import TaxDashboardCard from '@/components/dashboard/TaxDashboardCard'
-import { useTaxReserve } from '@/lib/tax/TaxReserveEngine'
-import { useProfitOptimizer } from '@/lib/profit/ProfitOptimizer'
-import { useBearMarketDetector } from '@/lib/market/BearMarketDetector'
-import { useLiveTradingData } from '@/hooks/useLiveTradingData'
-import { useAutonomousTradingLoop } from '@/lib/bot/AutonomousTradingLoop'
-import { useLegalProtection } from '@/lib/legal/LegalProtection'
-import AutonomousBotDisclaimer from '@/components/legal/AutonomousBotDisclaimer'
-import NewsOpportunitiesDisplay from '@/components/intelligence/NewsOpportunitiesDisplay'
-import { createRobustLazy } from '@/lib/lazyLoad'
-
-// Lazy load heavy components for better performance
-const NewsTicker = createRobustLazy(() => import('@/components/shared/NewsTicker'))
-const LivePriceTicker = createRobustLazy(() => import('@/components/shared/LivePriceTicker'))
-const Wireframe3D = createRobustLazy(() => import('@/components/shared/Wireframe3D'))
-// QuickStatsCard is NOT lazy-loaded - needed immediately for tour
+import NewsTicker from '@/components/shared/NewsTicker'
+import LivePriceTicker from '@/components/shared/LivePriceTicker'
 import { QuickStatsCard } from './QuickStatsCard'
-const QuickActionButton = createRobustLazy(() =>
-  import('./QuickActionButton').then(m => ({ default: m.QuickActionButton }))
-)
-const AIAdvisor = createRobustLazy(() =>
-  import('./AIAdvisor').then(m => ({ default: m.AIAdvisor }))
-)
-const FirstProfitCelebration = createRobustLazy(() => import('@/components/shared/FirstProfitCelebration'))
-const ProgressToFirstProfit = createRobustLazy(() => import('@/components/shared/ProgressToFirstProfit'))
-
+import { QuickActionButton } from './QuickActionButton'
+import { AIAdvisor } from './AIAdvisor'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
-interface QuickStat {
-  id: string
+type InsightMetric = {
   label: string
   value: string
-  change: number
-  icon: React.ReactNode
-  color: string
+  caption: string
 }
+
+const initialAuthState: UserAuth = {
+  isAuthenticated: false,
+  userId: null,
+  username: null,
+  email: null,
+  avatar: null,
+  license: null
+}
+
+const defaultPortfolio = {
+  solanaBalance: 125.47,
+  btcBalance: 0.00234,
+  totalValue: 8943.21,
+  change24h: 5.72,
+  activeAgents: 3
+}
+
+const RISK_PRESETS = [
+  { id: 'risk-off', label: 'Risk-Off', aggression: 20, capital: 25 },
+  { id: 'neutral', label: 'Neutral', aggression: 50, capital: 50 },
+  { id: 'risk-on', label: 'Risk-On', aggression: 80, capital: 85 }
+] as const
+
+type RiskPreset = typeof RISK_PRESETS[number]
+type RiskPresetId = RiskPreset['id']
+
+const StatSkeleton = () => (
+  <div className="min-h-[180px] rounded-xl border border-dashed border-primary/30 bg-muted/10 animate-pulse" />
+)
 
 export default function EnhancedDashboard() {
   const { logout } = usePersistentAuth()
-  
-  const [auth, setAuth] = useKVSafe<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
-
-  const [showLogin, setShowLogin] = useState(false)
+  const [auth] = useKVSafe<UserAuth>('user-auth', initialAuthState)
   const [botRunning, setBotRunning] = useKVSafe<boolean>('bot-running', false)
   const [paperTradingMode, setPaperTradingMode] = useKVSafe<boolean>('paper-trading-mode', true)
+  const [portfolio] = useKVSafe('portfolio-data', defaultPortfolio)
+  const [botAggressionValue, setBotAggressionValue] = useKVSafe<number>('bot-aggression', 50)
+  const [capitalAllocation, setCapitalAllocation] = useKVSafe<number>('bot-capital-allocation', 50)
   const [isPending, startTransition] = useTransition()
-  const [portfolio] = useKVSafe<{
-    solanaBalance: number
-    btcBalance: number
-    totalValue: number
-    change24h: number
-    activeAgents: number
-  }>('portfolio-data', {
-    solanaBalance: 125.47,
-    btcBalance: 0.00234,
-    totalValue: 8943.21,
-    change24h: 5.72,
-    activeAgents: 3
-  })
-
-  const [previousProfit, setPreviousProfit] = useState<number>(0)
-  
-  // Track profit for milestone celebrations
-  useEffect(() => {
-    const currentProfit = portfolio.totalValue - 5000 // Assuming starting capital
-    if (previousProfit !== currentProfit) {
-      setPreviousProfit(currentProfit)
-    }
-  }, [portfolio.totalValue, previousProfit])
-
-  const currentProfit = portfolio.totalValue - 5000 // Assuming starting capital
-
-  // Get live trading data for achievements (deferred fetch - non-blocking)
-  const liveTradingData = useLiveTradingData()
-  
-  // Use default values until data loads to prevent blocking render
-  const safeLiveData = {
-    weeklyWinRate: liveTradingData.weeklyWinRate || 0,
-    totalTrades: liveTradingData.totalTrades || 0,
-    dailyStreak: liveTradingData.dailyStreak || 0,
+  const [showBotDisclaimer, setShowBotDisclaimer] = useState(false)
+  const [previousProfit, setPreviousProfit] = useState(0)
+  const derivePreset = (value: number): RiskPresetId => {
+    if (value < 33) return 'risk-off'
+    if (value < 67) return 'neutral'
+    return 'risk-on'
   }
+  const [riskPreset, setRiskPreset] = useState<RiskPresetId>(derivePreset(botAggressionValue))
 
-  // Track achievements with LIVE data
-  useAchievements({
-    userStats: {
+  const currentProfit = portfolio.totalValue - 5000
+  useEffect(() => {
+    setPreviousProfit(currentProfit)
+  }, [currentProfit])
+
+  useEffect(() => {
+    setRiskPreset(derivePreset(botAggressionValue))
+  }, [botAggressionValue])
+
+  const liveTrading = useLiveTradingData()
+  const safeLive = useMemo(
+    () => {
+      // Defensive: Ensure all values are numbers
+      const weeklyWinRate = typeof liveTrading?.weeklyWinRate === 'number' ? liveTrading.weeklyWinRate : 0
+      const totalTrades = typeof liveTrading?.totalTrades === 'number' ? liveTrading.totalTrades : 0
+      const dailyStreak = typeof liveTrading?.dailyStreak === 'number' ? liveTrading.dailyStreak : 0
+      
+      return {
+        weeklyWinRate: Number.isFinite(weeklyWinRate) ? weeklyWinRate : 0,
+        totalTrades: Number.isFinite(totalTrades) ? totalTrades : 0,
+        dailyStreak: Number.isFinite(dailyStreak) ? dailyStreak : 0
+      }
+    },
+    [liveTrading?.weeklyWinRate, liveTrading?.totalTrades, liveTrading?.dailyStreak]
+  )
+
+  const achievementsStats = useMemo(
+    () => ({
       totalProfit: currentProfit,
       portfolioValue: portfolio.totalValue,
-      weeklyWinRate: safeLiveData.weeklyWinRate,
-      totalTrades: safeLiveData.totalTrades,
-      dailyStreak: safeLiveData.dailyStreak,
-    },
-    auth,
-  })
+      weeklyWinRate: safeLive.weeklyWinRate,
+      totalTrades: safeLive.totalTrades,
+      dailyStreak: safeLive.dailyStreak
+    }),
+    [currentProfit, portfolio.totalValue, safeLive]
+  )
+  useAchievements({ userStats: achievementsStats, auth })
 
-  // Tax Reserve System
   const { getTaxSummary } = useTaxReserve()
+  const optimizer = useProfitOptimizer()
+  const optimizerStats = optimizer.getStats(portfolio.totalValue)
 
-  // Profit Optimizer
-  const profitOptimizer = useProfitOptimizer()
-  const optimizerStats = profitOptimizer.getStats(portfolio.totalValue)
-
-  // Bear Market Detector
   const { bearState, calculateBearConfidence } = useBearMarketDetector()
-  
-  // Autonomous Bot System — Self-sufficient AI with internal $600/day goal
-  const userTier = auth?.license?.tier || 'free'
-  const autonomousBot = useAutonomousTradingLoop(userTier)
-  const { hasAcknowledgedBot } = useLegalProtection()
-  const [showBotDisclaimer, setShowBotDisclaimer] = useState(false)
-  
-  // Update bear market detection with LIVE market data - DEFER until after initial render
   useEffect(() => {
-    const updateBearMarketData = async () => {
+    let mounted = true
+    const refresh = async () => {
       try {
         const { fetchLiveMarketData } = await import('@/lib/market/liveMarketData')
-        const liveData = await fetchLiveMarketData()
-        
-        // API now returns defaults instead of throwing, so this should always work
+        const data = await fetchLiveMarketData()
+        if (!mounted) return
         calculateBearConfidence({
-          btcDominance: liveData.btcDominance,
-          btcDominanceChange7d: liveData.btcDominanceChange7d,
-          fearGreedIndex: liveData.fearGreedIndex,
-          btcPrice: liveData.btcPrice,
-          btc200WeekMA: liveData.btc200WeekMA,
-          altcoinSeasonIndex: liveData.altcoinSeasonIndex,
-          volumeChange14d: liveData.volumeChange14d,
-          avgFundingRate: liveData.avgFundingRate,
-          sp500Change30d: liveData.sp500Change30d,
+          btcDominance: data.btcDominance,
+          btcDominanceChange7d: data.btcDominanceChange7d,
+          fearGreedIndex: data.fearGreedIndex,
+          btcPrice: data.btcPrice,
+          btc200WeekMA: data.btc200WeekMA,
+          altcoinSeasonIndex: data.altcoinSeasonIndex,
+          volumeChange14d: data.volumeChange14d,
+          avgFundingRate: data.avgFundingRate,
+          sp500Change30d: data.sp500Change30d
         })
       } catch (error) {
-        // API now returns defaults, so this catch is just for safety
-        // Keep last known state if something unexpected happens
-        console.warn('[Dashboard] Market data update warning (using defaults):', error)
+        // Silent fail - market detector fallback
       }
     }
-
-    // DEFER initial fetch by 500ms to allow dashboard to render first
-    // This prevents blocking the initial render
-    const initialTimer = setTimeout(() => {
-      updateBearMarketData()
-    }, 500)
-
-    // Update every 60 seconds with live data
-    const interval = setInterval(updateBearMarketData, 60000)
-
+    const timer = setTimeout(refresh, 400)
+    const interval = setInterval(refresh, 60_000)
     return () => {
-      clearTimeout(initialTimer)
+      mounted = false
+      clearTimeout(timer)
       clearInterval(interval)
     }
   }, [calculateBearConfidence])
 
-  const [quickStats, setQuickStats] = useState<QuickStat[]>([
-    {
-      id: 'total-value',
-      label: 'Total Portfolio',
-      value: '$8,943.21',
-      change: 5.72,
-      icon: <Cube size={24} weight="duotone" />,
-      color: 'primary'
-    },
-    {
-      id: 'today-profit',
-      label: "Today's Profit",
-      value: '+$342.50',
-      change: 12.4,
-      icon: <Hexagon size={24} weight="duotone" />,
-      color: 'primary'
-    },
-    {
-      id: 'active-agents',
-      label: 'Active Agents',
-      value: '3/3',
-      change: 0,
-      icon: <Pentagon size={24} weight="duotone" />,
-      color: 'accent'
-    },
-    {
-      id: 'win-rate',
-      label: 'Win Rate',
-      value: '68.5%',
-      change: 2.3,
-      icon: <Polygon size={24} weight="duotone" />,
-      color: 'secondary'
-    }
-  ])
+  const userTier = auth?.license?.tier || 'free'
+  const autonomousBot = useAutonomousTradingLoop(userTier)
+  const { hasAcknowledgedBot } = useLegalProtection()
 
-  // Memoize stats grid to prevent unnecessary re-renders
-  const statsGrid = useMemo(() => quickStats, [quickStats])
+  const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
 
-  const quickActions = [
-    {
-      id: 'toggle-bot',
-      label: botRunning ? 'Stop Bot' : 'Start Bot',
-      icon: botRunning ? <Stop size={20} weight="fill" /> : <Play size={20} weight="fill" />,
-      color: botRunning ? 'destructive' : 'primary',
-      action: () => {
-        if (!botRunning) {
-          // Check if user has acknowledged autonomous bot disclaimer
-          if (!hasAcknowledgedBot()) {
-            setShowBotDisclaimer(true)
-            return
-          }
+  const quickStats = useMemo(
+    () => {
+      // Defensive: Ensure all values are valid
+      const portfolioValue = typeof portfolio?.totalValue === 'number' ? portfolio.totalValue : 0
+      const portfolioChange = typeof portfolio?.change24h === 'number' ? portfolio.change24h : 0
+      const activeAgents = typeof portfolio?.activeAgents === 'number' ? portfolio.activeAgents : 0
+      const profit = typeof currentProfit === 'number' ? currentProfit : 0
+      const winRate = typeof safeLive?.weeklyWinRate === 'number' ? safeLive.weeklyWinRate : 0
+      const streak = typeof safeLive?.dailyStreak === 'number' ? safeLive.dailyStreak : 0
+      
+      return [
+        {
+          id: 'portfolio',
+          label: 'Total Portfolio',
+          value: currency.format(portfolioValue),
+          change: Number.isFinite(portfolioChange) ? portfolioChange : 0,
+          icon: <Vault size={22} weight="duotone" />,
+          color: 'primary'
+        },
+        {
+          id: 'profit',
+          label: 'Today\'s Profit',
+          value: `${profit >= 0 ? '+' : '-'}${currency.format(Math.abs(profit))}`,
+          change: Number.isFinite(winRate) ? winRate : 0,
+          icon: <TrendingUp size={22} weight="bold" />,
+          color: 'accent'
+        },
+        {
+          id: 'agents',
+          label: 'Active Agents',
+          value: `${activeAgents}/3`,
+          change: 0,
+          icon: <Robot size={22} weight="duotone" />,
+          color: 'secondary'
+        },
+        {
+          id: 'winrate',
+          label: 'Win Rate',
+          value: `${Number.isFinite(winRate) ? winRate.toFixed(1) : '0.0'}%`,
+          change: Number.isFinite(streak) ? streak : 0,
+          icon: <Brain size={22} weight="duotone" />,
+          color: 'success'
         }
+      ]
+    },
+    [portfolio, currentProfit, safeLive, currency]
+  )
 
-        startTransition(() => {
-          const newRunningState = !botRunning
-          setBotRunning(newRunningState)
-          
-          // Activate/deactivate autonomous trading
-          if (newRunningState && autonomousBot) {
-            autonomousBot.setIsActive(true)
-            toast.success('🤖 Autonomous Bot Activated', {
-              description: 'Bot is now self-sufficient and making autonomous trading decisions',
-              duration: 3000,
-            })
-          } else if (autonomousBot) {
-            autonomousBot.setIsActive(false)
-            toast.success('Bot stopped - will persist until manually restarted', {
-              description: 'All trading activities paused'
-            })
-          }
-        })
-      }
+  const missionMetrics: InsightMetric[] = [
+    {
+      label: 'Auto-compounded',
+      value: currency.format(optimizerStats.compoundedProfits),
+      caption: 'Since activation'
     },
     {
-      id: 'view-analytics',
-      label: 'View Analytics',
-      icon: <ChartLine size={20} weight="duotone" />,
-      color: 'accent',
-      action: () => {
-        const event = new CustomEvent('navigate-tab', { detail: 'analytics' })
-        window.dispatchEvent(event)
-      }
+      label: 'Tax reserved YTD',
+      value: currency.format(optimizerStats.taxReservedYTD),
+      caption: 'Protected capital'
     },
     {
-      id: 'check-vault',
-      label: 'Check Vault',
-      icon: <Vault size={20} weight="duotone" />,
-      color: 'secondary',
-      action: () => {
-        const event = new CustomEvent('navigate-tab', { detail: 'vault' })
-        window.dispatchEvent(event)
-      }
-    },
-    {
-      id: 'community',
-      label: 'Community',
-      icon: <Users size={20} weight="duotone" />,
-      color: 'primary',
-      action: () => {
-        const event = new CustomEvent('navigate-tab', { detail: 'community' })
-        window.dispatchEvent(event)
-      }
-    },
-    {
-      id: 'upgrade-tier',
-      label: 'Upgrade Tier',
-      icon: <Crown size={20} weight="fill" />,
-      color: 'accent',
-      action: () => {
-        const event = new CustomEvent('navigate-tab', { detail: 'settings' })
-        window.dispatchEvent(event)
-        // Navigate to subscription tab after a short delay
-        setTimeout(() => {
-          const subscriptionSection = document.getElementById('subscription-tiers-section')
-          if (subscriptionSection) {
-            subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          }
-        }, 300)
-      }
+      label: 'Avg position size',
+      value: `${optimizerStats.avgPositionSize.toFixed(1)}%`,
+      caption: 'Dynamic Kelly sizing'
     }
   ]
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setQuickStats(prev =>
-        prev.map(stat => ({
-          ...stat,
-          change: stat.change + (Math.random() - 0.5) * 0.5
-        }))
-      )
-    }, 3000)
+  const handleToggleBot = useCallback(() => {
+    if (!botRunning && !hasAcknowledgedBot()) {
+      setShowBotDisclaimer(true)
+      return
+    }
 
-    return () => clearInterval(interval)
-  }, [])
+    startTransition(() => {
+      const nextRunning = !botRunning
+      setBotRunning(nextRunning)
+      if (autonomousBot) {
+        autonomousBot.setIsActive(nextRunning)
+      }
+      toast.success(nextRunning ? '🤖 Bot online' : 'Bot paused', {
+        description: nextRunning
+          ? 'Autonomous trading engine is executing the playbook.'
+          : 'All orders cancelled, you are in manual control.'
+      })
+    })
+  }, [botRunning, hasAcknowledgedBot, autonomousBot, setBotRunning])
+
+  const navigate = useCallback((tab: string) =>
+    window.dispatchEvent(new CustomEvent('navigate-tab', { detail: tab })), [])
+
+  const handlePresetApply = useCallback((preset: RiskPreset) => {
+    setRiskPreset(preset.id)
+    setBotAggressionValue(preset.aggression)
+    setCapitalAllocation(preset.capital)
+    toast.success(`${preset.label} macro engaged`, {
+      description: `Aggression ${preset.aggression}% • Capital ${preset.capital}%`
+    })
+  }, [setRiskPreset, setBotAggressionValue, setCapitalAllocation])
+
+  const quickActions = [
+    {
+      id: 'toggle',
+      label: botRunning ? 'Pause Bot' : 'Resume Bot',
+      icon: botRunning ? <Stop size={20} weight="fill" /> : <Play size={20} weight="fill" />,
+      color: botRunning ? 'destructive' : 'primary',
+      action: handleToggleBot
+    },
+    {
+      id: 'analytics',
+      label: 'Open Analytics',
+      icon: <ChartLine size={20} weight="duotone" />,
+      color: 'accent',
+      action: () => navigate('analytics')
+    },
+    {
+      id: 'vault',
+      label: 'Secure Vault',
+      icon: <Vault size={20} weight="duotone" />,
+      color: 'secondary',
+      action: () => navigate('vault')
+    },
+    {
+      id: 'agents',
+      label: 'AI Agents',
+      icon: <Robot size={20} weight="duotone" />,
+      color: 'primary',
+      action: () => navigate('multi-agent')
+    },
+    {
+      id: 'upgrade',
+      label: 'Upgrade Tier',
+      icon: <Crown size={20} weight="fill" />,
+      color: 'accent',
+      action: () => navigate('settings')
+    }
+  ]
 
   if (!auth?.isAuthenticated) {
     return (
-      <>
-        <div 
-          className="space-y-6 animate-in fade-in duration-500"
-        >
-          <div className="cyber-card relative overflow-hidden">
-            <div className="absolute inset-0 diagonal-stripes opacity-20 pointer-events-none" />
-            <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
-              <Suspense fallback={<div className="w-64 h-64 animate-pulse bg-muted/10" />}>
-                <Wireframe3D type="sphere" size={256} color="secondary" animated={true} />
-              </Suspense>
-            </div>
-            <div className="p-8 relative z-10 text-center space-y-6">
-              <div className="inline-flex p-8 jagged-corner bg-gradient-to-br from-primary/20 to-accent/20 border-4 border-primary shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)]">
-                <Brain size={96} weight="duotone" className="text-primary" />
-              </div>
-              
-              <div className="space-y-4">
-                <h1 className="text-4xl md:text-5xl font-bold tracking-[0.2em] uppercase mb-2">
-                  <span className="text-primary" style={{
-                    textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary), 0 0 80px var(--primary)',
-                    WebkitTextStroke: '0.5px currentColor',
-                    paintOrder: 'stroke fill'
-                  }}>QUANTUM</span>
-                  <span className="text-accent ml-2" style={{
-                    textShadow: '0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 40px var(--accent), 0 0 80px var(--accent)',
-                    WebkitTextStroke: '0.5px currentColor',
-                    paintOrder: 'stroke fill'
-                  }}>FALCON</span>
-                </h1>
-                <p className="text-lg uppercase tracking-[0.15em] font-bold" style={{
-                  color: 'var(--primary)',
-                  textShadow: '0 0 10px var(--primary)',
-                  fontFamily: 'monospace',
-                  letterSpacing: '0.3em'
-                }}>
-                  SYSTEM_ONLINE<span className="animate-pulse">_</span>
-                </p>
-                <p className="text-base leading-relaxed text-foreground max-w-2xl mx-auto mt-4">
-                  Access your <span className="text-primary font-bold">advanced trading dashboard</span>, manage{' '}
-                  <span className="text-accent font-bold">AI agents</span>, and monitor your{' '}
-                  <span className="text-secondary font-bold">portfolio</span> in real-time
-                </p>
-              </div>
-
-              <Button
-                onClick={() => setShowLogin(true)}
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary 
-                         shadow-[0_0_30px_oklch(0.72_0.20_195_/_0.6)] hover:shadow-[0_0_40px_oklch(0.72_0.20_195_/_0.8)]
-                         transition-all jagged-corner uppercase tracking-[0.2em] font-bold text-lg px-8 py-6"
-              >
-                <Lightning size={24} weight="fill" className="mr-2" />
-                Authenticate System
-              </Button>
-
-              <div className="cyber-card-accent p-6 max-w-xl mx-auto">
-                <div className="flex items-center gap-3 mb-4">
-                  <Crown size={24} className="text-accent" weight="fill" />
-                  <span className="text-sm font-bold uppercase tracking-wider text-accent">System Requirements</span>
-                </div>
-                <div className="text-left space-y-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-primary" weight="fill" />
-                    <span>Valid Quantum Falcon license key</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-primary" weight="fill" />
-                    <span>Email address for authentication</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-primary" weight="fill" />
-                    <span>Access to 6 tier levels (Free, Starter, Trader, Pro, Elite, Lifetime)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
-      </>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-4">
+        <div className="w-14 h-14 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        <p className="text-sm uppercase tracking-[0.35em] text-primary">Syncing cockpit state…</p>
+      </div>
     )
   }
 
   return (
     <ErrorBoundary>
-      <div className="space-y-6" role="main" aria-label="Quantum Falcon Dashboard">
-        {/* Profit Milestone Celebration */}
-        <ProfitMilestoneCelebration
-          currentProfit={currentProfit}
-          previousProfit={previousProfit}
+      <div className="space-y-8" role="main" aria-label="Quantum Falcon Command Center">
+        <CommandHeader
+          auth={auth}
+          botRunning={botRunning}
+          paperTradingMode={paperTradingMode}
+          liveTrading={liveTrading}
+          onLogout={() => {
+            setBotRunning(false)
+            logout()
+          }}
         />
-        
-        {/* First Profit Celebration (small milestones) */}
-        <Suspense fallback={null}>
-          <FirstProfitCelebration
-            currentProfit={currentProfit}
-            previousProfit={previousProfit}
-          />
-        </Suspense>
-        
-        {/* Progress to First Profit Indicator */}
-        <Suspense fallback={null}>
-          <ProgressToFirstProfit
-            currentProfit={currentProfit}
-            targetProfit={10}
-          />
-        </Suspense>
 
-        {/* News Ticker - Top of Dashboard */}
-        <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
-          <NewsTicker />
-        </Suspense>
-        <Suspense fallback={<div className="animate-pulse h-8 bg-muted/20 rounded border border-primary/20" />}>
-          <LivePriceTicker />
-        </Suspense>
+        <HeroStrap liveTrading={liveTrading} />
 
-        {/* STAT CARDS - Portfolio Quick Stats - Prominent position for tour */}
-        <div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stats-grid" 
-          role="grid" 
-          aria-label="Portfolio Quick Stats" 
-          data-tour="stats-container"
-          style={{ opacity: 1, visibility: 'visible', display: 'grid' }}
-        >
-          {statsGrid.map((stat, idx) => (
-            <QuickStatsCard key={stat.id} stat={stat} index={idx} />
-          ))}
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {quickStats && Array.isArray(quickStats) && quickStats.length > 0 ? (
+            quickStats.map((stat, index) => {
+              // Defensive check - ensure stat is valid
+              if (!stat || !stat.id) {
+                console.warn('[EnhancedDashboard] Invalid stat at index:', index, stat)
+                return null
+              }
+              return (
+                <ErrorBoundary
+                  key={stat.id}
+                  FallbackComponent={({ error, resetErrorBoundary }) => (
+                    <div className="cyber-card p-4 border-destructive/50">
+                      <p className="text-xs text-destructive">Stat card error</p>
+                      <button
+                        onClick={resetErrorBoundary}
+                        className="mt-2 px-3 py-1 text-xs bg-primary/20 hover:bg-primary/30 rounded"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  )}
+                >
+                  <QuickStatsCard stat={stat} index={index} />
+                </ErrorBoundary>
+              )
+            })
+          ) : (
+            <div className="col-span-full cyber-card p-6 text-center">
+              <p className="text-sm text-muted-foreground">Loading stats...</p>
+            </div>
+          )}
         </div>
 
-        {/* Tax Dashboard Card */}
+        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+          <MissionReadinessPanel
+            missionMetrics={missionMetrics}
+            optimizerStats={optimizerStats}
+            getTaxSummary={getTaxSummary}
+          />
+          <BotControlPanel
+            paperTradingMode={paperTradingMode}
+            setPaperTradingMode={(value) =>
+              startTransition(() => {
+                setPaperTradingMode(value)
+                toast.success(value ? 'Paper mode enabled' : 'Live mode armed')
+              })
+            }
+            isPending={isPending}
+            quickActions={quickActions}
+            riskPreset={riskPreset}
+            onSelectPreset={handlePresetApply}
+            capitalAllocation={capitalAllocation}
+            botAggression={botAggressionValue}
+          />
+        </div>
+
+        <ProfitMilestoneCelebration currentProfit={currentProfit} previousProfit={previousProfit} />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Suspense fallback={<StatSkeleton />}>
+            <FirstProfitCelebration currentProfit={currentProfit} previousProfit={previousProfit} />
+          </Suspense>
+          <Suspense fallback={<StatSkeleton />}>
+            <ProgressToFirstProfit currentProfit={currentProfit} targetProfit={10} />
+          </Suspense>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[3fr_2fr]">
+          <NewsOpportunitiesDisplay userTier={userTier} />
+          <BearMarketPanel bearState={bearState} />
+        </div>
+
         <TaxDashboardCard />
 
-        {/* Profit Optimizer Card */}
-        <div className="cyber-card p-6 border-2 border-yellow-500/50 relative overflow-hidden">
-          <div className="absolute inset-0 grid-background opacity-5" />
-          <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/10 blur-3xl rounded-full" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-yellow-500/20 border border-yellow-500/40 rounded-lg">
-                <TrendingUp size={32} weight="duotone" className="text-yellow-400" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-wider text-yellow-400">
-                  Profit Optimization Engine
-                </h3>
-                <p className="text-sm text-muted-foreground">Auto-compounding • Tax optimization • Kelly sizing</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-center">
-                <p className="text-muted-foreground text-sm uppercase tracking-wider mb-2">Avg Position Size</p>
-                <p className="text-3xl font-bold text-cyan-400">{optimizerStats.avgPositionSize.toFixed(1)}%</p>
-              </div>
-              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-center">
-                <p className="text-muted-foreground text-sm uppercase tracking-wider mb-2">Tax Reserved YTD</p>
-                <p className="text-3xl font-bold text-green-400">${optimizerStats.taxReservedYTD.toFixed(0)}</p>
-              </div>
-              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-center">
-                <p className="text-muted-foreground text-sm uppercase tracking-wider mb-2">Compounded</p>
-                <p className="text-3xl font-bold text-purple-400">+${optimizerStats.compoundedProfits.toFixed(0)}</p>
-              </div>
-              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-center">
-                <p className="text-muted-foreground text-sm uppercase tracking-wider mb-2">Status</p>
-                <p className="text-2xl font-black text-yellow-400 uppercase">
-                  {optimizerStats.status === 'active' ? 'ACTIVE 🔥' : 'PAUSED'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* News Intelligence Display */}
-        <NewsOpportunitiesDisplay userTier={userTier} />
-
-        {/* Bear Market Detection Card */}
-        {bearState.confidence > 0 && (
-          <div className={`cyber-card p-6 border-2 ${
-            bearState.status === 'extreme_bear' ? 'border-red-500/50' :
-            bearState.status === 'bear' ? 'border-orange-500/50' :
-            'border-yellow-500/50'
-          } relative overflow-hidden`}>
-            <div className="absolute inset-0 grid-background opacity-5" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <AlertCircle 
-                    size={32} 
-                    weight="duotone" 
-                    className={bearState.status === 'extreme_bear' ? 'text-red-400' : 'text-orange-400'} 
-                  />
-                  <div>
-                    <h3 className="text-xl font-black uppercase tracking-wider">
-                      Bear Market Detection
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {bearState.status === 'extreme_bear' ? 'EXTREME BEAR MODE' :
-                       bearState.status === 'bear' ? 'BEAR MODE ACTIVE' :
-                       'Monitoring Market Conditions'}
-                    </p>
+        <SectionCard title="AI Advisor" icon={<Brain size={20} weight="duotone" />}>
+          <Suspense fallback={<StatSkeleton />}>
+            <ErrorBoundary
+              FallbackComponent={({ error, resetErrorBoundary }) => (
+                <div className="cyber-card p-6 angled-corner-tl border-destructive/50">
+                  <div className="flex items-center gap-3 text-destructive mb-2">
+                    <Brain size={24} weight="fill" />
+                    <span className="text-sm font-bold uppercase">Neural Forecast Offline</span>
                   </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    The AI advisor encountered an error. Click retry to reconnect.
+                  </p>
+                  <button
+                    onClick={resetErrorBoundary}
+                    className="px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 rounded text-xs font-bold uppercase tracking-wider transition-colors"
+                  >
+                    Retry Neural Link
+                  </button>
                 </div>
-                <div className="text-right">
-                  <p className="text-3xl font-black text-red-400">{bearState.confidence}%</p>
-                  <p className="text-xs text-muted-foreground">Bear Confidence</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                {bearState.signals.filter(s => s.active).map((signal, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 bg-muted/20 rounded">
-                    <span className="text-sm">{signal.name}</span>
-                    <span className="text-sm font-bold text-red-400">+{signal.points} pts</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      
-      <div 
-        className="cyber-card relative overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300"
-        data-tour="dashboard"
-      >
-        <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
-        <div className="p-6 relative z-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-[0.15em] uppercase mb-2">
-                <span className="text-primary" style={{
-                  textShadow: '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)',
-                  WebkitTextStroke: '0.5px currentColor',
-                  paintOrder: 'stroke fill'
-                }}>Welcome Back,</span>
-                <span className="text-foreground ml-2">{auth.username}</span>
-              </h1>
-              <div className="flex flex-wrap items-center gap-3 mt-2">
-                {auth.license?.tier === 'free' ? (
-                  <div className="px-4 py-1.5 bg-gradient-to-r from-gray-800/90 to-gray-900/90 border-2 border-cyan-500/50 jagged-corner-small shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-                    <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
-                      <span>Free Tier</span>
-                      <span className="text-cyan-500">—</span>
-                      <span className="text-white">Upgrade for Elite Power</span>
-                    </span>
-                  </div>
-                ) : (
-                  <div className="px-3 py-1 bg-accent/20 border border-accent jagged-corner-small">
-                    <span className="text-xs font-bold text-accent uppercase tracking-wider">
-                      {auth.license?.tier.toUpperCase()} Tier
-                    </span>
-                  </div>
-                )}
-                <div className="px-3 py-1 bg-primary/20 border border-primary jagged-corner-small">
-                  <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                    Bot: {botRunning ? 'RUNNING' : 'STOPPED'}
-                  </span>
-                </div>
-                <div className="px-3 py-1 border jagged-corner-small" style={{ 
-                  backgroundColor: paperTradingMode ? 'oklch(0.68 0.18 330 / 0.2)' : 'oklch(0.65 0.25 25 / 0.2)',
-                  borderColor: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
-                }}>
-                  <span className="text-xs font-bold uppercase tracking-wider" style={{
-                    color: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
-                  }}>
-                    {paperTradingMode ? 'PAPER MODE' : 'LIVE TRADING'}
-                  </span>
-                </div>
-                <BestPerformingAgentBadge />
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setBotRunning(false)
-                // Use proper logout function - immediately shows login page
-                logout()
-              }}
-              className="border-primary/50 hover:border-primary hover:bg-primary/10 jagged-corner-small"
+              )}
             >
-              Logout
-            </Button>
-          </div>
-        </div>
+              <AIAdvisor />
+            </ErrorBoundary>
+          </Suspense>
+        </SectionCard>
+
+        <motion.div
+          className="grid gap-4 lg:grid-cols-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <AgentStatusCard />
+          <ActivityFeed />
+        </motion.div>
+
+        <Suspense fallback={<StatSkeleton />}>
+          <LearningMetricsDisplay />
+        </Suspense>
+
+        <Suspense fallback={<StatSkeleton />}>
+          <LogicStream />
+        </Suspense>
+
+        <SessionJournal events={liveTrading.sessionJournal} />
+
+        <LicenseExpiry />
       </div>
 
-      <LicenseExpiry />
-
-      <div 
-        className="glass-morph-card p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-100"
-      >
-        <div className="absolute inset-0 grid-background opacity-5" />
-        <svg className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
-          <circle cx="90%" cy="20%" r="40" stroke="var(--accent)" strokeWidth="2" fill="none" strokeDasharray="5,5" className="circuit-line" />
-        </svg>
-        
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="p-3 jagged-corner-small bg-accent/20 border-2 border-accent/50 relative">
-              <Database size={28} weight="duotone" className="text-accent" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-pulse" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold uppercase tracking-[0.15em] hud-text text-accent">
-                TRADING MODE
-              </h3>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
-                {paperTradingMode ? 'Paper trading simulates all features without real funds' : 'Live trading with real funds - USE WITH CAUTION'}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3 p-4 bg-background/60 border-2 jagged-corner transition-colors" style={{
-            borderColor: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
-          }}>
-            <Label htmlFor="paper-mode" className="text-sm font-bold uppercase tracking-wide cursor-pointer transition-colors" style={{
-              color: paperTradingMode ? 'var(--accent)' : 'var(--destructive)'
-            }}>
-              {paperTradingMode ? 'PAPER MODE' : 'LIVE MODE'}
-            </Label>
-            <Switch
-              id="paper-mode"
-              checked={paperTradingMode}
-              onCheckedChange={(checked) => {
-                startTransition(() => {
-                  setPaperTradingMode(checked)
-                  toast.success(checked ? 'Switched to Paper Trading Mode' : 'Switched to Live Trading Mode', {
-                    description: checked 
-                      ? 'All trades are simulated - no real funds at risk' 
-                      : 'WARNING: Trading with real funds now!'
-                  })
-                })
-              }}
-              disabled={isPending}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="cyber-card p-6 angled-corners-dual-tl-br quick-actions" data-tour="quick-actions">
-        <div className="flex items-center gap-3 mb-4">
-          <Lightning size={24} weight="fill" className="text-accent" />
-          <h2 className="text-xl font-bold uppercase tracking-wider text-accent">Quick Actions</h2>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {quickActions.map((action, idx) => {
-            const colorClasses = {
-              primary: 'bg-primary/10 hover:bg-primary/20 border-primary/50 hover:border-primary text-primary hover:shadow-[0_0_20px_oklch(0.72_0.20_195_/_0.3)]',
-              accent: 'bg-accent/10 hover:bg-accent/20 border-accent/50 hover:border-accent text-accent hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
-              secondary: 'bg-secondary/10 hover:bg-secondary/20 border-secondary/50 hover:border-secondary text-secondary hover:shadow-[0_0_20px_oklch(0.68_0.18_330_/_0.3)]',
-              destructive: 'bg-destructive/10 hover:bg-destructive/20 border-destructive/50 hover:border-destructive text-destructive hover:shadow-[0_0_20px_oklch(0.65_0.25_25_/_0.3)]'
-            }
-            
-            return (
-              <Button
-                key={action.id}
-                onClick={action.action}
-                data-action={action.id === 'toggle-bot' ? 'start-bot' : undefined}
-                data-tour="quick-action"
-                className={`w-full ${colorClasses[action.color as keyof typeof colorClasses]} border-2 transition-all ${idx % 2 === 0 ? 'angled-corner-tr' : 'angled-corner-br'} flex-col h-auto py-4 gap-2 relative overflow-hidden group/btn`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-current/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                <div className="relative z-10">
-                  {action.icon}
-                </div>
-                <span className="text-xs uppercase tracking-wider font-bold relative z-10">{action.label}</span>
-              </Button>
-            )
-          })}
-        </div>
-      </div>
-
-      <Suspense fallback={<div className="animate-pulse h-48 bg-muted/20 rounded border border-primary/20" />}>
-        <AIAdvisor />
-      </Suspense>
-
-      {/* ENHANCED: Agent Status section — premium data flow visuals, zero overwhelm */}
-      <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <AgentStatusCard />
-        <ActivityFeed />
-      </motion.div>
-
-      {/* Learning Metrics Display */}
-      <Suspense fallback={<div className="animate-pulse h-32 bg-muted/20 rounded border border-primary/20" />}>
-        <LearningMetricsDisplay />
-      </Suspense>
-
-      <Suspense fallback={<div className="animate-pulse h-64 bg-muted/20 rounded border border-accent/20" />}>
-        <LogicStream />
-      </Suspense>
-      </div>
-
-      {/* Autonomous Bot Legal Disclaimer */}
       <AutonomousBotDisclaimer
         isOpen={showBotDisclaimer}
         onClose={() => setShowBotDisclaimer(false)}
         onAccept={() => {
           setShowBotDisclaimer(false)
-          // Now allow bot to start
-          startTransition(() => {
-            setBotRunning(true)
-            if (autonomousBot) {
-              autonomousBot.setIsActive(true)
-            }
-            toast.success('🤖 Autonomous Bot Activated', {
-              description: 'Bot is now self-sufficient and making autonomous trading decisions',
-              duration: 3000,
-            })
-          })
+          handleToggleBot()
         }}
       />
     </ErrorBoundary>
   )
 }
+
+/* Helper components ------------------------------------------------------ */
+
+const SectionCard = ({
+  title,
+  icon,
+  children,
+  actions
+}: {
+  title: string
+  icon: React.ReactNode
+  children: React.ReactNode
+  actions?: React.ReactNode
+}) => (
+  <div className="cyber-card p-6 space-y-4">
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
+        {icon}
+        <h3 className="text-lg font-bold tracking-[0.2em] uppercase">{title}</h3>
+      </div>
+      {actions}
+    </div>
+    {children}
+  </div>
+)
+
+const CommandHeader = ({
+  auth,
+  botRunning,
+  paperTradingMode,
+  liveTrading,
+  onLogout
+}: {
+  auth: UserAuth
+  botRunning: boolean
+  paperTradingMode: boolean
+  liveTrading: ReturnType<typeof useLiveTradingData>
+  onLogout: () => void
+}) => (
+  <div className="cyber-card relative overflow-hidden p-6">
+    <div className="absolute inset-0 diagonal-stripes opacity-10 pointer-events-none" />
+    <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p className="text-xs uppercase tracking-[0.6em] text-primary flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          Command Center
+        </p>
+        <div className="flex flex-wrap items-center gap-3 mt-3">
+          <h1 className="text-3xl font-black tracking-[0.2em] uppercase">
+            Welcome back, <span className="text-primary">{auth.username}</span>
+          </h1>
+          <BestPerformingAgentBadge />
+        </div>
+        <div className="flex flex-wrap items-center gap-2 mt-4">
+          <HeroBadge
+            label={`${auth.license?.tier?.toUpperCase() || 'FREE'} TIER`}
+            icon={<Crown size={14} weight="fill" />}
+          />
+          <HeroBadge
+            label={botRunning ? 'BOT ONLINE' : 'BOT STANDBY'}
+            icon={<Lightning size={14} weight="bold" />}
+            variant={botRunning ? 'success' : 'neutral'}
+          />
+          <HeroBadge
+            label={paperTradingMode ? 'SIMULATION' : 'LIVE CAPITAL'}
+            icon={<ShieldCheck size={14} weight="bold" />}
+            variant={paperTradingMode ? 'accent' : 'alert'}
+          />
+        </div>
+      </div>
+      <div className="flex flex-col gap-3 items-end">
+        <LivePnLSparkline liveTrading={liveTrading} />
+        <Button onClick={onLogout} variant="outline" className="border-primary/50 hover:bg-primary/10">
+          Log out
+        </Button>
+      </div>
+    </div>
+  </div>
+)
+
+const HeroBadge = ({
+  label,
+  icon,
+  variant = 'primary'
+}: {
+  label: string
+  icon: React.ReactNode
+  variant?: 'primary' | 'success' | 'accent' | 'alert' | 'neutral'
+}) => {
+  const tones: Record<typeof variant, string> = {
+    primary: 'border-primary/50 text-primary',
+    success: 'border-green-400/50 text-green-300',
+    accent: 'border-accent/50 text-accent',
+    alert: 'border-red-400/60 text-red-300',
+    neutral: 'border-muted/60 text-muted-foreground'
+  }
+  return (
+    <span
+      className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-bold uppercase tracking-wider jagged-corner-small bg-background/60 border ${tones[variant]}`}
+    >
+      {icon}
+      {label}
+    </span>
+  )
+}
+
+const HeroStrap = ({
+  liveTrading
+}: {
+  liveTrading: ReturnType<typeof useLiveTradingData>
+}) => (
+  <div className="grid gap-3 md:grid-cols-3">
+    <Suspense fallback={<StatSkeleton />}>
+      <NewsTicker />
+    </Suspense>
+    <Suspense fallback={<StatSkeleton />}>
+      <LivePriceTicker />
+    </Suspense>
+    <div className="cyber-card flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">Realized PnL</p>
+          <p className="text-2xl font-black text-primary">
+            {liveTrading.dailyPnL >= 0 ? '+' : '-'}
+            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+              Math.abs(liveTrading.dailyPnL)
+            )}
+          </p>
+        </div>
+        <p className="text-xs text-muted-foreground text-right">
+          {liveTrading.isLoading ? 'Updating…' : 'Live momentum'}
+        </p>
+      </div>
+      <Sparkline values={liveTrading.pnLHistory || []} />
+    </div>
+  </div>
+)
+
+const MissionReadinessPanel = ({
+  missionMetrics,
+  optimizerStats,
+  getTaxSummary
+}: {
+  missionMetrics: InsightMetric[]
+  optimizerStats: ReturnType<typeof useProfitOptimizer>['getStats']
+  getTaxSummary: ReturnType<typeof useTaxReserve>['getTaxSummary']
+}) => {
+  const taxSummary = getTaxSummary()
+
+  return (
+    <SectionCard title="Mission Readiness" icon={<TrendingUp size={20} weight="bold" />}>
+      <div className="grid gap-4 md:grid-cols-3">
+        {missionMetrics.map((metric) => (
+          <div key={metric.label} className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{metric.label}</p>
+            <p className="text-2xl font-black mt-2">{metric.value}</p>
+            <p className="text-xs text-muted-foreground">{metric.caption}</p>
+          </div>
+        ))}
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 mt-4">
+        <div className="p-4 rounded-xl bg-accent/10 border border-accent/30">
+          <p className="text-xs uppercase tracking-[0.35em] text-accent flex items-center gap-2">
+            <WaveSine size={14} weight="bold" />
+            Bot Rhythm
+          </p>
+          <p className="text-4xl font-black mt-3">
+            {optimizerStats.status === 'active' ? 'Stable +2.1%' : 'Paused'}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">Rolling 7-day PnL delta</p>
+        </div>
+        <div className="p-4 rounded-xl bg-secondary/10 border border-secondary/30">
+          <p className="text-xs uppercase tracking-[0.35em] text-secondary flex items-center gap-2">
+            <Sparkle size={14} weight="fill" />
+            Compliance
+          </p>
+          <p className="text-4xl font-black mt-3">{taxSummary?.coverage || '99%'}</p>
+          <p className="text-xs text-muted-foreground mt-1">Tax coverage | auto archived</p>
+        </div>
+      </div>
+    </SectionCard>
+  )
+}
+
+const BotControlPanel = ({
+  paperTradingMode,
+  setPaperTradingMode,
+  isPending,
+  quickActions,
+  riskPreset,
+  onSelectPreset,
+  capitalAllocation,
+  botAggression
+}: {
+  paperTradingMode: boolean
+  setPaperTradingMode: (value: boolean) => void
+  isPending: boolean
+  quickActions: Array<ComponentProps<typeof QuickActionButton>['action']>
+  riskPreset: RiskPresetId
+  onSelectPreset: (preset: RiskPreset) => void
+  capitalAllocation: number
+  botAggression: number
+}) => (
+  <SectionCard title="Controls" icon={<Lightning size={20} weight="bold" />}>
+    <div className="flex items-center justify-between gap-3 bg-background/60 border border-primary/20 rounded-xl p-4">
+      <div>
+        <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Trading Mode</p>
+        <p className="text-lg font-bold">{paperTradingMode ? 'Paper Simulation' : 'Live Capital'}</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Aggression {botAggression}% • Capital {capitalAllocation}% deployed
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Label htmlFor="mode-toggle" className="text-xs uppercase tracking-[0.35em]">
+          {paperTradingMode ? 'Paper' : 'Live'}
+        </Label>
+        <Switch
+          id="mode-toggle"
+          checked={paperTradingMode}
+          disabled={isPending}
+          onCheckedChange={setPaperTradingMode}
+        />
+      </div>
+    </div>
+    <RiskPresetButtons activePreset={riskPreset} onSelect={onSelectPreset} />
+    <div className="grid grid-cols-2 gap-3 mt-4 lg:grid-cols-3">
+      {quickActions.map((action, index) => (
+        <QuickActionButton key={action.id} action={action} index={index} />
+      ))}
+    </div>
+  </SectionCard>
+)
+
+const BearMarketPanel = ({
+  bearState
+}: {
+  bearState: ReturnType<typeof useBearMarketDetector>['bearState']
+}) => {
+  if (!bearState || bearState.confidence <= 0) {
+    return (
+      <SectionCard title="Market Watch" icon={<AlertCircle size={18} weight="bold" />}>
+        <p className="text-sm text-muted-foreground">All clear. No critical signals detected.</p>
+      </SectionCard>
+    )
+  }
+
+  return (
+    <SectionCard
+      title="Market Watch"
+      icon={<AlertCircle size={18} weight="bold" />}
+      actions={<span className="text-xs font-black tracking-[0.3em] text-red-400">{bearState.confidence}% RISK</span>}
+    >
+      <p className="text-lg font-bold">
+        {bearState.status === 'extreme_bear'
+          ? 'Extreme bear pressure'
+          : bearState.status === 'bear'
+            ? 'Bear mode active'
+            : 'Monitoring turbulence'}
+      </p>
+      <div className="space-y-2 mt-3">
+        {bearState.signals
+          .filter((signal) => signal.active)
+          .map((signal, idx) => (
+            <div
+              key={`${signal.name}-${idx}`}
+              className="flex items-center justify-between rounded-lg border border-red-400/30 bg-red-400/5 px-3 py-2 text-sm"
+            >
+              <span>{signal.name}</span>
+              <span className="font-bold text-red-300">+{signal.points} pts</span>
+            </div>
+          ))}
+      </div>
+    </SectionCard>
+  )
+}
+
+const SessionJournal = ({ events }: { events: SessionEvent[] }) => {
+  const timeFormatter = useMemo(
+    () => new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric' }),
+    []
+  )
+
+  return (
+    <SectionCard title="Session Journal" icon={<Robot size={18} weight="duotone" />}>
+      {events.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Bot is running quietly. No notable events logged in the last hour.
+        </p>
+      ) : (
+        <ol className="space-y-3">
+          {events.map((event) => (
+            <li key={event.id} className="flex items-start gap-3">
+              <span className="text-xs text-muted-foreground w-16">
+                {timeFormatter.format(event.timestamp)}
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">{event.label}</p>
+                <p className="text-xs text-muted-foreground">{event.detail}</p>
+              </div>
+              <span
+                className={`text-xs font-bold ${
+                  event.impact >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}
+              >
+                {event.impact >= 0 ? '+' : ''}
+                {event.impact.toFixed(0)}
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </SectionCard>
+  )
+}
+
+const LivePnLSparkline = ({ liveTrading }: { liveTrading: ReturnType<typeof useLiveTradingData> }) => {
+  const values = liveTrading.pnLHistory || []
+  if (!values.length) {
+    return (
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span className="w-2 h-2 rounded-full bg-muted animate-pulse" />
+        Gathering PnL telemetry…
+      </div>
+    )
+  }
+
+  const normalized = values.slice(-20)
+  const max = Math.max(...normalized, 1)
+  const min = Math.min(...normalized, -1)
+  const range = max - min || 1
+
+  const points = normalized
+    .map((value, index) => {
+      const x = (index / (normalized.length - 1)) * 100
+      const y = 100 - ((value - min) / range) * 100
+      return `${x},${y}`
+    })
+    .join(' ')
+
+  const trendUp = normalized[normalized.length - 1] >= normalized[0]
+
+  return (
+    <div className="px-3 py-2 bg-background/80 border border-primary/20 rounded-lg w-[240px]">
+      <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">
+        <span>PnL Telemetry</span>
+        <span className={trendUp ? 'text-green-400' : 'text-red-400'}>
+          {trendUp ? '↑ growing' : '↓ cooling'}
+        </span>
+      </div>
+      <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="w-full h-12">
+        <polyline
+          fill="none"
+          stroke={trendUp ? 'url(#pnl-gradient-up)' : 'url(#pnl-gradient-down)'}
+          strokeWidth="2"
+          points={points}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        <defs>
+          <linearGradient id="pnl-gradient-up" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#14F195" />
+            <stop offset="100%" stopColor="#00D4FF" />
+          </linearGradient>
+          <linearGradient id="pnl-gradient-down" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#F87171" />
+            <stop offset="100%" stopColor="#FDBA74" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  )
+}
+
+const Sparkline = ({ values }: { values: number[] }) => {
+  if (!values.length) {
+    return <div className="h-16 rounded bg-muted/30 animate-pulse" />
+  }
+  const normalized = values.slice(-20)
+  const max = Math.max(...normalized, 1)
+  const min = Math.min(...normalized, -1)
+  const range = max - min || 1
+  const points = normalized
+    .map((value, index) => {
+      const x = (index / (normalized.length - 1)) * 100
+      const y = 100 - ((value - min) / range) * 100
+      return `${x},${y}`
+    })
+    .join(' ')
+  return (
+    <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="w-full h-16">
+      <polyline
+        fill="none"
+        stroke="url(#sparkline-gradient)"
+        strokeWidth="2"
+        points={points}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <defs>
+        <linearGradient id="sparkline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#14F195" />
+          <stop offset="100%" stopColor="#00D4FF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
+
+const RiskPresetButtons = ({
+  activePreset,
+  onSelect
+}: {
+  activePreset: RiskPresetId
+  onSelect: (preset: RiskPreset) => void
+}) => (
+  <div className="flex flex-wrap gap-2">
+    {RISK_PRESETS.map((preset) => (
+      <Button
+        key={preset.id}
+        variant={preset.id === activePreset ? 'default' : 'outline'}
+        size="sm"
+        className="text-xs tracking-[0.2em]"
+        onClick={() => onSelect(preset)}
+      >
+        {preset.label}
+      </Button>
+    ))}
+  </div>
+)
+

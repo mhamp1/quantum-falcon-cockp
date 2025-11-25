@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
   ShareNetwork, Copy, CheckCircle, 
-  Trophy, TrendingUp, Sparkle, X
+  Trophy, TrendUp as TrendingUp, Sparkle, X
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'

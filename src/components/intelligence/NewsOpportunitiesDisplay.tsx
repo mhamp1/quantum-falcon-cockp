@@ -3,7 +3,7 @@
 // Displays news opportunities the bot has detected
 
 import { useEffect, useState } from 'react'
-import { Newspaper, TrendingUp, TrendingDown, AlertCircle, Lightning } from '@phosphor-icons/react'
+import { Newspaper, TrendUp as TrendingUp, TrendDown as TrendingDown, WarningCircle as AlertCircle, Lightning } from '@phosphor-icons/react'
 import { useNewsIntelligence } from '@/lib/intelligence/NewsIntelligenceEngine'
 import { motion, AnimatePresence } from 'framer-motion'
 

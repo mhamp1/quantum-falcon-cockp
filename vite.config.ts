@@ -38,6 +38,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src'),
+      '@github/spark/hooks': resolve(projectRoot, 'src/shims/githubSparkHooks.ts'),
       'eventemitter3': resolve(projectRoot, 'node_modules/eventemitter3/index.mjs')
     },
     // CRITICAL FIX: Deduplicate React to prevent multiple versions

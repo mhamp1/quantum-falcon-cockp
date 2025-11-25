@@ -18,10 +18,12 @@ import {
   Gear,
   Trophy,
   Sparkle,
-  CheckCircle
+  CheckCircle,
+  Warning
 } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import { soundEffects } from '@/lib/soundEffects'
+import { toast } from 'sonner'
 
 export interface TourStep {
   id: string
@@ -43,6 +45,15 @@ interface InteractiveTourProps {
 }
 
 const TOUR_STEPS: TourStep[] = [
+  {
+    id: 'legal',
+    title: 'Legal Agreements Required',
+    description: 'You must read and accept both documents to continue',
+    position: 'center',
+    action: 'info',
+    icon: Warning,
+    highlight: true
+  },
   {
     id: 'welcome',
     title: 'Welcome to Quantum Falcon',
@@ -154,13 +165,32 @@ export default function InteractiveTour({
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
   const [isNavigating, setIsNavigating] = useState(false)
+  const [legalAccepted, setLegalAccepted] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
 
   const currentStep = TOUR_STEPS[currentStepIndex]
   const isFirstStep = currentStepIndex === 0
   const isLastStep = currentStepIndex === TOUR_STEPS.length - 1
+  const isLegalStep = currentStep?.id === 'legal'
   const progress = ((currentStepIndex + 1) / TOUR_STEPS.length) * 100
+
+  const handleCompleteLegal = useCallback(() => {
+    if (!legalAccepted) {
+      toast.error('Please accept terms to continue', {
+        description: 'You must check the box to proceed',
+        duration: 3000,
+        style: {
+          background: '#dc2626',
+          color: 'white',
+          border: '2px solid rgba(239, 68, 68, 0.5)',
+        },
+      })
+      return
+    }
+    soundEffects.playClick()
+    setCurrentStepIndex(1) // Advance to welcome step (Step 1 = welcome)
+  }, [legalAccepted])
 
   // Update target position when step changes
   useEffect(() => {
@@ -232,6 +262,12 @@ export default function InteractiveTour({
   }, [currentStepIndex, isOpen, currentStep, setActiveTab, isNavigating])
 
   const handleNext = useCallback(() => {
+    // If on legal step, require acceptance first
+    if (isLegalStep) {
+      handleCompleteLegal()
+      return
+    }
+    
     soundEffects.playClick()
     
     if (isLastStep) {
@@ -239,7 +275,7 @@ export default function InteractiveTour({
     } else {
       setCurrentStepIndex(prev => prev + 1)
     }
-  }, [isLastStep, onComplete])
+  }, [isLastStep, onComplete, isLegalStep, handleCompleteLegal])
 
   const handlePrevious = useCallback(() => {
     soundEffects.playClick()
@@ -254,11 +290,23 @@ export default function InteractiveTour({
   if (!isOpen) return null
 
   const getCardPosition = () => {
+    // CRITICAL: Mobile bottom nav is 80px + safe area, tour card must never cover it
+    const isMobile = window.innerWidth < 768
+    const mobileNavHeight = 80 // Mobile bottom nav height
+    const safeAreaBottom = typeof window !== 'undefined' && 'env' in window.CSS ? 20 : 0
+    const mobileBottomOffset = isMobile ? mobileNavHeight + safeAreaBottom + 20 : 0 // 20px spacing above nav
+    
     if (currentStep.position === 'center') {
       return {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+        // On mobile, ensure card doesn't overlap bottom nav
+        ...(isMobile && {
+          bottom: `${mobileBottomOffset}px`,
+          top: 'auto',
+          transform: 'translateX(-50%)',
+        }),
       }
     }
 
@@ -267,6 +315,12 @@ export default function InteractiveTour({
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+        // On mobile, ensure card doesn't overlap bottom nav
+        ...(isMobile && {
+          bottom: `${mobileBottomOffset}px`,
+          top: 'auto',
+          transform: 'translateX(-50%)',
+        }),
       }
     }
 
@@ -280,8 +334,31 @@ export default function InteractiveTour({
           top: `${targetRect.top - cardHeight - spacing}px`,
           left: `${targetRect.left + targetRect.width / 2}px`,
           transform: 'translateX(-50%)',
+          // On mobile, ensure card doesn't go below bottom nav
+          ...(isMobile && {
+            maxHeight: `calc(100vh - ${mobileBottomOffset}px - ${targetRect.top}px)`,
+          }),
         }
       case 'bottom':
+        // CRITICAL: On mobile, position above bottom nav
+        if (isMobile) {
+          const bottomPosition = window.innerHeight - mobileBottomOffset
+          const cardTop = bottomPosition - cardHeight
+          // If card would overlap target, position above target instead
+          if (cardTop < targetRect.bottom + spacing) {
+            return {
+              top: `${targetRect.top - cardHeight - spacing}px`,
+              left: `${targetRect.left + targetRect.width / 2}px`,
+              transform: 'translateX(-50%)',
+            }
+          }
+          return {
+            bottom: `${mobileBottomOffset}px`,
+            left: `${targetRect.left + targetRect.width / 2}px`,
+            transform: 'translateX(-50%)',
+            top: 'auto',
+          }
+        }
         return {
           top: `${targetRect.bottom + spacing}px`,
           left: `${targetRect.left + targetRect.width / 2}px`,
@@ -292,8 +369,12 @@ export default function InteractiveTour({
           top: `${targetRect.top + targetRect.height / 2}px`,
           left: `${targetRect.left - cardWidth - spacing}px`,
           transform: 'translateY(-50%)',
+          // On mobile, ensure card doesn't overlap bottom nav
+          ...(isMobile && {
+            maxHeight: `calc(100vh - ${mobileBottomOffset}px)`,
+          }),
         }
-      case 'right':
+      case 'right': {
         // For step 10 (settings), position higher to ensure next button is visible
         const isStep10 = currentStepIndex === 9 // Settings is step 10 (0-indexed = 9)
         const verticalOffset = isStep10 ? -150 : 0 // Raise step 10 by 150px to ensure button is accessible
@@ -304,9 +385,20 @@ export default function InteractiveTour({
           top: `${safeTop}px`,
           left: `${targetRect.right + spacing}px`,
           transform: 'translateY(-50%)',
-          maxHeight: 'calc(100vh - 40px)', // Ensure card fits in viewport
+          // CRITICAL: On mobile, ensure card doesn't overlap bottom nav
+          maxHeight: isMobile ? `calc(100vh - ${mobileBottomOffset}px - ${safeTop}px)` : 'calc(100vh - 40px)',
+        }
         }
       default:
+        // CRITICAL: On mobile, position above bottom nav
+        if (isMobile) {
+          return {
+            bottom: `${mobileBottomOffset}px`,
+            left: `${targetRect.left + targetRect.width / 2}px`,
+            transform: 'translateX(-50%)',
+            top: 'auto',
+          }
+        }
         return {
           top: `${targetRect.bottom + spacing}px`,
           left: `${targetRect.left + targetRect.width / 2}px`,
@@ -446,6 +538,46 @@ export default function InteractiveTour({
                 </span>
               </div>
 
+              {/* Legal Requirements Checkbox - Only shown on legal step */}
+              {isLegalStep && (
+                <div className="space-y-4 py-4 border-t border-destructive/30">
+                  <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+                    <p className="text-sm text-destructive-foreground mb-4 font-semibold">
+                      ⚠️ You must accept the Terms of Service and Risk Disclosure to use Quantum Falcon.
+                    </p>
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <div className="relative flex-shrink-0 mt-1">
+                        <input
+                          type="checkbox"
+                          checked={legalAccepted}
+                          onChange={(e) => {
+                            setLegalAccepted(e.target.checked)
+                            if (e.target.checked) {
+                              soundEffects.playClick()
+                            }
+                          }}
+                          className="w-7 h-7 md:w-6 md:h-6 accent-primary cursor-pointer opacity-0 absolute"
+                          aria-label="Accept Terms of Service and Risk Disclosure"
+                        />
+                        <div className={cn(
+                          "w-7 h-7 md:w-6 md:h-6 border-2 rounded flex items-center justify-center transition-all",
+                          legalAccepted
+                            ? "bg-primary border-primary"
+                            : "bg-transparent border-primary/50 group-hover:border-primary"
+                        )}>
+                          {legalAccepted && (
+                            <CheckCircle size={20} weight="fill" className="text-primary-foreground md:w-[18px] md:h-[18px]" />
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-base md:text-sm text-foreground leading-relaxed flex-1">
+                        I have read and accept the <strong>Terms of Service</strong> and <strong>Risk Disclosure</strong>. I understand that trading cryptocurrencies involves substantial risk of loss, including the total loss of all invested capital.
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              )}
+
               {/* Actions */}
               <div className="flex items-center justify-between gap-3 pt-2 border-t border-primary/20">
                 <button
@@ -454,29 +586,70 @@ export default function InteractiveTour({
                   className={cn(
                     "px-4 py-2 rounded-lg font-medium transition-all",
                     "flex items-center gap-2",
+                    "md:px-4 md:py-2",
+                    "px-5 py-3 text-base", // Larger on mobile
                     isFirstStep
                       ? "opacity-50 cursor-not-allowed text-muted-foreground"
                       : "text-foreground hover:bg-primary/10 hover:border-primary/50 border border-transparent"
                   )}
                 >
                   <ArrowLeft size={16} />
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
                 </button>
 
-                <button
-                  onClick={handleNext}
-                  className={cn(
-                    "px-6 py-2 rounded-lg font-bold uppercase tracking-wider transition-all",
-                    "flex items-center gap-2",
-                    "bg-gradient-to-r from-primary to-accent text-primary-foreground",
-                    "hover:from-primary/90 hover:to-accent/90",
-                    "shadow-lg shadow-primary/20 hover:shadow-primary/30",
-                    "border border-primary/30"
-                  )}
-                >
-                  {isLastStep ? 'Complete Tour' : 'Next'}
-                  {!isLastStep && <ArrowRight size={16} />}
-                </button>
+                {isLegalStep ? (
+                  <button
+                    onClick={handleCompleteLegal}
+                    disabled={!legalAccepted}
+                    className={cn(
+                      "px-6 py-2 rounded-lg font-bold uppercase tracking-wider transition-all",
+                      "flex items-center justify-center gap-2",
+                      "md:px-6 md:py-2",
+                      "px-8 py-4 text-base min-h-[48px] w-full sm:w-auto", // Larger on mobile, full width
+                      !legalAccepted
+                        ? "bg-gray-800 text-gray-600 cursor-not-allowed opacity-50"
+                        : "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:from-primary/90 hover:to-accent/90 shadow-lg shadow-primary/20 hover:shadow-primary/30",
+                      "border border-primary/30",
+                      !legalAccepted && "hover:opacity-50" // Prevent hover effect when disabled
+                    )}
+                    aria-label={!legalAccepted ? "Please accept terms to continue" : "Accept and continue to tour"}
+                  >
+                    {legalAccepted ? (
+                      <>
+                        <CheckCircle size={18} weight="fill" />
+                        Accept & Continue
+                      </>
+                    ) : (
+                      <>
+                        <Warning size={18} weight="fill" />
+                        Accept & Continue
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleNext}
+                    className={cn(
+                      "px-6 py-2 rounded-lg font-bold uppercase tracking-wider transition-all",
+                      "flex items-center justify-center gap-2",
+                      "md:px-6 md:py-2",
+                      "px-8 py-4 text-base min-h-[48px] w-full sm:w-auto", // Larger on mobile, full width
+                      "bg-gradient-to-r from-primary to-accent text-primary-foreground",
+                      "hover:from-primary/90 hover:to-accent/90",
+                      "shadow-lg shadow-primary/20 hover:shadow-primary/30",
+                      "border border-primary/30"
+                    )}
+                  >
+                    {isLastStep ? (
+                      'Complete Tour'
+                    ) : (
+                      <>
+                        Next
+                        <ArrowRight size={16} />
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

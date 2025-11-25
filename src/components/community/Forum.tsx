@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,18 @@ import {
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
 import { formatRelativeTime } from '@/lib/utils'
+import { InputSanitizer } from '@/lib/security/inputSanitizer'
+
+const formatTimeAgo = (timestamp: number) => {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000)
+  if (seconds < 60) return `${seconds}s ago`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
 
 interface ForumPost {
   id: string

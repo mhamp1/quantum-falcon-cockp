@@ -18,7 +18,7 @@ import {
   XCircle,
   Download,
   Trash,
-  Activity,
+  Pulse,
   Lock,
   Eye
 } from '@phosphor-icons/react';
@@ -119,7 +119,7 @@ export default function SecurityDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="cyber-card p-6">
           <div className="flex items-center justify-between mb-2">
-            <Activity size={24} className="text-primary" />
+            <Pulse size={24} className="text-primary" />
             <Badge className={getSeverityColor(SecuritySeverity.INFO)}>
               {stats.last24Hours}
             </Badge>

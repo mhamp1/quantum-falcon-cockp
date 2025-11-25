@@ -4,8 +4,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Clock, Calendar, CreditCard, Trash, RefreshCw,
-  CheckCircle, XCircle, AlertCircle, Crown
+  Clock, Calendar, CreditCard, Trash, ArrowClockwise as RefreshCw,
+  CheckCircle, XCircle, WarningCircle as AlertCircle, Crown
 } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

@@ -93,7 +93,7 @@ const ALL_STRATEGIES: Strategy[] = [
     id: 'rsi-strategy',
     name: 'RSI Divergence',
     type: 'Oscillator',
-    icon: 'Activity',
+    icon: 'Pulse',
     description: 'Trades RSI overbought/oversold conditions and divergences',
     longDescription: 'RSI strategy identifies overbought (>70) and oversold (<30) conditions, entering counter-trend positions. Advanced divergence detection finds high-probability reversals.',
     benefits: [

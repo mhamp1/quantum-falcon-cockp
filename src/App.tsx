@@ -332,16 +332,23 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+K / Ctrl+K: Master Search
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         soundEffects.playClick();
         setShowMasterSearch(prev => !prev);
       }
+      // Cmd+L / Ctrl+L: Login (if not authenticated)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'l' && !auth?.isAuthenticated) {
+        e.preventDefault();
+        soundEffects.playClick();
+        window.dispatchEvent(new CustomEvent('navigate-to-login'));
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [auth?.isAuthenticated]);
 
   const tabs: Tab[] = useMemo(() => {
     const baseTabs: Tab[] = [
@@ -471,7 +478,7 @@ export default function App() {
     try {
       window.localStorage.setItem('hasSeenOnboarding', 'true');
     } catch (e) {
-      console.warn('Failed to save onboarding state to localStorage', e);
+      // Silent fail - localStorage unavailable
     }
     setShowOnboarding(false);
     
@@ -589,7 +596,7 @@ export default function App() {
               {tabs.map(tab => {
                 const isActive = activeTab === tab.id;
                 const IconComponent = tab.icon;
-                const isEliteOrLifetime = auth.license?.tier === 'ELITE' || auth.license?.tier === 'LIFETIME';
+                const isEliteOrLifetime = auth.license?.tier?.toUpperCase() === 'ELITE' || auth.license?.tier?.toUpperCase() === 'LIFETIME';
                 const showCrownBadge = tab.id === 'settings' && isEliteOrLifetime;
                 
                 return (

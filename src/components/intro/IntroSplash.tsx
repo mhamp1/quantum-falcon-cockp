@@ -36,6 +36,14 @@ export function IntroSplash({ onFinished }: IntroSplashProps) {
     // Mark as complete in localStorage
     complete();
     
+    // CRITICAL: Mark that user just clicked "Enter Cockpit" (for tour timing)
+    // This ensures tour only shows AFTER Enter Cockpit, not on login page
+    try {
+      window.localStorage.setItem('justLoggedIn', 'true');
+    } catch (e) {
+      // Silent fail
+    }
+    
     // Hide the overlay
     setIsVisible(false);
     

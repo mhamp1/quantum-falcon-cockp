@@ -9,9 +9,9 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { 
   Trophy, Target, Fire, Users, GraduationCap, 
-  TrendingUp, MagnifyingGlass, Crown, Lock, Sparkle,
+  TrendUp as TrendingUp, MagnifyingGlass, Crown, Lock, Sparkle,
   Lightning, Rocket, Medal, Star, CheckCircle, XCircle,
-  ChartLineUp, Coins, Timer, Zap, Gift, Flame
+  ChartLineUp, Coins, Timer, Gift, Flame
 } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QUESTS, type Quest } from '@/lib/nft/QuestNFTSystem'
@@ -271,7 +271,7 @@ export default function QuestBoard() {
           className="cyber-card p-4 border border-primary/30"
         >
           <div className="flex items-center gap-2 mb-3">
-            <Zap size={18} weight="fill" className="text-primary animate-pulse" />
+            <Lightning size={18} weight="fill" className="text-primary animate-pulse" />
             <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Live Bot Activity</h3>
           </div>
           <AnimatePresence mode="popLayout">

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { TrendingUp, TrendingDown, Target, Brain, Zap, Activity, DollarSign, Award, ChartLine } from 'lucide-react';
+import { TrendUp, TrendDown, Target, Brain, Lightning, Pulse, CurrencyDollar, Medal, ChartLine } from '@phosphor-icons/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -248,9 +248,9 @@ const EnhancedAnalyticsV2: React.FC = () => {
           {trend && (
             <div className="flex items-center gap-1">
               {trend > 0 ? (
-                <TrendingUp size={16} className="text-primary" />
+                <TrendUp size={16} className="text-primary" />
               ) : (
-                <TrendingDown size={16} className="text-destructive" />
+                <TrendDown size={16} className="text-destructive" />
               )}
               <span className={`text-xs font-bold ${trend > 0 ? 'text-primary' : 'text-destructive'}`}>
                 {Math.abs(trend).toFixed(1)}%
@@ -308,7 +308,7 @@ const EnhancedAnalyticsV2: React.FC = () => {
           label="Total P&L"
           value={`+$${metrics.totalPnl.toFixed(2)}`}
           change={`${metrics.totalTrades} trades`}
-          icon={DollarSign}
+          icon={CurrencyDollar}
           color="primary"
           trend={15.3}
         />
@@ -324,14 +324,14 @@ const EnhancedAnalyticsV2: React.FC = () => {
           label="Sharpe Ratio"
           value={metrics.sharpe.toFixed(2)}
           change={metrics.sharpe > 2 ? 'Excellent' : metrics.sharpe > 1 ? 'Good' : 'Fair'}
-          icon={Activity}
+          icon={Pulse}
           color="secondary"
         />
         <MetricCard
           label="Profit Factor"
           value={metrics.profitFactor.toFixed(2)}
           change={`Max DD: ${metrics.maxDrawdown.toFixed(1)}%`}
-          icon={Award}
+          icon={Medal}
           color="primary"
         />
       </div>
@@ -538,7 +538,7 @@ const EnhancedAnalyticsV2: React.FC = () => {
               </div>
 
               <Button size="lg" className="w-full bg-gradient-to-r from-accent to-secondary hover:scale-105 transition-transform">
-                <Zap className="mr-2" />
+                <Lightning className="mr-2" />
                 Apply AI Recommendations
               </Button>
             </CardContent>

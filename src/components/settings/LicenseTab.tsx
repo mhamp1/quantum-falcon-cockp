@@ -18,7 +18,7 @@ import {
   Warning,
   Sparkle,
   Lock,
-  Device,
+  Devices as Device,
   ArrowRight
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'

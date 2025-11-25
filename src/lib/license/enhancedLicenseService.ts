@@ -291,7 +291,6 @@ export class EnhancedLicenseService {
       throw new Error('Device fingerprint not available')
     }
 
-    try {
       const response = await fetch(`${LICENSE_API_URL}/bind-device`, {
         method: 'POST',
         headers: {
@@ -309,10 +308,6 @@ export class EnhancedLicenseService {
       }
 
       // Device bound successfully - no logging needed
-    } catch (error) {
-      // Silent error handling
-      throw error
-    }
   }
 
   /**

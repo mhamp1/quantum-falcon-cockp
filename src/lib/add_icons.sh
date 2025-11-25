@@ -22,7 +22,7 @@ sed -i "s/name: 'Order Flow Imbalance',/name: 'Order Flow Imbalance',\n    icon:
 sed -i "s/name: 'Smart Money Divergence',/name: 'Smart Money Divergence',\n    icon: 'Wallet',/" strategiesData.ts
 sed -i "s/name: 'Multi-Timeframe Momentum',/name: 'Multi-Timeframe Momentum',\n    icon: 'ClockCounterClockwise',/" strategiesData.ts
 sed -i "s/name: 'Volatility Arbitrage',/name: 'Volatility Arbitrage',\n    icon: 'Lightning',/" strategiesData.ts
-sed -i "s/name: 'Market Maker Strategy',/name: 'Market Maker Strategy',\n    icon: 'Activity',/" strategiesData.ts
+sed -i "s/name: 'Market Maker Strategy',/name: 'Market Maker Strategy',\n    icon: 'Pulse',/" strategiesData.ts
 sed -i "s/name: 'Triangular Arbitrage',/name: 'Triangular Arbitrage',\n    icon: 'Triangle',/" strategiesData.ts
 sed -i "s/name: 'Statistical Arbitrage',/name: 'Statistical Arbitrage',\n    icon: 'MathOperations',/" strategiesData.ts
 sed -i "s/name: 'Harmonic Pattern Scanner',/name: 'Harmonic Pattern Scanner',\n    icon: 'Waveform',/" strategiesData.ts

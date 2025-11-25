@@ -4,8 +4,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
-  TrendingUp, TrendingDown, BarChart3, PieChart, Activity,
-  Target, Zap, Clock, DollarSign, Percent, Award, Star
+  TrendUp as TrendingUp, TrendDown as TrendingDown, ChartBar as BarChart3, ChartPie as PieChart, Pulse,
+  Target, Lightning as Zap, Clock, CurrencyDollar as DollarSign, Percent, Medal as Award, Star
 } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -144,7 +144,7 @@ export default function StrategyAnalysisDashboard() {
   if (strategies.length === 0) {
     return (
       <div className="cyber-card p-12 text-center space-y-4">
-        <Activity size={64} className="mx-auto text-muted-foreground opacity-50" />
+        <Pulse size={64} className="mx-auto text-muted-foreground opacity-50" />
         <h3 className="text-xl font-bold uppercase tracking-wider text-muted-foreground">
           No Strategy Data Available
         </h3>
@@ -250,7 +250,7 @@ export default function StrategyAnalysisDashboard() {
           {
             label: 'Total Trades',
             value: strategies.reduce((sum, s) => sum + s.totalTrades, 0).toLocaleString(),
-            icon: <Activity size={24} className="text-orange-400" />,
+            icon: <Pulse size={24} className="text-orange-400" />,
             change: '+156'
           }
         ].map((metric, i) => (

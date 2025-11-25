@@ -19,7 +19,7 @@ import {
   Warning,
   Spinner,
   Lightning,
-  AlertCircle
+  WarningCircle as AlertCircle
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import {

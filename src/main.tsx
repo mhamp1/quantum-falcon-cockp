@@ -4,12 +4,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { WalletProvider } from '@/providers/WalletProvider';
 import "@github/spark/spark";
+import { initializeEnvValidation } from '@/lib/envValidation';
 
 import App from './App.tsx';
 import ErrorFallback from './ErrorFallback.tsx';
 import './main.css';
 import './styles/theme.css';
 import './index.css';
+
+// Validate environment variables at startup
+initializeEnvValidation();
 
 function isR3FError(error: Error | string): boolean {
   const message = typeof error === 'string' ? error : (error?.message || '')

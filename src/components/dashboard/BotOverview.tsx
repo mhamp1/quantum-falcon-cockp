@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword, Cube, Hexagon, Pentagon, Polygon, Activity, TrendUp, Database, Broadcast } from '@phosphor-icons/react'
+import { Brain, Robot, ChartLine, Lightning, Target, ArrowsClockwise, CheckCircle, Warning, Info, Terminal, Play, Pause, Gear, ShieldWarning, ShieldCheck, Sword, Cube, Hexagon, Pentagon, Polygon, TrendUp, Database, Broadcast } from '@phosphor-icons/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
   Trophy, Crown, Medal, Sparkle, SquaresFour, Lock, 
-  CheckCircle, XCircle, Wallet, AlertCircle
+  CheckCircle, XCircle, Wallet, WarningCircle as AlertCircle
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'

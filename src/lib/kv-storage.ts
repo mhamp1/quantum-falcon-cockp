@@ -8,24 +8,47 @@
  * All errors are silently suppressed to prevent debug panel pollution.
  */
 
-const KV_PREFIX = 'spark_kv_';
+import { logger } from '@/lib/logger'
 
-/**
- * Get a value from storage (Spark KV or localStorage fallback)
- * All errors silently suppressed
- */
-export async function getKVValue<T>(key: string): Promise<T | undefined> {
-  try {
-    if (typeof window !== 'undefined' && window.spark?.kv?.get) {
-      try {
-        const value = await window.spark.kv.get<T>(key);
-        return value;
-      } catch {
-        // Silently fall back to localStorage
+declare global {
+  interface Window {
+    spark?: {
+      kv?: {
+        get<T>(key: string): Promise<T | undefined>
+        set<T>(key: string, value: T): Promise<void>
+        delete(key: string): Promise<void>
+        keys(): Promise<string[]>
       }
     }
-  } catch {
-    // Silently fall back to localStorage
+  }
+}
+
+const KV_PREFIX = 'spark_kv_';
+
+const isLocalDev = () => {
+  if (typeof window === 'undefined') return true
+  const host = window.location?.hostname || ''
+  return host === 'localhost' || host === '127.0.0.1'
+}
+
+const canUseSparkKV = () => {
+  if (typeof window === 'undefined') return false
+  if (isLocalDev()) return false
+  return Boolean(window.spark?.kv)
+}
+
+/**
+* Get a value from storage (Spark KV or localStorage fallback)
+* All errors silently suppressed
+*/
+export async function getKVValue<T>(key: string): Promise<T | undefined> {
+  if (canUseSparkKV()) {
+    try {
+      const value = await window.spark!.kv!.get<T>(key)
+      return value
+    } catch (error) {
+      logger.debug(`Spark KV get failed for "${key}", falling back`, 'kv-storage', error)
+    }
   }
   
   return getFromLocalStorage<T>(key);
@@ -36,17 +59,13 @@ export async function getKVValue<T>(key: string): Promise<T | undefined> {
  * All errors silently suppressed
  */
 export async function setKVValue<T>(key: string, value: T): Promise<void> {
-  try {
-    if (typeof window !== 'undefined' && window.spark?.kv?.set) {
-      try {
-        await window.spark.kv.set(key, value);
-        return;
-      } catch {
-        // Silently fall back to localStorage
-      }
+  if (canUseSparkKV()) {
+    try {
+      await window.spark!.kv!.set(key, value)
+      return
+    } catch (error) {
+      logger.debug(`Spark KV set failed for "${key}", falling back`, 'kv-storage', error)
     }
-  } catch {
-    // Silently fall back to localStorage
   }
   
   setInLocalStorage(key, value);
@@ -57,17 +76,13 @@ export async function setKVValue<T>(key: string, value: T): Promise<void> {
  * All errors silently suppressed
  */
 export async function deleteKVValue(key: string): Promise<void> {
-  try {
-    if (typeof window !== 'undefined' && window.spark?.kv?.delete) {
-      try {
-        await window.spark.kv.delete(key);
-        return;
-      } catch {
-        // Silently fall back to localStorage
-      }
+  if (canUseSparkKV()) {
+    try {
+      await window.spark!.kv!.delete(key)
+      return;
+    } catch (error) {
+      logger.debug(`Spark KV delete failed for "${key}", falling back`, 'kv-storage', error)
     }
-  } catch {
-    // Silently fall back to localStorage
   }
   
   deleteFromLocalStorage(key);
@@ -78,17 +93,13 @@ export async function deleteKVValue(key: string): Promise<void> {
  * All errors silently suppressed
  */
 export async function getKVKeys(): Promise<string[]> {
-  try {
-    if (typeof window !== 'undefined' && window.spark?.kv?.keys) {
-      try {
-        const keys = await window.spark.kv.keys();
-        return keys;
-      } catch {
-        // Silently fall back to localStorage
-      }
+  if (canUseSparkKV()) {
+    try {
+      const keys = await window.spark!.kv!.keys()
+      return keys
+    } catch (error) {
+      logger.debug('Spark KV keys failed, falling back', 'kv-storage', error)
     }
-  } catch {
-    // Silently fall back to localStorage
   }
   
   return getKeysFromLocalStorage();

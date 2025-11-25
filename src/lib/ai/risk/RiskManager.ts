@@ -233,7 +233,7 @@ export class RiskManager {
     volatility: number
   ): number {
     // Base size from capital
-    let baseSize = totalCapital * this.maxPositionPct
+    const baseSize = totalCapital * this.maxPositionPct
 
     // Adjust for confidence (0.5 to 1.5x)
     const confidenceMultiplier = 0.5 + confidence

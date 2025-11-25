@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Lightning, Trophy, TrendingUp, Sparkle, 
+  Lightning, Trophy, TrendUp as TrendingUp, Sparkle, 
   Fire, Rocket, CheckCircle, Clock
 } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'

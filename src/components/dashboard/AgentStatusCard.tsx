@@ -1,6 +1,6 @@
 // ENHANCED: Agent Status section — premium data flow visuals, zero overwhelm
 import { motion } from 'framer-motion'
-import { Robot, CheckCircle, Activity } from '@phosphor-icons/react'
+import { Robot, CheckCircle, Pulse } from '@phosphor-icons/react'
 import { Progress } from '@/components/ui/progress'
 
 interface Agent {
@@ -11,9 +11,9 @@ interface Agent {
 
 export function AgentStatusCard() {
   const agents: Agent[] = [
-    { name: 'MARKET ANALYSIS', progress: 92, icon: <Activity size={14} weight="fill" /> },
-    { name: 'STRATEGY EXECUTION', progress: 78, icon: <Activity size={14} weight="fill" /> },
-    { name: 'RL OPTIMIZER', progress: 85, icon: <Activity size={14} weight="fill" /> }
+    { name: 'MARKET ANALYSIS', progress: 92, icon: <Pulse size={14} weight="fill" /> },
+    { name: 'STRATEGY EXECUTION', progress: 78, icon: <Pulse size={14} weight="fill" /> },
+    { name: 'RL OPTIMIZER', progress: 85, icon: <Pulse size={14} weight="fill" /> }
   ]
 
   return (

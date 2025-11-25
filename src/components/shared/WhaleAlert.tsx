@@ -3,7 +3,7 @@
 
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { FishSimple, TrendingUp, TrendingDown } from '@phosphor-icons/react'
+import { FishSimple, TrendUp as TrendingUp, TrendDown as TrendingDown } from '@phosphor-icons/react'
 
 interface WhaleTransaction {
   wallet: string

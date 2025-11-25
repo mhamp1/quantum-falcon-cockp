@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Trophy, Medal, Crown, Star, Fire, 
-  TrendingUp, Users, Award, Sparkle
+  TrendUp as TrendingUp, Users, Sparkle
 } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

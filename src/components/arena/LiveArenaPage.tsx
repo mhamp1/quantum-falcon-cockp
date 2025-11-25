@@ -4,9 +4,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Crown, Trophy, Target, Flame, Medal, Lightning, Swords,
-  Users, Eye, MessageCircle, Zap, Star, Award, Coins,
-  Play, Pause, Volume2, VolumeX, Settings, Share2, PaperPlaneRight
+  Crown, Trophy, Target, Flame, Medal, Lightning, Sword,
+  Users, Eye, ChatCircleDots, Star, Coins,
+  Play, Pause, SpeakerHigh, SpeakerSlash, Gear, Share, PaperPlaneRight
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -313,7 +313,7 @@ export default function LiveArenaPage() {
             animate={{ rotate: [0, 10, -10, 0] }}
             transition={{ duration: 4, repeat: Infinity }}
           >
-            <Swords size={64} weight="duotone" className="text-primary" />
+            <Sword size={64} weight="duotone" className="text-primary" />
           </motion.div>
         </div>
 
@@ -345,7 +345,7 @@ export default function LiveArenaPage() {
             Leaderboard
           </TabsTrigger>
           <TabsTrigger value="battles" className="flex items-center gap-2">
-            <Swords size={18} />
+            <Sword size={18} />
             Battles
           </TabsTrigger>
           <TabsTrigger value="spectate" className="flex items-center gap-2">
@@ -401,7 +401,7 @@ export default function LiveArenaPage() {
             className="cyber-card p-6"
           >
             <div className="flex items-center gap-3 mb-6">
-              <Award size={32} weight="duotone" className="text-yellow-400" />
+              <Medal size={32} weight="duotone" className="text-yellow-400" />
               <div>
                 <h3 className="text-2xl font-black uppercase tracking-wider text-yellow-400">
                   Hall of Fame
@@ -589,7 +589,7 @@ export default function LiveArenaPage() {
                 onClick={() => setShowCreateBattle(true)}
                 className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80"
               >
-                <Swords size={18} className="mr-2" />
+                <Sword size={18} className="mr-2" />
                 Create Battle
               </Button>
               <Button
@@ -597,7 +597,7 @@ export default function LiveArenaPage() {
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 className="border-primary/50"
               >
-                {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                {soundEnabled ? <SpeakerHigh size={18} /> : <SpeakerSlash size={18} />}
               </Button>
             </div>
           </div>
@@ -765,11 +765,11 @@ export default function LiveArenaPage() {
 
           {activeBattles.length === 0 && (
             <div className="text-center py-16">
-              <Swords size={64} className="text-muted-foreground mx-auto mb-4" />
+              <Sword size={64} className="text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-bold mb-2">No Active Battles</h3>
               <p className="text-muted-foreground mb-6">Be the first to create a battle!</p>
               <Button onClick={() => setShowCreateBattle(true)} className="bg-gradient-to-r from-primary to-accent">
-                <Zap size={18} className="mr-2" />
+                <Lightning size={18} className="mr-2" />
                 Start Battle
               </Button>
             </div>
@@ -791,7 +791,7 @@ export default function LiveArenaPage() {
                 {/* Live Commentary */}
                 <Card className="cyber-card p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Zap size={18} className="text-yellow-400" />
+                    <Lightning size={18} className="text-yellow-400" />
                     <h4 className="font-bold text-sm uppercase tracking-wider">Live Commentary</h4>
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-auto" />
                   </div>
@@ -830,10 +830,10 @@ export default function LiveArenaPage() {
                         onClick={() => setShowChat(!showChat)}
                         className={showChat ? 'bg-accent/20' : ''}
                       >
-                        <MessageCircle size={16} />
+                        <ChatCircleDots size={16} />
                       </Button>
                       <Button variant="outline" size="sm">
-                        <Share2 size={16} />
+                        <Share size={16} />
                       </Button>
                     </div>
                   </div>
@@ -888,7 +888,7 @@ export default function LiveArenaPage() {
                   >
                     <Card className="cyber-card p-4">
                       <h4 className="font-bold mb-4 flex items-center gap-2">
-                        <MessageCircle size={18} />
+                        <ChatCircleDots size={18} />
                         Battle Chat
                         <Badge className="bg-accent/20 text-accent text-xs">
                           {chatMessages.length}

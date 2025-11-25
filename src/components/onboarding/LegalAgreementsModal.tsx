@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, AlertTriangle } from '@phosphor-icons/react';
+import { X, CheckCircle, Warning } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { Button } from '@/components/ui/button';
@@ -211,31 +211,31 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden bg-black border-4 border-red-600/80 rounded-3xl shadow-2xl shadow-red-600/50"
+            className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-black border-4 border-red-600/80 rounded-3xl shadow-2xl shadow-red-600/50 mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-red-900/80 to-black p-8 text-center border-b-4 border-red-600 relative">
-              <div className="absolute top-4 right-4">
-                <AlertTriangle size={32} weight="fill" className="text-yellow-400 animate-pulse" />
+            {/* Header - Compact on mobile */}
+            <div className="bg-gradient-to-r from-red-900/80 to-black p-4 md:p-8 text-center border-b-4 border-red-600 relative">
+              <div className="absolute top-2 right-2 md:top-4 md:right-4">
+                <Warning size={28} weight="fill" className="text-yellow-400 animate-pulse" />
               </div>
-              <h1 className="text-6xl font-bold text-red-500 tracking-wider animate-pulse mb-2">
+              <h1 className="text-3xl md:text-5xl font-bold text-red-500 tracking-wider animate-pulse mb-1 md:mb-2 font-orbitron">
                 LEGAL AGREEMENTS REQUIRED
               </h1>
-              <p className="text-xl text-red-300 mt-4">
+              <p className="text-sm md:text-xl text-red-300 mt-2 md:mt-4">
                 You must read and accept both documents to continue
               </p>
             </div>
 
-            {/* Tabs */}
+            {/* Tabs - Touch friendly */}
             <div className="flex bg-black/90 border-b border-red-600">
               <button
                 onClick={() => setTab('risk')}
                 className={cn(
-                  'flex-1 py-6 text-2xl font-bold transition-all relative',
+                  'flex-1 py-4 md:py-6 text-sm md:text-2xl font-bold transition-all relative min-h-[48px]',
                   tab === 'risk'
                     ? 'bg-gradient-to-b from-cyan-900/50 to-transparent text-cyan-400 border-b-2 border-cyan-400'
-                    : 'text-gray-500 hover:text-white'
+                    : 'text-gray-500 hover:text-white active:bg-white/10'
                 )}
               >
                 RISK DISCLOSURE
@@ -243,33 +243,33 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
               <button
                 onClick={() => setTab('terms')}
                 className={cn(
-                  'flex-1 py-6 text-2xl font-bold transition-all relative',
+                  'flex-1 py-4 md:py-6 text-sm md:text-2xl font-bold transition-all relative min-h-[48px]',
                   tab === 'terms'
                     ? 'bg-gradient-to-b from-cyan-900/50 to-transparent text-cyan-400 border-b-2 border-cyan-400'
-                    : 'text-gray-500 hover:text-white'
+                    : 'text-gray-500 hover:text-white active:bg-white/10'
                 )}
               >
                 TERMS OF SERVICE
               </button>
             </div>
 
-            {/* Content */}
+            {/* Content - Scrollable with fixed height */}
             <div
               ref={contentRef}
-              className="p-10 text-cyan-300 text-lg leading-relaxed max-h-96 overflow-y-auto bg-gradient-to-b from-black/90 to-black scrollbar-thin scrollbar-thumb-cyan-500/50 scrollbar-track-black/50"
+              className="p-4 md:p-10 text-cyan-300 text-base md:text-lg leading-relaxed h-48 md:h-64 overflow-y-auto bg-gradient-to-b from-black/90 to-black scrollbar-thin scrollbar-thumb-cyan-500/50 scrollbar-track-black/50"
             >
-              <pre className="whitespace-pre-wrap font-mono text-sm">
+              <pre className="whitespace-pre-wrap font-mono text-xs md:text-sm">
                 {tab === 'risk' ? riskDisclosure : termsOfService}
               </pre>
               {!hasScrolled && (
-                <div className="mt-4 text-center text-yellow-400 text-sm animate-pulse">
-                  ↓ Please scroll to read the full document ↓
+                <div className="mt-4 text-center text-yellow-400 text-xs md:text-sm animate-pulse">
+                  ↓ Scroll to read the full document ↓
                 </div>
               )}
             </div>
 
-            {/* Checkboxes */}
-            <div className="p-10 space-y-6 bg-black/95 border-t-4 border-red-600">
+            {/* Checkboxes - Touch friendly with larger targets */}
+            <div className="p-4 md:p-10 space-y-4 md:space-y-6 bg-black/95 border-t-4 border-red-600">
               {[
                 {
                   key: 'age',
@@ -277,11 +277,11 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
                 },
                 {
                   key: 'risk',
-                  text: "I understand trading can result in 100% loss of capital and accept full responsibility for all trading outcomes"
+                  text: "I understand trading can result in 100% loss of capital and accept full responsibility"
                 },
                 {
                   key: 'advice',
-                  text: "I am not relying on Quantum Falcon for financial advice and will never hold developers, contributors, or affiliates liable"
+                  text: "I am not relying on Quantum Falcon for financial advice and will never hold developers liable"
                 },
                 {
                   key: 'terms',
@@ -291,56 +291,66 @@ export default function LegalAgreementsModal({ onAccept, isOpen = true }: LegalA
                 const checkKey = key as keyof typeof checks;
                 
                 return (
-                  <label key={key} className="flex items-start gap-6 cursor-pointer select-none group">
-                    <div className="relative flex-shrink-0 mt-1">
+                  <label key={key} className="flex items-start gap-3 md:gap-6 cursor-pointer select-none group min-h-[44px] touch-manipulation">
+                    <div className="relative flex-shrink-0 mt-0.5">
                       <input
                         type="checkbox"
                         checked={checks[checkKey]}
                         onChange={(e) => {
                           setChecks(prev => ({ ...prev, [checkKey]: e.target.checked }));
                           if (e.target.checked) {
-                            toast.success('Checkbox accepted', { duration: 1000 });
+                            toast.success('✓ Accepted', { duration: 800 });
                           }
                         }}
-                        className="w-8 h-8 accent-cyan-500 cursor-pointer opacity-0 absolute"
+                        className="w-7 h-7 md:w-8 md:h-8 accent-cyan-500 cursor-pointer opacity-0 absolute"
                       />
                       <div className={cn(
-                        "w-8 h-8 border-2 rounded flex items-center justify-center transition-all",
+                        "w-7 h-7 md:w-8 md:h-8 border-2 rounded flex items-center justify-center transition-all",
                         checks[checkKey]
                           ? "bg-cyan-500 border-cyan-400"
                           : "bg-transparent border-cyan-500/50 group-hover:border-cyan-400"
                       )}>
                         {checks[checkKey] && (
-                          <CheckCircle size={24} weight="fill" className="text-white" />
+                          <CheckCircle size={20} weight="fill" className="text-white" />
                         )}
                       </div>
                     </div>
-                    <span className="text-lg text-gray-300 flex-1 leading-relaxed">{text}</span>
+                    <span className="text-sm md:text-lg text-gray-300 flex-1 leading-snug">{text}</span>
                   </label>
                 );
               })}
 
-              {/* ACCEPT BUTTON - ALWAYS VISIBLE */}
-              <Button
-                onClick={handleAccept}
-                disabled={!allChecked}
-                size="lg"
-                className={cn(
-                  'mt-10 w-full py-8 text-3xl font-bold rounded-2xl transition-all uppercase tracking-wider',
-                  allChecked
-                    ? 'bg-gradient-to-r from-cyan-500 via-purple-600 to-cyan-500 hover:scale-105 shadow-2xl shadow-cyan-500/50 cursor-pointer animate-pulse'
-                    : 'bg-gray-800 text-gray-600 cursor-not-allowed opacity-50'
+              {/* ACCEPT BUTTON - ALWAYS VISIBLE, LARGE, TOUCH FRIENDLY */}
+              <div className="mt-6 md:mt-10 space-y-3 md:space-y-4 pb-4 pb-safe">
+                <Button
+                  onClick={handleAccept}
+                  disabled={!allChecked}
+                  size="lg"
+                  className={cn(
+                    'w-full min-h-[56px] md:min-h-[72px] py-4 md:py-6 text-lg md:text-2xl font-black rounded-2xl transition-all uppercase tracking-wider relative overflow-hidden touch-manipulation',
+                    allChecked
+                      ? 'bg-gradient-to-r from-cyan-500 via-purple-600 to-cyan-500 hover:from-cyan-400 hover:via-purple-500 hover:to-cyan-400 hover:scale-[1.02] shadow-2xl shadow-cyan-500/50 cursor-pointer animate-pulse border-2 border-cyan-400 text-white'
+                      : 'bg-gradient-to-r from-gray-800 to-gray-900 text-gray-400 cursor-not-allowed border-2 border-gray-700'
+                  )}
+                >
+                  {allChecked ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <CheckCircle size={24} weight="fill" />
+                      <span>ACCEPT & CONTINUE</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Warning size={20} weight="fill" />
+                      <span className="text-sm md:text-lg">CHECK ALL BOXES TO CONTINUE</span>
+                    </span>
+                  )}
+                </Button>
+                {!allChecked && (
+                  <p className="text-center text-xs md:text-sm text-yellow-400 animate-pulse">
+                    ⚠️ Please check all 4 boxes above to enable the Accept button
+                  </p>
                 )}
-              >
-                {allChecked ? (
-                  <>
-                    <CheckCircle size={32} weight="fill" className="mr-3" />
-                    I ACCEPT & ENTER COCKPIT
-                  </>
-                ) : (
-                  'Complete all checkboxes to continue'
-                )}
-              </Button>
+              </div>
             </div>
           </motion.div>
         </motion.div>

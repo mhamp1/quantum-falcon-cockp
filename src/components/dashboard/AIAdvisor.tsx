@@ -11,18 +11,29 @@ interface AISentiment {
 
 // Mock AI sentiment fetcher - in production, this would call a real AI service
 const fetchAISentiment = async (): Promise<AISentiment> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 100))
-  
-  const sentiment = (Math.random() - 0.5) * 100
-  const confidence = 60 + Math.random() * 35
-  const nextHourTrend = sentiment > 10 ? 'bullish' : sentiment < -10 ? 'bearish' : 'neutral'
-  
-  return {
-    sentiment,
-    prediction: nextHourTrend === 'bullish' ? 'Bullish' : nextHourTrend === 'bearish' ? 'Bearish' : 'Neutral',
-    confidence,
-    nextHourTrend
+  try {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    const sentiment = (Math.random() - 0.5) * 100
+    const confidence = 60 + Math.random() * 35
+    const nextHourTrend = sentiment > 10 ? 'bullish' : sentiment < -10 ? 'bearish' : 'neutral'
+    
+    return {
+      sentiment,
+      prediction: nextHourTrend === 'bullish' ? 'Bullish' : nextHourTrend === 'bearish' ? 'Bearish' : 'Neutral',
+      confidence,
+      nextHourTrend
+    }
+  } catch (error) {
+    // Return default values on error instead of throwing
+    console.warn('[AIAdvisor] Error fetching sentiment, using defaults:', error)
+    return {
+      sentiment: 0,
+      prediction: 'Neutral',
+      confidence: 50,
+      nextHourTrend: 'neutral'
+    }
   }
 }
 
@@ -31,7 +42,9 @@ export function AIAdvisor() {
     queryKey: ['ai-sentiment'],
     queryFn: fetchAISentiment,
     refetchInterval: 5000,
-    staleTime: 1000
+    staleTime: 1000,
+    retry: 2,
+    retryDelay: 1000
   })
 
   if (isLoading) {
@@ -49,19 +62,22 @@ export function AIAdvisor() {
     )
   }
 
-  if (error) {
+  if (error || !data) {
     return (
       <div className="cyber-card p-6 angled-corner-tl border-destructive/50">
         <div className="flex items-center gap-3 text-destructive">
           <Brain size={24} weight="fill" />
           <span className="text-sm font-bold uppercase">AI Neural Link Offline</span>
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Neural forecast temporarily unavailable. Retrying...
+        </p>
       </div>
     )
   }
 
-  const isBullish = data!.nextHourTrend === 'bullish'
-  const isBearish = data!.nextHourTrend === 'bearish'
+  const isBullish = data.nextHourTrend === 'bullish'
+  const isBearish = data.nextHourTrend === 'bearish'
   const trendColor = isBullish ? 'text-primary' : isBearish ? 'text-destructive' : 'text-accent'
   const bgColor = isBullish ? 'bg-primary/5' : isBearish ? 'bg-destructive/5' : 'bg-accent/5'
   const borderColor = isBullish ? 'border-primary/30' : isBearish ? 'border-destructive/30' : 'border-accent/30'
@@ -109,7 +125,7 @@ export function AIAdvisor() {
                 <div className="w-4 h-0.5 bg-current" />
               )}
               <span className={`text-lg font-bold ${trendColor}`}>
-                {Math.abs(data!.sentiment).toFixed(1)}
+                {Math.abs(data.sentiment).toFixed(1)}
               </span>
             </div>
           </div>
@@ -117,11 +133,11 @@ export function AIAdvisor() {
           <div 
             className={`p-3 ${bgColor} border ${borderColor} cut-corner-br confidence-bar`} 
             data-tour="confidence-bar"
-            title={`${data!.confidence.toFixed(0)}% confidence — ${data!.confidence > 70 ? 'strong buy signal' : data!.confidence > 50 ? 'buy signal' : 'neutral signal'}`}
+            title={`${data.confidence.toFixed(0)}% confidence — ${data.confidence > 70 ? 'strong buy signal' : data.confidence > 50 ? 'buy signal' : 'neutral signal'}`}
           >
             <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Confidence</div>
             <div className={`text-lg font-bold ${trendColor}`}>
-              {data!.confidence.toFixed(1)}%
+              {data.confidence.toFixed(1)}%
             </div>
           </div>
         </div>
@@ -129,12 +145,12 @@ export function AIAdvisor() {
         <div className={`p-3 ${bgColor} border-l-2 ${borderColor}`}>
           <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Next Hour Prediction</div>
           <div className={`text-base font-bold uppercase tracking-wider ${trendColor}`}>
-            {data!.prediction} • {data!.confidence.toFixed(0)}% Confidence
+            {data.prediction} • {data.confidence.toFixed(0)}% Confidence
           </div>
         </div>
 
         <div aria-live="polite" className="sr-only">
-          AI forecast updated: {data!.prediction} sentiment with {data!.confidence.toFixed(0)}% confidence
+          AI forecast updated: {data.prediction} sentiment with {data.confidence.toFixed(0)}% confidence
         </div>
       </div>
     </motion.div>

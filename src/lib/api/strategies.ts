@@ -213,7 +213,7 @@ function generateFallbackStrategies(): Strategy[] {
       id: 'strat_002',
       name: 'RSI Divergence Hunter',
       slug: 'rsi-divergence-hunter',
-      icon: 'Activity',
+      icon: 'Pulse',
       description: 'Detects hidden and regular RSI divergences with multi-timeframe confirmation for high-probability reversals',
       code: 'strategy("RSI Divergence", overlay=false)',
       thumbnail: '/strategies/rsi-divergence.png',

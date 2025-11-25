@@ -1,6 +1,6 @@
 import { 
   TrendUp, ArrowsClockwise, Lightning, Robot, Link, Brain, User,
-  ChartLine, Activity, Binoculars, Target, ChartLineUp, ChartBar,
+  ChartLine, Pulse, Binoculars, Target, ChartLineUp, ChartBar,
   Cpu, CurrencyCircleDollar, Gauge, Graph, TrendDown, ArrowsIn
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
@@ -186,7 +186,7 @@ export function CategoryIcon({ category, size = 32, tier = 'Free', className = '
           ease: 'easeInOut'
         }}
       >
-        <Activity {...iconProps} />
+        <Pulse {...iconProps} />
       </motion.div>
     ),
     'Volume Analysis': (

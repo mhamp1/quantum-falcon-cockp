@@ -5,9 +5,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Bug, Wrench, Activity, Warning, CheckCircle,
+  Bug, Wrench, Pulse, Warning, CheckCircle,
   XCircle, Clock, Database, Network, Cpu, 
-  HardDrive, AlertTriangle, FileX, Refresh,
+  HardDrive, FileX, ArrowClockwise,
   Terminal, ChartLine, Shield, EyeSlash as Eye
 } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
@@ -349,7 +349,7 @@ export default function MasterAdminPanel() {
                 disabled={isRefreshing}
                 className="border-primary/50 text-primary"
               >
-                <Refresh size={16} className={cn("mr-2", isRefreshing && "animate-spin")} />
+                <ArrowClockwise size={16} className={cn("mr-2", isRefreshing && "animate-spin")} />
                 Refresh
               </Button>
             </div>
@@ -393,7 +393,7 @@ export default function MasterAdminPanel() {
           {/* System Health */}
           <Card className="cyber-card p-6">
             <h4 className="text-xl font-black uppercase tracking-wider text-primary mb-4 flex items-center gap-3">
-              <Activity size={24} weight="duotone" />
+              <Pulse size={24} weight="duotone" />
               System Health
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -428,7 +428,7 @@ export default function MasterAdminPanel() {
           {criticalErrors.length > 0 && (
             <Card className="cyber-card p-6 border-2 border-red-500/50">
               <h4 className="text-xl font-black uppercase tracking-wider text-red-400 mb-4 flex items-center gap-3">
-                <AlertTriangle size={24} weight="fill" />
+                <Warning size={24} weight="fill" />
                 Critical Issues ({criticalErrors.length})
               </h4>
               <div className="space-y-3">

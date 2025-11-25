@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { AlertCircle, X } from '@phosphor-icons/react'
+import { WarningCircle as AlertCircle, X } from '@phosphor-icons/react'
 import { useLegalProtection } from '@/lib/legal/LegalProtection'
 import { toast } from 'sonner'
 

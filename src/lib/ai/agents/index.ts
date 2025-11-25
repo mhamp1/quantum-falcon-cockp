@@ -993,10 +993,21 @@ export function getAgentByName(name: string): EliteAgentInstance | undefined {
 }
 
 /**
- * Get agents by tier
+ * Get agents by tier (includes all agents at or below the specified tier)
+ * Free tier: 1 agent
+ * Pro tier: 11 agents (1 free + 10 pro)
+ * Elite tier: 15 agents (1 free + 10 pro + 4 elite)
+ * Lifetime: All 15 agents
  */
 export function getAgentsByTier(tier: AgentTier): EliteAgentInstance[] {
-  return ELITE_AGENTS.filter(agent => agent.tier === tier)
+  const tierHierarchy: AgentTier[] = ['free', 'pro', 'elite', 'lifetime']
+  const tierLevel = tierHierarchy.indexOf(tier)
+  
+  // Return all agents at or below the specified tier
+  return ELITE_AGENTS.filter(agent => {
+    const agentTierLevel = tierHierarchy.indexOf(agent.tier)
+    return agentTierLevel <= tierLevel
+  })
 }
 
 /**

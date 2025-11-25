@@ -21,7 +21,7 @@ export const createMetaplexUmi = (
   // Set identity manually (wallet adapter integration)
   // Note: This is a simplified version - you may need to adjust based on actual Metaplex API
   if (publicKey && signTransaction) {
-    // @ts-ignore - Metaplex types may vary
+    // @ts-expect-error - Metaplex types may vary
     umi.identity = {
       publicKey: publicKey as any,
       signMessage: signTransaction as any,

@@ -24,6 +24,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@github/spark/hooks": [
+        "./src/shims/githubSparkHooks.ts"
       ]
     },
   },
