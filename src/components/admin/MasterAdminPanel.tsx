@@ -231,18 +231,20 @@ export default function MasterAdminPanel() {
     updateMetrics()
     const interval = setInterval(updateMetrics, 5000)
 
-    // Collect system logs
+    // Collect system logs periodically
     const logInterval = setInterval(() => {
       setSystemLogs(prev => {
-        const newLogs = [
-          {
-            timestamp: Date.now(),
-            level: 'info',
-            message: `System check: ${metrics.filter(m => m.status === 'healthy').length}/${metrics.length} metrics healthy`
-          },
-          ...prev
-        ]
-        return newLogs.slice(0, 100) // Keep last 100 logs
+        // Get current metrics count (will be updated on next render)
+        const currentMetrics = metrics.length > 0 ? metrics : []
+        const healthyCount = currentMetrics.filter(m => m.status === 'healthy').length
+        const totalMetrics = currentMetrics.length || 4 // Default to 4 if not loaded yet
+        
+        const newLog = {
+          timestamp: Date.now(),
+          level: healthyCount === totalMetrics && errors.length === 0 ? 'info' : 'warn',
+          message: `System check: ${healthyCount}/${totalMetrics} metrics healthy • ${errors.length} errors tracked • ${latency.length} endpoints monitored`
+        }
+        return [newLog, ...prev].slice(0, 100) // Keep last 100 logs
       })
     }, 10000) // Update logs every 10 seconds
 
@@ -250,7 +252,7 @@ export default function MasterAdminPanel() {
       clearInterval(interval)
       clearInterval(logInterval)
     }
-  }, [isMaster, metrics])
+  }, [isMaster, metrics, errors, latency])
 
   const refreshData = useCallback(() => {
     setIsRefreshing(true)
