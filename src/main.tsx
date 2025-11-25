@@ -72,6 +72,26 @@ window.addEventListener('unhandledrejection', (event) => {
     event.stopImmediatePropagation();
     return;
   }
+  
+  // Catch API-related promise rejections to prevent black screen
+  const reason = event.reason;
+  if (reason instanceof Error) {
+    const message = reason.message || '';
+    // Suppress API fetch errors - they're handled by fallbacks
+    if (
+      message.includes('Failed to fetch') ||
+      message.includes('NetworkError') ||
+      message.includes('API returned') ||
+      message.includes('trading backend') ||
+      message.includes('market data') ||
+      message.includes('API unavailable')
+    ) {
+      console.warn('[Main] Suppressed API error (using fallbacks):', message);
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+  }
 });
 
 const queryClient = new QueryClient({

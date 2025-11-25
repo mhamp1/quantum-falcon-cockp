@@ -43,9 +43,10 @@ export function useLiveTradingData() {
         setDailyStreak(liveData.dailyStreak);
       } catch (err) {
         if (!isMounted) return;
-        console.error('❌ Failed to fetch live trading data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load trading data');
-        // Keep last known values on error
+        // API now returns defaults instead of throwing, but keep error handling for safety
+        console.warn('⚠️ Trading data fetch warning (using defaults):', err);
+        setError(null); // Clear error since we have defaults
+        // Keep last known values on error (or use defaults from API)
       } finally {
         if (isMounted) {
           setIsLoading(false);

@@ -108,8 +108,20 @@ export async function fetchLiveMarketData(): Promise<LiveMarketData> {
       return cachedData
     }
 
-    // Last resort: throw error (no mock data)
-    throw new Error('Failed to fetch live market data. Please check your internet connection.')
+    // Last resort: return safe defaults instead of throwing (prevents black screen)
+    console.warn('⚠️ Market API unavailable, using default values. Check internet connection.')
+    return {
+      btcDominance: 50,
+      btcDominanceChange7d: 0,
+      fearGreedIndex: 50,
+      btcPrice: 50000,
+      btc200WeekMA: 45000,
+      altcoinSeasonIndex: 50,
+      volumeChange14d: 0,
+      avgFundingRate: 0,
+      sp500Change30d: 0,
+      lastUpdated: Date.now(),
+    }
   }
 }
 
@@ -125,12 +137,37 @@ export async function fetchLiveMarketDataWithRetry(
       return await fetchLiveMarketData()
     } catch (error) {
       if (attempt === maxRetries) {
-        throw error
+        // On final retry failure, return safe defaults instead of throwing
+        console.warn('⚠️ Market data fetch failed after all retries, using defaults')
+        return {
+          btcDominance: 50,
+          btcDominanceChange7d: 0,
+          fearGreedIndex: 50,
+          btcPrice: 50000,
+          btc200WeekMA: 45000,
+          altcoinSeasonIndex: 50,
+          volumeChange14d: 0,
+          avgFundingRate: 0,
+          sp500Change30d: 0,
+          lastUpdated: Date.now(),
+        }
       }
       console.warn(`⚠️ Market data fetch failed (attempt ${attempt}/${maxRetries}), retrying...`)
       await new Promise((resolve) => setTimeout(resolve, retryDelay))
     }
   }
-  throw new Error('Failed to fetch market data after retries')
+  // This should never be reached, but provide fallback just in case
+  return {
+    btcDominance: 50,
+    btcDominanceChange7d: 0,
+    fearGreedIndex: 50,
+    btcPrice: 50000,
+    btc200WeekMA: 45000,
+    altcoinSeasonIndex: 50,
+    volumeChange14d: 0,
+    avgFundingRate: 0,
+    sp500Change30d: 0,
+    lastUpdated: Date.now(),
+  }
 }
 

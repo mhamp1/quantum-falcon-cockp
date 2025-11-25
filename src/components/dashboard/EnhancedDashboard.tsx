@@ -147,6 +147,7 @@ export default function EnhancedDashboard() {
         const { fetchLiveMarketData } = await import('@/lib/market/liveMarketData')
         const liveData = await fetchLiveMarketData()
         
+        // API now returns defaults instead of throwing, so this should always work
         calculateBearConfidence({
           btcDominance: liveData.btcDominance,
           btcDominanceChange7d: liveData.btcDominanceChange7d,
@@ -159,8 +160,9 @@ export default function EnhancedDashboard() {
           sp500Change30d: liveData.sp500Change30d,
         })
       } catch (error) {
-        // Error logged silently - keep last known state
-        // Don't update if fetch fails - keep last known state
+        // API now returns defaults, so this catch is just for safety
+        // Keep last known state if something unexpected happens
+        console.warn('[Dashboard] Market data update warning (using defaults):', error)
       }
     }
 
