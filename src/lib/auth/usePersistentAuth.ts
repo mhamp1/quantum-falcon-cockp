@@ -3,7 +3,6 @@
 // Encrypted localStorage authentication with auto-login
 
 import { useEffect, useState, useCallback } from 'react'
-import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { enhancedLicenseService } from '@/lib/license/enhancedLicenseService'
 import { UserAuth, UserLicense } from '@/lib/auth'
 import { toast } from 'sonner'
@@ -11,6 +10,49 @@ import { toast } from 'sonner'
 // SECURITY: Encryption key derived from user password + device fingerprint
 // Never hardcode encryption keys - this is derived at runtime
 const STORAGE_KEY = 'qf-persistent-auth'
+
+const initialAuthState: UserAuth = {
+  isAuthenticated: false,
+  userId: null,
+  username: null,
+  email: null,
+  avatar: null,
+  license: null
+}
+
+type AuthStoreState = {
+  auth: UserAuth
+  isLoading: boolean
+  isInitialized: boolean
+}
+
+let authStoreState: AuthStoreState = {
+  auth: initialAuthState,
+  isLoading: true,
+  isInitialized: false
+}
+
+const authSubscribers = new Set<() => void>()
+const notifySubscribers = () => {
+  authSubscribers.forEach(listener => listener())
+}
+
+const updateAuthStore = (partial: Partial<AuthStoreState>) => {
+  authStoreState = { ...authStoreState, ...partial }
+  notifySubscribers()
+}
+
+const setAuthState = (updater: UserAuth | ((prev: UserAuth) => UserAuth)) => {
+  const nextAuth = typeof updater === 'function'
+    ? (updater as (prev: UserAuth) => UserAuth)(authStoreState.auth)
+    : updater
+  updateAuthStore({ auth: nextAuth })
+}
+
+const setLoadingState = (value: boolean) => updateAuthStore({ isLoading: value })
+const setInitializedState = (value: boolean) => updateAuthStore({ isInitialized: value })
+
+let autoLoginInitialized = false
 
 interface EncryptedAuth {
   username: string
@@ -21,16 +63,31 @@ interface EncryptedAuth {
 }
 
 export const usePersistentAuth = () => {
-  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
-  const [isLoading, setIsLoading] = useState(true)
-  const [isInitialized, setIsInitialized] = useState(false)
+  const [, forceRerender] = useState(0)
+
+  useEffect(() => {
+    const listener = () => forceRerender(prev => prev + 1)
+    authSubscribers.add(listener)
+    return () => {
+      authSubscribers.delete(listener)
+    }
+  }, [])
+
+  const auth = authStoreState.auth
+  const isLoading = authStoreState.isLoading
+  const isInitialized = authStoreState.isInitialized
+
+  const setAuth = useCallback((updater: UserAuth | ((prev: UserAuth) => UserAuth)) => {
+    setAuthState(updater)
+  }, [])
+
+  const setIsLoading = useCallback((value: boolean) => {
+    setLoadingState(value)
+  }, [])
+
+  const setIsInitialized = useCallback((value: boolean) => {
+    setInitializedState(value)
+  }, [])
 
   /**
    * Secure encryption using Web Crypto API with user-derived key
@@ -325,6 +382,11 @@ export const usePersistentAuth = () => {
    * Auto-login on app launch
    */
   useEffect(() => {
+    if (autoLoginInitialized) {
+      return
+    }
+    autoLoginInitialized = true
+
     const autoLogin = async () => {
       try {
         const stored = localStorage.getItem(STORAGE_KEY)
