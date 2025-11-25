@@ -284,7 +284,6 @@ export default function App() {
   }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
 
   // GOD MODE Activation - Use ref to prevent double toast
-  const godModeToastShown = useRef(false);
   useEffect(() => {
     const godModeActive = isGodMode(auth);
     
