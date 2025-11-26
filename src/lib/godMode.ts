@@ -244,7 +244,7 @@ export function activateGodMode(): void {
       pointer-events: none;
       z-index: 99998;
       border: 4px solid transparent;
-      background-image: linear-gradient(black, black), linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff1493, #00ff00, #ff00ff);
+      background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff1493, #00ff00, #ff00ff);
       background-origin: border-box;
       background-clip: padding-box, border-box;
       animation: rainbowBorder 3s linear infinite;
