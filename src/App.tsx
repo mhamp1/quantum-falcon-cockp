@@ -132,6 +132,23 @@ function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
   );
 }
 
+function GlobalLoadingFallback({ message = 'Loading Quantum Falcon...' }: { message?: string }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black via-slate-950 to-black flex flex-col items-center justify-center text-center px-6">
+      <div className="relative">
+        <div className="w-24 h-24 rounded-full border-4 border-cyan-500/40 border-t-cyan-300 animate-spin mb-6" />
+        <span role="img" aria-label="falcon" className="absolute inset-0 flex items-center justify-center text-4xl drop-shadow-[0_0_20px_#00d4ff]">
+          🦅
+        </span>
+      </div>
+      <h2 className="font-orbitron text-2xl text-white tracking-widest uppercase">{message}</h2>
+      <p className="text-cyan-300/80 mt-3 text-sm max-w-md">
+        Systems booting. If this persists, try refreshing. We will never leave you staring at a black void again.
+      </p>
+    </div>
+  )
+}
+
 function ComponentErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   const errorMessage = error?.message || 'Unknown error occurred';
   const errorStack = error?.stack || 'No stack trace available';
@@ -241,6 +258,7 @@ export default function App() {
   // Use persistent auth for auto-login
   const persistentAuth = usePersistentAuth();
   const auth = persistentAuth.auth;
+  const [renderGuardTriggered, setRenderGuardTriggered] = useState(false);
   
   // Refs to prevent duplicate toasts/tours
   const godModeToastShown = useRef(false);
@@ -250,6 +268,32 @@ export default function App() {
     SecurityManager.initialize();
     console.info('🔒 [App] Security systems online');
   }, []);
+
+  // Debugger: always log render state so we know where it stalls
+  useEffect(() => {
+    console.log('[App] render snapshot', {
+      initialized: persistentAuth.isInitialized,
+      loading: persistentAuth.isLoading,
+      isAuthenticated: auth?.isAuthenticated ?? false,
+      activeTab,
+    });
+  }, [persistentAuth.isInitialized, persistentAuth.isLoading, auth?.isAuthenticated, activeTab]);
+
+  // Render guard fallback — if we ever spend >4s initializing, show global loader instead of blank screen
+  useEffect(() => {
+    if (persistentAuth.isInitialized && auth?.isAuthenticated) {
+      setRenderGuardTriggered(false);
+      return;
+    }
+
+    const guardTimer = window.setTimeout(() => {
+      if (!persistentAuth.isInitialized || !auth?.isAuthenticated) {
+        setRenderGuardTriggered(true);
+      }
+    }, 4000);
+
+    return () => window.clearTimeout(guardTimer);
+  }, [persistentAuth.isInitialized, auth?.isAuthenticated]);
 
   // Show interactive tour for first-time users - ONLY after they've clicked "Enter Cockpit"
   // CRITICAL: Tour must NOT show on login page - only after dashboard is loaded
@@ -522,6 +566,10 @@ export default function App() {
         </div>
       </div>
     )
+  }
+
+  if (renderGuardTriggered && !auth?.isAuthenticated) {
+    return <GlobalLoadingFallback />
   }
 
   // Show LoginPage if not authenticated and initialized

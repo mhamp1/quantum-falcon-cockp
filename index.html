@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <!-- SECURITY: Content Security Policy -->
     <!-- Note: frame-ancestors must be set via HTTP header, not meta tag -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://api.github.com https://api.binance.com https://api.kraken.com https://api.coingecko.com https://api.alternative.me https://cryptopanic.com wss: ws:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' http://localhost:* https://api.github.com https://api.binance.com https://api.kraken.com https://api.coingecko.com https://api.alternative.me https://cryptopanic.com wss: ws:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;" />
     <!-- SECURITY: Prevent clickjacking and XSS -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
