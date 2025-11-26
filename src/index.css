@@ -2076,57 +2076,14 @@ a:not(.no-hover):hover,
 }
 
 /* GOD MODE — subtle upgrade ring only (no rainbow flood) */
+/* GOD MODE — No visual changes, dashboard stays clean */
 body.god-mode {
-  position: relative;
-  background: radial-gradient(circle at top, rgba(0, 212, 255, 0.08), transparent 45%),
-              radial-gradient(circle at bottom, rgba(255, 105, 180, 0.05), transparent 60%),
-              var(--background, #03030a);
-  overflow: hidden;
+  /* No rainbow, no overlays - just a marker class */
 }
 
-body.god-mode::before {
-  content: none;
-}
+/* God Mode Crown - removed, shown in sidebar instead */
 
-/* God Mode Crown */
-.god-mode-crown {
-  position: fixed;
-  top: 12px;
-  right: 80px;
-  z-index: 99999;
-  animation: pulseGlow 2s infinite;
-  font-size: 32px;
-  filter: drop-shadow(0 0 20px gold) drop-shadow(0 0 40px rgba(255, 215, 0, 0.6));
-  cursor: pointer;
-  user-select: none;
-  pointer-events: none;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 20px gold) drop-shadow(0 0 40px rgba(255, 215, 0, 0.6));
-  }
-  50% {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 30px gold) drop-shadow(0 0 60px rgba(255, 215, 0, 0.9));
-  }
-}
-
-/* Rainbow border for rainbow tier achievements */
-.rainbow-border {
-  border: 4px solid;
-  border-image: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff1493, #00ff00) 1;
-  animation: rainbowBorder 3s linear infinite;
-}
-
-@keyframes rainbowBorder {
-  0% { border-image-source: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff1493, #00ff00); }
-  25% { border-image-source: linear-gradient(45deg, #00ffff, #ffff00, #ff1493, #00ff00, #ff00ff); }
-  50% { border-image-source: linear-gradient(45deg, #ffff00, #ff1493, #00ff00, #ff00ff, #00ffff); }
-  75% { border-image-source: linear-gradient(45deg, #ff1493, #00ff00, #ff00ff, #00ffff, #ffff00); }
-  100% { border-image-source: linear-gradient(45deg, #00ff00, #ff00ff, #00ffff, #ffff00, #ff1493); }
-}
+/* Rainbow border - removed for cleaner UI */
 
 @keyframes grid-pan {
   0% { transform: translateY(0); }

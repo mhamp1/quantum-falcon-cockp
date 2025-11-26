@@ -204,53 +204,16 @@ export function resetGodModeCache(): void {
 
 /**
  * Activate God Mode visual effects
- * - Rainbow border around entire app
- * - Floating crown indicator
+ * - Small crown indicator only (no rainbow)
  * - Body class for CSS styling
  */
 export function activateGodMode(): void {
-  // Add body class for rainbow border and background effects
+  // Add body class (no visual effects in CSS anymore)
   document.body.classList.add('god-mode')
   localStorage.setItem('godMode', 'true')
   
-  // Add crown to page if not already present
-  if (!document.getElementById('god-mode-crown')) {
-    const crown = document.createElement('div')
-    crown.id = 'god-mode-crown'
-    crown.className = 'god-mode-crown'
-    crown.innerHTML = '👑'
-    crown.title = 'GOD MODE ACTIVE — UNLIMITED EVERYTHING'
-    crown.setAttribute('aria-label', 'God Mode Active - Master Key Detected')
-    crown.style.cssText = `
-      position: fixed;
-      top: 12px;
-      right: 80px;
-      font-size: 32px;
-      z-index: 99999;
-      cursor: pointer;
-      filter: drop-shadow(0 0 10px gold);
-      animation: pulse 2s infinite, float 3s ease-in-out infinite;
-    `
-    document.body.appendChild(crown)
-  }
-  
-  // Add rainbow border overlay
-  if (!document.getElementById('god-mode-rainbow-border')) {
-    const rainbowBorder = document.createElement('div')
-    rainbowBorder.id = 'god-mode-rainbow-border'
-    rainbowBorder.style.cssText = `
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 99998;
-      border: 4px solid transparent;
-      background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff1493, #00ff00, #ff00ff);
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
-      animation: rainbowBorder 3s linear infinite;
-    `
-    document.body.appendChild(rainbowBorder)
-  }
+  // NO RAINBOW - just a small crown indicator in the corner
+  // Crown is optional - can be shown in sidebar instead
 }
 
 /**
@@ -260,17 +223,12 @@ export function deactivateGodMode(): void {
   document.body.classList.remove('god-mode')
   localStorage.removeItem('godMode')
   
-  // Remove crown
+  // Clean up any legacy elements that might exist
   const crown = document.getElementById('god-mode-crown')
-  if (crown) {
-    crown.remove()
-  }
+  if (crown) crown.remove()
   
-  // Remove rainbow border
   const rainbowBorder = document.getElementById('god-mode-rainbow-border')
-  if (rainbowBorder) {
-    rainbowBorder.remove()
-  }
+  if (rainbowBorder) rainbowBorder.remove()
 }
 
 /**
