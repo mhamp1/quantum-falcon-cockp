@@ -94,7 +94,7 @@ export class RiskManager {
     this.state.circuitBreakerUntil = 0
     this.state.consecutiveLosses = 0
     this.saveState()
-    console.log('✅ Circuit breaker deactivated')
+    // Circuit breaker deactivated
   }
 
   /**
@@ -114,8 +114,7 @@ export class RiskManager {
 
     // Check daily limit
     if (this.state.dailyLoss >= this.maxDailyLossPct) {
-      this.activateCircuitBreaker(3600000) // 1 hour
-      console.error(`🛑 Daily loss limit reached: ${(this.state.dailyLoss * 100).toFixed(2)}%`)
+      this.activateCircuitBreaker(3600000) // 1 hour - Daily loss limit reached
       return
     }
 
@@ -125,8 +124,7 @@ export class RiskManager {
 
     // Activate circuit breaker after max consecutive losses
     if (this.state.consecutiveLosses >= this.maxConsecutiveLosses) {
-      this.activateCircuitBreaker(7200000) // 2 hours
-      console.error(`🛑 ${this.maxConsecutiveLosses} consecutive losses - circuit breaker activated`)
+      this.activateCircuitBreaker(7200000) // 2 hours - consecutive losses triggered
     }
 
     // Keep last 50 trades
@@ -177,8 +175,7 @@ export class RiskManager {
 
     // Check if adding this trade would exceed daily limit
     if (this.state.dailyLoss + estimatedLossPct > this.maxDailyLossPct) {
-      console.warn(`⚠️ Trade would exceed daily loss limit`)
-      return false
+      return false // Trade would exceed daily loss limit
     }
 
     return true

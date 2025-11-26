@@ -48,7 +48,6 @@ interface APICredentials {
 
 export default function APIIntegration() {
   // KRAKEN AND BINANCE CARDS ADDED — Confirmed November 20, 2025
-  console.log("✅ KRAKEN AND BINANCE CARDS ADDED TO API INTEGRATIONS");
   
   // Memoize initial connections to prevent re-creation on every render (fixes Kraken/Binance card flash bug)
   const initialConnections = useMemo(() => [
