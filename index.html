@@ -70,21 +70,6 @@
             @keyframes spin { to { transform: rotate(360deg); } }
         </style>
     </div>
-    <script>
-        // Critical error handler - catches module load failures before React
-        window.addEventListener('error', function(e) {
-            if (e.message && (e.message.includes('Component') || e.message.includes('undefined'))) {
-                console.error('[Critical] Module load error:', e.message);
-                // Retry by reloading after a short delay
-                setTimeout(function() {
-                    if (!window.__reactMounted) {
-                        console.log('[Critical] Reloading due to module error...');
-                        window.location.reload();
-                    }
-                }, 2000);
-            }
-        }, true);
-    </script>
     <script type="module" src="/src/main.tsx"></script>
 </body>
 

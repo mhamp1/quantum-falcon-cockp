@@ -63,63 +63,23 @@ export default defineConfig({
     ]
   },
   build: {
-    // Optimize chunk splitting for better loading performance
+    // CRITICAL FIX: Disable manual chunking to prevent React race conditions
+    // The createContext errors occur because ES modules load in parallel
+    // and vendor chunks can execute before React is fully initialized.
+    // By NOT splitting chunks manually, Rollup ensures proper dependency order.
     rollupOptions: {
       output: {
-        // CRITICAL FIX: Function-based manualChunks with proper React handling
-        // React MUST be in the entry chunk OR load synchronously before any component
-        manualChunks: (id) => {
-          // CRITICAL: React and ReactDOM must be in one chunk that loads first
-          // Match any path containing these packages
-          if (id.includes('node_modules')) {
-            // React ecosystem - bundle together to ensure availability
-            if (
-              id.includes('/react/') || 
-              id.includes('/react-dom/') ||
-              id.includes('/scheduler/') ||
-              id.includes('react-is')
-            ) {
-              return 'react-vendor'
-            }
-            
-            // framer-motion MUST be with React since it uses React.createContext at module level
-            // This prevents "Component of undefined" errors
-            if (id.includes('framer-motion')) {
-              return 'react-vendor'
-            }
-            
-            // Other large vendor libs - loaded after react-vendor
-            if (
-              id.includes('@tanstack') ||
-              id.includes('recharts') ||
-              id.includes('sonner') ||
-              id.includes('canvas-confetti') ||
-              id.includes('@radix-ui')
-            ) {
-              return 'vendor'
-            }
-            
-            // Phosphor icons - separate chunk
-            if (id.includes('@phosphor-icons')) {
-              return 'icons'
-            }
-            
-            // Everything else from node_modules
-            return 'vendor'
-          }
-          
-          // Application code - let Rollup handle naturally for lazy loading
-          // Don't force agents into a separate chunk since it can cause race conditions
-          return undefined
-        },
+        // NO manualChunks - let Rollup handle dependency ordering naturally
+        // This creates larger initial bundles but guarantees React loads first
+        
         // Use content hash for better caching
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     },
-    // Increase chunk size warning limit
-    chunkSizeWarningLimit: 1000,
+    // Increase chunk size warning limit since we're not splitting aggressively
+    chunkSizeWarningLimit: 2000,
     // Source maps for production debugging (can disable for smaller builds)
     sourcemap: false,
     // Minify for production
