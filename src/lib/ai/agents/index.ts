@@ -1,6 +1,8 @@
 // ULTIMATE 15 ELITE AI AGENTS + TIER GATING — Production-Ready Trading Intelligence
 // November 21, 2025 — Quantum Falcon Cockpit
 
+// CRITICAL: Import React to ensure it's available in bundle when React types are used
+import React from 'react'
 import { 
   Brain, FishSimple, Waves, Shield, MagnifyingGlass, Sparkle, Atom, 
   Lightning, Flame, Clock, RocketLaunch, 

@@ -86,10 +86,13 @@ export default defineConfig({
             return 'vendor'
           }
           
-          // Component chunks - split large components
-          if (id.includes('/components/agents/')) {
+          // CRITICAL FIX: Bundle lib/ai/agents with components/agents to ensure React is available
+          // Don't split them - React types need React runtime to be in same chunk
+          if (id.includes('/lib/ai/agents/') || id.includes('/components/agents/')) {
             return 'agents'
           }
+          
+          // Component chunks - split large components
           if (id.includes('/components/dashboard/')) {
             return 'dashboard'
           }
