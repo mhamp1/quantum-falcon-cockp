@@ -279,8 +279,6 @@ export default function App() {
   // Use persistent auth for auto-login
   const persistentAuth = usePersistentAuth();
   const auth = persistentAuth.auth;
-  const [renderGuardTriggered, setRenderGuardTriggered] = useState(false);
-  
   // Refs to prevent duplicate toasts/tours
   const godModeToastShown = useRef(false);
   const tourShownRef = useRef(false);
@@ -289,32 +287,6 @@ export default function App() {
     SecurityManager.initialize();
     console.info('🔒 [App] Security systems online');
   }, []);
-
-  // Debugger: always log render state so we know where it stalls
-  useEffect(() => {
-    console.log('[App] render snapshot', {
-      initialized: persistentAuth.isInitialized,
-      loading: persistentAuth.isLoading,
-      isAuthenticated: auth?.isAuthenticated ?? false,
-      activeTab,
-    });
-  }, [persistentAuth.isInitialized, persistentAuth.isLoading, auth?.isAuthenticated, activeTab]);
-
-  // Render guard fallback — if we ever spend >4s initializing, show global loader instead of blank screen
-  useEffect(() => {
-    if (persistentAuth.isInitialized) {
-      setRenderGuardTriggered(false);
-      return;
-    }
-
-    const guardTimer = window.setTimeout(() => {
-      if (!persistentAuth.isInitialized) {
-        setRenderGuardTriggered(true);
-      }
-    }, 4000);
-
-    return () => window.clearTimeout(guardTimer);
-  }, [persistentAuth.isInitialized]);
 
   // Show interactive tour for first-time users - ONLY after they've clicked "Enter Cockpit"
   // CRITICAL: Tour must NOT show on login page - only after dashboard is loaded
@@ -577,8 +549,9 @@ export default function App() {
     setShowOnboarding(false);
   };
 
-  // Show loading state while initializing
-  if (!persistentAuth.isInitialized || persistentAuth.isLoading) {
+  // Show loading state ONLY while not initialized
+  // isLoading is separate - don't block on it to prevent stuck screens
+  if (!persistentAuth.isInitialized) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -587,10 +560,6 @@ export default function App() {
         </div>
       </div>
     )
-  }
-
-  if (renderGuardTriggered && !persistentAuth.isInitialized) {
-    return <GlobalLoadingFallback />
   }
 
   // Show LoginPage if not authenticated and initialized

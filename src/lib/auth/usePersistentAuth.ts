@@ -28,7 +28,7 @@ type AuthStoreState = {
 
 let authStoreState: AuthStoreState = {
   auth: initialAuthState,
-  isLoading: true,
+  isLoading: false, // Start false - will be set true only during active operations
   isInitialized: false
 }
 
@@ -53,6 +53,7 @@ const setLoadingState = (value: boolean) => updateAuthStore({ isLoading: value }
 const setInitializedState = (value: boolean) => updateAuthStore({ isInitialized: value })
 
 let autoLoginInitialized = false
+let autoLoginTimeout: ReturnType<typeof setTimeout> | null = null
 
 interface EncryptedAuth {
   username: string
@@ -400,10 +401,25 @@ export const usePersistentAuth = () => {
    * Auto-login on app launch
    */
   useEffect(() => {
+    // If already initialized, skip
+    if (authStoreState.isInitialized) {
+      return
+    }
+    
+    // If already running auto-login, skip
     if (autoLoginInitialized) {
       return
     }
     autoLoginInitialized = true
+
+    // Safety timeout - always initialize after 5 seconds max
+    autoLoginTimeout = setTimeout(() => {
+      if (!authStoreState.isInitialized) {
+        console.warn('[Auth] Safety timeout - forcing initialization')
+        setIsLoading(false)
+        setIsInitialized(true)
+      }
+    }, 5000)
 
     const autoLogin = async () => {
       try {
@@ -552,6 +568,12 @@ export const usePersistentAuth = () => {
           })
         }
       } finally {
+        // Clear safety timeout since we're done
+        if (autoLoginTimeout) {
+          clearTimeout(autoLoginTimeout)
+          autoLoginTimeout = null
+        }
+        
         // Always set initialized quickly, even on error or timeout
         // CRITICAL: Ensure auth state is always set (even if null) to prevent black screen
         setAuth(prev => {
@@ -574,7 +596,7 @@ export const usePersistentAuth = () => {
     }
 
     autoLogin()
-  }, [setAuth])
+  }, [])
 
   return {
     auth,
