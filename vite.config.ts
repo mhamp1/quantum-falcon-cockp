@@ -66,45 +66,51 @@ export default defineConfig({
     // Optimize chunk splitting for better loading performance
     rollupOptions: {
       output: {
+        // CRITICAL FIX: Function-based manualChunks with proper React handling
+        // React MUST be in the entry chunk OR load synchronously before any component
         manualChunks: (id) => {
-          // Vendor chunks - CRITICAL: React must load first
+          // CRITICAL: React and ReactDOM must be in one chunk that loads first
+          // Match any path containing these packages
           if (id.includes('node_modules')) {
-            // React and React-DOM must be in the same chunk and load first
-            if (id.includes('react') || id.includes('react-dom')) {
+            // React ecosystem - bundle together to ensure availability
+            if (
+              id.includes('/react/') || 
+              id.includes('/react-dom/') ||
+              id.includes('/scheduler/') ||
+              id.includes('react-is')
+            ) {
               return 'react-vendor'
             }
-            // CRITICAL FIX: framer-motion depends on React.createContext
-            // Ensure it's bundled with React or in a chunk that loads after React
-            // By putting it in 'vendor', it will load after 'react-vendor' due to dependency order
+            
+            // framer-motion MUST be with React since it uses React.createContext at module level
+            // This prevents "Component of undefined" errors
             if (id.includes('framer-motion')) {
+              return 'react-vendor'
+            }
+            
+            // Other large vendor libs - loaded after react-vendor
+            if (
+              id.includes('@tanstack') ||
+              id.includes('recharts') ||
+              id.includes('sonner') ||
+              id.includes('canvas-confetti') ||
+              id.includes('@radix-ui')
+            ) {
               return 'vendor'
             }
+            
+            // Phosphor icons - separate chunk
             if (id.includes('@phosphor-icons')) {
               return 'icons'
             }
-            // Other large vendor libraries
+            
+            // Everything else from node_modules
             return 'vendor'
           }
           
-          // CRITICAL FIX: Bundle lib/ai/agents with components/agents to ensure React is available
-          // Don't split them - React types need React runtime to be in same chunk
-          if (id.includes('/lib/ai/agents/') || id.includes('/components/agents/')) {
-            return 'agents'
-          }
-          
-          // Component chunks - split large components
-          if (id.includes('/components/dashboard/')) {
-            return 'dashboard'
-          }
-          if (id.includes('/components/trade/')) {
-            return 'trading'
-          }
-          if (id.includes('/components/strategy/')) {
-            return 'strategy'
-          }
-          if (id.includes('/components/settings/')) {
-            return 'settings'
-          }
+          // Application code - let Rollup handle naturally for lazy loading
+          // Don't force agents into a separate chunk since it can cause race conditions
+          return undefined
         },
         // Use content hash for better caching
         chunkFileNames: 'assets/[name]-[hash].js',

@@ -40,7 +40,51 @@
 </head>
 
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <!-- Critical fallback UI shown while JS loads - prevents flash of white/black -->
+        <div id="initial-loader" style="
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0f3d 50%, #0a0a0f 100%);
+            color: #00d4ff;
+            font-family: system-ui, -apple-system, sans-serif;
+        ">
+            <div style="text-align: center;">
+                <div style="
+                    width: 60px;
+                    height: 60px;
+                    border: 4px solid rgba(0, 212, 255, 0.3);
+                    border-top-color: #00d4ff;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 20px;
+                "></div>
+                <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.8;">
+                    Loading Quantum Falcon...
+                </p>
+            </div>
+        </div>
+        <style>
+            @keyframes spin { to { transform: rotate(360deg); } }
+        </style>
+    </div>
+    <script>
+        // Critical error handler - catches module load failures before React
+        window.addEventListener('error', function(e) {
+            if (e.message && (e.message.includes('Component') || e.message.includes('undefined'))) {
+                console.error('[Critical] Module load error:', e.message);
+                // Retry by reloading after a short delay
+                setTimeout(function() {
+                    if (!window.__reactMounted) {
+                        console.log('[Critical] Reloading due to module error...');
+                        window.location.reload();
+                    }
+                }, 2000);
+            }
+        }, true);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
 </body>
 

@@ -113,7 +113,22 @@ if (!rootElement) {
   throw new Error('Failed to find the root element. Ensure there is a div with id="root" in your HTML.');
 }
 
+// Remove the initial loader once React is ready
+const removeInitialLoader = () => {
+  const loader = document.getElementById('initial-loader');
+  if (loader) {
+    loader.style.opacity = '0';
+    loader.style.transition = 'opacity 0.3s ease-out';
+    setTimeout(() => loader.remove(), 300);
+  }
+  // Signal to error handler that React has mounted
+  (window as any).__reactMounted = true;
+};
+
 const root = createRoot(rootElement);
+
+// Remove loader immediately since React is loading
+removeInitialLoader();
 
 try {
   root.render(
