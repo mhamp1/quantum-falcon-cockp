@@ -1,56 +1,75 @@
-// ULTIMATE LOGIN PAGE — GOD-TIER CYBERPUNK PERFECTION
-// November 22, 2025 — Quantum Falcon Cockpit v2025.1.0
-// Most beautiful login in crypto — remembers forever
+// ULTIMATE LOGIN PAGE — 3-Step Flow with Zero Friction
+// November 25, 2025 — Quantum Falcon Cockpit v2025.1.0
+// Step 1: Create Account → Step 2: Verify Email → Step 3: Enter License → DONE FOREVER
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { enhancedLicenseService } from '@/lib/license/enhancedLicenseService'
-import { useKVSafe } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { 
-  Eye, 
-  EyeSlash, 
-  Key, 
-  User, 
-  Lock, 
-  Sparkle,
-  ArrowRight,
-  ShieldCheck,
-  Play
+  Eye, EyeSlash, Key, User, Lock, Sparkle, ArrowRight, 
+  ShieldCheck, Play, Envelope, CheckCircle, ArrowLeft,
+  Warning, Lightning, Crown
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { InputSanitizer } from '@/lib/security/inputSanitizer'
+import {
+  registerUser,
+  verifyEmail,
+  loginUser,
+  linkLicense,
+  isAuthenticated as checkAuthToken,
+  resendVerificationCode,
+} from '@/lib/api/authApi'
+
+type AuthStep = 'login' | 'register' | 'verify' | 'license'
 
 export default function LoginPage() {
   const { login, isLoading, isAuthenticated, isInitialized, auth, setAuth } = usePersistentAuth()
   const [hasSeenOnboarding, setHasSeenOnboarding] = useKV<boolean>('hasSeenOnboarding', false)
   
+  // Current step in auth flow
+  const [step, setStep] = useState<AuthStep>('login')
+  
+  // Form fields
   const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [licenseKey, setLicenseKey] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [verificationCode, setVerificationCode] = useState('')
+  const [licenseKey, setLicenseKey] = useState('')
+  
+  // UI state
   const [showPassword, setShowPassword] = useState(false)
   const [showLicense, setShowLicense] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [resendCooldown, setResendCooldown] = useState(0)
   
-  // Handle free tier bypass - goes straight to dashboard
-  // FREE TIER PERFECTED — hooks users, converts 80% — November 22, 2025
-  const handleFreeTierContinue = async () => {
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [resendCooldown])
+  
+  // Handle free tier bypass
+  const handleFreeTierContinue = useCallback(async () => {
     try {
       setIsSubmitting(true)
       
-      // Create free tier license through license service
       const freeUserId = `free_${Date.now()}`
       const freeLicense = enhancedLicenseService.createFreeTierLicense(freeUserId)
       
-      // Store minimal auth data in localStorage for auto-login
+      // Store auth data
       const freeAuthData = {
         username: 'Free User',
-        password: '', // No password needed for free tier
+        password: '',
         licenseKey: 'free-tier',
         email: 'free@quantumfalcon.com',
         timestamp: Date.now()
@@ -59,10 +78,9 @@ export default function LoginPage() {
       try {
         localStorage.setItem('qf-persistent-auth', JSON.stringify(freeAuthData))
       } catch (e) {
-        // Silent fail - localStorage unavailable
+        // Silent fail
       }
       
-      // Set auth state with free tier license
       setAuth({
         isAuthenticated: true,
         userId: freeUserId,
@@ -80,27 +98,15 @@ export default function LoginPage() {
         }
       })
       
-      // Mark onboarding as seen
       setHasSeenOnboarding(true)
       try {
         window.localStorage.setItem('hasSeenOnboarding', 'true')
-      } catch (e) {
-        // Silent fail
-      }
-      
-      // Mark splash as seen
-      enhancedLicenseService.markSplashAsSeen()
-      
-      // Mark that user just logged in (for tour timing)
-      try {
         window.localStorage.setItem('justLoggedIn', 'true')
       } catch (e) {
         // Silent fail
       }
       
-      // NO PAGE RELOAD - Let React handle state updates naturally
-      // This is much faster and provides better UX
-      
+      enhancedLicenseService.markSplashAsSeen()
       setIsSubmitting(false)
       
       toast.success('Welcome to Quantum Falcon', {
@@ -114,16 +120,205 @@ export default function LoginPage() {
         description: 'Please try again',
       })
     }
+  }, [setAuth, setHasSeenOnboarding])
+  
+  // Handle registration
+  const handleRegister = async () => {
+    // Validation
+    if (!username.trim()) {
+      toast.error('Username required')
+      return
+    }
+    if (!email.trim() || !InputSanitizer.validateEmail(email)) {
+      toast.error('Valid email required')
+      return
+    }
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters')
+      return
+    }
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match')
+      return
+    }
+    
+    setIsSubmitting(true)
+    
+    const result = await registerUser({
+      username: InputSanitizer.sanitizeHTML(username.trim()),
+      email: email.trim().toLowerCase(),
+      password: password,
+    })
+    
+    setIsSubmitting(false)
+    
+    if (result.success) {
+      setUserId(result.userId || null)
+      setStep('verify')
+      setResendCooldown(60)
+      toast.success('Account created!', {
+        description: 'Check your email for verification code',
+      })
+    } else {
+      toast.error('Registration failed', {
+        description: result.error || 'Please try again',
+      })
+    }
   }
-
-  // Don't show login if still loading or already authenticated
-  // Note: For free tier, isAuthenticated will be true after handleFreeTierContinue
+  
+  // Handle email verification
+  const handleVerifyEmail = async () => {
+    if (verificationCode.length !== 6) {
+      toast.error('Enter 6-digit code')
+      return
+    }
+    
+    setIsSubmitting(true)
+    
+    const result = await verifyEmail({
+      email: email.trim().toLowerCase(),
+      code: verificationCode,
+    })
+    
+    setIsSubmitting(false)
+    
+    if (result.success && result.verified) {
+      setStep('license')
+      toast.success('Email verified!', {
+        description: 'Now enter your license key',
+      })
+    } else {
+      toast.error('Verification failed', {
+        description: result.error || 'Invalid code',
+      })
+    }
+  }
+  
+  // Handle license key entry
+  const handleLicenseSubmit = async () => {
+    if (!licenseKey.trim()) {
+      toast.error('License key required')
+      return
+    }
+    
+    setIsSubmitting(true)
+    
+    // Link license to account
+    const linkResult = await linkLicense({
+      userId: userId || `user_${Date.now()}`,
+      licenseKey: InputSanitizer.sanitizeHTML(licenseKey.trim()),
+    })
+    
+    if (!linkResult.success) {
+      setIsSubmitting(false)
+      toast.error('Invalid license', {
+        description: linkResult.error || 'Please check your license key',
+      })
+      return
+    }
+    
+    // Complete login with license
+    const loginResult = await login(
+      username || email.split('@')[0],
+      password,
+      licenseKey.trim(),
+      email
+    )
+    
+    setIsSubmitting(false)
+    
+    if (loginResult.success) {
+      try {
+        window.localStorage.setItem('justLoggedIn', 'true')
+      } catch (e) {
+        // Silent fail
+      }
+      // Dashboard will show automatically
+    }
+  }
+  
+  // Handle existing user login
+  const handleLogin = async () => {
+    if (!email.trim()) {
+      toast.error('Email required')
+      return
+    }
+    if (!password.trim()) {
+      toast.error('Password required')
+      return
+    }
+    
+    setIsSubmitting(true)
+    
+    const result = await loginUser({
+      email: email.trim().toLowerCase(),
+      password: password,
+    })
+    
+    if (result.success && result.user) {
+      // Check if license is linked
+      if (result.user.licenseKey) {
+        // Has license - complete login
+        const loginResult = await login(
+          result.user.username,
+          password,
+          result.user.licenseKey,
+          result.user.email
+        )
+        
+        setIsSubmitting(false)
+        
+        if (loginResult.success) {
+          try {
+            window.localStorage.setItem('justLoggedIn', 'true')
+          } catch (e) {
+            // Silent fail
+          }
+        }
+      } else {
+        // No license yet - go to license step
+        setUserId(result.user.id)
+        setUsername(result.user.username)
+        setStep('license')
+        setIsSubmitting(false)
+        toast.info('Welcome back!', {
+          description: 'Enter your license key to continue',
+        })
+      }
+    } else {
+      setIsSubmitting(false)
+      toast.error('Login failed', {
+        description: result.error || 'Invalid credentials',
+      })
+    }
+  }
+  
+  // Handle resend verification code
+  const handleResendCode = async () => {
+    if (resendCooldown > 0) return
+    
+    const result = await resendVerificationCode(email.trim().toLowerCase())
+    
+    if (result.success) {
+      setResendCooldown(60)
+      toast.success('Code sent!', {
+        description: 'Check your email',
+      })
+    } else {
+      toast.error('Failed to resend', {
+        description: result.error,
+      })
+    }
+  }
+  
+  // Loading/authenticated state - NEVER show white/black screen
   if (!isInitialized || isLoading || isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
-        {/* Animated Background */}
+        {/* Animated Background - Always visible */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-background to-cyan-900/20" />
         <div className="absolute inset-0 diagonal-stripes opacity-5" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.1)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
         
         <div className="relative z-10 text-center">
           <motion.div
@@ -138,79 +333,46 @@ export default function LoginPage() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-muted-foreground text-sm uppercase tracking-wider"
           >
-            {isAuthenticated ? 'Loading dashboard...' : 'Initializing system...'}
+            {isAuthenticated ? 'Loading dashboard...' : 'Initializing Quantum Falcon...'}
           </motion.p>
         </div>
       </div>
     )
   }
-
-  const handleLogin = async () => {
-    // Sanitize inputs
-    const sanitizedUsername = InputSanitizer.sanitizeHTML(username.trim())
-    const sanitizedLicenseKey = InputSanitizer.sanitizeHTML(licenseKey.trim())
-    
-    if (!sanitizedUsername) {
-      toast.error('Username Required', {
-        description: 'Please enter your username',
-      })
-      return
-    }
-
-    if (!password.trim()) {
-      toast.error('Password Required', {
-        description: 'Please enter your password',
-      })
-      return
-    }
-
-    if (!sanitizedLicenseKey) {
-      toast.error('License Key Required', {
-        description: 'Please enter your license key',
-      })
-      return
-    }
-
-    setIsSubmitting(true)
-
-    // Validate email if provided
-    if (email && !InputSanitizer.validateEmail(email)) {
-      setIsSubmitting(false)
-      toast.error('Invalid Email', {
-        description: 'Please enter a valid email address',
-      })
-      return
-    }
-
-    const result = await login(sanitizedUsername, password, sanitizedLicenseKey, email || undefined)
-
-    if (result.success) {
-      // Login successful - mark that user just logged in (for tour timing)
-      try {
-        window.localStorage.setItem('justLoggedIn', 'true')
-      } catch (e) {
-        // Silent fail
-      }
-      // App.tsx will handle showing dashboard
-      setIsSubmitting(false)
-    } else {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isSubmitting) {
-      handleLogin()
-    }
-  }
+  
+  // Step indicator
+  const StepIndicator = () => (
+    <div className="flex items-center justify-center gap-2 mb-6">
+      {['register', 'verify', 'license'].map((s, i) => (
+        <div key={s} className="flex items-center">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+            (step === 'login' && s === 'register') || step === s 
+              ? 'bg-primary text-background' 
+              : i < ['register', 'verify', 'license'].indexOf(step)
+                ? 'bg-accent text-background'
+                : 'bg-muted text-muted-foreground'
+          }`}>
+            {i < ['register', 'verify', 'license'].indexOf(step) ? (
+              <CheckCircle size={16} weight="bold" />
+            ) : (
+              i + 1
+            )}
+          </div>
+          {i < 2 && (
+            <div className={`w-12 h-0.5 mx-1 transition-all ${
+              i < ['register', 'verify', 'license'].indexOf(step) ? 'bg-accent' : 'bg-muted'
+            }`} />
+          )}
+        </div>
+      ))}
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-background to-cyan-900/20" />
       <div className="absolute inset-0 diagonal-stripes opacity-5" />
-      
-      {/* Animated Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.1)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
 
       <motion.div
@@ -219,13 +381,13 @@ export default function LoginPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="relative z-10 max-w-md w-full mx-4"
       >
-        {/* Title Only - No Floating Logo */}
+        {/* Title */}
         <div className="text-center mb-8">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-6xl font-black uppercase tracking-wider mb-2"
+            className="text-5xl font-black uppercase tracking-wider mb-2"
             style={{
               background: 'linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #00d4ff 100%)',
               WebkitBackgroundClip: 'text',
@@ -244,165 +406,399 @@ export default function LoginPage() {
             className="text-cyan-400 text-sm uppercase tracking-wider mt-2 flex items-center justify-center gap-2"
           >
             <Sparkle size={16} weight="fill" className="text-purple-400" />
-            Enter your credentials once — never again
+            {step === 'login' ? 'Welcome Back' : 
+             step === 'register' ? 'Create Your Account' :
+             step === 'verify' ? 'Verify Your Email' :
+             'Link Your License'}
             <Sparkle size={16} weight="fill" className="text-purple-400" />
           </motion.p>
         </div>
 
-        {/* Login Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="cyber-card p-8 border-2 border-primary/50 relative overflow-hidden"
-        >
-          <div className="absolute inset-0 diagonal-stripes opacity-5" />
-          <div className="relative z-10 space-y-4">
-            {/* Username */}
-            <div>
-              <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
-                <User size={14} weight="duotone" className="text-primary" />
-                Username
-              </Label>
-              <Input
-                type="text"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="w-full px-6 py-4 bg-background/60 border-2 border-primary/50 rounded-lg 
-                         focus:border-primary focus:ring-2 focus:ring-primary/20
-                         transition-all font-mono"
-                disabled={isSubmitting}
-              />
-            </div>
+        {/* Step Indicator - Only show for registration flow */}
+        {step !== 'login' && <StepIndicator />}
 
-            {/* Email (Optional) */}
-            <div>
-              <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
-                <User size={14} weight="duotone" className="text-muted-foreground" />
-                Email <span className="text-muted-foreground font-normal">(Optional)</span>
-              </Label>
-              <Input
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="w-full px-6 py-4 bg-background/60 border-2 border-muted/50 rounded-lg 
-                         focus:border-primary focus:ring-2 focus:ring-primary/20
-                         transition-all"
-                disabled={isSubmitting}
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
-                <Lock size={14} weight="duotone" className="text-primary" />
-                Password
-              </Label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="w-full px-6 py-4 pr-12 bg-background/60 border-2 border-primary/50 rounded-lg 
-                           focus:border-primary focus:ring-2 focus:ring-primary/20
-                           transition-all font-mono"
-                  disabled={isSubmitting}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
-                >
-                  {showPassword ? <EyeSlash size={20} weight="duotone" /> : <Eye size={20} weight="duotone" />}
-                </button>
-              </div>
-            </div>
-
-            {/* License Key */}
-            <div>
-              <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
-                <Key size={14} weight="duotone" className="text-purple-400" />
-                License Key <span className="text-purple-400">(One-time only)</span>
-              </Label>
-              <div className="relative">
-                <Input
-                  type={showLicense ? 'text' : 'password'}
-                  placeholder="Enter your license key"
-                  value={licenseKey}
-                  onChange={(e) => setLicenseKey(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="w-full px-6 py-4 pr-12 bg-background/60 border-2 border-purple-500/50 rounded-lg 
-                           focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20
-                           transition-all font-mono text-sm"
-                  disabled={isSubmitting}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowLicense(!showLicense)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
-                >
-                  {showLicense ? <EyeSlash size={20} weight="duotone" /> : <Key size={20} weight="duotone" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Login Button */}
-            <Button
-              onClick={handleLogin}
-              disabled={isSubmitting || !username.trim() || !password.trim() || !licenseKey.trim()}
-              className="w-full h-16 text-xl font-black uppercase tracking-wider
-                       bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500
-                       hover:from-cyan-400 hover:via-purple-400 hover:to-cyan-400
-                       border-2 border-primary/50
-                       shadow-[0_0_30px_rgba(0,212,255,0.4)] hover:shadow-[0_0_40px_rgba(168,85,247,0.6)]
-                       transition-all jagged-corner
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
+        {/* Main Form */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="cyber-card p-8 border-2 border-primary/50 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 diagonal-stripes opacity-5" />
+            <div className="relative z-10 space-y-4">
+              
+              {/* LOGIN STEP */}
+              {step === 'login' && (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Validating...
-                </>
-              ) : (
-                <>
-                  ENTER THE COCKPIT
-                  <ArrowRight size={20} weight="bold" className="ml-2" />
+                  {/* Email */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <Envelope size={14} weight="duotone" className="text-primary" />
+                      Email
+                    </Label>
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-6 py-4 bg-background/60 border-2 border-primary/50 rounded-lg"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  
+                  {/* Password */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <Lock size={14} weight="duotone" className="text-primary" />
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-6 py-4 pr-12 bg-background/60 border-2 border-primary/50 rounded-lg"
+                        disabled={isSubmitting}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                      >
+                        {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Login Button */}
+                  <Button
+                    onClick={handleLogin}
+                    disabled={isSubmitting || !email.trim() || !password.trim()}
+                    className="w-full h-14 text-lg font-black uppercase tracking-wider
+                             bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500
+                             hover:from-cyan-400 hover:via-purple-400 hover:to-cyan-400
+                             border-2 border-primary/50 shadow-[0_0_30px_rgba(0,212,255,0.4)]
+                             transition-all jagged-corner disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Logging in...
+                      </>
+                    ) : (
+                      <>
+                        ENTER COCKPIT
+                        <ArrowRight size={18} className="ml-2" />
+                      </>
+                    )}
+                  </Button>
+                  
+                  {/* Divider */}
+                  <div className="flex items-center gap-4 py-2">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground uppercase">or</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                  
+                  {/* Register Button */}
+                  <Button
+                    onClick={() => setStep('register')}
+                    variant="outline"
+                    className="w-full h-12 text-sm font-bold uppercase tracking-wider
+                             border-2 border-accent/50 hover:border-accent hover:bg-accent/10"
+                  >
+                    <User size={16} className="mr-2" />
+                    Create New Account
+                  </Button>
+                  
+                  {/* Free Tier Button */}
+                  <Button
+                    onClick={handleFreeTierContinue}
+                    disabled={isSubmitting}
+                    variant="ghost"
+                    className="w-full h-12 text-sm font-bold uppercase tracking-wider
+                             border-2 border-cyan-500/30 hover:border-cyan-500/50 hover:bg-cyan-500/10"
+                  >
+                    <Play size={16} className="mr-2" />
+                    Continue Free (Paper Trading)
+                  </Button>
                 </>
               )}
-            </Button>
-
-            {/* Continue as Free Tier Button */}
-            <Button
-              onClick={handleFreeTierContinue}
-              disabled={isSubmitting}
-              className="w-full h-14 text-lg font-bold uppercase tracking-wider
-                       bg-gradient-to-r from-gray-800/80 to-gray-900/80
-                       hover:from-gray-700/90 hover:to-gray-800/90
-                       border-2 border-cyan-500/50 hover:border-cyan-400/70
-                       text-white
-                       shadow-[0_0_20px_rgba(0,212,255,0.2)] hover:shadow-[0_0_30px_rgba(0,212,255,0.4)]
-                       transition-all duration-300 hover:scale-105
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Play size={18} weight="fill" className="mr-2" />
-              Continue as Free Tier (Paper Trading)
-            </Button>
-
-            {/* Security Notice */}
-            <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/30 rounded-lg mt-4">
-              <ShieldCheck size={16} weight="duotone" className="text-primary flex-shrink-0" />
-              <p className="text-xs text-muted-foreground">
-                Your credentials are encrypted and stored locally • You will never need to enter them again
-              </p>
+              
+              {/* REGISTER STEP */}
+              {step === 'register' && (
+                <>
+                  {/* Back Button */}
+                  <button
+                    onClick={() => setStep('login')}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-2"
+                  >
+                    <ArrowLeft size={14} />
+                    Back to login
+                  </button>
+                  
+                  {/* Username */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <User size={14} weight="duotone" className="text-primary" />
+                      Username
+                    </Label>
+                    <Input
+                      type="text"
+                      placeholder="Choose a username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full px-6 py-4 bg-background/60 border-2 border-primary/50 rounded-lg"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  
+                  {/* Email */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <Envelope size={14} weight="duotone" className="text-primary" />
+                      Email
+                    </Label>
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-6 py-4 bg-background/60 border-2 border-primary/50 rounded-lg"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  
+                  {/* Password */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <Lock size={14} weight="duotone" className="text-primary" />
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Min 8 characters"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-6 py-4 pr-12 bg-background/60 border-2 border-primary/50 rounded-lg"
+                        disabled={isSubmitting}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                      >
+                        {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Confirm Password */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <Lock size={14} weight="duotone" className="text-primary" />
+                      Confirm Password
+                    </Label>
+                    <Input
+                      type="password"
+                      placeholder="Confirm password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-6 py-4 bg-background/60 border-2 border-primary/50 rounded-lg"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  
+                  {/* Register Button */}
+                  <Button
+                    onClick={handleRegister}
+                    disabled={isSubmitting || !username.trim() || !email.trim() || password.length < 8 || password !== confirmPassword}
+                    className="w-full h-14 text-lg font-black uppercase tracking-wider
+                             bg-gradient-to-r from-accent via-purple-500 to-accent
+                             hover:from-accent/80 hover:via-purple-400 hover:to-accent/80
+                             border-2 border-accent/50 shadow-[0_0_30px_rgba(0,255,128,0.3)]
+                             transition-all jagged-corner disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Creating account...
+                      </>
+                    ) : (
+                      <>
+                        CREATE ACCOUNT
+                        <ArrowRight size={18} className="ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </>
+              )}
+              
+              {/* VERIFY EMAIL STEP */}
+              {step === 'verify' && (
+                <>
+                  {/* Back Button */}
+                  <button
+                    onClick={() => setStep('register')}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-2"
+                  >
+                    <ArrowLeft size={14} />
+                    Back
+                  </button>
+                  
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Envelope size={32} className="text-primary" />
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      We sent a verification code to:
+                    </p>
+                    <p className="font-bold text-primary">{email}</p>
+                  </div>
+                  
+                  {/* Verification Code */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <Key size={14} weight="duotone" className="text-accent" />
+                      6-Digit Code
+                    </Label>
+                    <Input
+                      type="text"
+                      placeholder="Enter 6-digit code"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      className="w-full px-6 py-4 bg-background/60 border-2 border-accent/50 rounded-lg text-center text-2xl tracking-[0.5em] font-mono"
+                      disabled={isSubmitting}
+                      maxLength={6}
+                    />
+                  </div>
+                  
+                  {/* Verify Button */}
+                  <Button
+                    onClick={handleVerifyEmail}
+                    disabled={isSubmitting || verificationCode.length !== 6}
+                    className="w-full h-14 text-lg font-black uppercase tracking-wider
+                             bg-gradient-to-r from-accent via-green-500 to-accent
+                             hover:from-accent/80 hover:via-green-400 hover:to-accent/80
+                             border-2 border-accent/50 shadow-[0_0_30px_rgba(0,255,128,0.3)]
+                             transition-all jagged-corner disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Verifying...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle size={18} className="mr-2" />
+                        VERIFY EMAIL
+                      </>
+                    )}
+                  </Button>
+                  
+                  {/* Resend Code */}
+                  <button
+                    onClick={handleResendCode}
+                    disabled={resendCooldown > 0}
+                    className="w-full text-sm text-muted-foreground hover:text-primary transition disabled:opacity-50"
+                  >
+                    {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend verification code'}
+                  </button>
+                </>
+              )}
+              
+              {/* LICENSE STEP */}
+              {step === 'license' && (
+                <>
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Key size={32} className="text-purple-400" />
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Almost there! Enter your license key:
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      (You only need to do this once — ever)
+                    </p>
+                  </div>
+                  
+                  {/* License Key */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <Crown size={14} weight="fill" className="text-purple-400" />
+                      License Key
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type={showLicense ? 'text' : 'password'}
+                        placeholder="Enter your license key"
+                        value={licenseKey}
+                        onChange={(e) => setLicenseKey(e.target.value)}
+                        className="w-full px-6 py-4 pr-12 bg-background/60 border-2 border-purple-500/50 rounded-lg font-mono"
+                        disabled={isSubmitting}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLicense(!showLicense)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                      >
+                        {showLicense ? <EyeSlash size={20} /> : <Key size={20} />}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Activate Button */}
+                  <Button
+                    onClick={handleLicenseSubmit}
+                    disabled={isSubmitting || !licenseKey.trim()}
+                    className="w-full h-14 text-lg font-black uppercase tracking-wider
+                             bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500
+                             hover:from-purple-400 hover:via-pink-400 hover:to-purple-400
+                             border-2 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.4)]
+                             transition-all jagged-corner disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Activating...
+                      </>
+                    ) : (
+                      <>
+                        <Lightning size={18} weight="fill" className="mr-2" />
+                        ACTIVATE LICENSE
+                      </>
+                    )}
+                  </Button>
+                  
+                  {/* Skip for now - go free tier */}
+                  <Button
+                    onClick={handleFreeTierContinue}
+                    variant="ghost"
+                    className="w-full h-10 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground"
+                  >
+                    Skip for now (Free Tier)
+                  </Button>
+                </>
+              )}
+              
+              {/* Security Notice */}
+              <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/30 rounded-lg mt-4">
+                <ShieldCheck size={16} weight="duotone" className="text-primary flex-shrink-0" />
+                <p className="text-xs text-muted-foreground">
+                  {step === 'login' ? 'Your credentials are encrypted and secure' :
+                   step === 'register' ? 'We never share your email • Password is encrypted' :
+                   step === 'verify' ? 'Verification adds an extra layer of security' :
+                   'License linked forever • Auto-login enabled'}
+                </p>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </AnimatePresence>
 
         {/* Footer */}
         <motion.p
@@ -411,10 +807,9 @@ export default function LoginPage() {
           transition={{ delay: 0.6 }}
           className="text-center text-xs text-muted-foreground mt-6 uppercase tracking-wider"
         >
-          Quantum Falcon Cockpit v2025.1.0 • Zero Friction, Pure Perfection
+          Quantum Falcon Cockpit v2025.1.0 • Zero Friction, Maximum Security
         </motion.p>
       </motion.div>
     </div>
   )
 }
-
