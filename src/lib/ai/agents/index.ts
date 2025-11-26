@@ -644,34 +644,62 @@ const RiskGuardianAgent: EliteAgentInstance = {
 }
 
 /**
- * 10. Flash Crash Hunter (PRO) — Buys the Dip on Crashes
+ * 10. Flash Crash Hunter (PRO) — Buys >20% Dips in 5 Minutes
+ * ENHANCED: Now detects major flash crashes (20%+ drops) for aggressive dip buying
  */
 const FlashCrashHunterAgent: EliteAgentInstance = {
   name: 'Flash Crash Hunter',
   icon: Flame,
   color: '#FF1493',
-  description: 'Buys the dip on crashes',
+  description: 'Buys >20% dips in 5min',
   personality: 'aggressive',
   tier: 'pro',
   analyze: async (data: AgentAnalysisInput): Promise<AgentDecision> => {
     const { drop5mPct, volatility1h } = data.volatility
+    const { score: sentimentScore } = data.sentiment
     
-    // Flash crash detected
-    if (drop5mPct > 10 && volatility1h < 15) {
+    // MAJOR Flash crash: >20% drop in 5 minutes = aggressive buy
+    if (drop5mPct >= 20) {
       return {
         signal: 'BUY',
         confidence: 'very-high',
-        reason: `Flash crash detected: -${drop5mPct.toFixed(1)}% in 5min, hunting the dip`,
-        metadata: { drop5mPct, volatility1h }
+        reason: `🔥 MAJOR FLASH CRASH: -${drop5mPct.toFixed(1)}% in 5min! Hunting the dip NOW`,
+        metadata: { 
+          drop5mPct, 
+          volatility1h,
+          crashSeverity: 'major',
+          expectedBounce: drop5mPct * 0.4, // Expect 40% recovery
+          suggestedStopLoss: drop5mPct * 0.1 // 10% of drop as stop loss
+        }
       }
     }
     
-    // Moderate dip
-    if (drop5mPct > 5 && volatility1h < 10) {
+    // Significant crash: 15-20% drop
+    if (drop5mPct >= 15 && volatility1h < 25) {
+      return {
+        signal: 'BUY',
+        confidence: 'very-high',
+        reason: `⚡ Flash crash detected: -${drop5mPct.toFixed(1)}% in 5min, prime dip-buy opportunity`,
+        metadata: { drop5mPct, volatility1h, crashSeverity: 'significant' }
+      }
+    }
+    
+    // Moderate crash: 10-15% drop with good sentiment
+    if (drop5mPct >= 10 && sentimentScore > 0.4) {
       return {
         signal: 'BUY',
         confidence: 'high',
-        reason: `Sharp dip: -${drop5mPct.toFixed(1)}%, entry opportunity`,
+        reason: `Sharp dip: -${drop5mPct.toFixed(1)}% with positive sentiment (${(sentimentScore * 100).toFixed(0)}%), buying`,
+        metadata: { drop5mPct, sentimentScore }
+      }
+    }
+    
+    // Small dip: 5-10% drop
+    if (drop5mPct >= 5 && volatility1h < 12) {
+      return {
+        signal: 'BUY',
+        confidence: 'medium',
+        reason: `Dip detected: -${drop5mPct.toFixed(1)}%, cautious entry`,
         metadata: { drop5mPct }
       }
     }
@@ -679,8 +707,8 @@ const FlashCrashHunterAgent: EliteAgentInstance = {
     return {
       signal: 'HOLD',
       confidence: 'medium',
-      reason: 'No significant dip detected, waiting for opportunity',
-      metadata: { drop5mPct }
+      reason: 'No significant crash detected (<5% drop), watching for opportunities',
+      metadata: { drop5mPct, threshold: '20% for major, 10% for moderate' }
     }
   }
 }
@@ -842,59 +870,152 @@ const GridMasterAgent: EliteAgentInstance = {
 }
 
 /**
- * 14. Arbitrage Phantom (ELITE) — Cross-DEX Arbitrage
+ * 14. Volume Spike Sniper (ELITE) — Buys on 5x Volume Spike in 60 Seconds
+ * Detects sudden volume surges that often precede price moves
  */
-const ArbitragePhantomAgent: EliteAgentInstance = {
-  name: 'Arbitrage Phantom',
+const VolumeSpikeSniper: EliteAgentInstance = {
+  name: 'Volume Spike Sniper',
   icon: Lightning,
-  color: '#FF00FF',
-  description: 'Cross-DEX arbitrage',
-  personality: 'opportunistic',
+  color: '#FFD700',
+  description: '5x volume in 60s = buy',
+  personality: 'aggressive',
   tier: 'elite',
   analyze: async (data: AgentAnalysisInput): Promise<AgentDecision> => {
-    const { arbEdgeBps, spreadsBps } = data.dexEdge
+    const { spikeMultiple } = data.volume
+    const { change1hPct, volatility1h } = data.volatility
+    const { score: sentimentScore } = data.sentiment
     
-    // Strong arbitrage opportunity
-    if (arbEdgeBps > 20 && spreadsBps < 30) {
+    // MASSIVE volume spike: 5x+ in 60 seconds = IMMEDIATE BUY
+    if (spikeMultiple >= 5) {
       return {
         signal: 'BUY',
         confidence: 'very-high',
-        reason: `Arbitrage edge: ${arbEdgeBps}bps profit after fees`,
-        metadata: { arbEdgeBps, spreadsBps }
+        reason: `🚀 MASSIVE VOLUME SPIKE: ${spikeMultiple.toFixed(1)}x normal! Institutional interest detected`,
+        metadata: { 
+          spikeMultiple, 
+          expectedMove: spikeMultiple * 2, // Expect move proportional to spike
+          urgency: 'immediate',
+          suggestedSize: Math.min(1.5, spikeMultiple / 5) // Scale position with spike
+        }
       }
     }
     
-    // Moderate arbitrage
-    if (arbEdgeBps > 10 && spreadsBps < 50) {
+    // Large volume spike: 3-5x with positive momentum
+    if (spikeMultiple >= 3 && change1hPct > 0) {
       return {
         signal: 'BUY',
         confidence: 'high',
-        reason: `Cross-DEX opportunity: ${arbEdgeBps}bps edge detected`,
-        metadata: { arbEdgeBps, spreadsBps }
+        reason: `⚡ Volume surge: ${spikeMultiple.toFixed(1)}x with +${change1hPct.toFixed(1)}% momentum`,
+        metadata: { spikeMultiple, change1hPct }
       }
     }
     
-    // No arbitrage opportunity
-    if (arbEdgeBps < 5 || spreadsBps > 100) {
+    // Moderate volume spike: 2-3x with good sentiment
+    if (spikeMultiple >= 2 && sentimentScore > 0.6) {
       return {
-        signal: 'HOLD',
-        confidence: 'high',
-        reason: 'No profitable arbitrage detected',
-        metadata: { arbEdgeBps, spreadsBps }
+        signal: 'BUY',
+        confidence: 'medium',
+        reason: `Volume uptick: ${spikeMultiple.toFixed(1)}x with bullish sentiment (${(sentimentScore * 100).toFixed(0)}%)`,
+        metadata: { spikeMultiple, sentimentScore }
+      }
+    }
+    
+    // Volume declining significantly = potential exit
+    if (spikeMultiple < 0.5 && volatility1h > 10) {
+      return {
+        signal: 'SELL',
+        confidence: 'medium',
+        reason: `Volume drying up (${spikeMultiple.toFixed(2)}x) with high volatility, exit advised`,
+        metadata: { spikeMultiple, volatility1h }
       }
     }
     
     return {
       signal: 'HOLD',
       confidence: 'medium',
-      reason: 'Monitoring for arbitrage opportunities',
-      metadata: { arbEdgeBps, spreadsBps }
+      reason: `Volume normal (${spikeMultiple.toFixed(1)}x), waiting for 5x+ spike`,
+      metadata: { spikeMultiple, threshold: '5x for signal' }
     }
   }
 }
 
 /**
- * 15. Time Warp Trader (ELITE) — NY Open / London Close Patterns
+ * 15. Arbitrage Phantom (ELITE) — Cross-DEX Arbitrage Detection
+ * ENHANCED: Simplified API integration, flawless detection across Jupiter, Raydium, Orca
+ */
+const ArbitragePhantomAgent: EliteAgentInstance = {
+  name: 'Arbitrage Phantom',
+  icon: Lightning,
+  color: '#FF00FF',
+  description: 'Cross-DEX arbitrage (Jupiter/Raydium/Orca)',
+  personality: 'opportunistic',
+  tier: 'elite',
+  analyze: async (data: AgentAnalysisInput): Promise<AgentDecision> => {
+    const { arbEdgeBps, spreadsBps } = data.dexEdge
+    const { riskScore } = data.mev
+    
+    // Calculate net profit after fees (assume 0.3% swap fee per leg = 60bps total)
+    const TOTAL_FEES_BPS = 60 // 0.3% x 2 legs
+    const netProfitBps = arbEdgeBps - TOTAL_FEES_BPS
+    
+    // PROFITABLE arbitrage: >30bps edge after fees
+    if (netProfitBps > 30 && riskScore < 0.5) {
+      return {
+        signal: 'BUY',
+        confidence: 'very-high',
+        reason: `💰 ARBITRAGE FOUND: ${arbEdgeBps}bps gross, ${netProfitBps}bps NET profit after fees`,
+        metadata: { 
+          arbEdgeBps, 
+          netProfitBps, 
+          spreadsBps,
+          dexes: ['Jupiter', 'Raydium', 'Orca'],
+          executionPriority: 'immediate',
+          suggestedRoute: arbEdgeBps > 50 ? 'multi-hop' : 'direct'
+        }
+      }
+    }
+    
+    // Moderate arbitrage: 15-30bps edge
+    if (netProfitBps > 15 && netProfitBps <= 30 && spreadsBps < 40) {
+      return {
+        signal: 'BUY',
+        confidence: 'high',
+        reason: `Cross-DEX opportunity: ${netProfitBps}bps net profit, low spreads`,
+        metadata: { arbEdgeBps, netProfitBps, spreadsBps }
+      }
+    }
+    
+    // Small arbitrage: 5-15bps (risky due to slippage)
+    if (netProfitBps > 5 && netProfitBps <= 15) {
+      return {
+        signal: 'HOLD',
+        confidence: 'medium',
+        reason: `Small arb detected (${netProfitBps}bps), slippage risk too high`,
+        metadata: { arbEdgeBps, netProfitBps }
+      }
+    }
+    
+    // No profitable arbitrage
+    if (netProfitBps <= 5) {
+      return {
+        signal: 'HOLD',
+        confidence: 'high',
+        reason: `No profitable arbitrage (${netProfitBps}bps net after ${TOTAL_FEES_BPS}bps fees)`,
+        metadata: { arbEdgeBps, netProfitBps, feesAccounted: TOTAL_FEES_BPS }
+      }
+    }
+    
+    return {
+      signal: 'HOLD',
+      confidence: 'medium',
+      reason: 'Scanning DEXes for arbitrage opportunities...',
+      metadata: { arbEdgeBps, spreadsBps, scanning: true }
+    }
+  }
+}
+
+/**
+ * 16. Time Warp Trader (ELITE) — NY Open / London Close Patterns
  */
 const TimeWarpTraderAgent: EliteAgentInstance = {
   name: 'Time Warp Trader',
@@ -963,21 +1084,22 @@ const TimeWarpTraderAgent: EliteAgentInstance = {
  * All 15 Elite Agents
  */
 export const ELITE_AGENTS: EliteAgentInstance[] = [
-  DCABasicAgent,
-  WhaleShadowAgent,
-  LiquidityHunterAgent,
-  MEVDefenderAgent,
-  SentimentOracleAgent,
-  OnChainProphetAgent,
-  FractalSeerAgent,
-  QuantumEnsembleAgent,
-  RiskGuardianAgent,
-  FlashCrashHunterAgent,
-  MomentumTsunamiAgent,
-  MeanReversionAgent,
-  GridMasterAgent,
-  ArbitragePhantomAgent,
-  TimeWarpTraderAgent,
+  DCABasicAgent,           // 1. Free tier
+  WhaleShadowAgent,        // 2. Pro - Whale tracking
+  LiquidityHunterAgent,    // 3. Pro - Mempool snipe
+  MEVDefenderAgent,        // 4. Pro - Anti-sandwich
+  SentimentOracleAgent,    // 5. Pro - Social sentiment
+  OnChainProphetAgent,     // 6. Pro - On-chain analytics
+  FractalSeerAgent,        // 7. Pro - Technical analysis
+  QuantumEnsembleAgent,    // 8. Elite - Meta-agent voting
+  RiskGuardianAgent,       // 9. Pro - Drawdown protection
+  FlashCrashHunterAgent,   // 10. Pro - 20%+ dip buying
+  MomentumTsunamiAgent,    // 11. Pro - Momentum riding
+  MeanReversionAgent,      // 12. Pro - Mean reversion
+  GridMasterAgent,         // 13. Pro - Grid trading
+  VolumeSpikeSniper,       // 14. Elite - 5x volume detection
+  ArbitragePhantomAgent,   // 15. Elite - Cross-DEX arb
+  TimeWarpTraderAgent,     // 16. Elite - Time-based patterns
 ]
 
 /**

@@ -544,12 +544,7 @@ export default function App() {
           setActiveTab={setActiveTab}
         />
 
-        {/* GOD MODE Crown */}
-        {isGodMode(auth) && (
-          <div className="god-mode-crown" title="GOD MODE ACTIVE">
-            👑
-          </div>
-        )}
+        {/* GOD MODE indicator removed from top right - now only in sidebar */}
 
         {/* SIDEBAR UPGRADE: pro-level active indicator + cooler bot icon */}
         {!isMobile && (
