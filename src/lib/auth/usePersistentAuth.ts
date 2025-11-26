@@ -226,8 +226,16 @@ export const usePersistentAuth = () => {
 
       // MASTER KEY CHECK - Recognized FIRST, before any validation
       // This ensures master key always gets proper recognition
-      const MASTER_KEY = 'XoYgqu2wJYVZVg5AdWO9NqhKM52qXQ_ob9oeWMVeYhw='
-      const isMasterKey = licenseKey.trim() === MASTER_KEY
+      // Supports multiple master key formats
+      const ENCODED_MASTER_KEY = 'XoYgqu2wJYVZVg5AdWO9NqhKM52qXQ_ob9oeWMVeYhw='
+      const trimmedKey = licenseKey.trim()
+      const isMasterKey = 
+        trimmedKey === ENCODED_MASTER_KEY ||
+        /^QF-GODMODE-/i.test(trimmedKey) ||
+        /^QF-MASTER-/i.test(trimmedKey) ||
+        /^QF-LIFETIME-MHAMP1-/i.test(trimmedKey) ||
+        /^MASTER-/i.test(trimmedKey) ||
+        /^GOD-/i.test(trimmedKey)
       
       // If master key, skip validation and create master result directly
       let validationResult: any
@@ -324,15 +332,25 @@ export const usePersistentAuth = () => {
       await new Promise(resolve => setTimeout(resolve, 50))
       
       // Show appropriate message based on tier
-      const tierMessage = isMasterKey 
-        ? 'MASTER KEY ACTIVATED • Creator privileges enabled • God Mode active'
-        : `${finalTier.toUpperCase()} tier activated`
-      
-      toast.success('Welcome Back, Commander', {
-        description: tierMessage,
-        icon: isMasterKey ? '👑' : '🦅',
-        duration: 5000,
-      })
+      if (isMasterKey) {
+        // GOD MODE - Special creator welcome
+        toast.success('👑 WELCOME BACK, CREATOR 👑', {
+          description: 'God Mode Active • Unlimited Everything • You ARE the Falcon',
+          duration: 8000,
+          style: {
+            background: 'linear-gradient(135deg, #ff00ff, #00ffff)',
+            color: 'white',
+            border: '2px solid gold',
+            boxShadow: '0 0 40px rgba(255, 215, 0, 0.8)',
+          },
+        })
+      } else {
+        toast.success('Welcome Back, Commander', {
+          description: `${finalTier.toUpperCase()} tier activated`,
+          icon: '🦅',
+          duration: 5000,
+        })
+      }
 
       return { success: true }
     } catch (error) {

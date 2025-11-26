@@ -294,25 +294,44 @@ export default function App() {
       if (!godModeToastShown.current) {
         godModeToastShown.current = true;
         
-        // Show celebration toast
-        toast.success('⚡ GOD MODE ACTIVATED ⚡', {
-          description: 'Unlimited everything. Rainbow mode engaged. You are the Falcon.',
+        // Show GOD MODE celebration toast
+        toast.success('👑 WELCOME BACK, CREATOR 👑', {
+          description: 'GOD MODE ACTIVE • Unlimited Everything • All 15 Agents • All 53+ Strategies • Rainbow Border Engaged • YOU ARE THE FALCON',
           duration: 10000,
           style: {
-            background: 'linear-gradient(135deg, #ff00ff, #00ffff)',
+            background: 'linear-gradient(135deg, #ff00ff, #00ffff, #ffff00)',
             color: 'white',
-            border: '2px solid gold',
-            boxShadow: '0 0 40px rgba(255, 215, 0, 0.8)',
+            border: '3px solid gold',
+            boxShadow: '0 0 60px rgba(255, 215, 0, 0.9)',
+            fontWeight: 'bold',
           },
         });
 
-        // Confetti celebration
+        // MASSIVE Confetti celebration for the Creator
         confetti({
-          particleCount: 300,
-          spread: 120,
-          origin: { y: 0.4 },
-          colors: ['#ff00ff', '#00ffff', '#ffff00', '#ff1493', '#00ff00', '#ffd700'],
+          particleCount: 500,
+          spread: 180,
+          origin: { y: 0.3 },
+          colors: ['#ff00ff', '#00ffff', '#ffff00', '#ff1493', '#00ff00', '#ffd700', '#ff6b6b'],
         });
+        
+        // Second wave of confetti
+        setTimeout(() => {
+          confetti({
+            particleCount: 300,
+            angle: 60,
+            spread: 100,
+            origin: { x: 0 },
+            colors: ['#ffd700', '#ff00ff', '#00ffff'],
+          });
+          confetti({
+            particleCount: 300,
+            angle: 120,
+            spread: 100,
+            origin: { x: 1 },
+            colors: ['#ffd700', '#ff00ff', '#00ffff'],
+          });
+        }, 500);
       }
     } else {
       deactivateGodMode();

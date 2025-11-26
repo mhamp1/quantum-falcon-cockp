@@ -1136,14 +1136,15 @@ export function getAgentsByTier(tier: AgentTier): EliteAgentInstance[] {
 
 /**
  * Check if user has access to agent
+ * GOD MODE: 'lifetime' or 'god' tier = access to ALL agents
  */
-export function hasAgentAccess(agentTier: AgentTier, userTier: AgentTier): boolean {
+export function hasAgentAccess(agentTier: AgentTier, userTier: AgentTier | string): boolean {
+  // GOD MODE - Lifetime or God tier has access to EVERYTHING
+  if (userTier === 'lifetime' || userTier === 'god') return true
+  
   const tierHierarchy: AgentTier[] = ['free', 'pro', 'elite', 'lifetime']
   const agentLevel = tierHierarchy.indexOf(agentTier)
-  const userLevel = tierHierarchy.indexOf(userTier)
-  
-  // Lifetime has access to everything
-  if (userTier === 'lifetime') return true
+  const userLevel = tierHierarchy.indexOf(userTier as AgentTier)
   
   return userLevel >= agentLevel
 }
