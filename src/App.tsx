@@ -421,8 +421,10 @@ export default function App() {
       { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
     ];
 
-    // Add Master Admin Panel only for master key users (GOD MODE)
-    if (isGodMode(auth)) {
+    // Add Master Admin Panel ONLY for master key users (GOD MODE)
+    // SECURITY: Triple-check - must be authenticated, have master userId, AND pass isGodMode
+    const isMasterUser = auth?.license?.userId === 'master' && auth?.license?.tier === 'lifetime'
+    if (isMasterUser && isGodMode(auth)) {
       baseTabs.push({ 
         id: 'master-admin', 
         label: 'God Mode 👑', 
