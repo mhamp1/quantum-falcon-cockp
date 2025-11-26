@@ -2150,6 +2150,16 @@ body.god-mode::before {
   100% { border-image-source: linear-gradient(45deg, #00ff00, #ff00ff, #00ffff, #ffff00, #ff1493); }
 }
 
+@keyframes grid-pan {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(60px); }
+}
+
+@keyframes loadingBar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* ============================================================================
    $100M CYBERPUNK COCKPIT — PREMIUM UI COMPONENTS
    ============================================================================ */

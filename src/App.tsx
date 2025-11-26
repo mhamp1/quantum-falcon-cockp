@@ -134,17 +134,38 @@ function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
 
 function GlobalLoadingFallback({ message = 'Loading Quantum Falcon...' }: { message?: string }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-slate-950 to-black flex flex-col items-center justify-center text-center px-6">
-      <div className="relative">
-        <div className="w-24 h-24 rounded-full border-4 border-cyan-500/40 border-t-cyan-300 animate-spin mb-6" />
-        <span role="img" aria-label="falcon" className="absolute inset-0 flex items-center justify-center text-4xl drop-shadow-[0_0_20px_#00d4ff]">
-          🦅
-        </span>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-950 to-black" />
+      <div className="absolute inset-0 opacity-30" style={{
+        backgroundImage: 'linear-gradient(rgba(0,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,0,255,.08) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+        animation: 'grid-pan 20s linear infinite'
+      }} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#00d4ff33,transparent_60%)]" />
+
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 min-h-screen">
+        <div className="mb-8 p-[2px] rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-yellow-400 animate-pulse">
+          <div className="bg-black rounded-full px-10 py-6 flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full border-4 border-cyan-500/40 border-t-cyan-300 animate-spin" />
+              <span role="img" aria-label="falcon" className="absolute inset-0 flex items-center justify-center text-4xl drop-shadow-[0_0_20px_#00d4ff]">
+                🦅
+              </span>
+            </div>
+            <h2 className="font-orbitron text-2xl text-white tracking-[0.35em] uppercase">{message}</h2>
+            <p className="text-cyan-300/80 text-sm max-w-xl">
+              Neural engines syncing with Solana mainframe. We promised you'd never stare at a void again — hang tight for a few seconds.
+            </p>
+          </div>
+        </div>
+        <div className="w-64 h-2 rounded-full bg-white/10 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500"
+            style={{ animation: 'loadingBar 1.4s linear infinite' }}
+          />
+        </div>
+        <p className="text-xs tracking-[0.4em] text-white/60 mt-6 uppercase">Quantum Falcon v2025.1.0</p>
       </div>
-      <h2 className="font-orbitron text-2xl text-white tracking-widest uppercase">{message}</h2>
-      <p className="text-cyan-300/80 mt-3 text-sm max-w-md">
-        Systems booting. If this persists, try refreshing. We will never leave you staring at a black void again.
-      </p>
     </div>
   )
 }
@@ -281,19 +302,19 @@ export default function App() {
 
   // Render guard fallback — if we ever spend >4s initializing, show global loader instead of blank screen
   useEffect(() => {
-    if (persistentAuth.isInitialized && auth?.isAuthenticated) {
+    if (persistentAuth.isInitialized) {
       setRenderGuardTriggered(false);
       return;
     }
 
     const guardTimer = window.setTimeout(() => {
-      if (!persistentAuth.isInitialized || !auth?.isAuthenticated) {
+      if (!persistentAuth.isInitialized) {
         setRenderGuardTriggered(true);
       }
     }, 4000);
 
     return () => window.clearTimeout(guardTimer);
-  }, [persistentAuth.isInitialized, auth?.isAuthenticated]);
+  }, [persistentAuth.isInitialized]);
 
   // Show interactive tour for first-time users - ONLY after they've clicked "Enter Cockpit"
   // CRITICAL: Tour must NOT show on login page - only after dashboard is loaded
@@ -568,7 +589,7 @@ export default function App() {
     )
   }
 
-  if (renderGuardTriggered && !auth?.isAuthenticated) {
+  if (renderGuardTriggered && !persistentAuth.isInitialized) {
     return <GlobalLoadingFallback />
   }
 
