@@ -2,7 +2,7 @@
 // console.log("KRAKEN AND BINANCE CARDS ADDED") confirmed below in component body
 
 import { useState, useEffect, useMemo } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

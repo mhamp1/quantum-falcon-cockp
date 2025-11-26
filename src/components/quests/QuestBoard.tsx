@@ -15,7 +15,7 @@ import {
 } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QUESTS, type Quest } from '@/lib/nft/QuestNFTSystem'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { UserAuth } from '@/lib/auth'
 import QuestNFTReward from './QuestNFTReward'
 import { cn } from '@/lib/utils'

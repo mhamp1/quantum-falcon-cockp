@@ -8,7 +8,7 @@ import { Scales, FileText, Shield, WarningCircle, Download, MagnifyingGlass, Dat
 import { motion } from 'framer-motion'
 import jsPDF from 'jspdf'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import LegalAgreementModal from '@/components/auth/LegalAgreementModal'
 import RiskAcknowledgmentLog from './RiskAcknowledgmentLog'
 

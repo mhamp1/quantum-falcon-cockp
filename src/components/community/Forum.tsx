@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
