@@ -17,9 +17,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe } from '@/hooks/useKVFallback'
 import { UserAuth } from '@/lib/auth'
 import { isGodMode } from '@/lib/godMode'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
@@ -53,14 +54,8 @@ interface LatencyMetric {
 }
 
 export default function MasterAdminPanel() {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Use persistent auth for reliable master key detection
+  const { auth } = usePersistentAuth()
 
   const [errors, setErrors] = useState<SystemError[]>([])
   const [metrics, setMetrics] = useState<SystemMetric[]>([])
@@ -354,24 +349,80 @@ export default function MasterAdminPanel() {
   // CRITICAL FIX: Show diagnostic info even if isMaster check fails
   // This helps debug why master tab isn't showing
   if (!isMaster) {
+    // Check if we can detect master key from localStorage directly
+    let storedAuth = null
+    try {
+      const stored = localStorage.getItem('qf-persistent-auth')
+      if (stored) storedAuth = JSON.parse(stored)
+    } catch {}
+    
+    const isMasterKeyStored = storedAuth?.licenseKey === 'MASTER_KEY_RECOGNIZED'
+    
     return (
       <div className="space-y-6 p-8">
         <div className="cyber-card p-6 border-2 border-yellow-500/50">
           <h3 className="text-xl font-black uppercase tracking-wider text-yellow-400 mb-4 flex items-center gap-3">
             <Shield size={24} weight="fill" />
-            Master Access Not Detected
+            Master Access Verification
           </h3>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p><strong>Auth Status:</strong> {auth?.isAuthenticated ? '✅ Authenticated' : '❌ Not Authenticated'}</p>
-            <p><strong>User ID:</strong> {auth?.userId || 'None'}</p>
-            <p><strong>Tier:</strong> {auth?.license?.tier || 'None'}</p>
-            <p><strong>License User ID:</strong> {auth?.license?.userId || 'None'}</p>
-            <p className="text-yellow-400 mt-4 font-bold">
-              If you're using a master key, ensure it's properly recognized in the license system.
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Master key should set userId to 'master' and tier to 'lifetime'
-            </p>
+          <div className="space-y-3 text-sm">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-background/50 rounded-lg">
+              <div>
+                <p className="text-muted-foreground text-xs uppercase mb-1">Auth Status</p>
+                <p className={auth?.isAuthenticated ? 'text-green-400 font-bold' : 'text-red-400 font-bold'}>
+                  {auth?.isAuthenticated ? '✅ Authenticated' : '❌ Not Authenticated'}
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs uppercase mb-1">User ID</p>
+                <p className="text-primary font-bold">{auth?.userId || 'None'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs uppercase mb-1">Tier</p>
+                <p className="text-primary font-bold">{auth?.license?.tier || 'None'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs uppercase mb-1">License User ID</p>
+                <p className="text-primary font-bold">{auth?.license?.userId || 'None'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs uppercase mb-1">Master Key Stored</p>
+                <p className={isMasterKeyStored ? 'text-green-400 font-bold' : 'text-red-400 font-bold'}>
+                  {isMasterKeyStored ? '✅ Yes' : '❌ No'}
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs uppercase mb-1">Features</p>
+                <p className="text-primary font-bold">{auth?.license?.features?.join(', ') || 'None'}</p>
+              </div>
+            </div>
+            
+            {isMasterKeyStored && (
+              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <p className="text-green-400 font-bold mb-2">🔑 Master Key Detected in Storage!</p>
+                <p className="text-sm text-muted-foreground">
+                  The master key is stored but auth state may not be synced. Try refreshing the page or logging out and back in.
+                </p>
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-3"
+                  variant="outline"
+                >
+                  <ArrowClockwise size={16} className="mr-2" />
+                  Refresh Page
+                </Button>
+              </div>
+            )}
+            
+            {!isMasterKeyStored && (
+              <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <p className="text-yellow-400 font-bold mb-2">⚠️ Master Key Not Found</p>
+                <p className="text-sm text-muted-foreground">
+                  To access God Mode, log in with a master key (starts with QF-GODMODE-, QF-MASTER-, or MASTER-).
+                  Master key should set userId to 'master' and tier to 'lifetime'.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
