@@ -1,132 +1,101 @@
-import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Warning, ChatCircle } from '@phosphor-icons/react'
-import RiskDisclosureModal from '@/components/legal/RiskDisclosureModal'
-import { 
-  getCurrentRiskVersion, 
-  needsReacceptance, 
-  clearOldVersions,
-  checkVersionExpiration,
-  LegalAcknowledgment 
-} from '@/lib/legalVersions'
+// RISK DISCLOSURE BANNER — REBUILT November 26, 2025
+// The red banner at bottom that triggers the Legal Agreement Modal
+// Shows until user accepts, then never again
 
-interface RiskAcknowledgment {
-  acknowledgedAt: number
-  ipAddress?: string
-  userAgent: string
+import { useState, useEffect } from 'react'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Warning, ArrowRight } from '@phosphor-icons/react'
+import LegalAgreementModal from '@/components/auth/LegalAgreementModal'
+
+interface LegalAcceptance {
+  acceptedAt: number
   version: string
-  sessionId: string
+  userAgent: string
 }
 
 export default function RiskDisclosureBanner() {
-  const CURRENT_VERSION = getCurrentRiskVersion()
+  const CURRENT_VERSION = '2025-11-26-v2'
   
-  const [acknowledgment, setAcknowledgment] = useKV<RiskAcknowledgment | null>(
-    'risk-disclosure-acknowledgment',
+  const [acceptance, setAcceptance] = useKV<LegalAcceptance | null>(
+    'legal-acceptance-v2',
     null
-  )
-  const [auditLog, setAuditLog] = useKV<RiskAcknowledgment[]>(
-    'risk-disclosure-audit-log',
-    []
   )
   const [showModal, setShowModal] = useState(false)
   const [isBannerVisible, setIsBannerVisible] = useState(false)
 
+  // Check if user has already accepted
   useEffect(() => {
-    const checkAcknowledgment = () => {
+    const checkAcceptance = () => {
       try {
-        const localStorageKey = `risk_accepted_${CURRENT_VERSION}`
-        const hasLocalStorage = localStorage.getItem(localStorageKey) === 'true'
-        const hasValidAcknowledgment = acknowledgment && acknowledgment.version === CURRENT_VERSION
+        // Check localStorage first (faster)
+        const localAccepted = localStorage.getItem('legal-accepted-v2') === 'true'
+        const kvAccepted = acceptance && acceptance.version === CURRENT_VERSION
         
-        const versionCheck = checkVersionExpiration()
-        if (versionCheck.expired && versionCheck.documentType === 'risk') {
-          setIsBannerVisible(true)
-          clearOldVersions()
-          return
-        }
-        
-        if (acknowledgment && needsReacceptance(acknowledgment.version, 'risk')) {
-          setIsBannerVisible(true)
-          clearOldVersions()
-          return
-        }
-        
-        if (hasValidAcknowledgment && hasLocalStorage) {
+        if (localAccepted || kvAccepted) {
           setIsBannerVisible(false)
         } else {
           setIsBannerVisible(true)
         }
       } catch (error) {
-        // Silent error handling
+        // On error, show banner to be safe
         setIsBannerVisible(true)
       }
     }
 
-    checkAcknowledgment()
-    
-    const interval = setInterval(checkAcknowledgment, 30000)
-    return () => clearInterval(interval)
-  }, [acknowledgment, CURRENT_VERSION])
+    checkAcceptance()
+  }, [acceptance, CURRENT_VERSION])
 
+  // Handle modal open
   const handleOpenModal = () => {
-    // Opening Risk Disclosure modal
     setShowModal(true)
   }
 
-  const handleAccept = async () => {
-    const acknowledgmentData: RiskAcknowledgment = {
-      acknowledgedAt: Date.now(),
-      userAgent: navigator.userAgent,
+  // Handle acceptance from modal
+  const handleAccept = () => {
+    const acceptanceData: LegalAcceptance = {
+      acceptedAt: Date.now(),
       version: CURRENT_VERSION,
-      sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      userAgent: navigator.userAgent
     }
     
-    // Store acceptance locally
-    localStorage.setItem(`risk_accepted_${CURRENT_VERSION}`, 'true')
-    clearOldVersions()
+    // Store in KV
+    setAcceptance(acceptanceData)
     
-    // Close modal immediately
-    setShowModal(false)
-    
-    // Hide banner immediately
-    setIsBannerVisible(false)
-    
-    // Store acknowledgment
-    await setAcknowledgment(acknowledgmentData)
-    
-    // Add to audit log
-    await setAuditLog((currentLog) => {
-      const newLog = [...(currentLog || []), acknowledgmentData]
-      return newLog
-    })
-    
-    // Silent backend logging - no console output
+    // Store in localStorage for redundancy
     try {
-      await fetch('/api/legal/accept-risk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(acknowledgmentData)
-      })
-    } catch (err) {
-      // Silent fail - using KV storage as fallback
+      localStorage.setItem('legal-accepted-v2', 'true')
+      localStorage.setItem('legal-accepted-timestamp', Date.now().toString())
+    } catch (e) {
+      // Silent fail
     }
+    
+    // Close modal and hide banner
+    setShowModal(false)
+    setIsBannerVisible(false)
   }
 
-  if (!isBannerVisible) {
+  // Handle decline
+  const handleDecline = () => {
+    setShowModal(false)
+    // Banner stays visible, user can't proceed
+  }
+
+  // Don't render anything if already accepted
+  if (!isBannerVisible && !showModal) {
     return null
   }
 
   return (
     <>
+      {/* The red banner */}
       <AnimatePresence mode="wait">
         {isBannerVisible && (
           <motion.div
             key="risk-banner"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.3 }}
             className="fixed left-0 right-0 z-[100] pointer-events-auto"
             style={{ 
@@ -135,26 +104,26 @@ export default function RiskDisclosureBanner() {
           >
             <button
               onClick={handleOpenModal}
-              className="w-full bg-destructive text-destructive-foreground px-4 py-3 shadow-[0_-5px_40px_rgba(255,0,102,0.8)] hover:bg-destructive/90 transition-all cursor-pointer"
-              aria-label="Open Risk Disclosure - Click to review and accept"
+              className="w-full bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white px-4 py-3 shadow-[0_-5px_40px_rgba(255,0,0,0.6)] hover:from-red-500 hover:via-red-400 hover:to-red-500 transition-all cursor-pointer border-t-2 border-red-400/50"
+              aria-label="Open Legal Agreements - Click to review and accept"
             >
-              <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
                 <div className="flex items-center gap-3 flex-1">
-                  <Warning size={28} weight="fill" className="text-destructive-foreground flex-shrink-0 animate-pulse" />
+                  <Warning size={28} weight="fill" className="text-yellow-300 flex-shrink-0 animate-pulse" />
                   <div className="text-left">
                     <p className="font-bold uppercase tracking-wider text-sm">
-                      ⚠️ LEGAL AGREEMENTS REQUIRED - TERMS OF SERVICE & RISK DISCLOSURE
+                      ⚠️ LEGAL AGREEMENTS REQUIRED
                     </p>
-                    <p className="text-xs opacity-90 font-semibold">
-                      Click to review and accept both documents before using the platform
+                    <p className="text-xs opacity-90">
+                      Click to review and accept Terms of Service & Risk Disclosure
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-2 items-center flex-shrink-0">
-                  <span className="text-xs uppercase tracking-wider font-bold opacity-80">
-                    REVIEW AGREEMENTS
+                <div className="flex gap-2 items-center flex-shrink-0 bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition-colors">
+                  <span className="text-xs sm:text-sm uppercase tracking-wider font-bold">
+                    Review Now
                   </span>
-                  <ChatCircle size={24} weight="duotone" className="text-destructive-foreground animate-pulse" />
+                  <ArrowRight size={20} weight="bold" className="animate-pulse" />
                 </div>
               </div>
             </button>
@@ -162,11 +131,11 @@ export default function RiskDisclosureBanner() {
         )}
       </AnimatePresence>
 
-      <RiskDisclosureModal
+      {/* The modal */}
+      <LegalAgreementModal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
         onAccept={handleAccept}
-        version={CURRENT_VERSION}
+        onDecline={handleDecline}
       />
     </>
   )

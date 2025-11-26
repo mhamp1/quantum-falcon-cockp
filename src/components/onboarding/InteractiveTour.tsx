@@ -46,15 +46,6 @@ interface InteractiveTourProps {
 
 const TOUR_STEPS: TourStep[] = [
   {
-    id: 'legal',
-    title: 'Legal Agreements Required',
-    description: 'You must read and accept both documents to continue',
-    position: 'center',
-    action: 'info',
-    icon: Warning,
-    highlight: true
-  },
-  {
     id: 'welcome',
     title: 'Welcome to Quantum Falcon',
     description: 'Your AI-powered trading cockpit. This tour will show you everything you need to master the platform in just a few minutes.',

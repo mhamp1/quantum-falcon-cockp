@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import jsPDF from 'jspdf'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import RiskDisclosureModal from '@/components/legal/RiskDisclosureModal'
+import LegalAgreementModal from '@/components/auth/LegalAgreementModal'
 import RiskAcknowledgmentLog from './RiskAcknowledgmentLog'
 
 interface RiskAcknowledgment {
@@ -620,11 +620,13 @@ Version: ${version}`
         </p>
       </div>
 
-      <RiskDisclosureModal
+      <LegalAgreementModal
         isOpen={showRiskModal}
-        onClose={() => setShowRiskModal(false)}
-        onAccept={handleRiskAcceptance}
-        version={version}
+        onAccept={() => {
+          handleRiskAcceptance()
+          setShowRiskModal(false)
+        }}
+        onDecline={() => setShowRiskModal(false)}
       />
     </div>
   )
