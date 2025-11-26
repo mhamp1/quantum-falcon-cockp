@@ -15,6 +15,23 @@ interface LazyLoadOptions {
 // Cache for successfully loaded modules to prevent re-importing
 const moduleCache = new Map<string, Promise<any>>()
 
+// Ensure React core is always loaded before any lazily imported component
+// This prevents "Component of undefined" errors when dynamic chunks evaluate
+let reactReadyPromise: Promise<unknown> | null = null
+const ensureReactReady = () => {
+  if (!reactReadyPromise) {
+    reactReadyPromise = Promise.all([
+      import('react'),
+      import('react-dom'),
+    ]).catch((error) => {
+      // Reset so future attempts can retry
+      reactReadyPromise = null
+      throw error
+    })
+  }
+  return reactReadyPromise
+}
+
 /**
  * Create an ultra-robust lazy-loaded component with retry logic
  * Features:
@@ -47,6 +64,9 @@ export function createRobustLazy<T extends ComponentType<any>>(
     
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
+        // Guarantee React/ReactDOM are loaded before any lazy component executes
+        await ensureReactReady()
+
         // Create the import promise
         const importPromise = importFn()
         
