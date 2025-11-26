@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect } from 'react'
 import { Warning, TrendUp, TrendDown, Lightning, Brain, Info } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'

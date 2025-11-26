@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Provider, useSelector, useDispatch } from 'react-redux'

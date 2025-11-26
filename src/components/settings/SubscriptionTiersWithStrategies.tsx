@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { UserAuth, LICENSE_TIERS } from '@/lib/auth'
 import { getFeaturedStrategiesForTier, getStrategyCountByTier } from '@/lib/strategiesData'
 import { Button } from '@/components/ui/button'

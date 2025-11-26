@@ -2,7 +2,7 @@
 // November 21, 2025 — Quantum Falcon Cockpit
 // The bot learns from every trade and gets smarter every day
 
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 
 export interface TradeOutcome {
   id: string

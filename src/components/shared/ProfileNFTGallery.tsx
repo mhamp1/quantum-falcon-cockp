@@ -2,7 +2,7 @@
 // November 22, 2025 — Quantum Falcon Cockpit
 
 import { useState } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

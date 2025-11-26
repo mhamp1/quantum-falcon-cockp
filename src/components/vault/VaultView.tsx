@@ -2,7 +2,7 @@
 // FINAL TOUR FIX: Step 7 text corrected + all steps perfect — November 20, 2025
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

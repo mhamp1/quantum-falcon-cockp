@@ -14,7 +14,7 @@ import {
 import { toast } from 'sonner'
 import { RARITY_TIERS, type RarityTier } from '@/lib/nft/AutoNFTGenerator'
 import { generateSeasonalFalconCollection, SEASONS, getCurrentSeason, type SeasonalMintProgress, type NFTItem } from '@/lib/nft/SeasonalFalconNFTGenerator'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { cn } from '@/lib/utils'
 
 interface NFTGeneratorProps {

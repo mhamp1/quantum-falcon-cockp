@@ -8,8 +8,10 @@ import {
   Bug, Wrench, Pulse, Warning, CheckCircle,
   XCircle, Clock, Database, Network, Cpu, 
   HardDrive, FileX, ArrowClockwise,
-  Terminal, ChartLine, Shield, EyeSlash as Eye
+  Terminal, ChartLine, Shield, EyeSlash as Eye,
+  CloudArrowUp, Lightning, Gauge, Brain
 } from '@phosphor-icons/react'
+import { getDeploymentMonitor, type DeploymentHealth, type DeploymentInfo } from '@/lib/monitoring/DeploymentMonitor'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -66,6 +68,12 @@ export default function MasterAdminPanel() {
   const [systemLogs, setSystemLogs] = useState<Array<{ timestamp: number; level: string; message: string }>>([])
   const [activeTab, setActiveTab] = useState('overview')
   const [isRefreshing, setIsRefreshing] = useState(false)
+  
+  // Deployment Monitor State
+  const [deployHealth, setDeployHealth] = useState<DeploymentHealth | null>(null)
+  const [deployInfo, setDeployInfo] = useState<DeploymentInfo | null>(null)
+  const [deployInsights, setDeployInsights] = useState<string[]>([])
+  const [isMonitorActive, setIsMonitorActive] = useState(false)
 
   const isMaster = isGodMode(auth)
 
@@ -279,6 +287,36 @@ export default function MasterAdminPanel() {
     }
   }, [isMaster, metrics, errors, latency])
 
+  // Deployment Monitor Setup
+  useEffect(() => {
+    if (!isMaster) return
+    
+    try {
+      const monitor = getDeploymentMonitor()
+      if (!monitor) return
+      
+      setIsMonitorActive(true)
+      
+      // Subscribe to health updates
+      const unsubscribe = monitor.subscribe((health) => {
+        setDeployHealth(health)
+        setDeployInsights(monitor.generateInsights())
+      })
+      
+      // Get deployment info
+      monitor.getDeploymentInfo().then(info => {
+        if (info) setDeployInfo(info)
+      })
+      
+      return () => {
+        unsubscribe()
+        setIsMonitorActive(false)
+      }
+    } catch (e) {
+      console.debug('[MasterAdmin] Deployment monitor not available:', e)
+    }
+  }, [isMaster])
+
   const refreshData = useCallback(() => {
     setIsRefreshing(true)
     setTimeout(() => {
@@ -405,8 +443,9 @@ export default function MasterAdminPanel() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-5 w-full bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
+        <TabsList className="grid grid-cols-6 w-full bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
           <TabsTrigger value="overview" className="uppercase tracking-[0.12em] font-bold text-xs">Overview</TabsTrigger>
+          <TabsTrigger value="deploy" className="uppercase tracking-[0.12em] font-bold text-xs">Deploy</TabsTrigger>
           <TabsTrigger value="errors" className="uppercase tracking-[0.12em] font-bold text-xs">Errors</TabsTrigger>
           <TabsTrigger value="metrics" className="uppercase tracking-[0.12em] font-bold text-xs">Metrics</TabsTrigger>
           <TabsTrigger value="latency" className="uppercase tracking-[0.12em] font-bold text-xs">Latency</TabsTrigger>
@@ -477,6 +516,220 @@ export default function MasterAdminPanel() {
                         </div>
                       </div>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Deploy Monitor Tab */}
+        <TabsContent value="deploy" className="space-y-6">
+          {/* Deployment Status Header */}
+          <Card className="cyber-card p-6 border-2 border-purple-500/50">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <CloudArrowUp size={32} weight="duotone" className="text-purple-400" />
+                <div>
+                  <h4 className="text-xl font-black uppercase tracking-wider text-purple-400">
+                    Deployment Monitor
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Real-time Vercel deployment health & AI insights
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge className={cn(
+                  "text-xs",
+                  isMonitorActive ? "bg-green-500/20 border-green-500/50 text-green-400" : "bg-red-500/20 border-red-500/50 text-red-400"
+                )}>
+                  {isMonitorActive ? '● ACTIVE' : '○ INACTIVE'}
+                </Badge>
+                {deployHealth && (
+                  <Badge className={cn(
+                    "text-xs",
+                    deployHealth.status === 'healthy' && "bg-green-500/20 border-green-500/50 text-green-400",
+                    deployHealth.status === 'degraded' && "bg-yellow-500/20 border-yellow-500/50 text-yellow-400",
+                    deployHealth.status === 'critical' && "bg-red-500/20 border-red-500/50 text-red-400",
+                    deployHealth.status === 'unknown' && "bg-gray-500/20 border-gray-500/50 text-gray-400"
+                  )}>
+                    {deployHealth.status.toUpperCase()}
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* Deployment Info */}
+            {deployInfo && (
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="glass-morph-card p-4 border border-purple-500/30">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Environment</div>
+                  <div className="text-lg font-black text-purple-400">{deployInfo.branch}</div>
+                </div>
+                <div className="glass-morph-card p-4 border border-purple-500/30">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Status</div>
+                  <div className="text-lg font-black text-green-400">{deployInfo.status}</div>
+                </div>
+                <div className="glass-morph-card p-4 border border-purple-500/30">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Commit</div>
+                  <div className="text-sm font-mono text-purple-400">{deployInfo.commit.substring(0, 8)}</div>
+                </div>
+                <div className="glass-morph-card p-4 border border-purple-500/30">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">URL</div>
+                  <div className="text-xs font-mono text-purple-400 truncate">{deployInfo.url}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Health Metrics */}
+            {deployHealth && (
+              <div className="grid grid-cols-4 gap-4">
+                <div className="glass-morph-card p-4 text-center border border-green-500/30">
+                  <Gauge size={24} weight="duotone" className="text-green-400 mx-auto mb-2" />
+                  <div className="text-2xl font-black text-green-400">{deployHealth.uptime.toFixed(1)}%</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">Uptime</div>
+                </div>
+                <div className="glass-morph-card p-4 text-center border border-red-500/30">
+                  <Warning size={24} weight="duotone" className="text-red-400 mx-auto mb-2" />
+                  <div className="text-2xl font-black text-red-400">{deployHealth.errorRate.toFixed(1)}%</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">Error Rate</div>
+                </div>
+                <div className="glass-morph-card p-4 text-center border border-blue-500/30">
+                  <Lightning size={24} weight="duotone" className="text-blue-400 mx-auto mb-2" />
+                  <div className="text-2xl font-black text-blue-400">{deployHealth.avgLoadTime}ms</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">Avg Load</div>
+                </div>
+                <div className="glass-morph-card p-4 text-center border border-purple-500/30">
+                  <Clock size={24} weight="duotone" className="text-purple-400 mx-auto mb-2" />
+                  <div className="text-sm font-mono text-purple-400">
+                    {new Date(deployHealth.lastChecked).toLocaleTimeString()}
+                  </div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">Last Check</div>
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* Core Web Vitals */}
+          {deployHealth && (
+            <Card className="cyber-card p-6">
+              <h4 className="text-xl font-black uppercase tracking-wider text-primary mb-4 flex items-center gap-3">
+                <ChartLine size={24} weight="duotone" />
+                Core Web Vitals
+              </h4>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold">FCP</span>
+                    <Badge className={cn(
+                      "text-xs",
+                      deployHealth.performanceMetrics.fcp < 1800 ? "bg-green-500/20 border-green-500/50 text-green-400" :
+                      deployHealth.performanceMetrics.fcp < 3000 ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400" :
+                      "bg-red-500/20 border-red-500/50 text-red-400"
+                    )}>
+                      {deployHealth.performanceMetrics.fcp < 1800 ? 'GOOD' : deployHealth.performanceMetrics.fcp < 3000 ? 'NEEDS WORK' : 'POOR'}
+                    </Badge>
+                  </div>
+                  <Progress value={Math.min(100, (deployHealth.performanceMetrics.fcp / 3000) * 100)} className="h-3" />
+                  <div className="text-xs text-muted-foreground">{deployHealth.performanceMetrics.fcp.toFixed(0)}ms</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold">LCP</span>
+                    <Badge className={cn(
+                      "text-xs",
+                      deployHealth.performanceMetrics.lcp < 2500 ? "bg-green-500/20 border-green-500/50 text-green-400" :
+                      deployHealth.performanceMetrics.lcp < 4000 ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400" :
+                      "bg-red-500/20 border-red-500/50 text-red-400"
+                    )}>
+                      {deployHealth.performanceMetrics.lcp < 2500 ? 'GOOD' : deployHealth.performanceMetrics.lcp < 4000 ? 'NEEDS WORK' : 'POOR'}
+                    </Badge>
+                  </div>
+                  <Progress value={Math.min(100, (deployHealth.performanceMetrics.lcp / 4000) * 100)} className="h-3" />
+                  <div className="text-xs text-muted-foreground">{deployHealth.performanceMetrics.lcp.toFixed(0)}ms</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold">CLS</span>
+                    <Badge className={cn(
+                      "text-xs",
+                      deployHealth.performanceMetrics.cls < 0.1 ? "bg-green-500/20 border-green-500/50 text-green-400" :
+                      deployHealth.performanceMetrics.cls < 0.25 ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400" :
+                      "bg-red-500/20 border-red-500/50 text-red-400"
+                    )}>
+                      {deployHealth.performanceMetrics.cls < 0.1 ? 'GOOD' : deployHealth.performanceMetrics.cls < 0.25 ? 'NEEDS WORK' : 'POOR'}
+                    </Badge>
+                  </div>
+                  <Progress value={Math.min(100, (deployHealth.performanceMetrics.cls / 0.25) * 100)} className="h-3" />
+                  <div className="text-xs text-muted-foreground">{deployHealth.performanceMetrics.cls.toFixed(3)}</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold">FID</span>
+                    <Badge className={cn(
+                      "text-xs",
+                      deployHealth.performanceMetrics.fid < 100 ? "bg-green-500/20 border-green-500/50 text-green-400" :
+                      deployHealth.performanceMetrics.fid < 300 ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400" :
+                      "bg-red-500/20 border-red-500/50 text-red-400"
+                    )}>
+                      {deployHealth.performanceMetrics.fid < 100 ? 'GOOD' : deployHealth.performanceMetrics.fid < 300 ? 'NEEDS WORK' : 'POOR'}
+                    </Badge>
+                  </div>
+                  <Progress value={Math.min(100, (deployHealth.performanceMetrics.fid / 300) * 100)} className="h-3" />
+                  <div className="text-xs text-muted-foreground">{deployHealth.performanceMetrics.fid.toFixed(0)}ms</div>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* AI Insights */}
+          <Card className="cyber-card p-6 border-2 border-cyan-500/50">
+            <h4 className="text-xl font-black uppercase tracking-wider text-cyan-400 mb-4 flex items-center gap-3">
+              <Brain size={24} weight="duotone" />
+              AI-Powered Insights
+            </h4>
+            <div className="space-y-3">
+              {deployInsights.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">Analyzing deployment health...</p>
+              ) : (
+                deployInsights.map((insight, idx) => (
+                  <div 
+                    key={idx} 
+                    className={cn(
+                      "p-4 rounded-lg border",
+                      insight.startsWith('🚨') && "bg-red-500/10 border-red-500/30",
+                      insight.startsWith('⚠️') && "bg-yellow-500/10 border-yellow-500/30",
+                      insight.startsWith('✅') && "bg-green-500/10 border-green-500/30",
+                      !insight.startsWith('🚨') && !insight.startsWith('⚠️') && !insight.startsWith('✅') && "bg-blue-500/10 border-blue-500/30"
+                    )}
+                  >
+                    <p className="text-sm text-foreground">{insight}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
+
+          {/* Recent Deployment Errors */}
+          {deployHealth && deployHealth.recentErrors.length > 0 && (
+            <Card className="cyber-card p-6 border-2 border-red-500/50">
+              <h4 className="text-xl font-black uppercase tracking-wider text-red-400 mb-4 flex items-center gap-3">
+                <XCircle size={24} weight="fill" />
+                Recent Deployment Errors ({deployHealth.recentErrors.length})
+              </h4>
+              <div className="space-y-3 max-h-64 overflow-y-auto">
+                {deployHealth.recentErrors.slice(0, 10).map((error, idx) => (
+                  <div key={idx} className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(error.timestamp).toLocaleTimeString()}
+                      </span>
+                      <Badge className="bg-red-500/20 border-red-500/50 text-red-400 text-xs">
+                        {error.source}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-foreground">{error.message}</p>
                   </div>
                 ))}
               </div>

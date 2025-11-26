@@ -11,7 +11,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import confetti from 'canvas-confetti'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { isGodMode } from '@/lib/godMode'
 import { UserAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'

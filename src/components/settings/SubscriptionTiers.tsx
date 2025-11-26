@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Crown, Lightning, Rocket, Star, Sparkle } from '@phosphor-icons/react'

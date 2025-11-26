@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { UserAuth } from '@/lib/auth'
 import { fetchUserStrategies, getRecommendedStrategies } from '@/lib/strategiesApi'
 import { StrategyData } from '@/lib/strategiesData'

@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect } from 'react'
 import { ChartLine, TrendUp, TrendDown, Target, Lightning, Coins, ArrowsClockwise } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'

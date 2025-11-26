@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Shield, Lightning, Target, Atom, Cube } from '@phosphor-icons/react'

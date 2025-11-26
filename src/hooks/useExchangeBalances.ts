@@ -1,7 +1,7 @@
 // EXCHANGES: Binance + Kraken API integration complete — matches live app — November 19, 2025
 
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { BinanceService } from '@/lib/exchanges/binance'
 import { KrakenService } from '@/lib/exchanges/kraken'
 

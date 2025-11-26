@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useKV } from '@github/spark/hooks';
+import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { UserAuth } from '@/lib/auth';
 
 interface Metrics {

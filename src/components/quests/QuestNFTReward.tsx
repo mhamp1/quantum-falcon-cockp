@@ -18,7 +18,7 @@ import {
   canAccessNFT, mintQuestNFT, NFT_LEGAL_DISCLAIMER
 } from '@/lib/nft/QuestNFTSystem'
 import { RARITY_TIERS } from '@/lib/nft/AutoNFTGenerator'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { UserAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 

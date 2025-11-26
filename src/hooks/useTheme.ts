@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks';
+import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { useEffect } from 'react';
 
 export type ThemeStyle = 'default' | 'matrix' | 'synthwave';

@@ -1,5 +1,5 @@
 // ENHANCED: Bot Logic Stream — professional terminal with moving grid lines and clean visuals
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect, useRef } from 'react'
 import { Terminal, Brain, ChartLine, Lightning, CheckCircle, Warning, Info, ArrowsClockwise, MagnifyingGlass, Pause, Play, Download, Funnel } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'

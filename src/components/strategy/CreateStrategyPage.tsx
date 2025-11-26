@@ -4,7 +4,7 @@
 // Connected to /api/strategies for deployment and marketplace integration
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import confetti from 'canvas-confetti'
 import { toast } from 'sonner'
 import { Textarea } from '@/components/ui/textarea'

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, PaperPlaneRight, Sparkle, Lightning, Robot } from '@phosphor-icons/react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useKV } from '@github/spark/hooks';
+import { useKVSafe as useKV } from '@/hooks/useKVFallback';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLiveTradingData } from '@/hooks/useLiveTradingData';
 
