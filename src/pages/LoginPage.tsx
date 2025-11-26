@@ -433,17 +433,17 @@ export default function LoginPage() {
               {/* LOGIN STEP */}
               {step === 'login' && (
                 <>
-                  {/* Email */}
+                  {/* Username */}
                   <div>
                     <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
-                      <Envelope size={14} weight="duotone" className="text-primary" />
-                      Email
+                      <User size={14} weight="duotone" className="text-primary" />
+                      Username
                     </Label>
                     <Input
-                      type="email"
-                      placeholder="your@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      type="text"
+                      placeholder="Your username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                       className="w-full px-6 py-4 bg-background/60 border-2 border-primary/50 rounded-lg"
                       disabled={isSubmitting}
                     />
@@ -474,10 +474,68 @@ export default function LoginPage() {
                     </div>
                   </div>
                   
+                  {/* License Key */}
+                  <div>
+                    <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
+                      <Crown size={14} weight="fill" className="text-purple-400" />
+                      License Key
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type={showLicense ? 'text' : 'password'}
+                        placeholder="Enter your license key"
+                        value={licenseKey}
+                        onChange={(e) => setLicenseKey(e.target.value)}
+                        className="w-full px-6 py-4 pr-12 bg-background/60 border-2 border-purple-500/50 rounded-lg font-mono"
+                        disabled={isSubmitting}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLicense(!showLicense)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                      >
+                        {showLicense ? <EyeSlash size={20} /> : <Key size={20} />}
+                      </button>
+                    </div>
+                  </div>
+                  
                   {/* Login Button */}
                   <Button
-                    onClick={handleLogin}
-                    disabled={isSubmitting || !email.trim() || !password.trim()}
+                    onClick={async () => {
+                      if (!username.trim()) {
+                        toast.error('Username required')
+                        return
+                      }
+                      if (!password.trim()) {
+                        toast.error('Password required')
+                        return
+                      }
+                      if (!licenseKey.trim()) {
+                        toast.error('License key required')
+                        return
+                      }
+                      
+                      setIsSubmitting(true)
+                      
+                      // Direct login with all credentials
+                      const result = await login(
+                        username.trim(),
+                        password,
+                        licenseKey.trim(),
+                        email || `${username.trim().toLowerCase()}@quantumfalcon.com`
+                      )
+                      
+                      setIsSubmitting(false)
+                      
+                      if (result.success) {
+                        try {
+                          window.localStorage.setItem('justLoggedIn', 'true')
+                        } catch (e) {
+                          // Silent fail
+                        }
+                      }
+                    }}
+                    disabled={isSubmitting || !username.trim() || !password.trim() || !licenseKey.trim()}
                     className="w-full h-14 text-lg font-black uppercase tracking-wider
                              bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500
                              hover:from-cyan-400 hover:via-purple-400 hover:to-cyan-400
@@ -504,17 +562,6 @@ export default function LoginPage() {
                     <div className="flex-1 h-px bg-border" />
                   </div>
                   
-                  {/* Register Button */}
-                  <Button
-                    onClick={() => setStep('register')}
-                    variant="outline"
-                    className="w-full h-12 text-sm font-bold uppercase tracking-wider
-                             border-2 border-accent/50 hover:border-accent hover:bg-accent/10"
-                  >
-                    <User size={16} className="mr-2" />
-                    Create New Account
-                  </Button>
-                  
                   {/* Free Tier Button */}
                   <Button
                     onClick={handleFreeTierContinue}
@@ -524,7 +571,7 @@ export default function LoginPage() {
                              border-2 border-cyan-500/30 hover:border-cyan-500/50 hover:bg-cyan-500/10"
                   >
                     <Play size={16} className="mr-2" />
-                    Continue Free (Paper Trading)
+                    Continue Free (Paper Trading Only)
                   </Button>
                 </>
               )}
