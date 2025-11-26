@@ -34,6 +34,7 @@ import CreateStrategyTeaser from './CreateStrategyTeaser'
 import ShareYourGains from './ShareYourGains'
 import RealTimeActivityFeed from './RealTimeActivityFeed'
 import NFTGallery from './NFTGallery'
+import CopyTrader from './CopyTrader'
 import CheckoutDialog from '@/components/shared/CheckoutDialog'
 import { CheckoutItem } from '@/lib/checkout'
 import { UserAuth } from '@/lib/auth'
@@ -723,6 +724,13 @@ export default function SocialCommunity() {
               <SquaresFour size={16} weight="duotone" className="mr-2" />
               NFTs
             </TabsTrigger>
+            <TabsTrigger 
+              value="copy-trading" 
+              className="uppercase tracking-[0.12em] font-bold text-xs data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 data-[state=active]:border-2 data-[state=active]:border-green-500 jagged-corner-small transition-all"
+            >
+              <Users size={16} weight="duotone" className="mr-2" />
+              Copy Trading
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="strategies" className="space-y-6">
@@ -1107,6 +1115,10 @@ export default function SocialCommunity() {
 
           <TabsContent value="nft">
             <NFTGallery />
+          </TabsContent>
+
+          <TabsContent value="copy-trading">
+            <CopyTrader />
           </TabsContent>
         </Tabs>
       </div>

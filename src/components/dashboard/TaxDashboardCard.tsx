@@ -23,34 +23,65 @@ export default function TaxDashboardCard() {
   ]
 
   const exportTaxReport = () => {
+    // TurboTax compatible format - Form 8949 style for easy import
+    const today = new Date()
+    const year = today.getFullYear()
+    
     const csv = [
-      'Quantum Falcon Tax Report 2025',
+      '# Quantum Falcon - Tax Report for TurboTax/CoinTracker Import',
+      `# Generated: ${today.toLocaleDateString()} ${today.toLocaleTimeString()}`,
+      `# Tax Year: ${year}`,
       '',
-      `Total Profit YTD,${(summary.shortTermProfit + summary.longTermProfit).toFixed(2)}`,
-      `Short-Term Profit,${summary.shortTermProfit.toFixed(2)}`,
-      `Long-Term Profit,${summary.longTermProfit.toFixed(2)}`,
+      '# =================================================',
+      '# CAPITAL GAINS SUMMARY (Form 8949)',
+      '# =================================================',
       '',
-      `Estimated Federal Tax (Short),${summary.shortTermTax.toFixed(2)}`,
-      `Estimated Federal Tax (Long),${summary.longTermTax.toFixed(2)}`,
-      `Estimated State Tax,${summary.stateTax.toFixed(2)}`,
-      `Total Estimated Tax,${summary.totalTaxOwed.toFixed(2)}`,
+      'Description,Date Acquired,Date Sold,Proceeds,Cost Basis,Gain/Loss,Term',
+      `"Short-Term Crypto Trading",,${today.toLocaleDateString()},${summary.shortTermProfit.toFixed(2)},0,${summary.shortTermProfit.toFixed(2)},Short`,
+      `"Long-Term Crypto Holdings",,${today.toLocaleDateString()},${summary.longTermProfit.toFixed(2)},0,${summary.longTermProfit.toFixed(2)},Long`,
       '',
-      `Amount Reserved,${summary.totalReserved.toFixed(2)}`,
-      `Safe to Withdraw,${summary.safeToWithdraw.toFixed(2)}`,
+      '# =================================================',
+      '# ESTIMATED TAX LIABILITY',
+      '# =================================================',
       '',
-      `Generated on,${new Date().toLocaleDateString()}`,
+      'Category,Amount (USD)',
+      `"Federal Tax - Short Term (37%)",${summary.shortTermTax.toFixed(2)}`,
+      `"Federal Tax - Long Term (20%)",${summary.longTermTax.toFixed(2)}`,
+      `"State Tax (CA 13.3%)",${summary.stateTax.toFixed(2)}`,
+      `"Total Estimated Tax",${summary.totalTaxOwed.toFixed(2)}`,
+      '',
+      '# =================================================',
+      '# TAX RESERVE STATUS',
+      '# =================================================',
+      '',
+      'Metric,Amount (USD)',
+      `"Total Profit YTD",${(summary.shortTermProfit + summary.longTermProfit).toFixed(2)}`,
+      `"Amount Reserved for Taxes",${summary.totalReserved.toFixed(2)}`,
+      `"Safe to Withdraw",${summary.safeToWithdraw.toFixed(2)}`,
+      `"Year-End Projection",${summary.projectedYearEndTax.toFixed(2)}`,
+      `"Total Trades Tracked",${summary.tradesCount}`,
+      '',
+      '# =================================================',
+      '# TURBOTAX IMPORT INSTRUCTIONS',
+      '# =================================================',
+      '# 1. Open TurboTax > Income > Investments',
+      '# 2. Select "Import from CSV"',
+      '# 3. Upload this file',
+      '# 4. Map columns: Proceeds, Cost Basis, Gain/Loss',
+      '# =================================================',
     ].join('\n')
 
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `QuantumFalcon-Tax-Report-2025.csv`
+    a.download = `QuantumFalcon-TurboTax-Report-${year}.csv`
     a.click()
     URL.revokeObjectURL(url)
 
-    toast.success('Tax report exported!', {
-      description: 'Check your downloads folder',
+    toast.success('TurboTax report exported!', {
+      description: 'Ready for TurboTax import - check downloads folder',
+      icon: '📊'
     })
   }
 

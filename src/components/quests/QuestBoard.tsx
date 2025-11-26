@@ -402,24 +402,50 @@ export default function QuestBoard() {
                   return (
                     <motion.div
                       key={quest.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ delay: idx * 0.05, type: 'spring', stiffness: 200 }}
+                      whileHover={{ 
+                        y: -8, 
+                        scale: 1.02,
+                        transition: { duration: 0.2 } 
+                      }}
                       className={cn(
                         "glass-morph-card p-6 space-y-4 relative overflow-hidden group cursor-pointer",
-                        isCompleted && "ring-2 ring-accent animate-pulse-glow",
-                        !hasAccess && "opacity-60"
+                        "transform-gpu will-change-transform",
+                        "shadow-lg hover:shadow-2xl hover:shadow-primary/20",
+                        "border-2 border-transparent hover:border-primary/40",
+                        isCompleted && "ring-2 ring-accent animate-pulse-glow border-accent/50",
+                        !hasAccess && "opacity-60 grayscale hover:grayscale-0"
                       )}
                     >
+                      {/* Animated Border Gradient */}
+                      <div className={cn(
+                        "absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+                        "bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%]",
+                        "animate-gradient-x -z-10"
+                      )} style={{ padding: '2px', margin: '-2px' }} />
+                      
                       {/* Background Gradient */}
                       <div className={cn(
-                        "absolute inset-0 bg-gradient-to-br opacity-10",
+                        "absolute inset-0 bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity",
                         getCategoryColor(quest.category)
                       )} />
+                      
+                      {/* Shimmer Effect */}
+                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent transition-transform duration-1000 ease-in-out" />
 
                       {/* Glow Effect on Hover */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-accent/0 group-hover:from-primary/20 group-hover:to-accent/20 transition-all duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-accent/0 group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300" />
+                      
+                      {/* Particle Effect for Completed */}
+                      {isCompleted && (
+                        <div className="absolute inset-0 overflow-hidden">
+                          <div className="absolute top-0 left-1/4 w-1 h-1 bg-accent rounded-full animate-ping" style={{ animationDelay: '0s' }} />
+                          <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-primary rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
+                          <div className="absolute bottom-1/4 left-1/2 w-1 h-1 bg-accent rounded-full animate-ping" style={{ animationDelay: '0.6s' }} />
+                        </div>
+                      )}
 
                       <div className="relative z-10 space-y-4">
                         {/* Quest Header */}
@@ -452,19 +478,37 @@ export default function QuestBoard() {
                           )}
                         </div>
 
-                        {/* Progress Bar */}
+                        {/* Enhanced Progress Bar */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground uppercase tracking-wider">Progress</span>
-                            <span className="font-bold text-primary">{Math.round(progress)}%</span>
+                            <span className="text-muted-foreground uppercase tracking-wider font-medium">Progress</span>
+                            <motion.span 
+                              key={progress}
+                              initial={{ scale: 1.2, color: '#00ffff' }}
+                              animate={{ scale: 1, color: isCompleted ? '#00ffcc' : '#ffffff' }}
+                              className="font-black text-primary"
+                            >
+                              {Math.round(progress)}%
+                            </motion.span>
                           </div>
-                          <Progress 
-                            value={progress} 
-                            className={cn(
-                              "h-2",
-                              isCompleted && "bg-accent"
-                            )} 
-                          />
+                          <div className="relative">
+                            <Progress 
+                              value={progress} 
+                              className={cn(
+                                "h-3 rounded-full overflow-hidden",
+                                isCompleted && "bg-accent/20"
+                              )} 
+                            />
+                            {/* Animated shine on progress bar */}
+                            {progress > 0 && (
+                              <motion.div 
+                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                style={{ width: `${progress}%` }}
+                                animate={{ x: [-100, 100] }}
+                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                              />
+                            )}
+                          </div>
                         </div>
 
                         {/* Requirements */}
@@ -495,36 +539,59 @@ export default function QuestBoard() {
                           </p>
                         </div>
 
-                        {/* Rewards */}
-                        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                        {/* Enhanced Rewards */}
+                        <div className="flex items-center justify-between pt-3 border-t border-border/30">
                           <div className="flex items-center gap-4">
                             <motion.div
-                              whileHover={{ scale: 1.1 }}
-                              className="text-center"
+                              whileHover={{ scale: 1.15, rotate: 5 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="text-center p-2 bg-primary/10 rounded-lg border border-primary/30 cursor-pointer"
                             >
                               <div className="text-xl font-black text-primary flex items-center gap-1">
-                                <Sparkle size={16} weight="fill" />
+                                <motion.div
+                                  animate={{ rotate: [0, 15, -15, 0] }}
+                                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                >
+                                  <Sparkle size={18} weight="fill" />
+                                </motion.div>
                                 +{quest.xpReward}
                               </div>
-                              <div className="text-[10px] text-muted-foreground uppercase">
-                                XP
+                              <div className="text-[10px] text-muted-foreground uppercase font-bold">
+                                XP Reward
                               </div>
                             </motion.div>
                             {quest.nftReward && (
                               <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                className="text-center"
+                                whileHover={{ scale: 1.15, rotate: -5 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="text-center p-2 bg-accent/10 rounded-lg border border-accent/30 cursor-pointer"
                               >
                                 <div className="text-xl font-black text-accent flex items-center gap-1">
-                                  <Gift size={16} weight="fill" />
+                                  <motion.div
+                                    animate={{ y: [0, -3, 0] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                  >
+                                    <Gift size={18} weight="fill" />
+                                  </motion.div>
                                   NFT
                                 </div>
-                                <div className="text-[10px] text-muted-foreground uppercase">
-                                  Reward
+                                <div className="text-[10px] text-muted-foreground uppercase font-bold">
+                                  Exclusive
                                 </div>
                               </motion.div>
                             )}
                           </div>
+                          
+                          {/* Claim Button */}
+                          {isCompleted && !quest.nftReward && (
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="px-4 py-2 bg-accent text-black font-bold text-xs uppercase tracking-wider rounded-lg shadow-lg shadow-accent/30"
+                            >
+                              Claim XP
+                            </motion.button>
+                          )}
                         </div>
 
                         {/* NFT Reward Component */}

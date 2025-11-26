@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useState, useTransition, useCallback, type ComponentProps } from 'react'
+import { Suspense, useEffect, useMemo, useState, useTransition, useCallback, useRef, type ComponentProps } from 'react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import {
@@ -96,7 +96,7 @@ export default function EnhancedDashboard() {
   const [capitalAllocation, setCapitalAllocation] = useKVSafe<number>('bot-capital-allocation', 50)
   const [isPending, startTransition] = useTransition()
   const [showBotDisclaimer, setShowBotDisclaimer] = useState(false)
-  const [previousProfit, setPreviousProfit] = useState(0)
+  const previousProfitRef = useRef(0)
   const derivePreset = (value: number): RiskPresetId => {
     if (value < 33) return 'risk-off'
     if (value < 67) return 'neutral'
@@ -104,9 +104,13 @@ export default function EnhancedDashboard() {
   }
   const [riskPreset, setRiskPreset] = useState<RiskPresetId>(derivePreset(botAggressionValue))
 
-  const currentProfit = portfolio.totalValue - 5000
+  // Memoize currentProfit to prevent infinite loops
+  const currentProfit = useMemo(() => portfolio.totalValue - 5000, [portfolio.totalValue])
+  const previousProfit = previousProfitRef.current
+  
+  // Update previous profit ref without causing re-renders
   useEffect(() => {
-    setPreviousProfit(currentProfit)
+    previousProfitRef.current = currentProfit
   }, [currentProfit])
 
   useEffect(() => {

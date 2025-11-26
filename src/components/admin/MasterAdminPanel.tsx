@@ -2,7 +2,7 @@
 // November 24, 2025 — Quantum Falcon Cockpit
 // Only visible when master key is used
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import {
   Bug, Wrench, Pulse, Warning, CheckCircle,
@@ -71,85 +71,110 @@ export default function MasterAdminPanel() {
 
   // CRITICAL: Ensure master tab always shows content when master key is detected
   // Don't return null too early - let the component render and show diagnostic info
+  // Use refs to prevent infinite loops from console logging
+  const errorsRef = useRef<SystemError[]>([])
+  const hasSetupListeners = useRef(false)
+  
   useEffect(() => {
-    // Log for debugging (only in dev mode)
-    if (auth?.isAuthenticated && import.meta.env.DEV) {
-      console.log('[MasterAdminPanel] Auth state:', {
-        isAuthenticated: auth.isAuthenticated,
-        userId: auth.userId,
-        tier: auth.license?.tier,
-        licenseUserId: auth.license?.userId,
-        isMaster: isMaster
-      })
-    }
-    
-    if (!isMaster) return
+    if (!isMaster || hasSetupListeners.current) return
+    hasSetupListeners.current = true
 
-    // Collect console errors
+    // Collect console errors - use ref to avoid state updates causing loops
     const originalError = console.error
     const originalWarn = console.warn
     
+    // Debounce error collection to prevent flooding
+    let errorTimeout: ReturnType<typeof setTimeout> | null = null
+    let pendingErrors: SystemError[] = []
+    
+    const flushErrors = () => {
+      if (pendingErrors.length > 0) {
+        setErrors(prev => [...pendingErrors, ...prev].slice(0, 50))
+        pendingErrors = []
+      }
+    }
+    
     console.error = (...args) => {
       originalError(...args)
-      const error: SystemError = {
+      // Skip React internal errors that cause loops
+      const msg = args.join(' ')
+      if (msg.includes('Maximum update depth') || msg.includes('flushSync')) return
+      
+      pendingErrors.push({
         id: `error-${Date.now()}-${Math.random()}`,
         timestamp: Date.now(),
         type: 'error',
         component: 'Console',
-        message: args.join(' '),
+        message: msg.substring(0, 500),
         severity: 'high',
         fix: 'Check browser console for details. Clear cache if persistent.'
-      }
-      setErrors(prev => [error, ...prev].slice(0, 100))
+      })
+      
+      if (errorTimeout) clearTimeout(errorTimeout)
+      errorTimeout = setTimeout(flushErrors, 500)
     }
 
     console.warn = (...args) => {
       originalWarn(...args)
-      const warning: SystemError = {
+      const msg = args.join(' ')
+      if (msg.includes('Maximum update depth')) return
+      
+      pendingErrors.push({
         id: `warn-${Date.now()}-${Math.random()}`,
         timestamp: Date.now(),
         type: 'warning',
         component: 'Console',
-        message: args.join(' '),
+        message: msg.substring(0, 500),
         severity: 'medium',
         fix: 'Review warning message. Usually non-critical.'
-      }
-      setErrors(prev => [warning, ...prev].slice(0, 100))
+      })
+      
+      if (errorTimeout) clearTimeout(errorTimeout)
+      errorTimeout = setTimeout(flushErrors, 500)
     }
 
     // Collect React errors
-    window.addEventListener('error', (event) => {
-      const error: SystemError = {
+    const handleError = (event: ErrorEvent) => {
+      pendingErrors.push({
         id: `runtime-${Date.now()}-${Math.random()}`,
         timestamp: Date.now(),
         type: 'error',
         component: event.filename || 'Unknown',
-        message: event.message,
-        stack: event.error?.stack,
+        message: event.message?.substring(0, 500) || 'Unknown error',
+        stack: event.error?.stack?.substring(0, 1000),
         severity: 'critical',
-        fix: event.error?.stack ? `Check stack trace: ${event.error.stack.split('\n')[0]}` : 'Review error details'
-      }
-      setErrors(prev => [error, ...prev].slice(0, 100))
-    })
-
+        fix: event.error?.stack ? `Check stack trace` : 'Review error details'
+      })
+      if (errorTimeout) clearTimeout(errorTimeout)
+      errorTimeout = setTimeout(flushErrors, 500)
+    }
+    
     // Collect unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
-      const error: SystemError = {
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      pendingErrors.push({
         id: `promise-${Date.now()}-${Math.random()}`,
         timestamp: Date.now(),
         type: 'error',
         component: 'Promise',
-        message: event.reason?.message || String(event.reason),
-        stack: event.reason?.stack,
+        message: (event.reason?.message || String(event.reason))?.substring(0, 500),
+        stack: event.reason?.stack?.substring(0, 1000),
         severity: 'high',
         fix: 'Check async operations. Ensure all promises are handled.'
-      }
-      setErrors(prev => [error, ...prev].slice(0, 100))
-    })
+      })
+      if (errorTimeout) clearTimeout(errorTimeout)
+      errorTimeout = setTimeout(flushErrors, 500)
+    }
+    
+    window.addEventListener('error', handleError)
+    window.addEventListener('unhandledrejection', handleRejection)
 
     return () => {
       console.error = originalError
       console.warn = originalWarn
+      window.removeEventListener('error', handleError)
+      window.removeEventListener('unhandledrejection', handleRejection)
+      if (errorTimeout) clearTimeout(errorTimeout)
+      hasSetupListeners.current = false
     }
   }, [isMaster])
 
