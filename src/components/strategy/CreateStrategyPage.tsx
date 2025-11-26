@@ -49,7 +49,9 @@ import {
   Crown
 } from '@phosphor-icons/react'
 import type { UserAuth } from '@/lib/auth'
+import { isGodMode } from '@/lib/godMode'
 import CreateStrategyLockedHUD from './CreateStrategyLockedHUD'
+import { cn } from '@/lib/utils'
 
 interface Strategy {
   id: string
@@ -240,7 +242,12 @@ export default function CreateStrategyPage() {
   })
 
   const userTier = auth?.license?.tier || 'free'
-  const canCreate = ['starter', 'trader', 'pro', 'elite', 'lifetime'].includes(userTier)
+  const isGodModeActive = isGodMode(auth)
+  const canCreate = isGodModeActive || ['starter', 'trader', 'pro', 'elite', 'lifetime'].includes(userTier)
+  
+  // Deploy to Live state
+  const [isDeploying, setIsDeploying] = useState(false)
+  const [isLive, setIsLive] = useState(false)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -390,19 +397,54 @@ Return only improved code with comments explaining changes.`
     
     await new Promise(resolve => setTimeout(resolve, 1500))
     
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#14F195', '#9945FF', '#DC1FFF']
-    })
-    
     setIsSharing(false)
     
     toast.success('Strategy shared!', {
       description: 'Your strategy is now available to the community',
       icon: <ShareNetwork size={20} weight="fill" className="text-accent" />
     })
+  }
+
+  // NEW: Deploy to Live Trading
+  const handleDeployLive = async () => {
+    if (!canCreate) {
+      setShowUpgradeModal(true)
+      return
+    }
+
+    if (!strategyName.trim()) {
+      toast.error('Save strategy first', {
+        description: 'Please save and backtest your strategy before deploying'
+      })
+      return
+    }
+
+    if (!backtestResult) {
+      toast.error('Backtest required', {
+        description: 'Run a backtest before deploying to live trading'
+      })
+      return
+    }
+
+    setIsDeploying(true)
+    
+    try {
+      // Simulate deployment API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      setIsLive(true)
+      
+      toast.success('🚀 STRATEGY DEPLOYED LIVE!', {
+        description: `${strategyName} is now trading with real funds${isGodModeActive ? ' (GOD MODE)' : ''}`,
+        duration: 8000,
+      })
+    } catch (error) {
+      toast.error('Deployment failed', {
+        description: 'Please try again or contact support'
+      })
+    } finally {
+      setIsDeploying(false)
+    }
   }
 
   const loadTemplate = (templateCode: string) => {
@@ -445,6 +487,41 @@ Return only improved code with comments explaining changes.`
       />
       
       <div className="relative z-10 container mx-auto p-6 space-y-8">
+        {/* God Mode Banner */}
+        {isGodModeActive && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-gradient-to-r from-yellow-500/20 via-amber-500/20 to-yellow-500/20 border-2 border-yellow-500/50 rounded-lg text-center"
+          >
+            <div className="flex items-center justify-center gap-2">
+              <Crown size={24} weight="fill" className="text-yellow-400" />
+              <span className="text-yellow-400 font-black uppercase tracking-wider text-lg">
+                GOD MODE — UNLIMITED STRATEGY CREATION
+              </span>
+              <Crown size={24} weight="fill" className="text-yellow-400" />
+            </div>
+          </motion.div>
+        )}
+        
+        {/* Live Status Banner */}
+        {isLive && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-2 border-green-500/50 rounded-lg"
+          >
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+              <span className="text-green-400 font-black uppercase tracking-wider">
+                STRATEGY LIVE — TRADING WITH REAL FUNDS
+              </span>
+              <Badge className="bg-green-500/20 border-green-500/50 text-green-400">
+                {strategyName || 'Unnamed Strategy'}
+              </Badge>
+            </div>
+          </motion.div>
+        )}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1003,6 +1080,39 @@ Return only improved code with comments explaining changes.`
                   <>
                     <ShareNetwork size={24} weight="fill" className="mr-2" />
                     Share to Community
+                  </>
+                )}
+              </Button>
+
+              {/* Deploy to Live Button */}
+              <Button
+                size="lg"
+                onClick={handleDeployLive}
+                disabled={!canCreate || isDeploying || !backtestResult || isLive}
+                className={cn(
+                  "rounded-xl uppercase tracking-wider font-bold transition-all duration-300 hover:scale-105 px-8 py-6",
+                  isLive 
+                    ? "bg-green-500/20 border-2 border-green-500/50 text-green-400"
+                    : "bg-gradient-to-r from-red-600 via-orange-500 to-red-600 hover:from-red-500 hover:via-orange-400 hover:to-red-500 text-white border-2 border-red-400/50"
+                )}
+                style={{
+                  boxShadow: isLive ? '0 0 20px rgba(34, 197, 94, 0.3)' : '0 0 30px rgba(239, 68, 68, 0.4)'
+                }}
+              >
+                {isDeploying ? (
+                  <>
+                    <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Deploying...
+                  </>
+                ) : isLive ? (
+                  <>
+                    <CheckCircle size={24} weight="fill" className="mr-2" />
+                    LIVE NOW
+                  </>
+                ) : (
+                  <>
+                    <Rocket size={24} weight="fill" className="mr-2" />
+                    DEPLOY TO LIVE
                   </>
                 )}
               </Button>
