@@ -87,8 +87,7 @@ const StatSkeleton = () => (
 )
 
 export default function EnhancedDashboard() {
-  const { logout } = usePersistentAuth()
-  const [auth] = useKVSafe<UserAuth>('user-auth', initialAuthState)
+  const { logout, auth } = usePersistentAuth()
   const [botRunning, setBotRunning] = useKVSafe<boolean>('bot-running', false)
   const [paperTradingMode, setPaperTradingMode] = useKVSafe<boolean>('paper-trading-mode', true)
   const [portfolio] = useKVSafe('portfolio-data', defaultPortfolio)

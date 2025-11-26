@@ -3,7 +3,7 @@
 // ALL DATA MUST BE LIVE — NO MOCK DATA
 
 import { useEffect, useRef, useState } from 'react';
-import { useKV } from '@github/spark/hooks';
+import { useKVSafe } from '@/hooks/useKVFallback';
 import { BotLog, Activity } from '@/lib/tradingDataGenerator';
 import { fetchLiveTradingDataWithRetry } from '@/lib/api/liveTradingApi';
 
@@ -29,9 +29,9 @@ export function useLiveTradingData() {
   const [dailyStreak, setDailyStreak] = useState<number>(0);
   const [pnLHistory, setPnLHistory] = useState<number[]>([]);
   const [sessionJournal, setSessionJournal] = useState<SessionEvent[]>([]);
-  const [botLogs, setBotLogs] = useKV<BotLog[]>('bot-logs', []);
-  const [recentActivity, setRecentActivity] = useKV<Activity[]>('recent-activity', []);
-  const [isLoading, setIsLoading] = useState(true);
+  const [botLogs] = useKVSafe<BotLog[]>('bot-logs', []);
+  const [recentActivity] = useKVSafe<Activity[]>('recent-activity', []);
+  const [isLoading, setIsLoading] = useState(false); // Start false to not block render
   const [error, setError] = useState<string | null>(null);
 
   const lastPnLRef = useRef(0);
@@ -45,7 +45,7 @@ export function useLiveTradingData() {
       if (!isMounted) return;
 
       try {
-        setIsLoading(true);
+        // Don't set loading on subsequent fetches to avoid flicker
         setError(null);
 
         const liveData = await fetchLiveTradingDataWithRetry();
