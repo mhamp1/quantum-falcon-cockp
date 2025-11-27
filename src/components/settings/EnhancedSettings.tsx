@@ -17,7 +17,7 @@ import {
   CurrencyDollar, SpeakerHigh, Shield, ChartLine, Medal, Star,
   Fire, Target, CheckCircle, Crown, ArrowsClockwise, Lightning, 
   Wallet, CloudArrowUp, Database, LinkSimple, WifiHigh, Cpu,
-  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales, SignOut, ClockClockwise, Key
+  SquaresFour, ChartLineUp, BellRinging, MoonStars, SunDim, Users, Scales, SignOut, ClockClockwise, Key, X
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import ProfileUpload from '@/components/shared/ProfileUpload'
