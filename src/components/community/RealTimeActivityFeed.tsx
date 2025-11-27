@@ -32,7 +32,7 @@ const generateActivity = (): Activity => {
   let activity: Activity
   
   switch (type) {
-    case 'profit':
+    case 'profit': {
       const profit = Math.floor(Math.random() * 5000) + 100
       activity = {
         id: `activity-${Date.now()}-${Math.random()}`,
@@ -45,7 +45,8 @@ const generateActivity = (): Activity => {
         color: 'text-accent'
       }
       break
-    case 'strategy':
+    }
+    case 'strategy': {
       const strategies = ['Liquidity Hunter', 'Whale Shadow', 'MEV Defender', 'Flash Crash Hunter']
       activity = {
         id: `activity-${Date.now()}-${Math.random()}`,
@@ -57,7 +58,8 @@ const generateActivity = (): Activity => {
         color: 'text-primary'
       }
       break
-    case 'achievement':
+    }
+    case 'achievement': {
       const achievements = ['First Win', 'Profit Master', 'Strategy Creator', 'Elite Trader']
       activity = {
         id: `activity-${Date.now()}-${Math.random()}`,
@@ -69,7 +71,8 @@ const generateActivity = (): Activity => {
         color: 'text-accent'
       }
       break
-    case 'milestone':
+    }
+    case 'milestone': {
       const milestones = ['$10K profit', '100 trades', '50% win rate', 'Top 10 leaderboard']
       activity = {
         id: `activity-${Date.now()}-${Math.random()}`,
@@ -81,6 +84,7 @@ const generateActivity = (): Activity => {
         color: 'text-destructive'
       }
       break
+    }
   }
   
   return activity

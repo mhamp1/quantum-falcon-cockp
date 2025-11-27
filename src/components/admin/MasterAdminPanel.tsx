@@ -233,7 +233,7 @@ export default function MasterAdminPanel() {
           minLatency: 120,
           requests: 1247,
           errors: 3,
-          status: 245 < 300 ? 'healthy' : 245 < 500 ? 'slow' : 'down'
+          status: 'healthy' // avgLatency 245ms is healthy
         },
         {
           endpoint: '/api/trades',
@@ -251,7 +251,7 @@ export default function MasterAdminPanel() {
           minLatency: 234,
           requests: 892,
           errors: 12,
-          status: 567 < 500 ? 'healthy' : 567 < 1000 ? 'slow' : 'down'
+          status: 'slow' // avgLatency 567ms is slow
         }
       ])
     }
@@ -354,7 +354,7 @@ export default function MasterAdminPanel() {
     try {
       const stored = localStorage.getItem('qf-persistent-auth')
       if (stored) storedAuth = JSON.parse(stored)
-    } catch {}
+    } catch (_e) { /* ignore parse errors */ }
     
     const isMasterKeyStored = storedAuth?.licenseKey === 'MASTER_KEY_RECOGNIZED'
     
