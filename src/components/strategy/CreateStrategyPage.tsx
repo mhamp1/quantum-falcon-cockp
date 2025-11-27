@@ -902,6 +902,54 @@ Return only improved code with comments explaining changes.`
                     </div>
                   ))}
                 </div>
+                
+                {/* Deploy This Strategy Button - Shows when ROI > 100% */}
+                {backtestResult.roi > 100 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-8 text-center"
+                  >
+                    <motion.div
+                      animate={{ 
+                        boxShadow: [
+                          '0 0 20px rgba(0, 255, 128, 0.4)',
+                          '0 0 50px rgba(0, 255, 128, 0.8)',
+                          '0 0 20px rgba(0, 255, 128, 0.4)'
+                        ]
+                      }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="inline-block"
+                    >
+                      <Button
+                        size="lg"
+                        onClick={handleDeployLive}
+                        disabled={isDeploying || isLive}
+                        className="h-20 px-12 text-2xl font-black uppercase bg-gradient-to-r from-green-500 via-emerald-500 to-green-500 hover:from-green-400 hover:via-emerald-400 hover:to-green-400 border-4 border-green-400/50"
+                      >
+                        {isDeploying ? (
+                          <>
+                            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mr-4" />
+                            Deploying...
+                          </>
+                        ) : isLive ? (
+                          <>
+                            <CheckCircle size={32} weight="fill" className="mr-4" />
+                            DEPLOYED LIVE
+                          </>
+                        ) : (
+                          <>
+                            <Rocket size={32} weight="fill" className="mr-4" />
+                            🔥 DEPLOY THIS STRATEGY — {backtestResult.roi.toFixed(0)}% ROI 🔥
+                          </>
+                        )}
+                      </Button>
+                    </motion.div>
+                    <p className="text-green-400 text-sm mt-3 font-semibold">
+                      Elite performance detected! Deploy now to start earning.
+                    </p>
+                  </motion.div>
+                )}
               </CardContent>
             </Card>
           </motion.div>

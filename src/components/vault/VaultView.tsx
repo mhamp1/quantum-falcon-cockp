@@ -747,25 +747,38 @@ export default function VaultView() {
               </div>
               <div className="status-indicator bg-secondary" style={{ boxShadow: '0 0 8px var(--secondary), 0 0 16px var(--secondary)' }} />
             </div>
-            <h3 className="text-sm uppercase tracking-[0.2em] font-black mb-2" style={{
-              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
-              WebkitTextStroke: '0.5px oklch(0.12 0.03 280)',
-              color: 'oklch(0.95 0.08 195)'
-            }}>
-              ZERO FEES
-            </h3>
-            <p className="text-3xl font-black text-secondary neon-glow-secondary mb-1" style={{
-              textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 15px oklch(0.68 0.18 330 / 0.9)',
-              WebkitTextStroke: '0.5px oklch(0.08 0.02 280)'
-            }}>
-              0%
-            </p>
-            <p className="text-xs uppercase tracking-wide font-bold bg-card/90 px-2 py-1 inline-block border-2 border-secondary/50" style={{
-              textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
-              color: 'oklch(0.90 0.08 195)'
-            }}>
-              No trading fees on conversions
-            </p>
+            <motion.div
+              animate={{ 
+                scale: [1, 1.05, 1],
+                boxShadow: [
+                  '0 0 20px rgba(220, 31, 255, 0.4)',
+                  '0 0 40px rgba(220, 31, 255, 0.8)',
+                  '0 0 20px rgba(220, 31, 255, 0.4)'
+                ]
+              }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="inline-block px-6 py-3 bg-gradient-to-r from-secondary/30 to-accent/30 rounded-xl border-2 border-secondary"
+            >
+              <h3 className="text-base md:text-lg uppercase tracking-[0.2em] font-black mb-1" style={{
+                textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 2px 4px rgba(0,0,0,0.8)',
+                WebkitTextStroke: '0.5px oklch(0.12 0.03 280)',
+                color: 'oklch(0.95 0.08 195)'
+              }}>
+                ZERO FEES
+              </h3>
+              <p className="text-5xl md:text-6xl font-black text-secondary neon-glow-secondary mb-2" style={{
+                textShadow: '2px 2px 0 oklch(0.08 0.02 280), 0 0 25px oklch(0.68 0.18 330 / 0.9)',
+                WebkitTextStroke: '1px oklch(0.08 0.02 280)'
+              }}>
+                0%
+              </p>
+              <p className="text-sm uppercase tracking-wide font-bold" style={{
+                textShadow: '1px 1px 0 oklch(0.08 0.02 280), 0 1px 3px rgba(0,0,0,0.7)',
+                color: 'oklch(0.90 0.08 195)'
+              }}>
+                No trading fees on conversions
+              </p>
+            </motion.div>
           </div>
         </motion.div>
       </div>

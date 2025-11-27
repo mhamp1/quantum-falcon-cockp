@@ -536,7 +536,7 @@ export default function LoginPage() {
                       }
                     }}
                     disabled={isSubmitting || !username.trim() || !password.trim() || !licenseKey.trim()}
-                    className="w-full h-14 text-lg font-black uppercase tracking-wider
+                    className="w-full h-14 text-sm sm:text-base md:text-lg font-black uppercase tracking-wider
                              bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500
                              hover:from-cyan-400 hover:via-purple-400 hover:to-cyan-400
                              border-2 border-primary/50 shadow-[0_0_30px_rgba(0,212,255,0.4)]
@@ -545,11 +545,13 @@ export default function LoginPage() {
                     {isSubmitting ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Logging in...
+                        <span className="hidden sm:inline">Logging in...</span>
+                        <span className="sm:hidden">Loading...</span>
                       </>
                     ) : (
                       <>
-                        ENTER COCKPIT
+                        <span className="hidden sm:inline">ENTER COCKPIT</span>
+                        <span className="sm:hidden">ENTER</span>
                         <ArrowRight size={18} className="ml-2" />
                       </>
                     )}
