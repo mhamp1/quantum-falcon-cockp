@@ -186,21 +186,34 @@ export default function NewsTicker() {
           )}
         </div>
         
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden relative">
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-center gap-2"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="flex items-center gap-3"
           >
             {currentNews.icon}
-            <p className="text-sm text-foreground font-medium truncate">
-              {currentNews.text}
-            </p>
+            <div className="overflow-hidden flex-1">
+              <motion.p 
+                className="text-sm text-foreground font-medium whitespace-nowrap"
+                animate={{ 
+                  x: currentNews.text.length > 60 ? [0, -(currentNews.text.length * 5)] : 0 
+                }}
+                transition={{ 
+                  duration: currentNews.text.length > 60 ? 12 : 0, 
+                  ease: 'linear',
+                  repeat: Infinity,
+                  repeatDelay: 2
+                }}
+              >
+                {currentNews.text}
+              </motion.p>
+            </div>
             {currentNews.source && (
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider px-2 py-0.5 bg-muted/30 border border-muted rounded whitespace-nowrap">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider px-2 py-0.5 bg-muted/30 border border-muted rounded whitespace-nowrap flex-shrink-0">
                 {currentNews.source}
               </span>
             )}
