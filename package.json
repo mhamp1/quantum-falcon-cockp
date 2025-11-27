@@ -1,8 +1,11 @@
 {
-    "name": "spark-template",
+    "name": "quantum-falcon",
     "private": true,
-    "version": "0.0.0",
+    "version": "2025.1.0",
     "type": "module",
+    "description": "The #1 AI Crypto Trading Cockpit on Solana",
+    "author": "mhamp1",
+    "license": "PROPRIETARY",
     "scripts": {
         "dev": "vite",
         "kill": "fuser -k 5000/tcp",
@@ -13,7 +16,9 @@
         "test:coverage": "vitest --coverage",
         "optimize": "vite optimize",
         "preview": "vite preview",
-        "audit": "npm audit --audit-level=moderate"
+        "audit": "npm audit --audit-level=moderate",
+        "analyze": "npx vite-bundle-visualizer",
+        "release": "npm version patch && git push --follow-tags"
     },
     "dependencies": {
         "@github/spark": "^0.39.0",
@@ -100,6 +105,7 @@
         "tw-animate-css": "^1.2.4",
         "uuid": "^11.1.0",
         "vaul": "^1.1.2",
+        "web-vitals": "^4.2.4",
         "zod": "^3.25.76"
     },
     "devDependencies": {

@@ -1,63 +1,178 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
 
 jobs:
+  # ═══════════════════════════════════════════════════════════════
+  # LINT - Code Quality Check
+  # ═══════════════════════════════════════════════════════════════
   lint:
-    name: Lint
+    name: 🔍 Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST - Unit & Integration Tests
+  # ═══════════════════════════════════════════════════════════════
   test:
-    name: Test
+    name: 🧪 Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run test -- --run
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      - run: npm ci
-      - run: npm run build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test -- --run
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+  # ═══════════════════════════════════════════════════════════════
+  # BUILD - Production Build
+  # ═══════════════════════════════════════════════════════════════
+  build:
+    name: 🏗️ Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: dist
-          retention-days: 1
+          path: dist/
+          retention-days: 7
 
-  security:
-    name: Security Audit
+  # ═══════════════════════════════════════════════════════════════
+  # BUNDLE ANALYSIS - Size Check
+  # ═══════════════════════════════════════════════════════════════
+  bundle-analysis:
+    name: 📊 Bundle Analysis
     runs-on: ubuntu-latest
+    needs: build
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm audit --audit-level=moderate || true
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Analyze bundle size
+        run: |
+          echo "📦 Bundle Size Analysis"
+          echo "========================"
+          du -sh dist/
+          echo ""
+          echo "Top 10 largest files:"
+          find dist -type f -exec du -h {} + | sort -rh | head -10
+
+  # ═══════════════════════════════════════════════════════════════
+  # SECURITY - CodeQL SAST
+  # ═══════════════════════════════════════════════════════════════
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
+
+  # ═══════════════════════════════════════════════════════════════
+  # DEPLOY - Vercel Production
+  # ═══════════════════════════════════════════════════════════════
+  deploy:
+    name: 🚀 Deploy
+    runs-on: ubuntu-latest
+    needs: [build, security]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+
+      - name: Notify Sentry of Deploy
+        if: success()
+        run: |
+          curl -sL https://sentry.io/api/0/organizations/${{ secrets.SENTRY_ORG }}/releases/ \
+            -H "Authorization: Bearer ${{ secrets.SENTRY_AUTH_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "version": "${{ github.sha }}",
+              "projects": ["quantum-falcon"]
+            }' || echo "Sentry notification skipped"

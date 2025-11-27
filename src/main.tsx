@@ -15,6 +15,15 @@ import './index.css';
 // Validate environment variables at startup
 initializeEnvValidation();
 
+// Initialize Web Vitals monitoring in production
+if (typeof window !== 'undefined') {
+  import('./lib/monitoring/webVitals').then(({ initWebVitals }) => {
+    initWebVitals();
+  }).catch(() => {
+    // Web Vitals monitoring is optional
+  });
+}
+
 function isR3FError(error: Error | string): boolean {
   const message = typeof error === 'string' ? error : (error?.message || '')
   const stack = typeof error === 'string' ? '' : (error?.stack || '')

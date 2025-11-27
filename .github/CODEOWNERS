@@ -1,0 +1,18 @@
+# Code Owners for Quantum Falcon
+# These owners will be requested for review on PRs
+
+# Default owner for everything
+* @mhamp1
+
+# Security-sensitive files require explicit review
+/src/lib/auth/ @mhamp1
+/src/lib/security/ @mhamp1
+/src/lib/license/ @mhamp1
+/.github/ @mhamp1
+
+# Payment processing
+/src/lib/payment/ @mhamp1
+
+# NFT minting
+/src/lib/nft/ @mhamp1
+
