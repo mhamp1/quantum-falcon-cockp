@@ -14,7 +14,7 @@ import type { Icon } from '@phosphor-icons/react'
 // TYPES & INTERFACES
 // ============================================================================
 
-export type AgentTier = 'free' | 'pro' | 'elite' | 'lifetime'
+export type AgentTier = 'free' | 'starter' | 'trader' | 'pro' | 'elite' | 'lifetime'
 
 export type AgentPersonality = 'aggressive' | 'defensive' | 'balanced' | 'opportunistic'
 
@@ -1118,33 +1118,68 @@ export function getAgentByName(name: string): EliteAgentInstance | undefined {
 
 /**
  * Get agents by tier (includes all agents at or below the specified tier)
- * Free tier: 1 agent
+ * Free tier: 1 agent (DCA Basic)
+ * Starter tier: 1 agent
+ * Trader tier: 1 agent
  * Pro tier: 11 agents (1 free + 10 pro)
  * Elite tier: 15 agents (1 free + 10 pro + 4 elite)
  * Lifetime: All 15 agents
  */
 export function getAgentsByTier(tier: AgentTier): EliteAgentInstance[] {
-  const tierHierarchy: AgentTier[] = ['free', 'pro', 'elite', 'lifetime']
+  const tierHierarchy: AgentTier[] = ['free', 'starter', 'trader', 'pro', 'elite', 'lifetime']
   const tierLevel = tierHierarchy.indexOf(tier)
+  
+  // Normalize agent tiers - starter/trader map to free for access purposes
+  const normalizeAgentTier = (agentTier: AgentTier): number => {
+    if (agentTier === 'free') return 0  // free
+    if (agentTier === 'starter') return 0  // starter = free access
+    if (agentTier === 'trader') return 0  // trader = free access
+    if (agentTier === 'pro') return 3  // pro
+    if (agentTier === 'elite') return 4  // elite
+    return 5  // lifetime
+  }
   
   // Return all agents at or below the specified tier
   return ELITE_AGENTS.filter(agent => {
-    const agentTierLevel = tierHierarchy.indexOf(agent.tier)
-    return agentTierLevel <= tierLevel
+    const agentTierLevel = normalizeAgentTier(agent.tier)
+    return tierLevel >= agentTierLevel
   })
 }
 
 /**
  * Check if user has access to agent
  * GOD MODE: 'lifetime' or 'god' tier = access to ALL agents
+ * 
+ * Tier hierarchy:
+ * - free: 1 agent (DCA Basic)
+ * - starter: 1 agent (same as free)
+ * - trader: 2 agents
+ * - pro: 11 agents
+ * - elite: 15 agents
+ * - lifetime: All 15 agents + future agents
  */
 export function hasAgentAccess(agentTier: AgentTier, userTier: AgentTier | string): boolean {
   // GOD MODE - Lifetime or God tier has access to EVERYTHING
-  if (userTier === 'lifetime' || userTier === 'god') return true
+  if (userTier === 'lifetime' || userTier === 'god' || userTier === 'master') return true
   
-  const tierHierarchy: AgentTier[] = ['free', 'pro', 'elite', 'lifetime']
-  const agentLevel = tierHierarchy.indexOf(agentTier)
+  // Full tier hierarchy including starter/trader
+  const tierHierarchy: AgentTier[] = ['free', 'starter', 'trader', 'pro', 'elite', 'lifetime']
+  
+  // Normalize agent tier to hierarchy position
+  const getAgentLevel = (tier: AgentTier): number => {
+    if (tier === 'free') return 0
+    if (tier === 'starter') return 1
+    if (tier === 'trader') return 2
+    if (tier === 'pro') return 3
+    if (tier === 'elite') return 4
+    return 5  // lifetime
+  }
+  
+  const agentLevel = getAgentLevel(agentTier)
   const userLevel = tierHierarchy.indexOf(userTier as AgentTier)
+  
+  // Handle unknown user tiers (default to no access)
+  if (userLevel === -1) return false
   
   return userLevel >= agentLevel
 }

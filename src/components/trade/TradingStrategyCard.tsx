@@ -77,6 +77,8 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle, onUp
 
   const tierColors = {
     free: 'text-muted-foreground border-muted',
+    starter: 'text-green-400 border-green-400',
+    trader: 'text-blue-400 border-blue-400',
     pro: 'text-primary border-primary',
     elite: 'text-accent border-accent',
     lifetime: 'text-secondary border-secondary'

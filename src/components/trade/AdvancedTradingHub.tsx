@@ -61,7 +61,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Better average entry price',
       'Adapts to volatility'
     ],
-    requiredTier: 'pro',
+    requiredTier: 'starter',
     status: 'paused',
     pnl: 156.40,
     pnlPercent: 5.8,
@@ -82,7 +82,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Works in trending markets',
       'Good risk/reward ratio'
     ],
-    requiredTier: 'pro',
+    requiredTier: 'trader',
     status: 'active',
     pnl: 342.50,
     pnlPercent: 12.4,
@@ -103,7 +103,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Clear risk parameters',
       'High win rate potential'
     ],
-    requiredTier: 'pro',
+    requiredTier: 'starter',
     status: 'paused',
     pnl: 78.90,
     pnlPercent: 2.9,
@@ -124,7 +124,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Filters false signals',
       'Better risk management'
     ],
-    requiredTier: 'elite',
+    requiredTier: 'pro',
     status: 'locked',
     risk: 'medium'
   },
@@ -141,7 +141,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Works across timeframes',
       'Momentum confirmation'
     ],
-    requiredTier: 'elite',
+    requiredTier: 'trader',
     status: 'locked',
     risk: 'medium'
   },
@@ -158,7 +158,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Mean reversion plays',
       'Dynamic support/resistance'
     ],
-    requiredTier: 'elite',
+    requiredTier: 'pro',
     status: 'locked',
     risk: 'medium'
   },
@@ -175,7 +175,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Statistical edge',
       'Defined risk parameters'
     ],
-    requiredTier: 'elite',
+    requiredTier: 'pro',
     status: 'locked',
     risk: 'low'
   },
@@ -192,7 +192,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Fast execution (<1s)',
       'Configurable safety filters'
     ],
-    requiredTier: 'elite',
+    requiredTier: 'pro',
     status: 'locked',
     pnl: -45.30,
     pnlPercent: -5.8,
