@@ -1,0 +1,12 @@
+# Asset directories for Quantum Falcon Mobile
+# 
+# Required assets:
+# - icon/falcon-icon.png (1024x1024)
+# - icon/falcon-icon-foreground.png (1024x1024, adaptive icon)
+# - splash/falcon-splash.png (1152x1152)
+# - splash/falcon-splash-android12.png (288x288)
+# - images/ (app images)
+# - animations/ (Lottie files)
+# - fonts/Orbitron-Regular.ttf
+# - fonts/Orbitron-Bold.ttf
+
