@@ -125,7 +125,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Better risk management'
     ],
     requiredTier: 'pro',
-    status: 'locked',
+    status: 'paused',
     risk: 'medium'
   },
   {
@@ -142,7 +142,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Momentum confirmation'
     ],
     requiredTier: 'trader',
-    status: 'locked',
+    status: 'paused',
     risk: 'medium'
   },
   {
@@ -159,7 +159,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Dynamic support/resistance'
     ],
     requiredTier: 'pro',
-    status: 'locked',
+    status: 'paused',
     risk: 'medium'
   },
   {
@@ -176,7 +176,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Defined risk parameters'
     ],
     requiredTier: 'pro',
-    status: 'locked',
+    status: 'paused',
     risk: 'low'
   },
   {
@@ -193,7 +193,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Configurable safety filters'
     ],
     requiredTier: 'pro',
-    status: 'locked',
+    status: 'paused',
     pnl: -45.30,
     pnlPercent: -5.8,
     tradesExecuted: 8,
@@ -214,7 +214,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Fast execution required'
     ],
     requiredTier: 'elite',
-    status: 'locked',
+    status: 'paused',
     risk: 'low'
   },
   {
@@ -231,7 +231,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Maximum flexibility'
     ],
     requiredTier: 'lifetime',
-    status: 'locked',
+    status: 'paused',
     risk: 'medium'
   },
   {
@@ -248,7 +248,7 @@ const ALL_STRATEGIES: Strategy[] = [
       'Share with community'
     ],
     requiredTier: 'lifetime',
-    status: 'locked',
+    status: 'paused',
     risk: 'medium'
   }
 ]

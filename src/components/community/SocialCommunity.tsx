@@ -105,15 +105,21 @@ export default function SocialCommunity() {
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<CheckoutItem | null>(null)
 
-  const userTier = auth?.license?.tier || 'Free'
+  const rawUserTier = auth?.license?.tier || 'free'
+  const userTier = rawUserTier.charAt(0).toUpperCase() + rawUserTier.slice(1).toLowerCase()
+  
+  // Check for full access (lifetime/god/master)
+  const hasFullAccess = rawUserTier.toLowerCase() === 'lifetime' || rawUserTier.toLowerCase() === 'god' || rawUserTier.toLowerCase() === 'master'
 
   const tierHierarchy: Record<string, number> = {
-    'Free': 0,
-    'Starter': 1,
-    'Trader': 2,
-    'Pro': 3,
-    'Elite': 4,
-    'Lifetime': 5
+    'Free': 0, 'free': 0,
+    'Starter': 1, 'starter': 1,
+    'Trader': 2, 'trader': 2,
+    'Pro': 3, 'pro': 3,
+    'Elite': 4, 'elite': 4,
+    'Lifetime': 5, 'lifetime': 5,
+    'God': 5, 'god': 5,
+    'Master': 5, 'master': 5
   }
 
   useEffect(() => {
@@ -207,6 +213,9 @@ export default function SocialCommunity() {
   }
 
   function canAccessStrategy(strategy: ApiStrategy): boolean {
+    // Lifetime/God/Master = full access to everything
+    if (hasFullAccess) return true
+    
     if (strategy.is_user_created && strategy.author_id === auth?.userId) return true
     
     const userTierLevel = tierHierarchy[userTier] || 0
@@ -1100,11 +1109,12 @@ export default function SocialCommunity() {
             <CreateStrategyTeaser 
               onUpgrade={() => {
                 window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'settings' }))
-                toast.info('Navigate to Billing', {
-                  description: 'Go to Settings > Billing to upgrade your plan'
+                window.dispatchEvent(new CustomEvent('open-settings-subscriptions-tab'))
+                toast.info('Navigate to Subscriptions', {
+                  description: 'Go to Settings > Subscriptions to upgrade your plan'
                 })
               }}
-              isLocked={tierHierarchy[userTier] < tierHierarchy['Pro']}
+              isLocked={hasFullAccess ? false : (tierHierarchy[userTier] || 0) < tierHierarchy['Pro']}
             />
           </TabsContent>
 

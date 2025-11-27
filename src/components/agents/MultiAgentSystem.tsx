@@ -231,7 +231,7 @@ export default function MultiAgentSystem() {
       actions: 156,
       profit: 687.23,
       performance: 82.4,
-      status: 'locked',
+      status: 'paused',
       requiredTier: 'pro',
       specialties: ['Social Listening', 'News Analysis', 'FOMO Detection'],
       metrics: { cpu: 28, memory: 19, latency: 25 },
@@ -251,7 +251,7 @@ export default function MultiAgentSystem() {
       actions: 198,
       profit: 1523.44,
       performance: 88.7,
-      status: 'locked',
+      status: 'paused',
       requiredTier: 'elite',
       specialties: ['On-Chain Analysis', 'Whale Detection', 'Flow Tracking'],
       metrics: { cpu: 61, memory: 48, latency: 15 },
@@ -373,10 +373,13 @@ export default function MultiAgentSystem() {
     toast.success('Parameters optimized', { description: aggressionProfile.alphaQuote });
   }, [aggressionProfile, applyAggressionProfile]);
 
-  const userTier = auth?.license?.tier || 'free';
+  const userTier = auth?.license?.tier?.toLowerCase() || 'free';
   const tierOrder: Record<string, number> = {
-    'free': 0, 'starter': 1, 'trader': 2, 'pro': 3, 'elite': 4, 'lifetime': 5
+    'free': 0, 'starter': 1, 'trader': 2, 'pro': 3, 'elite': 4, 'lifetime': 5, 'god': 5, 'master': 5
   };
+  
+  // Lifetime/God/Master = full access helper
+  const hasFullAccess = userTier === 'lifetime' || userTier === 'god' || userTier === 'master';
 
   const radarData = agents.filter(a => a.status === 'active').map(a => ({
     agent: a.name.split(' ')[0],
@@ -561,7 +564,8 @@ export default function MultiAgentSystem() {
           <TabsContent value="agents" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {agents.map((agent, i) => {
-                const isLocked = tierOrder[agent.requiredTier] > tierOrder[userTier];
+                // Lifetime/God/Master = never locked
+                const isLocked = hasFullAccess ? false : (tierOrder[agent.requiredTier] || 0) > (tierOrder[userTier] || 0);
                 
                 return (
                   <motion.div

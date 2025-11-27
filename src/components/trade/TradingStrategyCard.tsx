@@ -48,14 +48,20 @@ export default function TradingStrategyCard({ strategy, userTier, onToggle, onUp
   const [showRentalModal, setShowRentalModal] = useState(false)
   const [isProcessingRental, setIsProcessingRental] = useState(false)
   
-  const hasAccess = canAccessFeature(userTier, strategy.requiredTier)
+  // Tier access check - lifetime/god mode = full access
+  const normalizedUserTier = userTier?.toLowerCase() || 'free'
+  const hasAccess = normalizedUserTier === 'lifetime' || normalizedUserTier === 'god' || normalizedUserTier === 'master' 
+    ? true 
+    : canAccessFeature(normalizedUserTier, strategy.requiredTier)
+  
   const { isRented, rentStrategy, getRental } = useStrategyRentals()
   const { getActiveChallenges, claimReward } = useDailyChallenges()
   const { getRecommendations } = usePersonalizedRecommendations()
   
   const isRentedStrategy = isRented(strategy.id)
   const rental = getRental(strategy.id)
-  const isLocked = (strategy.status === 'locked' || !hasAccess) && !isRentedStrategy
+  // Lock is based ONLY on tier access, not hardcoded status
+  const isLocked = !hasAccess && !isRentedStrategy
   
   // Check for personalized recommendation
   const recommendations = getRecommendations([strategy.id])

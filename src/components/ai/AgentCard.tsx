@@ -265,14 +265,22 @@ function AgentCard({
 
 /**
  * Helper to check tier access
+ * Includes all tiers: free, starter, trader, pro, elite, lifetime
  */
-function hasAccess(agentTier: AgentTier, userTier: AgentTier): boolean {
-  const tierHierarchy: AgentTier[] = ['free', 'pro', 'elite', 'lifetime']
-  const agentLevel = tierHierarchy.indexOf(agentTier)
-  const userLevel = tierHierarchy.indexOf(userTier)
+function hasAccess(agentTier: AgentTier, userTier: AgentTier | string): boolean {
+  // Lifetime/God/Master = full access to everything
+  const normalizedUserTier = (userTier as string)?.toLowerCase() || 'free'
+  if (normalizedUserTier === 'lifetime' || normalizedUserTier === 'god' || normalizedUserTier === 'master') {
+    return true
+  }
   
-  // Lifetime has access to everything
-  if (userTier === 'lifetime') return true
+  // Full tier hierarchy
+  const tierHierarchy: string[] = ['free', 'starter', 'trader', 'pro', 'elite', 'lifetime']
+  const agentLevel = tierHierarchy.indexOf(agentTier)
+  const userLevel = tierHierarchy.indexOf(normalizedUserTier)
+  
+  // Handle unknown tiers
+  if (userLevel === -1) return false
   
   return userLevel >= agentLevel
 }

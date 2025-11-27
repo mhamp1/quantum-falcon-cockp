@@ -46,10 +46,16 @@ const StrategyCardPro: React.FC<StrategyCardProProps> = ({
     'trader': 2,
     'pro': 3, 
     'elite': 4, 
-    'lifetime': 5 
+    'lifetime': 5,
+    'god': 5,
+    'master': 5
   };
   
-  const isLocked = requiredTierOrder[strategy.requiredTier] > requiredTierOrder[userTier];
+  // Lifetime/God/Master = full access to everything
+  const normalizedUserTier = userTier?.toLowerCase() || 'free';
+  const isLocked = normalizedUserTier === 'lifetime' || normalizedUserTier === 'god' || normalizedUserTier === 'master'
+    ? false
+    : (requiredTierOrder[strategy.requiredTier] || 0) > (requiredTierOrder[normalizedUserTier] || 0);
   const isActive = strategy.status === 'active';
 
   // Mock live preview data — in production, fetch from /api/strategies/preview/:id
