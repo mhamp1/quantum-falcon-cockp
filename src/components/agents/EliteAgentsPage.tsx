@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { Robot, Play, Info, Crown } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -23,11 +24,8 @@ interface UserAuth {
 }
 
 export default function EliteAgentsPage() {
-  const [auth] = useKV<UserAuth>('user-auth', { 
-    isAuthenticated: false, 
-    userId: null,
-    license: { userId: '', tier: 'free' }
-  })
+  // Use persistent auth for accurate tier detection - master/lifetime users get full access
+  const { auth } = usePersistentAuth()
   
   const userTier = (auth?.license?.tier || 'free') as AgentTier
   

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { UserAuth } from '@/lib/auth'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { StrategyData } from '@/lib/strategiesData'
 import { fetchUserStrategies, filterStrategies, toggleStrategyStatus } from '@/lib/strategiesApi'
 import { Button } from '@/components/ui/button'
@@ -335,14 +336,8 @@ function StrategyCard({ strategy, onActivate, onUpgrade }: StrategyCardProps) {
 }
 
 export default function StrategyVault() {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Use persistent auth for accurate tier detection - master/lifetime users get full access
+  const { auth } = usePersistentAuth()
 
   const [strategies, setStrategies] = useState<StrategyData[]>([])
   const [filteredStrategies, setFilteredStrategies] = useState<StrategyData[]>([])

@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { useKVSafe } from '@/hooks/useKVFallback';
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { useQuery } from '@tanstack/react-query';
 import { useTaxReserve } from '@/lib/tax/TaxReserveEngine';
 import { useProfitOptimizer } from '@/lib/profit/ProfitOptimizer';

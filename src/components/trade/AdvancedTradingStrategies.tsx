@@ -3,6 +3,7 @@
 // FULLY FUNCTIONAL: Real Execution, Persistence, God Mode, Mobile Optimized
 
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -359,14 +360,8 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
 ]
 
 export default function AdvancedTradingStrategies() {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Use persistent auth for accurate tier detection - master/lifetime users get full access
+  const { auth } = usePersistentAuth()
 
   const [activeStrategies, setActiveStrategies] = useKV<ActiveStrategy[]>('active-strategies-v3', [])
   const [strategyParams, setStrategyParams] = useKV<Record<string, Record<string, any>>>('strategy-params-v3', {})

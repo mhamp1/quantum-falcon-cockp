@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { UserAuth } from '@/lib/auth'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Lightning, ChartLine, Target, Brain, Sparkle } from '@phosphor-icons/react'
 import TradingStrategyCard from './TradingStrategyCard'
@@ -253,14 +254,8 @@ const ALL_STRATEGIES: Strategy[] = [
 ]
 
 export default function AdvancedTradingHub() {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Use persistent auth for accurate tier detection - master/lifetime users get full access
+  const { auth } = usePersistentAuth()
 
   const [strategies, setStrategies] = useKV<Strategy[]>('trading-strategies', ALL_STRATEGIES)
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { UserAuth } from '@/lib/auth'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { fetchUserStrategies, getRecommendedStrategies } from '@/lib/strategiesApi'
 import { StrategyData } from '@/lib/strategiesData'
 import { Badge } from '@/components/ui/badge'
@@ -9,14 +10,8 @@ import { Lightning, TrendUp, TrendDown, Crown, Target, Sparkle } from '@phosphor
 import { motion } from 'framer-motion'
 
 export function ActiveStrategiesWidget() {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Use persistent auth for accurate tier detection - master/lifetime users get full access
+  const { auth } = usePersistentAuth()
 
   const [activeStrategies, setActiveStrategies] = useState<StrategyData[]>([])
   const [loading, setLoading] = useState(true)

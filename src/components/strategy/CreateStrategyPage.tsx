@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import confetti from 'canvas-confetti'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -160,15 +161,8 @@ const FEATURED_STRATEGIES = [
 ]
 
 export default function CreateStrategyPage() {
-  // Auth & Permissions
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Auth & Permissions - Use persistent auth for accurate tier detection
+  const { auth } = usePersistentAuth()
   
   const userTier = auth?.license?.tier || 'free'
   const isGodModeActive = isGodMode(auth)

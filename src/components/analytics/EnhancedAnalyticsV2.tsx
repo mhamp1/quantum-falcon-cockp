@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { UserAuth } from '@/lib/auth';
 
 interface Metrics {
@@ -45,14 +46,8 @@ interface EquityCurvePoint {
 }
 
 const EnhancedAnalyticsV2: React.FC = () => {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  });
+  // Use persistent auth for accurate tier detection - master/lifetime users get full access
+  const { auth } = usePersistentAuth();
 
   const [timeFilter, setTimeFilter] = useState('7d');
   const [metrics, setMetrics] = useState<Metrics>({

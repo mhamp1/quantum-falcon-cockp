@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useKVSafe as useKV } from '@/hooks/useKVFallback';
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import {
   Robot,
   Brain,
@@ -110,7 +111,8 @@ const pipelineSteps = [
 import type { UserAuth } from '@/lib/auth'
 
 export default function MultiAgentSystem() {
-  const [auth] = useKV<UserAuth>('user-auth', { license: { tier: 'free' } });
+  // Use persistent auth for accurate tier detection - master/lifetime users get full access
+  const { auth } = usePersistentAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [aggressionProfile, setAggressionProfileKV] = useKV<AggressionBlueprint>(
     'autonomous-aggression-profile',
