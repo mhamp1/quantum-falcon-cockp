@@ -67,6 +67,7 @@ import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { initSentry, setSentryUser } from '@/lib/monitoring/sentry';
+import { useTheme } from '@/hooks/useTheme';
 
 // Robust lazy loading with retry logic
 import { createRobustLazy } from '@/lib/lazyLoad'
@@ -267,6 +268,9 @@ const getOnboardingSeenStatus = (): boolean => {
 
 export default function App() {
   const isMobile = useIsMobile();
+  
+  // Initialize theme system — applies saved theme on mount
+  useTheme();
   
   // Initialize daily learning system
   useDailyLearning();

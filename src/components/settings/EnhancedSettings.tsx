@@ -41,6 +41,7 @@ import { soundEffects } from '@/lib/soundEffects'
 import { createRobustLazy } from '@/lib/lazyLoad'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { applyThemeToDOM, type ThemeSettings, DEFAULT_THEME } from '@/hooks/useTheme'
 
 const AchievementBadges = createRobustLazy(() => import('@/components/shared/AchievementBadges'))
 const ArenaAchievements = createRobustLazy(() => import('@/components/shared/ArenaAchievements'))
@@ -241,32 +242,30 @@ export default function EnhancedSettings() {
     }
   })
 
+  // ═══════════════════════════════════════════════════════════════
+  // THEME SYSTEM — Uses shared applyThemeToDOM for consistency
+  // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
-    if (settings?.theme) {
-      if (settings.theme.darkMode) {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
-      }
-      
-      if (settings.theme.themeStyle) {
-        document.documentElement.classList.remove('cyberpunk', 'matrix-green', 'blood-mode', 'arctic', 'matrix', 'synthwave', 'default')
-        document.documentElement.classList.add(settings.theme.themeStyle)
-        document.documentElement.setAttribute('data-theme', settings.theme.themeStyle)
-      }
-      
-      if (settings.theme.highContrast) {
-        document.documentElement.classList.add('high-contrast')
-      } else {
-        document.documentElement.classList.remove('high-contrast')
-      }
-      
-      if (!settings.theme.animations) {
-        document.documentElement.style.setProperty('--animate-duration', '0s')
-      } else {
-        document.documentElement.style.removeProperty('--animate-duration')
-      }
+    if (!settings?.theme) return
+    
+    // Use the shared theme application function
+    const themeToApply: ThemeSettings = {
+      darkMode: settings.theme.darkMode ?? DEFAULT_THEME.darkMode,
+      colorScheme: settings.theme.colorScheme ?? DEFAULT_THEME.colorScheme,
+      animations: settings.theme.animations ?? DEFAULT_THEME.animations,
+      glassEffect: settings.theme.glassEffect ?? DEFAULT_THEME.glassEffect,
+      neonGlow: settings.theme.neonGlow ?? DEFAULT_THEME.neonGlow,
+      themeStyle: settings.theme.themeStyle ?? DEFAULT_THEME.themeStyle,
+      highContrast: settings.theme.highContrast ?? DEFAULT_THEME.highContrast,
     }
+    
+    applyThemeToDOM(themeToApply)
+    
+    console.log('[Settings] Theme Applied:', themeToApply.themeStyle, 
+      '| Dark:', themeToApply.darkMode, 
+      '| Animations:', themeToApply.animations, 
+      '| Glass:', themeToApply.glassEffect, 
+      '| Neon:', themeToApply.neonGlow)
   }, [settings?.theme])
 
   useEffect(() => {

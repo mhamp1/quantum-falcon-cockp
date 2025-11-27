@@ -1341,6 +1341,97 @@ button:active,
     inset 0 1px 0 oklch(0.72 0.20 195 / 0.2);
 }
 
+/* ═══════════════════════════════════════════════════════════════ */
+/* THEME TOGGLE CLASSES — These make settings actually work */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* ─── NO ANIMATIONS — Disables all motion ─── */
+.no-animations,
+.no-animations * {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+.no-animations [data-framer-component-type],
+.no-animations .framer-motion,
+.no-animations [style*="transform"] {
+  transform: none !important;
+  animation: none !important;
+}
+
+/* ─── GLASS EFFECT — Real backdrop-blur ─── */
+.glass-enabled .cyber-card,
+.glass-enabled .glass-morph-card,
+.glass-enabled [class*="card"] {
+  backdrop-filter: blur(var(--glass-blur, 12px)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px)) !important;
+  background-color: rgba(10, 14, 39, var(--glass-opacity, 0.8)) !important;
+}
+
+:not(.glass-enabled) .cyber-card,
+:not(.glass-enabled) .glass-morph-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: oklch(0.12 0.03 280) !important;
+}
+
+/* ─── NEON GLOW — Real CSS glow effects ─── */
+.neon-enabled .cyber-card {
+  box-shadow: 
+    -3px 0 12px var(--primary),
+    0 0 20px var(--primary),
+    inset 0 1px 0 var(--primary) !important;
+}
+
+.neon-enabled .neon-glow,
+.neon-enabled .neon-glow-primary,
+.neon-enabled h1,
+.neon-enabled h2,
+.neon-enabled h3 {
+  text-shadow: var(--neon-text-shadow, 0 0 5px currentColor, 0 0 10px currentColor) !important;
+}
+
+.neon-enabled button,
+.neon-enabled .btn,
+.neon-enabled [class*="button"] {
+  box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary) !important;
+}
+
+:not(.neon-enabled) .neon-glow,
+:not(.neon-enabled) .neon-glow-primary {
+  text-shadow: none !important;
+}
+
+:not(.neon-enabled) .cyber-card {
+  box-shadow: 
+    -3px 0 8px oklch(0.72 0.20 195 / 0.1),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.05) !important;
+}
+
+/* ─── LIGHT MODE — When dark mode is off ─── */
+:root:not(.dark) {
+  --background: oklch(0.98 0.01 280) !important;
+  --foreground: oklch(0.15 0.02 280) !important;
+  --card: oklch(0.95 0.01 280) !important;
+  --card-foreground: oklch(0.15 0.02 280) !important;
+  --muted: oklch(0.90 0.01 280) !important;
+  --muted-foreground: oklch(0.40 0.02 280) !important;
+}
+
+:root:not(.dark) body {
+  background: oklch(0.98 0.01 280) !important;
+  color: oklch(0.15 0.02 280) !important;
+}
+
+:root:not(.dark) .cyber-card {
+  background: oklch(0.95 0.01 280) !important;
+  border-color: oklch(0.80 0.05 195) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+
 [data-radix-popper-content-wrapper] {
   z-index: 100 !important;
 }
