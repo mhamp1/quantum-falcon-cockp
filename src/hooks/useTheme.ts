@@ -1,190 +1,244 @@
 // ═══════════════════════════════════════════════════════════════
-// THEME HOOK — Reads from 'app-settings' to match EnhancedSettings
-// November 27, 2025 — ALL TOGGLES WORKING
+// THEME SYSTEM v2 — COMPLETELY REBUILT FROM SCRATCH
+// November 27, 2025 — INSTANT THEME CHANGES — NO DELAYS
 // ═══════════════════════════════════════════════════════════════
-import { useKVSafe as useKV } from '@/hooks/useKVFallback';
-import { useEffect, useCallback } from 'react';
 
 export type ThemeStyle = 'cyberpunk' | 'matrix-green' | 'blood-mode' | 'arctic' | 'matrix' | 'synthwave';
 
 export interface ThemeSettings {
-  darkMode: boolean
-  colorScheme: string
-  animations: boolean
-  glassEffect: boolean
-  neonGlow: boolean
-  themeStyle: ThemeStyle
-  highContrast: boolean
+  darkMode: boolean;
+  animations: boolean;
+  glassEffect: boolean;
+  neonGlow: boolean;
+  themeStyle: ThemeStyle;
 }
 
-interface AppSettings {
-  theme: ThemeSettings
-  [key: string]: unknown
-}
+// Storage key for theme settings
+const THEME_STORAGE_KEY = 'qf-theme-settings';
 
+// Default theme
 export const DEFAULT_THEME: ThemeSettings = {
   darkMode: true,
-  colorScheme: 'solana-cyber',
   animations: true,
   glassEffect: true,
   neonGlow: true,
   themeStyle: 'cyberpunk',
-  highContrast: false
 };
 
-const DEFAULT_APP_SETTINGS: AppSettings = {
-  theme: DEFAULT_THEME
+// Theme color definitions
+const THEME_COLORS: Record<ThemeStyle, { primary: string; secondary: string; accent: string; glow: string }> = {
+  'cyberpunk': {
+    primary: '188 100% 50%',      // Cyan
+    secondary: '280 80% 60%',     // Purple
+    accent: '188 100% 50%',       // Cyan
+    glow: '#00d4ff',
+  },
+  'matrix-green': {
+    primary: '120 100% 50%',      // Bright green
+    secondary: '120 80% 40%',     // Dark green
+    accent: '120 100% 60%',       // Light green
+    glow: '#00ff41',
+  },
+  'blood-mode': {
+    primary: '0 100% 50%',        // Red
+    secondary: '0 80% 40%',       // Dark red
+    accent: '0 100% 60%',         // Light red
+    glow: '#ff0000',
+  },
+  'arctic': {
+    primary: '195 100% 50%',      // Ice blue
+    secondary: '195 80% 40%',     // Dark ice
+    accent: '195 100% 70%',       // Light ice
+    glow: '#00d4ff',
+  },
+  'matrix': {
+    primary: '120 100% 40%',      // Matrix green
+    secondary: '120 60% 25%',     // Dark matrix
+    accent: '120 80% 50%',        // Bright matrix
+    glow: '#00ff00',
+  },
+  'synthwave': {
+    primary: '300 100% 50%',      // Magenta
+    secondary: '270 80% 50%',     // Purple
+    accent: '330 100% 60%',       // Pink
+    glow: '#ff00ff',
+  },
 };
 
 /**
- * Apply theme to DOM immediately
- * This function is called from both useTheme and EnhancedSettings
+ * Get current theme from localStorage
  */
-export function applyThemeToDOM(theme: ThemeSettings): void {
-  const root = document.documentElement;
-  
-  // ─── DARK MODE ───
-  if (theme.darkMode) {
-    root.classList.add('dark');
-    root.style.setProperty('--background', 'oklch(0.08 0.02 280)');
-    root.style.setProperty('--foreground', 'oklch(0.85 0.12 195)');
-  } else {
-    root.classList.remove('dark');
-    root.style.setProperty('--background', 'oklch(0.98 0.01 280)');
-    root.style.setProperty('--foreground', 'oklch(0.15 0.02 280)');
-  }
-  
-  // ─── THEME STYLE ───
-  const allThemes = ['cyberpunk', 'matrix-green', 'blood-mode', 'arctic', 'matrix', 'synthwave', 'default'];
-  allThemes.forEach(t => root.classList.remove(t));
-  
-  if (theme.themeStyle) {
-    root.classList.add(theme.themeStyle);
-    root.setAttribute('data-theme', theme.themeStyle);
-    
-    // Apply CSS variables per theme
-    switch (theme.themeStyle) {
-      case 'cyberpunk':
-        root.style.setProperty('--primary', 'oklch(0.72 0.20 195)');
-        root.style.setProperty('--secondary', 'oklch(0.68 0.18 330)');
-        root.style.setProperty('--accent', 'oklch(0.72 0.20 195)');
-        break;
-      case 'matrix-green':
-        root.style.setProperty('--primary', 'oklch(0.75 0.30 140)');
-        root.style.setProperty('--secondary', 'oklch(0.60 0.25 140)');
-        root.style.setProperty('--accent', 'oklch(0.80 0.35 140)');
-        break;
-      case 'blood-mode':
-        root.style.setProperty('--primary', 'oklch(0.55 0.30 25)');
-        root.style.setProperty('--secondary', 'oklch(0.45 0.25 25)');
-        root.style.setProperty('--accent', 'oklch(0.60 0.35 25)');
-        break;
-      case 'arctic':
-        root.style.setProperty('--primary', 'oklch(0.75 0.15 200)');
-        root.style.setProperty('--secondary', 'oklch(0.65 0.12 200)');
-        root.style.setProperty('--accent', 'oklch(0.80 0.18 200)');
-        break;
-      case 'matrix':
-        root.style.setProperty('--primary', 'oklch(0.70 0.20 140)');
-        root.style.setProperty('--secondary', 'oklch(0.60 0.18 140)');
-        root.style.setProperty('--accent', 'oklch(0.75 0.22 150)');
-        break;
-      case 'synthwave':
-        root.style.setProperty('--primary', 'oklch(0.75 0.25 310)');
-        root.style.setProperty('--secondary', 'oklch(0.70 0.25 285)');
-        root.style.setProperty('--accent', 'oklch(0.65 0.28 250)');
-        break;
+export function getStoredTheme(): ThemeSettings {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored) {
+      return { ...DEFAULT_THEME, ...JSON.parse(stored) };
     }
+  } catch (e) {
+    console.warn('[Theme] Failed to parse stored theme:', e);
   }
-  
-  // ─── ANIMATIONS ───
-  if (theme.animations === false) {
-    root.style.setProperty('--animate-duration', '0s');
-    root.classList.add('no-animations');
-  } else {
-    root.style.removeProperty('--animate-duration');
-    root.classList.remove('no-animations');
-  }
-  
-  // ─── GLASS EFFECT ───
-  if (theme.glassEffect) {
-    root.classList.add('glass-enabled');
-    root.style.setProperty('--glass-blur', '12px');
-  } else {
-    root.classList.remove('glass-enabled');
-    root.style.setProperty('--glass-blur', '0px');
-  }
-  
-  // ─── NEON GLOW ───
-  if (theme.neonGlow) {
-    root.classList.add('neon-enabled');
-  } else {
-    root.classList.remove('neon-enabled');
-  }
-  
-  // ─── HIGH CONTRAST ───
-  if (theme.highContrast) {
-    root.classList.add('high-contrast');
-  } else {
-    root.classList.remove('high-contrast');
+  return DEFAULT_THEME;
+}
+
+/**
+ * Save theme to localStorage
+ */
+export function saveTheme(theme: ThemeSettings): void {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(theme));
+  } catch (e) {
+    console.warn('[Theme] Failed to save theme:', e);
   }
 }
 
 /**
- * Hook for managing theme settings
- * Reads from 'app-settings' -> 'theme' to sync with EnhancedSettings
+ * APPLY THEME TO DOM — THE CORE FUNCTION
+ * This directly manipulates the DOM for INSTANT changes
  */
-export function useTheme() {
-  const [appSettings, setAppSettings] = useKV<AppSettings>('app-settings', DEFAULT_APP_SETTINGS);
+export function applyTheme(theme: ThemeSettings): void {
+  const root = document.documentElement;
+  const colors = THEME_COLORS[theme.themeStyle] || THEME_COLORS['cyberpunk'];
   
-  const themeSettings = appSettings?.theme || DEFAULT_THEME;
+  console.log('[Theme] Applying:', theme.themeStyle, '| Dark:', theme.darkMode, '| Glow:', theme.neonGlow);
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 1. THEME STYLE — Apply color scheme
+  // ═══════════════════════════════════════════════════════════════
+  
+  // Remove all theme classes
+  root.classList.remove('cyberpunk', 'matrix-green', 'blood-mode', 'arctic', 'matrix', 'synthwave');
+  
+  // Add current theme class
+  root.classList.add(theme.themeStyle);
+  root.setAttribute('data-theme', theme.themeStyle);
+  
+  // Apply CSS custom properties for colors (HSL format for Tailwind)
+  root.style.setProperty('--primary', colors.primary);
+  root.style.setProperty('--secondary', colors.secondary);
+  root.style.setProperty('--accent', colors.accent);
+  root.style.setProperty('--theme-glow', colors.glow);
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 2. DARK MODE — Background colors
+  // ═══════════════════════════════════════════════════════════════
+  if (theme.darkMode) {
+    root.classList.add('dark');
+    root.style.setProperty('--background', '220 20% 6%');
+    root.style.setProperty('--foreground', '188 80% 80%');
+    root.style.setProperty('--card', '220 25% 10%');
+    root.style.setProperty('--card-foreground', '188 80% 80%');
+    document.body.style.backgroundColor = 'hsl(220, 20%, 6%)';
+    document.body.style.color = 'hsl(188, 80%, 80%)';
+  } else {
+    root.classList.remove('dark');
+    root.style.setProperty('--background', '0 0% 98%');
+    root.style.setProperty('--foreground', '220 20% 10%');
+    root.style.setProperty('--card', '0 0% 100%');
+    root.style.setProperty('--card-foreground', '220 20% 10%');
+    document.body.style.backgroundColor = 'hsl(0, 0%, 98%)';
+    document.body.style.color = 'hsl(220, 20%, 10%)';
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 3. ANIMATIONS — Enable/disable all motion
+  // ═══════════════════════════════════════════════════════════════
+  if (theme.animations) {
+    root.classList.remove('no-motion');
+    root.style.removeProperty('--motion-duration');
+  } else {
+    root.classList.add('no-motion');
+    root.style.setProperty('--motion-duration', '0s');
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 4. GLASS EFFECT — Backdrop blur
+  // ═══════════════════════════════════════════════════════════════
+  if (theme.glassEffect) {
+    root.classList.add('glass-on');
+    root.classList.remove('glass-off');
+  } else {
+    root.classList.remove('glass-on');
+    root.classList.add('glass-off');
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 5. NEON GLOW — CSS glow effects
+  // ═══════════════════════════════════════════════════════════════
+  if (theme.neonGlow) {
+    root.classList.add('neon-on');
+    root.classList.remove('neon-off');
+    root.style.setProperty('--glow-color', colors.glow);
+    root.style.setProperty('--glow-intensity', '1');
+  } else {
+    root.classList.remove('neon-on');
+    root.classList.add('neon-off');
+    root.style.setProperty('--glow-intensity', '0');
+  }
+  
+  // Force repaint to ensure changes are visible
+  void root.offsetHeight;
+}
 
-  // Apply theme whenever it changes
-  useEffect(() => {
-    applyThemeToDOM(themeSettings);
-    console.log('[useTheme] Applied:', themeSettings.themeStyle, '| Dark:', themeSettings.darkMode);
-  }, [themeSettings]);
+/**
+ * Update a single theme property
+ */
+export function updateThemeSetting<K extends keyof ThemeSettings>(
+  key: K, 
+  value: ThemeSettings[K]
+): ThemeSettings {
+  const current = getStoredTheme();
+  const updated = { ...current, [key]: value };
+  saveTheme(updated);
+  applyTheme(updated);
+  return updated;
+}
 
-  // Also apply on mount (for page refresh)
+/**
+ * Initialize theme on app load
+ */
+export function initializeTheme(): void {
+  const theme = getStoredTheme();
+  applyTheme(theme);
+  console.log('[Theme] Initialized:', theme.themeStyle);
+}
+
+/**
+ * React hook for theme management
+ */
+import { useState, useEffect, useCallback } from 'react';
+
+export function useTheme() {
+  const [theme, setThemeState] = useState<ThemeSettings>(getStoredTheme);
+  
+  // Apply theme on mount
   useEffect(() => {
-    // Apply immediately on mount
-    const stored = localStorage.getItem('spark_kv_app-settings');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed?.theme) {
-          applyThemeToDOM(parsed.theme);
-        }
-      } catch {
-        applyThemeToDOM(DEFAULT_THEME);
-      }
-    } else {
-      applyThemeToDOM(DEFAULT_THEME);
-    }
+    applyTheme(theme);
   }, []);
-
-  const updateTheme = useCallback((updates: Partial<ThemeSettings>) => {
-    setAppSettings((current) => {
-      const base = current || DEFAULT_APP_SETTINGS;
-      const newTheme = { ...(base.theme || DEFAULT_THEME), ...updates };
-      applyThemeToDOM(newTheme); // Apply immediately
-      return { ...base, theme: newTheme };
+  
+  // Update handler
+  const setTheme = useCallback((updates: Partial<ThemeSettings>) => {
+    setThemeState(current => {
+      const updated = { ...current, ...updates };
+      saveTheme(updated);
+      applyTheme(updated);
+      return updated;
     });
-  }, [setAppSettings]);
-
-  const setThemeSettings = useCallback((newTheme: ThemeSettings | ((prev: ThemeSettings) => ThemeSettings)) => {
-    setAppSettings((current) => {
-      const base = current || DEFAULT_APP_SETTINGS;
-      const resolved = typeof newTheme === 'function' ? newTheme(base.theme || DEFAULT_THEME) : newTheme;
-      applyThemeToDOM(resolved);
-      return { ...base, theme: resolved };
-    });
-  }, [setAppSettings]);
-
-  return { 
-    themeSettings, 
-    setThemeSettings, 
-    updateTheme,
-    applyThemeToDOM 
+  }, []);
+  
+  // Individual setters for convenience
+  const setDarkMode = useCallback((value: boolean) => setTheme({ darkMode: value }), [setTheme]);
+  const setAnimations = useCallback((value: boolean) => setTheme({ animations: value }), [setTheme]);
+  const setGlassEffect = useCallback((value: boolean) => setTheme({ glassEffect: value }), [setTheme]);
+  const setNeonGlow = useCallback((value: boolean) => setTheme({ neonGlow: value }), [setTheme]);
+  const setThemeStyle = useCallback((value: ThemeStyle) => setTheme({ themeStyle: value }), [setTheme]);
+  
+  return {
+    theme,
+    setTheme,
+    setDarkMode,
+    setAnimations,
+    setGlassEffect,
+    setNeonGlow,
+    setThemeStyle,
   };
 }

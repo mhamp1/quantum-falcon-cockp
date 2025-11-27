@@ -41,7 +41,7 @@ import { soundEffects } from '@/lib/soundEffects'
 import { createRobustLazy } from '@/lib/lazyLoad'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { applyThemeToDOM, type ThemeSettings, DEFAULT_THEME } from '@/hooks/useTheme'
+import { applyTheme, type ThemeSettings, type ThemeStyle, DEFAULT_THEME, saveTheme, getStoredTheme } from '@/hooks/useTheme'
 
 const AchievementBadges = createRobustLazy(() => import('@/components/shared/AchievementBadges'))
 const ArenaAchievements = createRobustLazy(() => import('@/components/shared/ArenaAchievements'))
@@ -243,30 +243,32 @@ export default function EnhancedSettings() {
   })
 
   // ═══════════════════════════════════════════════════════════════
-  // THEME SYSTEM — Uses shared applyThemeToDOM for consistency
+  // THEME SYSTEM v2 — INSTANT CHANGES — NO DELAYS
   // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
     if (!settings?.theme) return
     
-    // Use the shared theme application function
+    // Build theme object from settings
     const themeToApply: ThemeSettings = {
-      darkMode: settings.theme.darkMode ?? DEFAULT_THEME.darkMode,
-      colorScheme: settings.theme.colorScheme ?? DEFAULT_THEME.colorScheme,
-      animations: settings.theme.animations ?? DEFAULT_THEME.animations,
-      glassEffect: settings.theme.glassEffect ?? DEFAULT_THEME.glassEffect,
-      neonGlow: settings.theme.neonGlow ?? DEFAULT_THEME.neonGlow,
-      themeStyle: settings.theme.themeStyle ?? DEFAULT_THEME.themeStyle,
-      highContrast: settings.theme.highContrast ?? DEFAULT_THEME.highContrast,
+      darkMode: settings.theme.darkMode ?? true,
+      animations: settings.theme.animations ?? true,
+      glassEffect: settings.theme.glassEffect ?? true,
+      neonGlow: settings.theme.neonGlow ?? true,
+      themeStyle: (settings.theme.themeStyle as ThemeStyle) ?? 'cyberpunk',
     }
     
-    applyThemeToDOM(themeToApply)
+    // Apply immediately + save
+    applyTheme(themeToApply)
+    saveTheme(themeToApply)
     
-    console.log('[Settings] Theme Applied:', themeToApply.themeStyle, 
-      '| Dark:', themeToApply.darkMode, 
-      '| Animations:', themeToApply.animations, 
-      '| Glass:', themeToApply.glassEffect, 
-      '| Neon:', themeToApply.neonGlow)
-  }, [settings?.theme])
+    console.log('[Settings] Theme Applied:', themeToApply)
+  }, [
+    settings?.theme?.darkMode,
+    settings?.theme?.animations,
+    settings?.theme?.glassEffect,
+    settings?.theme?.neonGlow,
+    settings?.theme?.themeStyle
+  ])
 
   useEffect(() => {
     if (settings?.audio) {

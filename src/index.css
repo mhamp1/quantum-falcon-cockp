@@ -1342,92 +1342,137 @@ button:active,
 }
 
 /* ═══════════════════════════════════════════════════════════════ */
-/* THEME TOGGLE CLASSES — These make settings actually work */
+/* THEME TOGGLE SYSTEM v2 — REBUILT FROM SCRATCH Nov 27, 2025     */
 /* ═══════════════════════════════════════════════════════════════ */
 
-/* ─── NO ANIMATIONS — Disables all motion ─── */
-.no-animations,
-.no-animations * {
-  animation-duration: 0s !important;
-  animation-delay: 0s !important;
-  transition-duration: 0s !important;
-  transition-delay: 0s !important;
+/* ══════════════════════════════════════════════════════════════ */
+/* 1. NO MOTION — Disable all animations when .no-motion is set   */
+/* ══════════════════════════════════════════════════════════════ */
+.no-motion,
+.no-motion *,
+.no-motion *::before,
+.no-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
 }
 
-.no-animations [data-framer-component-type],
-.no-animations .framer-motion,
-.no-animations [style*="transform"] {
-  transform: none !important;
-  animation: none !important;
+/* ══════════════════════════════════════════════════════════════ */
+/* 2. GLASS EFFECT — Backdrop blur on/off                         */
+/* ══════════════════════════════════════════════════════════════ */
+.glass-on .cyber-card,
+.glass-on .glass-morph-card {
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  background-color: rgba(10, 14, 39, 0.75) !important;
 }
 
-/* ─── GLASS EFFECT — Real backdrop-blur ─── */
-.glass-enabled .cyber-card,
-.glass-enabled .glass-morph-card,
-.glass-enabled [class*="card"] {
-  backdrop-filter: blur(var(--glass-blur, 12px)) !important;
-  -webkit-backdrop-filter: blur(var(--glass-blur, 12px)) !important;
-  background-color: rgba(10, 14, 39, var(--glass-opacity, 0.8)) !important;
+.glass-off .cyber-card,
+.glass-off .glass-morph-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-color: hsl(220, 25%, 10%) !important;
 }
 
-:not(.glass-enabled) .cyber-card,
-:not(.glass-enabled) .glass-morph-card {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background-color: oklch(0.12 0.03 280) !important;
-}
-
-/* ─── NEON GLOW — Real CSS glow effects ─── */
-.neon-enabled .cyber-card {
+/* ══════════════════════════════════════════════════════════════ */
+/* 3. NEON GLOW — Glow effects on/off                             */
+/* ══════════════════════════════════════════════════════════════ */
+.neon-on .cyber-card {
   box-shadow: 
-    -3px 0 12px var(--primary),
-    0 0 20px var(--primary),
-    inset 0 1px 0 var(--primary) !important;
+    -3px 0 15px var(--theme-glow, #00d4ff),
+    0 0 25px var(--theme-glow, #00d4ff),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  border-color: var(--theme-glow, #00d4ff) !important;
 }
 
-.neon-enabled .neon-glow,
-.neon-enabled .neon-glow-primary,
-.neon-enabled h1,
-.neon-enabled h2,
-.neon-enabled h3 {
-  text-shadow: var(--neon-text-shadow, 0 0 5px currentColor, 0 0 10px currentColor) !important;
+.neon-on h1,
+.neon-on h2,
+.neon-on h3,
+.neon-on .neon-glow,
+.neon-on .neon-glow-primary {
+  text-shadow: 
+    0 0 5px var(--theme-glow, #00d4ff),
+    0 0 10px var(--theme-glow, #00d4ff),
+    0 0 20px var(--theme-glow, #00d4ff) !important;
 }
 
-.neon-enabled button,
-.neon-enabled .btn,
-.neon-enabled [class*="button"] {
-  box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary) !important;
+.neon-off .cyber-card {
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
-:not(.neon-enabled) .neon-glow,
-:not(.neon-enabled) .neon-glow-primary {
+.neon-off h1,
+.neon-off h2,
+.neon-off h3,
+.neon-off .neon-glow,
+.neon-off .neon-glow-primary {
   text-shadow: none !important;
 }
 
-:not(.neon-enabled) .cyber-card {
-  box-shadow: 
-    -3px 0 8px oklch(0.72 0.20 195 / 0.1),
-    inset 0 1px 0 oklch(0.72 0.20 195 / 0.05) !important;
+/* ══════════════════════════════════════════════════════════════ */
+/* 4. LIGHT MODE — Background/text colors when dark mode is OFF   */
+/* ══════════════════════════════════════════════════════════════ */
+html:not(.dark) {
+  --background: 0 0% 98%;
+  --foreground: 220 20% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 20% 10%;
+  --muted: 220 10% 90%;
+  --muted-foreground: 220 10% 40%;
 }
 
-/* ─── LIGHT MODE — When dark mode is off ─── */
-:root:not(.dark) {
-  --background: oklch(0.98 0.01 280) !important;
-  --foreground: oklch(0.15 0.02 280) !important;
-  --card: oklch(0.95 0.01 280) !important;
-  --card-foreground: oklch(0.15 0.02 280) !important;
-  --muted: oklch(0.90 0.01 280) !important;
-  --muted-foreground: oklch(0.40 0.02 280) !important;
+html:not(.dark) body {
+  background-color: hsl(0, 0%, 98%) !important;
+  color: hsl(220, 20%, 10%) !important;
 }
 
-:root:not(.dark) body {
-  background: oklch(0.98 0.01 280) !important;
-  color: oklch(0.15 0.02 280) !important;
+html:not(.dark) .cyber-card {
+  background-color: hsl(0, 0%, 100%) !important;
+  border-color: hsl(220, 20%, 80%) !important;
 }
 
-:root:not(.dark) .cyber-card {
-  background: oklch(0.95 0.01 280) !important;
-  border-color: oklch(0.80 0.05 195) !important;
+/* ══════════════════════════════════════════════════════════════ */
+/* 5. THEME COLORS — Each theme has unique glow color             */
+/* ══════════════════════════════════════════════════════════════ */
+.cyberpunk { --theme-glow: #00d4ff; }
+.matrix-green { --theme-glow: #00ff41; }
+.blood-mode { --theme-glow: #ff0000; }
+.arctic { --theme-glow: #00d4ff; }
+.matrix { --theme-glow: #00ff00; }
+.synthwave { --theme-glow: #ff00ff; }
+
+/* Matrix-green special styling */
+.matrix-green .cyber-card {
+  border-left-color: #00ff41 !important;
+}
+.matrix-green h1, .matrix-green h2, .matrix-green h3 {
+  color: #00ff41 !important;
+}
+
+/* Blood-mode special styling */
+.blood-mode .cyber-card {
+  border-left-color: #ff0000 !important;
+}
+.blood-mode h1, .blood-mode h2, .blood-mode h3 {
+  color: #ff4444 !important;
+}
+
+/* Synthwave special styling */
+.synthwave .cyber-card {
+  border-left-color: #ff00ff !important;
+}
+.synthwave h1, .synthwave h2, .synthwave h3 {
+  color: #ff88ff !important;
+}
+
+/* Arctic special styling */
+.arctic .cyber-card {
+  border-left-color: #66e5ff !important;
+}
+.arctic h1, .arctic h2, .arctic h3 {
+  color: #00d4ff !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════ */

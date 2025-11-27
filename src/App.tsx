@@ -67,7 +67,7 @@ import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { initSentry, setSentryUser } from '@/lib/monitoring/sentry';
-import { useTheme } from '@/hooks/useTheme';
+import { initializeTheme } from '@/hooks/useTheme';
 
 // Robust lazy loading with retry logic
 import { createRobustLazy } from '@/lib/lazyLoad'
@@ -270,7 +270,9 @@ export default function App() {
   const isMobile = useIsMobile();
   
   // Initialize theme system — applies saved theme on mount
-  useTheme();
+  useEffect(() => {
+    initializeTheme();
+  }, []);
   
   // Initialize daily learning system
   useDailyLearning();
@@ -354,25 +356,11 @@ export default function App() {
       if (!godModeToastShown.current) {
         godModeToastShown.current = true;
         
-        // Show Master Access celebration toast
-        toast.success('👑 WELCOME BACK 👑', {
-          description: 'Master Access Active • All Features Unlocked • All Agents • All Strategies',
-          duration: 8000,
-          style: {
-            background: 'linear-gradient(135deg, #ff00ff, #00ffff, #ffff00)',
-            color: 'white',
-            border: '3px solid gold',
-            boxShadow: '0 0 60px rgba(255, 215, 0, 0.9)',
-            fontWeight: 'bold',
-          },
-        });
-
-        // Confetti celebration for the Creator - Further reduced (was 125, now 10)
-        confetti({
-          particleCount: 10,
-          spread: 30,
-          origin: { y: 0.3 },
-          colors: ['#ff00ff', '#00ffff', '#ffff00'],
+        // Show Master Access toast - short and dismissible
+        toast.success('Master Access Active', {
+          description: 'All Features Unlocked',
+          duration: 3000,
+          dismissible: true,
         });
       }
     } else {
