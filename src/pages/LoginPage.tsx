@@ -430,9 +430,47 @@ export default function LoginPage() {
             <div className="absolute inset-0 diagonal-stripes opacity-5" />
             <div className="relative z-10 space-y-4">
               
-              {/* LOGIN STEP */}
+              {/* LOGIN STEP — Press Enter to submit */}
               {step === 'login' && (
                 <>
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault()
+                      if (!username.trim()) {
+                        toast.error('Username required')
+                        return
+                      }
+                      if (!password.trim()) {
+                        toast.error('Password required')
+                        return
+                      }
+                      if (!licenseKey.trim()) {
+                        toast.error('License key required')
+                        return
+                      }
+                      
+                      setIsSubmitting(true)
+                      
+                      // Direct login with all credentials
+                      const result = await login(
+                        username.trim(),
+                        password,
+                        licenseKey.trim(),
+                        email || `${username.trim().toLowerCase()}@quantumfalcon.com`
+                      )
+                      
+                      setIsSubmitting(false)
+                      
+                      if (result.success) {
+                        try {
+                          window.localStorage.setItem('justLoggedIn', 'true')
+                        } catch {
+                          // Silent fail
+                        }
+                      }
+                    }}
+                    className="space-y-4"
+                  >
                   {/* Username */}
                   <div>
                     <Label className="text-xs uppercase tracking-wider font-bold mb-2 flex items-center gap-2">
@@ -446,6 +484,7 @@ export default function LoginPage() {
                       onChange={(e) => setUsername(e.target.value)}
                       className="w-full px-6 py-4 bg-background/60 border-2 border-primary/50 rounded-lg"
                       disabled={isSubmitting}
+                      autoComplete="username"
                     />
                   </div>
                   
@@ -463,6 +502,7 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full px-6 py-4 pr-12 bg-background/60 border-2 border-primary/50 rounded-lg"
                         disabled={isSubmitting}
+                        autoComplete="current-password"
                       />
                       <button
                         type="button"
@@ -499,42 +539,9 @@ export default function LoginPage() {
                     </div>
                   </div>
                   
-                  {/* Login Button */}
+                  {/* Login Button — type="submit" allows Enter key */}
                   <Button
-                    onClick={async () => {
-                      if (!username.trim()) {
-                        toast.error('Username required')
-                        return
-                      }
-                      if (!password.trim()) {
-                        toast.error('Password required')
-                        return
-                      }
-                      if (!licenseKey.trim()) {
-                        toast.error('License key required')
-                        return
-                      }
-                      
-                      setIsSubmitting(true)
-                      
-                      // Direct login with all credentials
-                      const result = await login(
-                        username.trim(),
-                        password,
-                        licenseKey.trim(),
-                        email || `${username.trim().toLowerCase()}@quantumfalcon.com`
-                      )
-                      
-                      setIsSubmitting(false)
-                      
-                      if (result.success) {
-                        try {
-                          window.localStorage.setItem('justLoggedIn', 'true')
-                        } catch (e) {
-                          // Silent fail
-                        }
-                      }
-                    }}
+                    type="submit"
                     disabled={isSubmitting || !username.trim() || !password.trim() || !licenseKey.trim()}
                     className="w-full h-14 text-sm sm:text-base md:text-lg font-black uppercase tracking-wider
                              bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500
@@ -556,26 +563,27 @@ export default function LoginPage() {
                       </>
                     )}
                   </Button>
+                </form>
                   
-                  {/* Divider */}
-                  <div className="flex items-center gap-4 py-2">
-                    <div className="flex-1 h-px bg-border" />
-                    <span className="text-xs text-muted-foreground uppercase">or</span>
-                    <div className="flex-1 h-px bg-border" />
-                  </div>
-                  
-                  {/* Create Account Button - Require email */}
-                  <Button
-                    onClick={() => setStep('register')}
-                    disabled={isSubmitting}
-                    variant="ghost"
-                    className="w-full h-12 text-sm font-bold uppercase tracking-wider
-                             border-2 border-cyan-500/30 hover:border-cyan-500/50 hover:bg-cyan-500/10"
-                  >
-                    <User size={16} className="mr-2" />
-                    Create Free Account
-                  </Button>
-                </>
+                {/* Divider */}
+                <div className="flex items-center gap-4 py-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-xs text-muted-foreground uppercase">or</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                
+                {/* Create Account Button - Require email */}
+                <Button
+                  onClick={() => setStep('register')}
+                  disabled={isSubmitting}
+                  variant="ghost"
+                  className="w-full h-12 text-sm font-bold uppercase tracking-wider
+                           border-2 border-cyan-500/30 hover:border-cyan-500/50 hover:bg-cyan-500/10"
+                >
+                  <User size={16} className="mr-2" />
+                  Create Free Account
+                </Button>
+              </>
               )}
               
               {/* REGISTER STEP */}
