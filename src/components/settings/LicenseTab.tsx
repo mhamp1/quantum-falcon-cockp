@@ -137,6 +137,10 @@ export default function LicenseTab() {
     switch (tier.toLowerCase()) {
       case 'free':
         return 'bg-muted/30 border-muted text-muted-foreground'
+      case 'starter':
+        return 'bg-green-500/20 border-green-500 text-green-400'
+      case 'trader':
+        return 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
       case 'pro':
         return 'bg-blue-500/20 border-blue-500 text-blue-400'
       case 'elite':
@@ -362,12 +366,15 @@ export default function LicenseTab() {
           <div className="relative z-10">
             <h3 className="text-xl font-bold uppercase tracking-wide text-primary mb-6">Available Plans</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               {tiers.map((tier) => (
                 <motion.div
                   key={tier.tier}
                   whileHover={{ scale: 1.02, y: -4 }}
-                  className={`cyber-card p-5 border-2 ${
+                  className={`cyber-card p-4 border-2 ${
+                    tier.tier === 'starter' ? 'border-green-500/50' :
+                    tier.tier === 'trader' ? 'border-cyan-500/50' :
+                    tier.tier === 'pro' ? 'border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.2)]' :
                     tier.tier === 'elite' ? 'border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.3)]' :
                     tier.tier === 'lifetime' ? 'border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.3)]' :
                     'border-primary/30'
@@ -375,38 +382,48 @@ export default function LicenseTab() {
                 >
                   <div className="absolute inset-0 diagonal-stripes opacity-5" />
                   <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-bold text-lg uppercase tracking-wide">{tier.name}</h4>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-sm uppercase tracking-wide">{tier.name}</h4>
+                      {tier.tier === 'starter' && (
+                        <Badge className="bg-green-500/20 border-green-500 text-green-400 text-[8px] px-1">
+                          NEW
+                        </Badge>
+                      )}
+                      {tier.tier === 'trader' && (
+                        <Badge className="bg-cyan-500/20 border-cyan-500 text-cyan-400 text-[8px] px-1">
+                          POPULAR
+                        </Badge>
+                      )}
                       {tier.tier === 'elite' && (
-                        <Badge className="bg-purple-500/20 border-purple-500 text-purple-400 text-[9px]">
-                          <Sparkle size={10} weight="fill" className="mr-1" />
+                        <Badge className="bg-purple-500/20 border-purple-500 text-purple-400 text-[8px] px-1">
+                          <Sparkle size={8} weight="fill" className="mr-0.5" />
                           POPULAR
                         </Badge>
                       )}
                       {tier.tier === 'lifetime' && (
-                        <Badge className="bg-yellow-500/20 border-yellow-500 text-yellow-400 text-[9px]">
-                          <Crown size={10} weight="fill" className="mr-1" />
-                          BEST VALUE
+                        <Badge className="bg-yellow-500/20 border-yellow-500 text-yellow-400 text-[8px] px-1">
+                          <Crown size={8} weight="fill" className="mr-0.5" />
+                          BEST
                         </Badge>
                       )}
                     </div>
                     
-                    <p className="text-3xl font-black mb-2">
+                    <p className="text-2xl font-black mb-1">
                       {typeof tier.price === 'number' ? `$${tier.price}` : tier.price}
-                      {typeof tier.price === 'number' && tier.tier !== 'lifetime' && (
-                        <span className="text-sm font-normal text-muted-foreground">/mo</span>
+                      {typeof tier.price === 'number' && tier.tier !== 'lifetime' && tier.price > 0 && (
+                        <span className="text-[10px] font-normal text-muted-foreground">/mo</span>
                       )}
                     </p>
                     
-                    <p className="text-xs text-muted-foreground mb-4 min-h-[40px]">
+                    <p className="text-[10px] text-muted-foreground mb-3 min-h-[28px]">
                       {tier.description}
                     </p>
                     
-                    <ul className="space-y-2 mb-4 text-xs min-h-[120px]">
-                      {tier.features.slice(0, 4).map((feature, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <CheckCircle size={14} weight="fill" className="text-green-400 flex-shrink-0 mt-0.5" />
-                          <span className="text-foreground">{feature}</span>
+                    <ul className="space-y-1.5 mb-3 text-[10px] min-h-[80px]">
+                      {tier.features.slice(0, 3).map((feature, index) => (
+                        <li key={index} className="flex items-start gap-1.5">
+                          <CheckCircle size={12} weight="fill" className="text-green-400 flex-shrink-0 mt-0.5" />
+                          <span className="text-foreground leading-tight">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -414,17 +431,30 @@ export default function LicenseTab() {
                     {tier.tier !== 'free' && (
                       <Button
                         onClick={() => handleUpgrade(tier.tier)}
-                        className={`w-full ${
-                          tier.tier === 'elite' 
+                        size="sm"
+                        className={`w-full h-8 ${
+                          tier.tier === 'starter'
+                            ? 'bg-green-500/20 hover:bg-green-500/30 border-green-500 text-green-400'
+                            : tier.tier === 'trader'
+                            ? 'bg-cyan-500/20 hover:bg-cyan-500/30 border-cyan-500 text-cyan-400'
+                            : tier.tier === 'pro'
+                            ? 'bg-blue-500/20 hover:bg-blue-500/30 border-blue-500 text-blue-400'
+                            : tier.tier === 'elite' 
                             ? 'bg-purple-500/20 hover:bg-purple-500/30 border-purple-500 text-purple-400'
                             : tier.tier === 'lifetime'
                             ? 'bg-yellow-500/20 hover:bg-yellow-500/30 border-yellow-500 text-yellow-400'
                             : 'bg-primary/20 hover:bg-primary/30 border-primary text-primary'
-                        } border-2 uppercase tracking-wider font-bold text-xs`}
+                        } border uppercase tracking-wider font-bold text-[10px]`}
                       >
                         {licenseData?.tier === tier.tier ? 'Renew' : 'Upgrade'}
-                        <ArrowRight size={14} weight="bold" className="ml-2" />
+                        <ArrowRight size={12} weight="bold" className="ml-1" />
                       </Button>
+                    )}
+                    
+                    {tier.tier === 'free' && licenseData?.tier === 'free' && (
+                      <div className="w-full h-8 flex items-center justify-center text-[10px] text-muted-foreground uppercase tracking-wider">
+                        Current Plan
+                      </div>
                     )}
                   </div>
                 </motion.div>

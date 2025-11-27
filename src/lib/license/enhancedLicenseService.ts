@@ -461,7 +461,7 @@ export class EnhancedLicenseService {
   }
 
   /**
-   * Get default tiers (fallback)
+   * Get default tiers (fallback) — ALL 6 TIERS
    */
   private getDefaultTiers(): TierInfo[] {
     return [
@@ -469,37 +469,57 @@ export class EnhancedLicenseService {
         tier: 'free',
         name: 'Free',
         price: 0,
-        features: ['Basic Dashboard', '1 AI Agent', 'DCA Basic Strategy'],
+        features: ['Paper Trading with Live Data', 'Basic Dashboard', '1 AI Agent (Market Analysis)', 'Limited Analytics', 'Community Access'],
         max_agents: 1,
-        max_strategies: 1,
-        strategies: ['dca_basic'],
+        max_strategies: 2,
+        strategies: ['dca_basic', 'paper_trading'],
         description: 'Perfect for getting started'
       },
       {
+        tier: 'starter',
+        name: 'Starter',
+        price: 29,
+        features: ['Everything in Free', 'Live Trading Enabled', '1 AI Agent', 'Basic Analytics Dashboard', 'RSI Strategy', 'Email Support'],
+        max_agents: 1,
+        max_strategies: 4,
+        strategies: ['dca_basic', 'dca_advanced', 'rsi_strategy', 'paper_trading'],
+        description: 'Start live trading'
+      },
+      {
+        tier: 'trader',
+        name: 'Trader',
+        price: 79,
+        features: ['Everything in Starter', '2 AI Agents (Market + Strategy)', 'Enhanced Analytics', 'MACD & Momentum Strategies', 'Priority Support', '2x XP Multiplier'],
+        max_agents: 2,
+        max_strategies: 6,
+        strategies: ['dca_basic', 'dca_advanced', 'rsi_strategy', 'macd_strategy', 'momentum_basic', 'paper_trading'],
+        description: 'Enhanced trading power'
+      },
+      {
         tier: 'pro',
-        name: 'Pro',
+        name: 'Pro Trader',
         price: 197,
-        features: ['5 AI Agents', 'Advanced Strategies', 'Priority Support'],
-        max_agents: 5,
+        features: ['Everything in Trader', '3 AI Agents (Full Suite)', 'Advanced Analytics Suite', 'All Advanced Strategies', 'Token Sniping', 'VIP Support', '3x XP Multiplier'],
+        max_agents: 3,
         max_strategies: 10,
-        strategies: ['dca_basic', 'momentum', 'rsi', 'macd', 'bollinger'],
+        strategies: ['dca_basic', 'dca_advanced', 'momentum_basic', 'momentum_advanced', 'rsi_strategy', 'macd_strategy', 'bollinger_bands', 'mean_reversion', 'token_sniping', 'paper_trading'],
         description: 'For serious traders'
       },
       {
         tier: 'elite',
-        name: 'Elite',
+        name: 'Elite Trader',
         price: 497,
-        features: ['Unlimited Agents', 'All Strategies', 'Custom AI Training'],
-        max_agents: -1,
+        features: ['Everything in Pro', '5 AI Agents', 'Custom Strategy Builder', 'Arbitrage Scanner', 'All Premium Strategies', 'VIP Community', 'Custom AI Training', '4x XP Multiplier'],
+        max_agents: 5,
         max_strategies: -1,
         strategies: 'all',
         description: 'Maximum power'
       },
       {
         tier: 'lifetime',
-        name: 'Lifetime',
+        name: 'Lifetime Access',
         price: 8000,
-        features: ['Everything Forever', 'White-Label Options', 'VIP Support'],
+        features: ['Everything in Elite', 'Lifetime License (Never Expires)', 'All Future Strategies', 'Unlimited AI Agents', 'White-Label Options', 'VIP Support', 'API Access', '5x XP Multiplier'],
         max_agents: -1,
         max_strategies: -1,
         strategies: 'all',
@@ -509,17 +529,19 @@ export class EnhancedLicenseService {
   }
 
   /**
-   * Get payment URL for tier upgrade
+   * Get payment URL for tier upgrade — ALL 6 TIERS
    */
   public getUpgradeUrl(tier: string, currentLicenseKey?: string): string {
     // These should be your actual payment URLs
     const baseUrls: Record<string, string> = {
+      starter: 'https://buy.stripe.com/quantum-falcon-starter',
+      trader: 'https://buy.stripe.com/quantum-falcon-trader',
       pro: 'https://buy.stripe.com/quantum-falcon-pro',
       elite: 'https://buy.stripe.com/quantum-falcon-elite',
       lifetime: 'https://buy.stripe.com/quantum-falcon-lifetime',
     }
 
-    const url = baseUrls[tier] || baseUrls.pro
+    const url = baseUrls[tier] || baseUrls.starter
     
     // Pre-fill license key if available
     if (currentLicenseKey) {

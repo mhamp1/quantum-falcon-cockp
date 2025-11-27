@@ -1044,6 +1044,122 @@ button:active,
 }
 
 /* THEME VARIATIONS */
+/* ALL 6 THEMES — November 2025 */
+
+/* Cyberpunk Theme - Default Quantum Falcon Theme */
+.cyberpunk {
+  --primary: oklch(0.72 0.20 195);
+  --secondary: oklch(0.68 0.18 330);
+  --accent: oklch(0.72 0.20 195);
+  --border: oklch(0.35 0.12 195);
+  --input: oklch(0.35 0.12 195);
+  --ring: oklch(0.72 0.20 195);
+}
+
+.cyberpunk .neon-glow,
+.cyberpunk .neon-glow-primary {
+  text-shadow: 
+    0 0 2px oklch(0.72 0.20 195),
+    0 0 4px oklch(0.72 0.20 195),
+    0 0 6px oklch(0.72 0.20 195);
+}
+
+.cyberpunk .cyber-card {
+  border-left-color: oklch(0.72 0.20 195);
+  box-shadow: 
+    -3px 0 12px oklch(0.72 0.20 195 / 0.3),
+    inset 0 1px 0 oklch(0.72 0.20 195 / 0.1);
+}
+
+/* Matrix-Green Theme - Bright Green Hacker Aesthetic */
+.matrix-green {
+  --primary: #00ff41;
+  --secondary: #00cc33;
+  --accent: #00ff41;
+  --border: #004411;
+  --input: #004411;
+  --ring: #00ff41;
+  --background: oklch(0.05 0.02 140);
+  --foreground: #00ff41;
+}
+
+.matrix-green .neon-glow,
+.matrix-green .neon-glow-primary {
+  text-shadow: 
+    0 0 2px #00ff41,
+    0 0 4px #00ff41,
+    0 0 8px #00ff41,
+    0 0 12px #00ff41;
+  color: #00ff41;
+}
+
+.matrix-green .cyber-card {
+  border-left-color: #00ff41;
+  box-shadow: 
+    -3px 0 12px rgba(0, 255, 65, 0.3),
+    inset 0 1px 0 rgba(0, 255, 65, 0.1);
+  background: rgba(0, 15, 5, 0.9);
+}
+
+/* Blood-Mode Theme - Red/Dark Aesthetic */
+.blood-mode {
+  --primary: #ff0000;
+  --secondary: #cc0000;
+  --accent: #ff4444;
+  --border: #440000;
+  --input: #440000;
+  --ring: #ff0000;
+  --background: oklch(0.05 0.02 0);
+  --foreground: #ff6666;
+}
+
+.blood-mode .neon-glow,
+.blood-mode .neon-glow-primary {
+  text-shadow: 
+    0 0 2px #ff0000,
+    0 0 4px #ff0000,
+    0 0 8px #ff0000,
+    0 0 12px #ff0000;
+  color: #ff0000;
+}
+
+.blood-mode .cyber-card {
+  border-left-color: #ff0000;
+  box-shadow: 
+    -3px 0 12px rgba(255, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 0, 0, 0.1);
+  background: rgba(15, 0, 0, 0.9);
+}
+
+/* Arctic Theme - Ice Blue/White */
+.arctic {
+  --primary: #00d4ff;
+  --secondary: #0099cc;
+  --accent: #66e5ff;
+  --border: #004466;
+  --input: #004466;
+  --ring: #00d4ff;
+  --background: oklch(0.12 0.03 200);
+  --foreground: #b0e8ff;
+}
+
+.arctic .neon-glow,
+.arctic .neon-glow-primary {
+  text-shadow: 
+    0 0 2px #00d4ff,
+    0 0 4px #00d4ff,
+    0 0 8px #66e5ff,
+    0 0 12px #66e5ff;
+  color: #00d4ff;
+}
+
+.arctic .cyber-card {
+  border-left-color: #00d4ff;
+  box-shadow: 
+    -3px 0 12px rgba(0, 212, 255, 0.3),
+    inset 0 1px 0 rgba(0, 212, 255, 0.1);
+  background: rgba(0, 15, 25, 0.9);
+}
 
 /* Matrix Theme - Green on Black */
 .matrix {
