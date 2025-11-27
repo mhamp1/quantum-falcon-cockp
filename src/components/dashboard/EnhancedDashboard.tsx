@@ -33,7 +33,7 @@ import { useProfitOptimizer } from '@/lib/profit/ProfitOptimizer'
 import { useAchievements } from '@/hooks/useAchievements'
 // Broken milestone components removed - replaced with perfect MilestoneSystem.ts
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
-import BestPerformingAgentBadge from '@/components/shared/BestPerformingAgentBadge'
+// BestPerformingAgentBadge removed - was causing stuck display issues
 import NewsOpportunitiesDisplay from '@/components/intelligence/NewsOpportunitiesDisplay'
 import TaxDashboardCard from '@/components/dashboard/TaxDashboardCard'
 import AutonomousBotDisclaimer from '@/components/legal/AutonomousBotDisclaimer'
@@ -542,7 +542,6 @@ const CommandHeader = ({
           <h1 className="text-3xl font-black tracking-[0.2em] uppercase">
             Welcome back, <span className="text-primary">{auth.username}</span>
           </h1>
-          <BestPerformingAgentBadge />
         </div>
         <div className="flex flex-wrap items-center gap-2 mt-4">
           <HeroBadge
