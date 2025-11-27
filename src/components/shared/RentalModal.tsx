@@ -44,8 +44,8 @@ export default function RentalModal({
       
       if (result.success) {
         confetti({
-          particleCount: 150,
-          spread: 100,
+          particleCount: 38,
+          spread: 70,
           origin: { y: 0.6 },
           colors: ['#DC1FFF', '#00FFFF', '#FF1493']
         })

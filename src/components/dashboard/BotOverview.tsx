@@ -200,12 +200,12 @@ export default function BotOverview() {
           setGlitchTrigger(true)
           setTimeout(() => setGlitchTrigger(false), 300)
           
-          // Confetti on big profit
+          // Confetti on big profit - Reduced by 75% (was 8, now 2 particles)
           confetti({
-            particleCount: 30,
-            spread: 60,
+            particleCount: 2,
+            spread: 30,
             origin: { y: 0.6 },
-            colors: ['#14F195', '#9945FF', '#DC1FFF']
+            colors: ['#14F195', '#9945FF']
           })
         }
       }

@@ -77,8 +77,8 @@ export function useAutoXPAward() {
 
           if (levelReward.celebration.confetti) {
             confetti({
-              particleCount: 200,
-              spread: 120,
+              particleCount: 50,
+              spread: 90,
               origin: { y: 0.6 }
             })
           }

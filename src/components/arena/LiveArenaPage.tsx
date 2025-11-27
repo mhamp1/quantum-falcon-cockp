@@ -235,10 +235,10 @@ export default function LiveArenaPage() {
   const triggerVictoryCelebration = (winner: string) => {
     if (!soundEnabled) return
 
-    // Massive confetti explosion
+    // Confetti celebration (reduced 75%)
     confetti({
-      particleCount: 200,
-      spread: 100,
+      particleCount: 50,
+      spread: 70,
       origin: { y: 0.6 },
       colors: ['#FFD700', '#FF1493', '#00FFFF', '#DC1FFF'],
       gravity: 0.8,
@@ -248,8 +248,8 @@ export default function LiveArenaPage() {
     // Multiple waves
     setTimeout(() => {
       confetti({
-        particleCount: 100,
-        spread: 120,
+        particleCount: 25,
+        spread: 90,
         origin: { y: 0.7, x: 0.3 },
         colors: ['#FFD700', '#FF1493'],
       })
@@ -257,8 +257,8 @@ export default function LiveArenaPage() {
 
     setTimeout(() => {
       confetti({
-        particleCount: 100,
-        spread: 120,
+        particleCount: 25,
+        spread: 90,
         origin: { y: 0.7, x: 0.7 },
         colors: ['#00FFFF', '#DC1FFF'],
       })

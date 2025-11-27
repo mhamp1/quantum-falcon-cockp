@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useKVSafe as useKV } from '@/hooks/useKVFallback'
-import { UserAuth, LICENSE_TIERS } from '@/lib/auth'
+import { LICENSE_TIERS } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -8,16 +7,10 @@ import { CheckCircle, Crown, Star, Lightning, Sparkle, Infinity as InfinityIcon,
 import { toast } from 'sonner'
 import { paymentProcessor, initializePaymentProviders } from '@/lib/payment/paymentProcessor'
 import SubscriptionUpgrade from './SubscriptionUpgrade'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 
 export default function EnhancedSubscriptionTiers() {
-  const [auth, setAuth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  const { auth } = usePersistentAuth()
 
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro-trader' | 'elite-trader' | 'lifetime'>('free')

@@ -28,11 +28,34 @@ interface ProfitMilestoneCelebrationProps {
   previousProfit?: number
 }
 
+// Load celebrated milestones from localStorage
+const loadCelebratedMilestones = (): Set<number> => {
+  try {
+    const stored = localStorage.getItem('qf_profit_milestones_celebrated')
+    if (stored) {
+      return new Set(JSON.parse(stored))
+    }
+  } catch (e) {
+    // Silent fail
+  }
+  return new Set()
+}
+
+// Save celebrated milestones to localStorage
+const saveCelebratedMilestones = (milestones: Set<number>) => {
+  try {
+    localStorage.setItem('qf_profit_milestones_celebrated', JSON.stringify(Array.from(milestones)))
+  } catch (e) {
+    // Silent fail
+  }
+}
+
 export default function ProfitMilestoneCelebration({
   currentProfit,
   previousProfit = 0,
 }: ProfitMilestoneCelebrationProps) {
-  const [celebratedMilestones, setCelebratedMilestones] = useState<Set<number>>(new Set())
+  // Load previously celebrated milestones from localStorage on mount
+  const [celebratedMilestones, setCelebratedMilestones] = useState<Set<number>>(() => loadCelebratedMilestones())
   const [activeCelebration, setActiveCelebration] = useState<Milestone | null>(null)
 
   useEffect(() => {
@@ -45,8 +68,10 @@ export default function ProfitMilestoneCelebration({
     })
 
     if (crossedMilestone) {
-      // Mark as celebrated
-      setCelebratedMilestones((prev) => new Set([...prev, crossedMilestone.amount]))
+      // Mark as celebrated and persist to localStorage
+      const newCelebrated = new Set([...celebratedMilestones, crossedMilestone.amount])
+      setCelebratedMilestones(newCelebrated)
+      saveCelebratedMilestones(newCelebrated)
 
       // Trigger celebration
       setActiveCelebration(crossedMilestone)

@@ -562,16 +562,16 @@ export default function LoginPage() {
                     <div className="flex-1 h-px bg-border" />
                   </div>
                   
-                  {/* Free Tier Button */}
+                  {/* Create Account Button - Require email */}
                   <Button
-                    onClick={handleFreeTierContinue}
+                    onClick={() => setStep('register')}
                     disabled={isSubmitting}
                     variant="ghost"
                     className="w-full h-12 text-sm font-bold uppercase tracking-wider
                              border-2 border-cyan-500/30 hover:border-cyan-500/50 hover:bg-cyan-500/10"
                   >
-                    <Play size={16} className="mr-2" />
-                    Continue Free (Paper Trading Only)
+                    <User size={16} className="mr-2" />
+                    Create Free Account
                   </Button>
                 </>
               )}
@@ -822,14 +822,7 @@ export default function LoginPage() {
                     )}
                   </Button>
                   
-                  {/* Skip for now - go free tier */}
-                  <Button
-                    onClick={handleFreeTierContinue}
-                    variant="ghost"
-                    className="w-full h-10 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground"
-                  >
-                    Skip for now (Free Tier)
-                  </Button>
+                  {/* Email is now REQUIRED - removed skip option */}
                 </>
               )}
               

@@ -19,8 +19,8 @@ export default function CreateStrategyLockedHUD({ onUpgradeClick }: LockedHUDPro
 
   const handleUpgradeHover = () => {
     confetti({
-      particleCount: 150,
-      spread: 100,
+      particleCount: 38,
+      spread: 70,
       origin: { y: 0.7 },
       colors: ['#DC1FFF', '#00FFFF', '#FF00FF', '#FFFF00']
     });

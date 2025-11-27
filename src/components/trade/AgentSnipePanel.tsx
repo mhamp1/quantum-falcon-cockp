@@ -391,7 +391,7 @@ export default function AgentSnipePanel({ userTier, userPublicKey: propUserPubli
         if (newStreak > (bestStreak || 0)) {
           setBestStreak(newStreak)
           if (newStreak >= 5) {
-            confetti({ particleCount: 100, spread: 70 })
+            confetti({ particleCount: 25, spread: 50 })
             toast.success(`🔥 NEW BEST STREAK: ${newStreak}!`, {
               description: 'You\'re on fire!',
             })
@@ -540,7 +540,7 @@ export default function AgentSnipePanel({ userTier, userPublicKey: propUserPubli
           <div className="flex items-center justify-center gap-2">
             <Crown size={20} weight="fill" className="text-yellow-400" />
             <span className="text-yellow-400 font-black uppercase tracking-wider">
-              GOD MODE — UNLIMITED SIZE + FLASH LOANS ENABLED
+              MASTER ACCESS — ALL FEATURES UNLOCKED
             </span>
             <Crown size={20} weight="fill" className="text-yellow-400" />
           </div>

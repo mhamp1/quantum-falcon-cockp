@@ -66,6 +66,7 @@ import { isGodMode, activateGodMode, deactivateGodMode } from '@/lib/godMode';
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
+import { initSentry, setSentryUser } from '@/lib/monitoring/sentry';
 
 // Robust lazy loading with retry logic
 import { createRobustLazy } from '@/lib/lazyLoad'
@@ -92,7 +93,7 @@ const EnhancedSettings = createRobustLazy(() => import('@/components/settings/En
   timeout: 10000, // Increased timeout for Settings tab
   prefetch: true 
 });
-const SupportOnboarding = createRobustLazy(() => import('@/pages/SupportOnboarding'));
+const Support = createRobustLazy(() => import('@/pages/Support'));
 const LoginPage = createRobustLazy(() => import('@/pages/LoginPage'));
 const MasterAdminPanel = createRobustLazy(() => import('@/components/admin/MasterAdminPanel'));
 
@@ -285,40 +286,58 @@ export default function App() {
 
   useEffect(() => {
     SecurityManager.initialize();
+    initSentry();
     console.info('🔒 [App] Security systems online');
   }, []);
 
-  // Show interactive tour for first-time users - ONLY after they've clicked "Enter Cockpit"
-  // CRITICAL: Tour must NOT show on login page - only after dashboard is loaded
+  // Set Sentry user context when authenticated
   useEffect(() => {
-    // Only check for tour if we're past the login page (authenticated and initialized)
-    // AND we haven't shown the tour yet this session
-    if (persistentAuth.isInitialized && auth?.isAuthenticated && !hasSeenOnboarding && !tourShownRef.current) {
-      // Check if user just clicked "Enter Cockpit" (not just logged in)
-      const justEnteredCockpit = typeof window !== 'undefined' 
-        ? window.localStorage.getItem('justLoggedIn') === 'true'
-        : false;
+    if (auth?.isAuthenticated && auth?.userId) {
+      setSentryUser({
+        id: auth.userId,
+        email: auth.email || undefined,
+        username: auth.username || undefined,
+      });
+    }
+  }, [auth?.isAuthenticated, auth?.userId, auth?.email, auth?.username]);
+
+  // TOUR AUTO-START DELETED FOREVER - Tour only starts when user clicks "ENTER COCKPIT"
+  // Listen for explicit tour start event from splash screen
+  useEffect(() => {
+    const handleStartTour = () => {
+      // Skip tour for master key users (Creator never sees tour)
+      const isMasterUser = isGodMode(auth);
+      if (isMasterUser) {
+        toast.info('Master Access Active', {
+          description: 'Welcome back! Tour skipped.',
+          duration: 2000,
+        });
+        return;
+      }
       
-      if (justEnteredCockpit) {
-        // Mark tour as shown to prevent duplicate
+      // Only start if user hasn't completed tour
+      if (!hasSeenOnboarding && !tourShownRef.current) {
         tourShownRef.current = true;
         
-        // Clear the flag immediately
-        try {
-          window.localStorage.removeItem('justLoggedIn');
-        } catch (e) {
-          // Silent fail
-        }
-        
-        // Wait for dashboard to fully load before showing tour
-        // This ensures the tour doesn't show on the login page
-        const timer = setTimeout(() => {
+        // Small delay to ensure dashboard is fully loaded
+        setTimeout(() => {
           setShowOnboarding(true);
-        }, 2000); // Delay to ensure dashboard is visible
-        return () => clearTimeout(timer);
+          toast.success('Welcome to the cockpit', {
+            description: 'Starting your guided tour...',
+            duration: 3000,
+          });
+        }, 800);
+      } else if (hasSeenOnboarding) {
+        toast.info('Tour Already Completed', {
+          description: 'Welcome back to the cockpit!',
+          duration: 2000,
+        });
       }
-    }
-  }, [persistentAuth.isInitialized, auth?.isAuthenticated, hasSeenOnboarding]);
+    };
+
+    window.addEventListener('start-onboarding-tour', handleStartTour);
+    return () => window.removeEventListener('start-onboarding-tour', handleStartTour);
+  }, [auth, hasSeenOnboarding]);
 
   // GOD MODE Activation - Use ref to prevent double toast
   useEffect(() => {
@@ -331,10 +350,10 @@ export default function App() {
       if (!godModeToastShown.current) {
         godModeToastShown.current = true;
         
-        // Show GOD MODE celebration toast
-        toast.success('👑 WELCOME BACK, CREATOR 👑', {
-          description: 'GOD MODE ACTIVE • Unlimited Everything • All 15 Agents • All 53+ Strategies • Rainbow Border Engaged • YOU ARE THE FALCON',
-          duration: 10000,
+        // Show Master Access celebration toast
+        toast.success('👑 WELCOME BACK 👑', {
+          description: 'Master Access Active • All Features Unlocked • All Agents • All Strategies',
+          duration: 8000,
           style: {
             background: 'linear-gradient(135deg, #ff00ff, #00ffff, #ffff00)',
             color: 'white',
@@ -344,31 +363,13 @@ export default function App() {
           },
         });
 
-        // MASSIVE Confetti celebration for the Creator
+        // Confetti celebration for the Creator - Further reduced (was 125, now 10)
         confetti({
-          particleCount: 500,
-          spread: 180,
+          particleCount: 10,
+          spread: 30,
           origin: { y: 0.3 },
-          colors: ['#ff00ff', '#00ffff', '#ffff00', '#ff1493', '#00ff00', '#ffd700', '#ff6b6b'],
+          colors: ['#ff00ff', '#00ffff', '#ffff00'],
         });
-        
-        // Second wave of confetti
-        setTimeout(() => {
-          confetti({
-            particleCount: 300,
-            angle: 60,
-            spread: 100,
-            origin: { x: 0 },
-            colors: ['#ffd700', '#ff00ff', '#00ffff'],
-          });
-          confetti({
-            particleCount: 300,
-            angle: 120,
-            spread: 100,
-            origin: { x: 1 },
-            colors: ['#ffd700', '#ff00ff', '#00ffff'],
-          });
-        }, 500);
       }
     } else {
       deactivateGodMode();
@@ -417,7 +418,7 @@ export default function App() {
       { id: 'vault', label: 'Vault', icon: Vault, component: VaultView },
       { id: 'quests', label: 'Quests', icon: Trophy, component: createRobustLazy(() => import('@/components/quests/QuestBoard'), { timeout: 5000 }) },
       { id: 'community', label: 'Community', icon: Users, component: SocialCommunity },
-      { id: 'support', label: 'Support', icon: Lifebuoy, component: SupportOnboarding },
+      { id: 'support', label: 'Support', icon: Lifebuoy, component: Support },
       { id: 'settings', label: 'Settings', icon: Gear, component: EnhancedSettings },
     ];
 
@@ -500,14 +501,18 @@ export default function App() {
     return () => window.removeEventListener('open-legal-risk-disclosure', handler);
   }, []);
 
-  // Listen for tour restart event
+  // Listen for tour restart event (manual trigger from settings/support)
   useEffect(() => {
     const handler = () => {
-      setShowOnboarding(true);
+      // Only restart if user explicitly requests it (not auto-start)
+      const isMasterUser = isGodMode(auth);
+      if (!isMasterUser) {
+        setShowOnboarding(true);
+      }
     };
     window.addEventListener('restart-onboarding-tour', handler);
     return () => window.removeEventListener('restart-onboarding-tour', handler);
-  }, []);
+  }, [auth]);
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component ?? EnhancedDashboard;
 
@@ -533,12 +538,15 @@ export default function App() {
 
   const handleOnboardingComplete = () => {
     setHasSeenOnboarding(true);
+    // Persist tour completion
     try {
       window.localStorage.setItem('hasSeenOnboarding', 'true');
+      window.localStorage.setItem('hasCompletedTour', 'true');
     } catch (e) {
       // Silent fail - localStorage unavailable
     }
     setShowOnboarding(false);
+    tourShownRef.current = false; // Reset for future sessions
     
     toast.success('Tour Complete!', {
       description: 'You\'re ready to start trading. Welcome to Quantum Falcon!',
@@ -592,16 +600,18 @@ export default function App() {
         <RiskDisclosureBanner />
         <MasterSearch isOpen={showMasterSearch} onClose={() => setShowMasterSearch(false)} />
         
-        {/* First-time user intro splash */}
+        {/* First-time user intro splash - Shows BEFORE dashboard */}
         <IntroSplash onFinished={() => {}} />
         
-        {/* Interactive Tour - Comprehensive onboarding experience */}
-        <InteractiveTour
-          isOpen={showOnboarding}
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
-          setActiveTab={setActiveTab}
-        />
+        {/* Interactive Tour - ONLY shows when explicitly triggered via "ENTER COCKPIT" click */}
+        {showOnboarding && (
+          <InteractiveTour
+            isOpen={showOnboarding}
+            onComplete={handleOnboardingComplete}
+            onSkip={handleOnboardingSkip}
+            setActiveTab={setActiveTab}
+          />
+        )}
 
         {/* GOD MODE indicator removed from top right - now only in sidebar */}
 
@@ -858,11 +868,12 @@ export default function App() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
                   className="h-full"
+                  style={{ willChange: 'opacity' }}
                 >
                   <ErrorBoundary 
                     FallbackComponent={ComponentErrorFallback}

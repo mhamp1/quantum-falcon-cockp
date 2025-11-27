@@ -59,7 +59,8 @@ export default defineConfig({
       'buffer',
       'react',
       'react-dom',
-      'framer-motion' // Pre-bundle framer-motion with React to ensure React is available
+      'framer-motion', // Pre-bundle framer-motion with React to ensure React is available
+      'orbitron' // Preload Orbitron font for better performance
     ]
   },
   build: {
@@ -68,6 +69,14 @@ export default defineConfig({
     // and vendor chunks can execute before React is fully initialized.
     // By NOT splitting chunks manually, Rollup ensures proper dependency order.
     rollupOptions: {
+      // Externalize optional dependencies that may not be installed
+      external: (id) => {
+        // Only externalize if it's a Sentry import and not in node_modules
+        if (id === '@sentry/react' && !id.includes('node_modules')) {
+          return false // Don't externalize, let it fail gracefully at runtime
+        }
+        return false
+      },
       output: {
         // NO manualChunks - let Rollup handle dependency ordering naturally
         // This creates larger initial bundles but guarantees React loads first

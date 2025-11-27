@@ -253,7 +253,7 @@ export default function VaultTab() {
             <div className="flex items-center justify-center gap-3">
               <Crown size={28} weight="fill" className="text-yellow-400" />
               <span className="text-yellow-400 font-black uppercase tracking-wider text-lg">
-                GOD MODE — UNLIMITED VAULT ACCESS
+                MASTER ACCESS — FULL VAULT FEATURES
               </span>
               <Crown size={28} weight="fill" className="text-yellow-400" />
             </div>

@@ -43,8 +43,8 @@ export default function FirstProfitCelebration({
       // Celebration effects
       hapticFeedback.celebration()
       confetti({
-        particleCount: 50,
-        spread: 60,
+        particleCount: 13,
+        spread: 45,
         origin: { y: 0.7 },
         colors: [milestone.color],
       })

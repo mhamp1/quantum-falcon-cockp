@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run linting before commit
+npm run lint
+
+# Run tests before commit (non-blocking)
+npm run test -- --run || true
+

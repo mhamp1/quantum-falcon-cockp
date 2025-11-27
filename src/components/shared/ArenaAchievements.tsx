@@ -257,8 +257,8 @@ export default function ArenaAchievements() {
         // Special celebration for legendary achievements
         if (achievement.rarity === 'legendary') {
           confetti({
-            particleCount: 150,
-            spread: 100,
+            particleCount: 38,
+            spread: 70,
             origin: { y: 0.6 },
             colors: ['#FFD700', '#FF1493', '#00FFFF'],
           })

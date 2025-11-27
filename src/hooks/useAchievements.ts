@@ -129,15 +129,15 @@ export function useAchievements({ userStats, auth }: UseAchievementsProps) {
         
         const achievement = ACHIEVEMENT_NFTS[achievementId]
         
-        // Celebration
+        // Celebration - Reduced confetti by 75% (was 25, now 6 particles)
         hapticFeedback.celebration()
         confetti({
-          particleCount: 100,
-          spread: 70,
+          particleCount: 6,
+          spread: 30,
           origin: { y: 0.6 },
           colors: achievement.tier === 'rainbow' 
-            ? ['#ff00ff', '#00ffff', '#ffff00', '#ff1493', '#00ff00']
-            : ['#00FFFF', '#DC1FFF', '#FF00FF'],
+            ? ['#ff00ff', '#00ffff', '#ffff00']
+            : ['#00FFFF', '#DC1FFF'],
         })
 
         toast.success(`🎖️ Achievement Unlocked: ${achievement.name}!`, {

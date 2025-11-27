@@ -88,7 +88,7 @@ interface AppSettings {
     animations: boolean
     glassEffect: boolean
     neonGlow: boolean
-    themeStyle: 'default' | 'matrix' | 'synthwave'
+    themeStyle: 'cyberpunk' | 'matrix-green' | 'blood-mode' | 'arctic' | 'matrix' | 'synthwave'
     highContrast: boolean
   }
   currency: string
@@ -97,6 +97,7 @@ interface AppSettings {
     ambientMusic: boolean
     voiceNarration: boolean
     volume: number
+    hapticFeedback: boolean
   }
   trading: {
     paperMode: boolean
@@ -139,14 +140,7 @@ export default function EnhancedSettings() {
     memberSince: 'Jan 2024'
   })
 
-  const [auth, setAuth] = useKVSafe<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  const { auth } = usePersistentAuth()
 
   const [showEditProfile, setShowEditProfile] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
@@ -172,16 +166,22 @@ export default function EnhancedSettings() {
       setActiveTab('app')
     }
 
+    const handleOpenSettingsSubscriptionsTab = () => {
+      setActiveTab('subscription')
+    }
+
     window.addEventListener('open-settings-legal-tab', handleOpenSettingsLegalTab)
     window.addEventListener('open-settings-community-tab', handleOpenSettingsCommunityTab)
     window.addEventListener('open-settings-api-tab', handleOpenSettingsApiTab)
     window.addEventListener('open-settings-risk-tab', handleOpenSettingsRiskTab)
+    window.addEventListener('open-settings-subscriptions-tab', handleOpenSettingsSubscriptionsTab)
     
     return () => {
       window.removeEventListener('open-settings-legal-tab', handleOpenSettingsLegalTab)
       window.removeEventListener('open-settings-community-tab', handleOpenSettingsCommunityTab)
       window.removeEventListener('open-settings-api-tab', handleOpenSettingsApiTab)
       window.removeEventListener('open-settings-risk-tab', handleOpenSettingsRiskTab)
+      window.removeEventListener('open-settings-subscriptions-tab', handleOpenSettingsSubscriptionsTab)
     }
   }, [])
 
@@ -204,7 +204,7 @@ export default function EnhancedSettings() {
       animations: true,
       glassEffect: true,
       neonGlow: true,
-      themeStyle: 'default',
+      themeStyle: 'cyberpunk',
       highContrast: false
     },
     currency: 'USD',
@@ -212,7 +212,8 @@ export default function EnhancedSettings() {
       soundEffects: true,
       ambientMusic: false,
       voiceNarration: false,
-      volume: 70
+      volume: 70,
+      hapticFeedback: true
     },
     trading: {
       paperMode: true,
@@ -249,8 +250,9 @@ export default function EnhancedSettings() {
       }
       
       if (settings.theme.themeStyle) {
-        document.documentElement.classList.remove('default', 'matrix', 'synthwave')
+        document.documentElement.classList.remove('cyberpunk', 'matrix-green', 'blood-mode', 'arctic', 'matrix', 'synthwave', 'default')
         document.documentElement.classList.add(settings.theme.themeStyle)
+        document.documentElement.setAttribute('data-theme', settings.theme.themeStyle)
       }
       
       if (settings.theme.highContrast) {
@@ -385,7 +387,7 @@ export default function EnhancedSettings() {
         notifications: { tradeAlerts: true, priceAlerts: true, forumReplies: false, pushEnabled: true },
         theme: { darkMode: true, colorScheme: 'solana-cyber', animations: true, glassEffect: true, neonGlow: true, themeStyle: 'default' as const, highContrast: false },
         currency: 'USD',
-        audio: { soundEffects: true, ambientMusic: false, voiceNarration: false, volume: 70 },
+        audio: { soundEffects: true, ambientMusic: false, voiceNarration: false, volume: 70, hapticFeedback: true },
         trading: { paperMode: true, defaultAmount: 100, confirmTrades: true, autoCompound: false, slippage: 1.0 },
         security: { biometric: true, twoFactor: false, autoLogout: 5, sessionTimeout: 30 },
         network: { rpcEndpoint: 'mainnet', priorityFees: true, customEndpoint: '' },
@@ -432,7 +434,8 @@ export default function EnhancedSettings() {
     }, 100)
   }
 
-  const userTier = auth?.license?.tier || 'Free'
+  const userTier = auth?.license?.tier || 'free'
+  const isFreeTier = !userTier || userTier.toLowerCase() === 'free'
 
   return (
     <div className="space-y-6">
@@ -460,10 +463,13 @@ export default function EnhancedSettings() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Badge className="bg-accent/20 border-2 border-accent text-accent uppercase tracking-wider">
-                <Crown size={14} weight="fill" className="mr-1" />
-                {userTier} Tier
-              </Badge>
+              {/* Only show FREE TIER badge when actually on free tier */}
+              {isFreeTier && (
+                <Badge className="bg-accent/20 border-2 border-accent text-accent uppercase tracking-wider">
+                  <Crown size={14} weight="fill" className="mr-1" />
+                  FREE TIER
+                </Badge>
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -690,6 +696,25 @@ export default function EnhancedSettings() {
                   onCheckedChange={(checked) => handleSliderChange(['notifications', 'pushEnabled'], checked, true)}
                     />
                 </div>
+
+              {/* Clear All Notifications Button */}
+              <div className="pt-4 border-t border-border/50">
+                <Button
+                  variant="outline"
+                  className="w-full border-destructive/50 text-destructive hover:bg-destructive/10"
+                  onClick={() => {
+                    // Clear all toast notifications
+                    toast.dismiss()
+                    toast.success('All notifications cleared', {
+                      description: 'Your notification queue has been cleared',
+                      duration: 2000,
+                    })
+                  }}
+                >
+                  <X size={16} className="mr-2" />
+                  Clear All Notifications
+                </Button>
+              </div>
               </div>
             </div>
 
@@ -748,14 +773,20 @@ export default function EnhancedSettings() {
               <div className="space-y-2">
                 <Label className="text-sm font-bold">Theme Style</Label>
                 <Select
-                  value={settings?.theme?.themeStyle || 'default'}
-                  onValueChange={(value) => handleSliderChange(['theme', 'themeStyle'], value, true)}
+                  value={settings?.theme?.themeStyle || 'cyberpunk'}
+                  onValueChange={(value) => {
+                    handleSliderChange(['theme', 'themeStyle'], value, true);
+                    soundEffects.playToggle();
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="default">Default</SelectItem>
+                    <SelectItem value="cyberpunk">Cyberpunk (Default)</SelectItem>
+                    <SelectItem value="matrix-green">Matrix Green</SelectItem>
+                    <SelectItem value="blood-mode">Blood Mode</SelectItem>
+                    <SelectItem value="arctic">Arctic</SelectItem>
                     <SelectItem value="matrix">Matrix</SelectItem>
                     <SelectItem value="synthwave">Synthwave</SelectItem>
                   </SelectContent>
@@ -779,7 +810,12 @@ export default function EnhancedSettings() {
                     </div>
                     <Switch 
                   checked={settings?.audio?.soundEffects ?? true}
-                  onCheckedChange={(checked) => handleSliderChange(['audio', 'soundEffects'], checked, true)}
+                  onCheckedChange={(checked) => {
+                    handleSliderChange(['audio', 'soundEffects'], checked, true);
+                    if (checked) {
+                      soundEffects.playToggle();
+                    }
+                  }}
                     />
                   </div>
 
@@ -790,7 +826,27 @@ export default function EnhancedSettings() {
                     </div>
                     <Switch 
                   checked={settings?.audio?.ambientMusic ?? false}
-                  onCheckedChange={(checked) => handleSliderChange(['audio', 'ambientMusic'], checked, true)}
+                  onCheckedChange={(checked) => {
+                    handleSliderChange(['audio', 'ambientMusic'], checked, true);
+                    soundEffects.playToggle();
+                  }}
+                    />
+                  </div>
+                  
+              <div className="flex items-center justify-between">
+                      <div>
+                  <Label className="text-sm font-bold">Haptic Feedback</Label>
+                  <p className="text-xs text-muted-foreground">Vibration on mobile devices</p>
+                    </div>
+                    <Switch 
+                  checked={settings?.audio?.hapticFeedback ?? true}
+                  onCheckedChange={(checked) => {
+                    handleSliderChange(['audio', 'hapticFeedback'], checked, true);
+                    if (checked && 'vibrate' in navigator) {
+                      navigator.vibrate(10);
+                    }
+                    soundEffects.playToggle();
+                  }}
                     />
                   </div>
                   

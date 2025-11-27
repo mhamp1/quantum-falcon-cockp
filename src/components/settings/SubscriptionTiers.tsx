@@ -1,4 +1,3 @@
-import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Crown, Lightning, Rocket, Star, Sparkle } from '@phosphor-icons/react'
@@ -7,9 +6,11 @@ import { useState } from 'react'
 import { LicenseAuthority } from '@/lib/license-auth'
 import { usePricingConfig } from '@/hooks/usePricingConfig'
 import { cn } from '@/lib/utils'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 
 export default function SubscriptionTiers() {
-  const [currentTier, setCurrentTier] = useKV<string>('subscription-tier', 'free')
+  const { auth } = usePersistentAuth()
+  const currentTier = auth?.license?.tier || 'free'
   const [isProcessing, setIsProcessing] = useState(false)
   const { visibleTiers } = usePricingConfig()
 
@@ -39,7 +40,6 @@ export default function SubscriptionTiers() {
 
     // Handle free tier
     if (tierId === 'free') {
-      setCurrentTier(tierId)
       toast.success('Subscription Updated!', {
         description: `You are now on the ${tier.name} plan`,
         icon: '🎉'

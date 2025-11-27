@@ -126,8 +126,8 @@ export default function QuickUpgradeModal({
     
     // Celebrate
     confetti({
-      particleCount: 200,
-      spread: 120,
+      particleCount: 50,
+      spread: 90,
       origin: { y: 0.6 },
       colors: ['#DC1FFF', '#00FFFF', '#FF1493', '#FFD700']
     })
@@ -267,8 +267,8 @@ export default function QuickUpgradeModal({
                 onMouseEnter={() => {
                   if (!isProcessing) {
                     confetti({
-                      particleCount: 50,
-                      spread: 60,
+                      particleCount: 13,
+                      spread: 45,
                       origin: { y: 0.7 }
                     })
                   }

@@ -2,7 +2,7 @@
 // AgentCard Component — Elite AI Agent Display with Tier Gating
 // November 21, 2025 — Quantum Falcon Cockpit
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, CheckCircle } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
@@ -23,8 +23,9 @@ interface AgentCardProps {
 
 /**
  * AgentCard — Display an AI agent with tier gating and status
+ * Memoized for performance optimization
  */
-export default function AgentCard({
+function AgentCard({
   agent,
   userTier,
   isActive = false,
@@ -275,3 +276,6 @@ function hasAccess(agentTier: AgentTier, userTier: AgentTier): boolean {
   
   return userLevel >= agentLevel
 }
+
+// Memoize component to prevent unnecessary re-renders
+export default memo(AgentCard)

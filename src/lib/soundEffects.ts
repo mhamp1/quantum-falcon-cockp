@@ -193,6 +193,65 @@ export const soundEffects = {
     oscillator.stop(ctx.currentTime + 0.04);
   },
 
+  // Big profit celebration sound (for profits > $1000)
+  playBigProfit: () => {
+    if (isMuted) return;
+    
+    const ctx = getAudioContext();
+    
+    // Triumphant chord progression
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    const gainNode = createGain(0.06);
+    gainNode.connect(ctx.destination);
+    
+    notes.forEach((freq, i) => {
+      const osc = createOscillator(freq, 'sine');
+      osc.connect(gainNode);
+      osc.start(ctx.currentTime + i * 0.08);
+      osc.stop(ctx.currentTime + 0.5);
+    });
+    
+    gainNode.gain.setValueAtTime(0.06, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+  },
+
+  // Snipe execution sound
+  playSnipe: () => {
+    if (isMuted) return;
+    
+    const ctx = getAudioContext();
+    const oscillator = createOscillator(2000, 'sine');
+    const gainNode = createGain(0.05);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    oscillator.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.1);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.1);
+  },
+
+  // Streak milestone sound
+  playStreak: () => {
+    if (isMuted) return;
+    
+    const ctx = getAudioContext();
+    const notes = [440, 554.37, 659.25]; // A4, C#5, E5 (A major)
+    const gainNode = createGain(0.04);
+    gainNode.connect(ctx.destination);
+    
+    notes.forEach((freq, i) => {
+      const osc = createOscillator(freq, 'triangle');
+      osc.connect(gainNode);
+      osc.start(ctx.currentTime + i * 0.05);
+      osc.stop(ctx.currentTime + 0.2);
+    });
+    
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+  },
+
   setMuted: (muted: boolean) => {
     isMuted = muted;
     if (typeof window !== 'undefined') {

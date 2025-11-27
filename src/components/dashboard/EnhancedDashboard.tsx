@@ -31,9 +31,7 @@ import { useLegalProtection } from '@/lib/legal/LegalProtection'
 import { useTaxReserve } from '@/lib/tax/TaxReserveEngine'
 import { useProfitOptimizer } from '@/lib/profit/ProfitOptimizer'
 import { useAchievements } from '@/hooks/useAchievements'
-import ProfitMilestoneCelebration from '@/components/shared/ProfitMilestoneCelebration'
-import FirstProfitCelebration from '@/components/shared/FirstProfitCelebration'
-import ProgressToFirstProfit from '@/components/shared/ProgressToFirstProfit'
+// Broken milestone components removed - replaced with perfect MilestoneSystem.ts
 import LicenseExpiry from '@/components/shared/LicenseExpiry'
 import BestPerformingAgentBadge from '@/components/shared/BestPerformingAgentBadge'
 import NewsOpportunitiesDisplay from '@/components/intelligence/NewsOpportunitiesDisplay'
@@ -144,6 +142,25 @@ export default function EnhancedDashboard() {
     [currentProfit, portfolio.totalValue, safeLive]
   )
   useAchievements({ userStats: achievementsStats, auth })
+
+  // NEW: Perfect milestone system - only shows once, auto-dismisses after 10s, never repeats
+  useEffect(() => {
+    // Only check when profit actually increases (not on every render)
+    if (currentProfit > previousProfit && previousProfit !== undefined) {
+      const checkMilestones = async () => {
+        try {
+          const { checkProfitMilestones } = await import('@/lib/achievements/MilestoneSystem')
+          const stored = localStorage.getItem('qf_achievements')
+          const achievements = stored ? JSON.parse(stored) : null
+          
+          checkProfitMilestones(currentProfit, previousProfit, achievements, auth)
+        } catch (e) {
+          // Silent fail - milestone system optional
+        }
+      }
+      checkMilestones()
+    }
+  }, [currentProfit, previousProfit, auth])
 
   const { getTaxSummary } = useTaxReserve()
   const optimizer = useProfitOptimizer()
@@ -405,15 +422,7 @@ export default function EnhancedDashboard() {
           />
         </div>
 
-        <ProfitMilestoneCelebration currentProfit={currentProfit} previousProfit={previousProfit} />
-        <div className="grid gap-4 md:grid-cols-2">
-          <Suspense fallback={<StatSkeleton />}>
-            <FirstProfitCelebration currentProfit={currentProfit} previousProfit={previousProfit} />
-          </Suspense>
-          <Suspense fallback={<StatSkeleton />}>
-            <ProgressToFirstProfit currentProfit={currentProfit} targetProfit={10} />
-          </Suspense>
-        </div>
+        {/* Milestone system integrated via useAchievements hook - no sticky components */}
 
         <div className="grid gap-4 xl:grid-cols-[3fr_2fr]">
           <NewsOpportunitiesDisplay userTier={userTier} />

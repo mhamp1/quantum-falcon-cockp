@@ -266,7 +266,7 @@ export function getGodModeStatus(auth: UserAuth | null): {
   if (godModeActive) {
     return {
       isGodMode: true,
-      message: 'GOD MODE ACTIVE — UNLIMITED EVERYTHING',
+      message: 'MASTER ACCESS ACTIVE — ALL FEATURES UNLOCKED',
       features: [
         'All 15 Elite AI Agents',
         'All 53+ Trading Strategies',

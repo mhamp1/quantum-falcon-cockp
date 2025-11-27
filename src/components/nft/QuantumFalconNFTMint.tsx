@@ -210,8 +210,8 @@ export default function QuantumFalconNFTMint() {
         })
 
         confetti({
-          particleCount: 888,
-          spread: 120,
+          particleCount: 220,
+          spread: 90,
           origin: { y: 0.5 },
           colors: ['#00FFFF', '#DC1FFF', '#FF1493', '#FFD700'],
         })
@@ -222,11 +222,11 @@ export default function QuantumFalconNFTMint() {
           duration: 5000
         })
 
-        // Celebration confetti for rare+ NFTs
+        // Celebration confetti for rare+ NFTs (reduced 75%)
         if (rarity === 'legendary' || rarity === 'epic') {
           confetti({
-            particleCount: 200,
-            spread: 100,
+            particleCount: 50,
+            spread: 70,
             origin: { y: 0.6 },
             colors: [RARITY_TIERS[rarity].color, '#00FFFF', '#DC1FFF'],
           })
@@ -469,8 +469,8 @@ export default function QuantumFalconNFTMint() {
                 })
                 
                 confetti({
-                  particleCount: 200,
-                  spread: 100,
+                  particleCount: 50,
+                  spread: 70,
                   origin: { y: 0.6 },
                   colors: [RARITY_TIERS[tierNFT.rarity].color, '#00FFFF', '#DC1FFF'],
                 })

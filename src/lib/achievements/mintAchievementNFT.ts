@@ -142,8 +142,8 @@ export const mintAchievementNFT = async (
     })
 
     confetti({
-      particleCount: 200,
-      spread: 100,
+      particleCount: 50,
+      spread: 70,
       origin: { y: 0.6 },
       colors: ['#00FFFF', '#DC1FFF', '#FF1493'],
     })

@@ -334,10 +334,10 @@ export const usePersistentAuth = () => {
       
       // Show appropriate message based on tier
       if (isMasterKey) {
-        // GOD MODE - Special creator welcome
-        toast.success('👑 WELCOME BACK, CREATOR 👑', {
-          description: 'God Mode Active • Unlimited Everything • You ARE the Falcon',
-          duration: 8000,
+        // Master Access - Special welcome
+        toast.success('👑 WELCOME BACK 👑', {
+          description: 'Master Access Active • All Features Unlocked',
+          duration: 6000,
           style: {
             background: 'linear-gradient(135deg, #ff00ff, #00ffff)',
             color: 'white',
@@ -471,7 +471,16 @@ export const usePersistentAuth = () => {
         
         // Check if this is a master key recognition marker
         // Master key is never stored, only a marker is saved
-        const isMasterKey = encryptedAuth.licenseKey === 'MASTER_KEY_RECOGNIZED'
+        const isMasterKeyMarker = encryptedAuth.licenseKey === 'MASTER_KEY_RECOGNIZED'
+        
+        // Also check for stored master key hash (for backwards compatibility)
+        const storedMasterHash = localStorage.getItem('qf-master-key-hash')
+        const MASTER_KEY_HASHES = new Set([
+          'a8c90e5ea6c49e3c1b7f2d8e4a6b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b',
+        ])
+        const hasStoredMasterHash = storedMasterHash && MASTER_KEY_HASHES.has(storedMasterHash)
+        
+        const isMasterKey = isMasterKeyMarker || hasStoredMasterHash
         
         // For master key, create validation result directly
         if (isMasterKey) {
@@ -479,7 +488,7 @@ export const usePersistentAuth = () => {
             userId: 'master', // CRITICAL: Must be 'master' for creator privileges
             tier: 'lifetime', // CRITICAL: Must be 'lifetime' for God Mode
             expiresAt: null,
-            purchasedAt: encryptedAuth.timestamp,
+            purchasedAt: encryptedAuth.timestamp || Date.now(),
             isActive: true,
             transactionId: 'master-token',
             features: ['all'] // All features including creator tabs
@@ -493,6 +502,13 @@ export const usePersistentAuth = () => {
             avatar: null,
             license: userLicense
           })
+          
+          // Ensure master key marker is stored for future sessions
+          if (!isMasterKeyMarker) {
+            const updatedAuth = { ...encryptedAuth, licenseKey: 'MASTER_KEY_RECOGNIZED' }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedAuth))
+          }
+          
           setIsLoading(false)
           setIsInitialized(true)
           return

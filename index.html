@@ -52,6 +52,13 @@
             font-family: system-ui, -apple-system, sans-serif;
         ">
             <div style="text-align: center;">
+                <!-- Falcon Head Logo -->
+                <img 
+                    src="/falcon-head-official.png" 
+                    alt="Quantum Falcon" 
+                    style="width: 80px; height: 80px; margin-bottom: 20px; animation: pulse 2s ease-in-out infinite;"
+                    onerror="this.style.display='none'"
+                />
                 <div style="
                     width: 60px;
                     height: 60px;
@@ -61,15 +68,29 @@
                     animation: spin 1s linear infinite;
                     margin: 0 auto 20px;
                 "></div>
-                <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.8;">
+                <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.8; font-family: 'Orbitron', sans-serif;">
                     Loading Quantum Falcon...
                 </p>
+                <p style="font-size: 11px; margin-top: 10px; opacity: 0.5;">v2025.1.0</p>
             </div>
         </div>
         <style>
             @keyframes spin { to { transform: rotate(360deg); } }
+            @keyframes pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
         </style>
     </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('[SW] Registered:', reg.scope))
+                    .catch(err => console.log('[SW] Registration failed:', err));
+            });
+        }
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
 </body>
 

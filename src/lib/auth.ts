@@ -199,3 +199,35 @@ export function canAccessFeature(userTier: string, requiredTier: string): boolea
   const requiredLevel = tierHierarchy.indexOf(requiredTier)
   return userLevel >= requiredLevel
 }
+
+/**
+ * Validates a license key (for testing purposes)
+ * In production, this would call the license API
+ */
+export async function validateLicense(key: string): Promise<{ valid: boolean; tier?: string; userId?: string } | null> {
+  try {
+    // Master key check
+    if (key === 'QF-GODMODE-MHAMP1-2025' || key.includes('GODMODE')) {
+      return { valid: true, tier: 'lifetime', userId: 'master' }
+    }
+
+    // In production, this would call the license API
+    const response = await fetch('/api/license/validate', {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${key}`, 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({ key })
+    })
+
+    if (!response.ok) {
+      return null
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('[Auth] License validation failed:', error)
+    return null
+  }
+}

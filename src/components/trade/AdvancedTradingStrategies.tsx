@@ -524,7 +524,7 @@ export default function AdvancedTradingStrategies() {
     setActiveStrategies(current => [...(current || []), newStrategy])
     
     if (isGodModeActive) {
-      confetti({ particleCount: 50, spread: 60 })
+      confetti({ particleCount: 13, spread: 45 })
     }
     
     toast.success('Strategy Activated', {
@@ -600,7 +600,7 @@ export default function AdvancedTradingStrategies() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {isGodModeActive ? (
-              <span className="text-yellow-400 font-bold">👑 UNLIMITED ACCESS</span>
+              <span className="text-yellow-400 font-bold">👑 ALL FEATURES UNLOCKED</span>
             ) : (
               <>Unlock professional trading algorithms • Current Tier: <span className="text-primary font-bold">{userTier.toUpperCase()}</span></>
             )}

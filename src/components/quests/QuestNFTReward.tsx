@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
   Trophy, Crown, Medal, Sparkle, SquaresFour, Lock, 
-  CheckCircle, XCircle, WarningCircle as AlertCircle, Star, Gem, Shield
+  CheckCircle, XCircle, WarningCircle as AlertCircle, Star, Diamond as Gem, Shield
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
@@ -98,12 +98,26 @@ export default function QuestNFTReward({
     terms: false
   })
   const [isMinting, setIsMinting] = useState(false)
+  const [hasMinted, setHasMinted] = useState(false)
 
   const userTier = auth?.license?.tier || 'free'
   const isGodModeActive = isGodMode(auth)
   const nft = quest.nftReward
 
   if (!nft) return null
+
+  // Check if already minted from localStorage
+  const alreadyMinted = (() => {
+    try {
+      const mintedNFTs = JSON.parse(localStorage.getItem('qf_minted_nfts') || '[]')
+      return mintedNFTs.some((m: { id: string }) => m.id === nft.id)
+    } catch {
+      return false
+    }
+  })()
+
+  // Don't render if already minted
+  if (hasMinted || alreadyMinted) return null
 
   // God Mode bypasses tier requirements
   const hasAccess = isGodModeActive || canAccessNFT(nft, userTier)
@@ -155,6 +169,18 @@ export default function QuestNFTReward({
       // Simulate mint completion
       await new Promise(resolve => setTimeout(resolve, 2000))
       const mockMintAddress = `mint_${Date.now()}_${nft.id}`
+      
+      // Mark as minted so the box disappears
+      setHasMinted(true)
+      
+      // Save to localStorage so it persists across page loads
+      try {
+        const mintedNFTs = JSON.parse(localStorage.getItem('qf_minted_nfts') || '[]')
+        mintedNFTs.push({ id: nft.id, address: mockMintAddress, timestamp: Date.now() })
+        localStorage.setItem('qf_minted_nfts', JSON.stringify(mintedNFTs))
+      } catch (e) {
+        // Silent fail
+      }
       
       onMintComplete?.(mockMintAddress)
       

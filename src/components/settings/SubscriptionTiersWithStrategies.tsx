@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { useKVSafe as useKV } from '@/hooks/useKVFallback'
-import { UserAuth, LICENSE_TIERS } from '@/lib/auth'
+import { LICENSE_TIERS } from '@/lib/auth'
 import { getFeaturedStrategiesForTier, getStrategyCountByTier } from '@/lib/strategiesData'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +9,7 @@ import { toast } from 'sonner'
 import SubscriptionUpgrade from './SubscriptionUpgrade'
 import { motion } from 'framer-motion'
 import { FREE_TIER_LIMITS } from '@/lib/freeTier'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 
 type TierId = keyof typeof LICENSE_TIERS
 type MatrixValue = boolean | string | number
@@ -49,14 +49,7 @@ const COMPARISON_FEATURES: Array<{
 ]
 
 export default function SubscriptionTiersWithStrategies() {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  const { auth } = usePersistentAuth()
 
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [selectedTier, setSelectedTier] = useState<'free' | 'starter' | 'trader' | 'pro-trader' | 'elite-trader' | 'lifetime'>('free')
@@ -155,9 +148,9 @@ export default function SubscriptionTiersWithStrategies() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {summaryData.map(metric => (
             <div key={metric.label} className="glass-morph-card p-4 border border-white/10">
-              <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground">{metric.label}</p>
-              <p className="text-2xl font-black text-foreground">{metric.value}</p>
-              <p className="text-xs text-muted-foreground">{metric.detail}</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{metric.label}</p>
+              <p className="text-3xl font-black text-foreground">{metric.value}</p>
+              <p className="text-sm text-muted-foreground">{metric.detail}</p>
             </div>
           ))}
         </div>
@@ -169,14 +162,14 @@ export default function SubscriptionTiersWithStrategies() {
             </Badge>
             <span className="text-xs text-muted-foreground uppercase tracking-[0.35em]">Hooks 80% • Converts 50%</span>
           </div>
-          <p className="text-sm text-foreground">
+          <p className="text-base text-foreground leading-relaxed">
             Unlimited paper trading with real market data, DCA Basic agent, Binance read-only exchange access, onboarding tour, tax reserve tracking,
             and notifications capped to drive upgrade urgency.
           </p>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-muted-foreground">
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-muted-foreground">
             {freeTierHighlights.map(item => (
               <li key={item} className="flex items-center gap-2">
-                <CheckCircle size={12} weight="fill" className="text-primary" />
+                <CheckCircle size={14} weight="fill" className="text-primary" />
                 <span>{item}</span>
               </li>
             ))}
@@ -320,15 +313,15 @@ export default function SubscriptionTiersWithStrategies() {
                   </div>
 
                   {/* Features List (Condensed) */}
-                  <div className="space-y-2 mb-4 max-h-32 overflow-y-auto scrollbar-thin">
+                  <div className="space-y-2.5 mb-4 max-h-36 overflow-y-auto scrollbar-thin">
                     {tier.features.slice(0, 5).map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs">
-                        <CheckCircle size={12} weight="fill" className="text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-foreground text-[10px]">{feature}</span>
+                      <div key={idx} className="flex items-start gap-2">
+                        <CheckCircle size={14} weight="fill" className="text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-foreground text-xs leading-relaxed">{feature}</span>
                       </div>
                     ))}
                     {tier.features.length > 5 && (
-                      <div className="text-[9px] text-muted-foreground text-center pt-1">
+                      <div className="text-xs text-muted-foreground text-center pt-1">
                         +{tier.features.length - 5} more features
                       </div>
                     )}

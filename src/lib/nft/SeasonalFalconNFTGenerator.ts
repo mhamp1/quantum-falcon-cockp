@@ -305,8 +305,8 @@ export async function generateSeasonalFalconCollection(
     toast.dismiss(toastId)
     
     confetti({
-      particleCount: 777,
-      spread: 120,
+      particleCount: 195,
+      spread: 90,
       origin: { y: 0.5 },
       colors: ['#00FFFF', '#DC1FFF', '#FF1493', '#FFD700'],
     })

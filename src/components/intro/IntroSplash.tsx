@@ -9,6 +9,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFirstTimeUser } from '@/hooks/useFirstTimeUser';
 import { Lightning, Play } from '@phosphor-icons/react';
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth';
+import { isGodMode } from '@/lib/godMode';
 import '@/styles/intro-splash.css';
 
 interface IntroSplashProps {
@@ -20,32 +22,42 @@ interface IntroSplashProps {
 
 export function IntroSplash({ onFinished }: IntroSplashProps) {
   const { isFirstTime, complete } = useFirstTimeUser();
+  const { auth } = usePersistentAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    // Skip splash screen for master key users (Creator never sees splash)
+    const isMasterUser = isGodMode(auth);
+    if (isMasterUser) {
+      // Auto-complete splash for master users
+      complete();
+      if (onFinished) {
+        onFinished();
+      }
+      return;
+    }
+    
     // Show the overlay if it's a first-time user
     if (isFirstTime) {
       setIsVisible(true);
     }
-  }, [isFirstTime]);
+  }, [isFirstTime, auth, complete, onFinished]);
 
   const finish = useCallback(() => {
     // Mark as complete in localStorage
     complete();
     
-    // CRITICAL: Mark that user just clicked "Enter Cockpit" (for tour timing)
-    // This ensures tour only shows AFTER Enter Cockpit, not on login page
-    try {
-      window.localStorage.setItem('justLoggedIn', 'true');
-    } catch (e) {
-      // Silent fail
-    }
-    
-    // Hide the overlay
+    // Hide the overlay FIRST
     setIsVisible(false);
+    
+    // CRITICAL: Trigger tour start ONLY after user clicks "ENTER COCKPIT"
+    // Tour will NOT start until this event is fired
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('start-onboarding-tour'));
+    }, 300); // Small delay to ensure splash is fully hidden
     
     // Call the optional callback
     if (onFinished) {
