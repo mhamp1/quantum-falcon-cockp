@@ -14,6 +14,7 @@ import VaultTutorial from './VaultTutorial'
 import useEmblaCarousel from 'embla-carousel-react'
 import { generateIntelligentOffers, getTimeUntilNextRotation, type IntelligentOffer } from '@/lib/intelligentOffers'
 import type { UserAuth } from '@/lib/auth'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { useExchangeBalances } from '@/hooks/useExchangeBalances'
 
 interface VaultTransaction {
@@ -47,14 +48,8 @@ export default function VaultView() {
   const [solPrice, setSolPrice] = useState(178.5)
   const [weeklyGrowth, setWeeklyGrowth] = useState(47.3)
   const [autoConvertEnabled, setAutoConvertEnabled] = useKV<boolean>('auto-convert-enabled', true)
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Use persistent auth for accurate tier detection
+  const { auth } = usePersistentAuth()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   
   const { balances: exchangeBalances, isLoading: exchangeBalancesLoading, lastUpdated: exchangeBalancesLastUpdated, refresh: refreshExchangeBalances } = useExchangeBalances(30000)

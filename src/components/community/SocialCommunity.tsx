@@ -38,6 +38,7 @@ import CopyTrader from './CopyTrader'
 import CheckoutDialog from '@/components/shared/CheckoutDialog'
 import { CheckoutItem } from '@/lib/checkout'
 import { UserAuth } from '@/lib/auth'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { cn } from '@/lib/utils'
 
 const COMMUNITY_SIGNALS = [
@@ -77,14 +78,8 @@ const THREAD_UPDATES = [
 ]
 
 export default function SocialCommunity() {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Use persistent auth for accurate tier detection
+  const { auth } = usePersistentAuth()
 
   const [strategies, setStrategies] = useState<ApiStrategy[]>([])
   const [featuredStrategies, setFeaturedStrategies] = useState<ApiStrategy[]>([])

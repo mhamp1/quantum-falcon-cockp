@@ -16,6 +16,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { QUESTS, type Quest } from '@/lib/nft/QuestNFTSystem'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { UserAuth } from '@/lib/auth'
 import QuestNFTReward from './QuestNFTReward'
 import { cn } from '@/lib/utils'
@@ -26,14 +27,8 @@ import ChallengeLeaderboard from '@/components/shared/ChallengeLeaderboard'
 import DailyChallengesPanel from '@/components/shared/DailyChallengesPanel'
 
 export default function QuestBoard() {
-  const [auth] = useKV<UserAuth>('user-auth', {
-    isAuthenticated: false,
-    userId: null,
-    username: null,
-    email: null,
-    avatar: null,
-    license: null
-  })
+  // Use persistent auth for accurate tier detection
+  const { auth } = usePersistentAuth()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
@@ -63,7 +58,9 @@ export default function QuestBoard() {
     xpToNextLevel: 3000
   })
 
-  const userTier = auth?.license?.tier || 'Free'
+  // Get user tier from persistent auth - capitalize first letter for display
+  const rawTier = auth?.license?.tier || 'free'
+  const userTier = rawTier.charAt(0).toUpperCase() + rawTier.slice(1)
 
   // Simulate live bot activity updates
   useEffect(() => {
