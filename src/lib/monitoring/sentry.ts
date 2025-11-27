@@ -12,7 +12,7 @@ async function checkSentryAvailable(): Promise<boolean> {
   try {
     // Use eval to prevent Vite from resolving at build time
     const sentryPath = '@sentry/react'
-    // @ts-ignore - Dynamic import that may not exist
+    // @ts-expect-error - Dynamic import that may not exist
     await new Function('return import(arguments[0])')(sentryPath)
     sentryAvailable = true
     return true
@@ -43,7 +43,7 @@ export async function initSentry() {
 
   try {
     // Dynamic import - only loads if Sentry is installed
-    // @ts-ignore - Dynamic import that may not exist
+    // @ts-expect-error - Dynamic import that may not exist
     const Sentry = await new Function('return import(arguments[0])')('@sentry/react')
     Sentry.init({
       dsn,
@@ -102,7 +102,7 @@ export async function logError(error: Error, context?: Record<string, any>) {
   }
 
   try {
-    // @ts-ignore - Dynamic import that may not exist
+    // @ts-expect-error - Dynamic import that may not exist
     const Sentry = await new Function('return import(arguments[0])')('@sentry/react')
     Sentry.captureException(error, {
       contexts: {
@@ -125,7 +125,7 @@ export async function setSentryUser(user: { id: string; email?: string; username
   if (!isAvailable) return
 
   try {
-    // @ts-ignore - Dynamic import that may not exist
+    // @ts-expect-error - Dynamic import that may not exist
     const Sentry = await new Function('return import(arguments[0])')('@sentry/react')
     Sentry.setUser({
       id: user.id,
