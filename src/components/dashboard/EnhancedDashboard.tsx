@@ -63,12 +63,13 @@ const initialAuthState: UserAuth = {
   license: null
 }
 
+// Default portfolio - zeros until real wallet data loads
 const defaultPortfolio = {
-  solanaBalance: 125.47,
-  btcBalance: 0.00234,
-  totalValue: 8943.21,
-  change24h: 5.72,
-  activeAgents: 3
+  solanaBalance: 0,
+  btcBalance: 0,
+  totalValue: 0,
+  change24h: 0,
+  activeAgents: 0
 }
 
 const RISK_PRESETS = [
