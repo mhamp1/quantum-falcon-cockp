@@ -346,7 +346,7 @@ class PositionMonitor {
     const pnl = (exitPrice - position.entryPrice) * position.amount
     const pnlPercent = ((exitPrice - position.entryPrice) / position.entryPrice) * 100
 
-    let result: PositionCloseResult = {
+    const result: PositionCloseResult = {
       positionId: position.id,
       success: false,
       exitPrice,
@@ -508,7 +508,7 @@ class PositionMonitor {
     const openPositions = this.getOpenPositions()
     
     let totalValue = 0
-    let totalUnrealizedPnL = 0
+    const totalUnrealizedPnL = 0
     
     // Note: Would need current prices for accurate calculation
     openPositions.forEach(p => {

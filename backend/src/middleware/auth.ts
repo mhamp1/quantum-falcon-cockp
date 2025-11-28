@@ -19,15 +19,14 @@ interface JWTPayload {
   exp: number
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string
-        email: string
-        tier: string
-        role?: string
-      }
+// Extend Express Request type
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: {
+      id: string
+      email: string
+      tier: string
+      role?: string
     }
   }
 }
