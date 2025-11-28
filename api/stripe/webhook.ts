@@ -8,10 +8,16 @@
 // Deploy to /api/stripe/webhook
 
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import Stripe from 'stripe'
 
 // Stripe webhook secret from environment
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || ''
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || ''
+
+// Initialize Stripe
+const stripe = new Stripe(STRIPE_SECRET_KEY, {
+  apiVersion: '2024-11-20.acacia' as Stripe.LatestApiVersion,
+})
 
 // ═══════════════════════════════════════════════════════════════
 // LICENSE KEY GENERATION
@@ -58,13 +64,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Verify webhook signature
-  let event
+  let event: Stripe.Event
   try {
-    const stripe = require('stripe')(STRIPE_SECRET_KEY)
     event = stripe.webhooks.constructEvent(rawBody, signature, STRIPE_WEBHOOK_SECRET)
-  } catch (err: any) {
-    console.error('[Webhook] Signature verification failed:', err.message)
-    return res.status(400).json({ error: `Webhook Error: ${err.message}` })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[Webhook] Signature verification failed:', message)
+    return res.status(400).json({ error: `Webhook Error: ${message}` })
   }
 
   // Handle event types
@@ -99,9 +105,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(200).json({ received: true })
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
     console.error('[Webhook] Processing error:', error)
-    return res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: message })
   }
 }
 
@@ -109,7 +116,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 // EVENT HANDLERS
 // ═══════════════════════════════════════════════════════════════
 
-async function handleCheckoutComplete(session: any) {
+async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   console.log('[Webhook] Checkout completed:', session.id)
 
   const customerId = session.customer
@@ -144,7 +151,7 @@ async function handleCheckoutComplete(session: any) {
   console.log(`[Webhook] License activated: ${tier} for ${email}`)
 }
 
-async function handleInvoicePaid(invoice: any) {
+async function handleInvoicePaid(invoice: Stripe.Invoice) {
   console.log('[Webhook] Invoice paid:', invoice.id)
 
   const customerId = invoice.customer
@@ -158,7 +165,7 @@ async function handleInvoicePaid(invoice: any) {
   })
 }
 
-async function handleSubscriptionUpdated(subscription: any) {
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   console.log('[Webhook] Subscription updated:', subscription.id)
 
   const customerId = subscription.customer
@@ -175,7 +182,7 @@ async function handleSubscriptionUpdated(subscription: any) {
   })
 }
 
-async function handleSubscriptionCancelled(subscription: any) {
+async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
   console.log('[Webhook] Subscription cancelled:', subscription.id)
 
   const customerId = subscription.customer

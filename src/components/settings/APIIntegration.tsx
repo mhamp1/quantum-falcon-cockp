@@ -73,6 +73,10 @@ export default function APIIntegration() {
     { id: 'balancer', name: 'Balancer', type: 'exchange' as const, connected: false, encrypted: true },
     { id: 'dydx', name: 'dYdX', type: 'exchange' as const, connected: false, encrypted: true },
     
+    // Data Providers
+    { id: 'dexscreener', name: 'DexScreener', type: 'exchange' as const, connected: false, encrypted: true },
+    { id: 'birdeye', name: 'Birdeye', type: 'exchange' as const, connected: false, encrypted: true },
+    
     // RPC Providers
     { id: 'helius', name: 'Helius RPC', type: 'rpc' as const, connected: false, encrypted: true },
   ], [])
@@ -402,7 +406,7 @@ export default function APIIntegration() {
   // Verification log: Confirming all exchange cards are present
   if (typeof window !== 'undefined' && connections) {
     const cexCards = connections.filter(c => c.id === 'kraken' || c.id === 'binance')
-    const dexCards = connections.filter(c => ['jupiter', 'raydium', 'orca', 'uniswap', '1inch', 'pancakeswap', 'sushiswap', 'curve', 'balancer', 'dydx'].includes(c.id))
+    const dexCards = connections.filter(c => ['jupiter', 'raydium', 'orca', 'uniswap', '1inch', 'pancakeswap', 'sushiswap', 'curve', 'balancer', 'dydx', 'dexscreener', 'birdeye'].includes(c.id))
     console.info('✓ ALL EXCHANGE CARDS ADDED', {
       CEX: cexCards.map(c => c.name),
       DEX: dexCards.map(c => c.name)

@@ -25,7 +25,6 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { checkRPCHealth, testHeliusConnection, RPCHealth } from '@/lib/solana/connection'
-import { toast } from 'sonner'
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES

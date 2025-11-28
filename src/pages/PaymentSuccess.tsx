@@ -9,7 +9,6 @@ import { motion } from 'framer-motion'
 import {
   CheckCircle,
   Copy,
-  Confetti,
   Rocket,
   Crown,
   ArrowRight,
@@ -28,7 +27,7 @@ import confetti from 'canvas-confetti'
 // ═══════════════════════════════════════════════════════════════
 
 export default function PaymentSuccess() {
-  const { auth, refreshAuth } = usePersistentAuth()
+  const { refreshAuth } = usePersistentAuth()
   const [result, setResult] = useState<PaymentResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [copied, setCopied] = useState(false)
@@ -59,8 +58,8 @@ export default function PaymentSuccess() {
           try {
             const audio = new Audio('/sounds/success.mp3')
             audio.volume = 0.3
-            audio.play().catch(() => {})
-          } catch {}
+            audio.play().catch(() => { /* Audio playback is optional */ })
+          } catch { /* Audio loading is optional */ }
         }
       } catch (error) {
         console.error('[Payment] Verification failed:', error)
