@@ -1,5 +1,8 @@
-// CRITICAL FINAL FIX: Kraken + Binance cards FORCED into existence — CEX trading live forever — November 20, 2025
-// console.log("KRAKEN AND BINANCE CARDS ADDED") confirmed below in component body
+// ═══════════════════════════════════════════════════════════════
+// API INTEGRATION — REAL WALLET & EXCHANGE CONNECTIONS
+// Wired to actual Solana wallet adapter + CEX APIs
+// November 28, 2025 — Quantum Falcon Cockpit
+// ═══════════════════════════════════════════════════════════════
 
 import { useState, useEffect, useMemo } from 'react'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
@@ -19,7 +22,10 @@ import {
   Warning,
   Lock,
   XCircle,
-  Lightning
+  Lightning,
+  ArrowsClockwise,
+  Plugs,
+  Globe
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { settingsAPI } from '@/lib/api/settings-api'
@@ -27,6 +33,8 @@ import BinanceConnectModal from './modals/BinanceConnectModal'
 import KrakenConnectModal from './modals/KrakenConnectModal'
 import { BinanceService } from '@/lib/exchanges/binance'
 import { KrakenService } from '@/lib/exchanges/kraken'
+import { useQuantumWallet } from '@/providers/WalletProvider'
+import { checkRPCHealth, testHeliusConnection } from '@/lib/solana/connection'
 
 interface APIConnection {
   id: string
@@ -47,7 +55,22 @@ interface APICredentials {
 }
 
 export default function APIIntegration() {
-  // KRAKEN AND BINANCE CARDS ADDED — Confirmed November 20, 2025
+  // ═══════════════════════════════════════════════════════════════
+  // REAL WALLET INTEGRATION — November 28, 2025
+  // ═══════════════════════════════════════════════════════════════
+  
+  const {
+    connected: walletConnected,
+    publicKey: walletPublicKey,
+    shortAddress: walletShortAddress,
+    connect: connectQuantumWallet,
+    disconnect: disconnectQuantumWallet,
+    walletAvailable
+  } = useQuantumWallet()
+
+  // RPC Health state
+  const [rpcHealth, setRpcHealth] = useState<{ healthy: boolean; latency: number } | null>(null)
+  const [isTestingRpc, setIsTestingRpc] = useState(false)
   
   // Memoize initial connections to prevent re-creation on every render (fixes Kraken/Binance card flash bug)
   const initialConnections = useMemo(() => [
@@ -149,6 +172,10 @@ export default function APIIntegration() {
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  // REAL WALLET CONNECTION — Uses Quantum Wallet Provider
+  // ═══════════════════════════════════════════════════════════════
+  
   const connectWallet = async (connectionId: string) => {
     setIsConnecting(prev => ({ ...prev, [connectionId]: true }))
     
@@ -159,33 +186,32 @@ export default function APIIntegration() {
     })
 
     try {
-      // Use real Solana wallet adapter
-      const { useWallet } = await import('@/hooks/useWallet')
-      const { useWalletModal } = await import('@solana/wallet-adapter-react-ui')
-      
-      // For wallet connections, trigger wallet modal
+      // Use the real Quantum Wallet Provider for Phantom/Solflare/Backpack
       if (connectionId === 'phantom' || connectionId === 'solflare') {
-        // The wallet adapter will handle the connection via modal
-        // We'll update the connection state after successful connection
-        const result = await settingsAPI.connectWallet(connectionId)
+        // Trigger the real wallet connection
+        await connectQuantumWallet()
         
-        if (result.success && result.data?.address) {
+        // Wait a moment for the wallet to connect
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Check if connection was successful
+        if (walletPublicKey) {
           setConnections((current) => 
             (current || []).map((conn) =>
               conn.id === connectionId
-                ? { ...conn, connected: true, lastUsed: Date.now(), walletAddress: result.data?.address }
+                ? { ...conn, connected: true, lastUsed: Date.now(), walletAddress: walletPublicKey }
                 : conn
             )
           )
           
           toast.dismiss(`connect-${connectionId}`)
           toast.success('✓ Wallet connected', {
-            description: `Address: ${result.data.address.slice(0, 8)}...${result.data.address.slice(-4)}`,
+            description: `Address: ${walletShortAddress}`,
             className: 'border-primary/50 bg-background/95',
             duration: 4000
           })
         } else {
-          throw new Error(result.error || 'Failed to connect')
+          throw new Error('Wallet connection was not approved')
         }
       } else {
         // Fallback for other connection types
@@ -220,6 +246,64 @@ export default function APIIntegration() {
       setIsConnecting(prev => ({ ...prev, [connectionId]: false }))
     }
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // RPC HEALTH CHECK — Tests Helius connection
+  // ═══════════════════════════════════════════════════════════════
+  
+  const testRPCConnection = async () => {
+    setIsTestingRpc(true)
+    toast.loading('Testing RPC connection...', { id: 'rpc-test' })
+    
+    try {
+      const health = await checkRPCHealth()
+      setRpcHealth(health)
+      
+      toast.dismiss('rpc-test')
+      
+      if (health.healthy) {
+        // Update Helius connection status
+        setConnections((current) =>
+          (current || []).map((conn) =>
+            conn.id === 'helius'
+              ? { ...conn, connected: true, lastUsed: Date.now() }
+              : conn
+          )
+        )
+        
+        toast.success('✓ RPC Healthy', {
+          description: `Latency: ${health.latency}ms | TPS: ${health.tps}`,
+          className: 'border-primary/50 bg-background/95',
+        })
+      } else {
+        toast.error('✗ RPC Unhealthy', {
+          description: health.error || 'Connection failed',
+          className: 'border-destructive/50 bg-background/95',
+        })
+      }
+    } catch (error: any) {
+      toast.dismiss('rpc-test')
+      toast.error('✗ RPC Test Failed', {
+        description: error.message,
+        className: 'border-destructive/50 bg-background/95',
+      })
+    } finally {
+      setIsTestingRpc(false)
+    }
+  }
+
+  // Sync wallet state with connections on mount/change
+  useEffect(() => {
+    if (walletConnected && walletPublicKey) {
+      setConnections((current) =>
+        (current || []).map((conn) =>
+          (conn.id === 'phantom' || conn.id === 'solflare')
+            ? { ...conn, connected: true, lastUsed: Date.now(), walletAddress: walletPublicKey }
+            : conn
+        )
+      )
+    }
+  }, [walletConnected, walletPublicKey, setConnections])
 
   const disconnectConnection = async (connectionId: string) => {
     const connection = connections?.find(c => c.id === connectionId)
@@ -391,15 +475,69 @@ export default function APIIntegration() {
   }
 
   const handleSetupClick = (connectionId: string) => {
+    // CEX connections need API keys
     if (connectionId === 'binance') {
       setShowBinanceModal(true)
-    } else if (connectionId === 'kraken') {
-      setShowKrakenModal(true)
-    } else {
-      setEditingConnection(connectionId)
-      setTempApiKey('')
-      setTempApiSecret('')
+      return
     }
+    
+    if (connectionId === 'kraken') {
+      setShowKrakenModal(true)
+      return
+    }
+    
+    // Solana DEXs (Jupiter, Raydium, Orca) - auto-connect if wallet is connected
+    if (['jupiter', 'raydium', 'orca'].includes(connectionId)) {
+      if (walletConnected) {
+        // Mark as connected since DEXs use the connected wallet
+        setConnections((current) =>
+          (current || []).map((conn) =>
+            conn.id === connectionId
+              ? { ...conn, connected: true, lastUsed: Date.now(), walletAddress: walletPublicKey || undefined }
+              : conn
+          )
+        )
+        toast.success(`✓ ${connectionId.charAt(0).toUpperCase() + connectionId.slice(1)} Connected`, {
+          description: 'Using your connected Solana wallet',
+          className: 'border-primary/50 bg-background/95',
+        })
+      } else {
+        toast.warning('Connect wallet first', {
+          description: 'Solana DEXs require a connected wallet',
+          className: 'border-amber-500/50 bg-background/95',
+        })
+        // Trigger wallet connection
+        connectQuantumWallet()
+      }
+      return
+    }
+    
+    // Helius RPC - just test the connection
+    if (connectionId === 'helius') {
+      testRPCConnection()
+      return
+    }
+    
+    // DexScreener/Birdeye - public APIs, mark as connected
+    if (['dexscreener', 'birdeye'].includes(connectionId)) {
+      setConnections((current) =>
+        (current || []).map((conn) =>
+          conn.id === connectionId
+            ? { ...conn, connected: true, lastUsed: Date.now() }
+            : conn
+        )
+      )
+      toast.success(`✓ ${connectionId === 'dexscreener' ? 'DexScreener' : 'Birdeye'} Connected`, {
+        description: 'Public API - no keys required',
+        className: 'border-primary/50 bg-background/95',
+      })
+      return
+    }
+    
+    // Other exchanges - show API key dialog
+    setEditingConnection(connectionId)
+    setTempApiKey('')
+    setTempApiSecret('')
   }
 
   // CRITICAL FINAL FIX: All exchange cards FORCED into existence — CEX + DEX trading live forever — November 22, 2025
@@ -513,12 +651,16 @@ export default function APIIntegration() {
                 )}
 
                 <div className="flex gap-2">
+                  {/* Wallet connections (Phantom, Solflare) */}
                   {connection.type === 'wallet' ? (
-                    connection.connected ? (
+                    connection.connected || walletConnected ? (
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => disconnectConnection(connection.id)}
+                        onClick={() => {
+                          disconnectQuantumWallet()
+                          disconnectConnection(connection.id)
+                        }}
                         disabled={isLoading}
                         className="flex-1 text-xs"
                       >
@@ -529,10 +671,15 @@ export default function APIIntegration() {
                       <Button
                         size="sm"
                         onClick={() => connectWallet(connection.id)}
-                        disabled={isLoading}
+                        disabled={isLoading || !walletAvailable}
                         className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary text-xs"
                       >
-                        {isLoading ? 'Connecting...' : (
+                        {isLoading ? (
+                          <>
+                            <ArrowsClockwise size={14} className="animate-spin mr-1" />
+                            Connecting...
+                          </>
+                        ) : (
                           <>
                             <Wallet size={14} weight="duotone" className="mr-1" />
                             Connect
@@ -540,6 +687,79 @@ export default function APIIntegration() {
                         )}
                       </Button>
                     )
+                  /* RPC connections (Helius) */
+                  ) : connection.type === 'rpc' ? (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={testRPCConnection}
+                        disabled={isTestingRpc}
+                        className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs"
+                      >
+                        {isTestingRpc ? (
+                          <>
+                            <ArrowsClockwise size={14} className="animate-spin mr-1" />
+                            Testing...
+                          </>
+                        ) : (
+                          <>
+                            <Plugs size={14} className="mr-1" />
+                            Test RPC
+                          </>
+                        )}
+                      </Button>
+                      {rpcHealth?.healthy && (
+                        <Badge className="bg-green-500/20 border border-green-500 text-green-400 text-[9px]">
+                          {rpcHealth.latency}ms
+                        </Badge>
+                      )}
+                    </>
+                  /* DEX connections (Jupiter, Raydium, etc.) */
+                  ) : ['jupiter', 'raydium', 'orca'].includes(connection.id) ? (
+                    connection.connected || walletConnected ? (
+                      <div className="flex gap-2 w-full">
+                        <Badge className="flex-1 justify-center bg-green-500/20 border border-green-500 text-green-400 text-[9px]">
+                          <CheckCircle size={10} weight="fill" className="mr-1" />
+                          READY (via wallet)
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => disconnectConnection(connection.id)}
+                          className="text-xs text-muted-foreground hover:text-destructive"
+                        >
+                          <XCircle size={14} />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSetupClick(connection.id)}
+                        className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary text-xs"
+                      >
+                        <Wallet size={14} weight="duotone" className="mr-1" />
+                        Connect Wallet
+                      </Button>
+                    )
+                  /* Public APIs (DexScreener, Birdeye) */
+                  ) : ['dexscreener', 'birdeye'].includes(connection.id) ? (
+                    connection.connected ? (
+                      <Badge className="flex-1 justify-center bg-green-500/20 border border-green-500 text-green-400 text-[9px]">
+                        <Globe size={10} className="mr-1" />
+                        PUBLIC API ACTIVE
+                      </Badge>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSetupClick(connection.id)}
+                        className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary text-xs"
+                      >
+                        <Lightning size={14} weight="duotone" className="mr-1" />
+                        Enable
+                      </Button>
+                    )
+                  /* Exchange connections (Binance, Kraken, etc.) */
                   ) : (
                     <>
                       {connection.connected ? (
@@ -569,7 +789,7 @@ export default function APIIntegration() {
                           className="flex-1 bg-primary/20 hover:bg-primary/30 border-2 border-primary text-primary text-xs"
                         >
                           <Key size={14} weight="duotone" className="mr-1" />
-                          Setup
+                          Setup API
                         </Button>
                       )}
                     </>

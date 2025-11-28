@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
 // SWAP PANEL — Real Trading Interface
-// Jupiter-powered swaps with risk management
-// November 27, 2025 — Production Ready
+// Jupiter-powered swaps with risk management & trading mode
+// November 28, 2025 — Production Ready
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowsDownUp, 
   Lightning, 
@@ -13,15 +13,21 @@ import {
   CheckCircle,
   Gear,
   Wallet,
-  ArrowsClockwise
+  ArrowsClockwise,
+  TestTube,
+  ShieldCheck,
+  Fire,
+  Lock
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
+import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useQuantumWallet } from '@/providers/WalletProvider'
+import { useTradingMode } from './GoLiveConfirmation'
 
 // ═══════════════════════════════════════════════════════════════
 // TOKEN LIST
@@ -64,6 +70,9 @@ export default function SwapPanel() {
     walletAvailable
   } = useQuantumWallet()
 
+  // Trading mode
+  const { isLive } = useTradingMode()
+
   // State
   const [inputToken, setInputToken] = useState(TOKEN_LIST[0])
   const [outputToken, setOutputToken] = useState(TOKEN_LIST[1])
@@ -74,6 +83,7 @@ export default function SwapPanel() {
   const [isSwapping, setIsSwapping] = useState(false)
   const [slippage, setSlippage] = useState(100) // 1%
   const [showSettings, setShowSettings] = useState(false)
+  const [showLiveWarning, setShowLiveWarning] = useState(false)
 
   // Get quote from Jupiter
   const fetchQuote = useCallback(async () => {
@@ -141,7 +151,34 @@ export default function SwapPanel() {
       return
     }
 
+    // Paper mode - simulate the swap
+    if (!isLive) {
+      setIsSwapping(true)
+      
+      // Simulate execution delay
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      toast.success('📝 Paper Trade Executed!', {
+        description: `Simulated: ${inputAmount} ${inputToken.symbol} → ${outputAmount} ${outputToken.symbol}`,
+        className: 'border-primary/50',
+      })
+      
+      setInputAmount('')
+      setOutputAmount('')
+      setQuote(null)
+      setIsSwapping(false)
+      return
+    }
+
+    // Live mode - show warning first
+    if (!showLiveWarning) {
+      setShowLiveWarning(true)
+      return
+    }
+
     setIsSwapping(true)
+    setShowLiveWarning(false)
+    
     try {
       // Get swap transaction from Jupiter
       const response = await fetch('https://quote-api.jup.ag/v6/swap', {
@@ -172,12 +209,14 @@ export default function SwapPanel() {
         new Uint8Array(transaction)
       )
 
-      toast.success('Swap Successful!', {
+      toast.success('🔴 LIVE Swap Successful!', {
         description: `Swapped ${inputAmount} ${inputToken.symbol} for ${outputAmount} ${outputToken.symbol}`,
         action: {
           label: 'View TX',
           onClick: () => window.open(`https://solscan.io/tx/${signature}`, '_blank'),
         },
+        duration: 10000,
+        className: 'border-green-500/50',
       })
 
       // Clear form
@@ -211,14 +250,38 @@ export default function SwapPanel() {
   }
 
   return (
-    <div className="cyber-card p-6 border-2 border-primary/50 relative overflow-hidden">
+    <div className={cn(
+      "cyber-card p-6 border-2 relative overflow-hidden",
+      isLive ? "border-destructive/50" : "border-primary/50"
+    )}>
       <div className="absolute inset-0 diagonal-stripes opacity-5 pointer-events-none" />
+      
+      {/* Live mode warning border */}
+      {isLive && (
+        <div className="absolute inset-0 border-2 border-destructive/30 pointer-events-none animate-pulse" />
+      )}
       
       {/* Header */}
       <div className="flex items-center justify-between mb-6 relative z-10">
         <div className="flex items-center gap-2">
-          <Lightning size={24} weight="fill" className="text-primary" />
+          {isLive ? (
+            <Fire size={24} weight="fill" className="text-destructive" />
+          ) : (
+            <TestTube size={24} weight="fill" className="text-primary" />
+          )}
           <h2 className="text-xl font-bold uppercase tracking-wider">Swap</h2>
+          
+          {/* Trading Mode Badge */}
+          <Badge 
+            className={cn(
+              "text-[10px] ml-2",
+              isLive 
+                ? "bg-destructive/20 border border-destructive text-destructive animate-pulse" 
+                : "bg-primary/20 border border-primary text-primary"
+            )}
+          >
+            {isLive ? '🔴 LIVE' : '📝 PAPER'}
+          </Badge>
         </div>
         
         <button
@@ -386,37 +449,89 @@ export default function SwapPanel() {
           </div>
         )}
 
+        {/* Live Warning Dialog */}
+        <AnimatePresence>
+          {showLiveWarning && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="p-4 bg-destructive/10 border-2 border-destructive/50 rounded-lg"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Warning size={20} className="text-destructive" />
+                <span className="font-bold text-destructive">CONFIRM LIVE TRADE</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                You are about to execute a <strong>REAL trade</strong> with <strong>real money</strong>. 
+                This action is irreversible.
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowLiveWarning(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSwap}
+                  className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                >
+                  <Fire size={14} className="mr-1" />
+                  Execute Trade
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Swap Button */}
-        <Button
-          onClick={handleSwap}
-          disabled={isSwapping || (!connected && !walletAvailable) || (connected && (!quote || !inputAmount))}
-          className={cn(
-            'w-full h-14 text-lg font-black uppercase tracking-wider',
-            'bg-gradient-to-r from-primary via-accent to-primary',
-            'hover:from-primary/90 hover:via-accent/90 hover:to-primary/90',
-            'border-2 border-primary/50',
-            'shadow-[0_0_30px_rgba(0,212,255,0.3)]',
-            'hover:shadow-[0_0_40px_rgba(0,212,255,0.5)]',
-            'transition-all'
-          )}
-        >
-          {!connected ? (
-            <>
-              <Wallet size={20} className="mr-2" />
-              Connect Wallet
-            </>
-          ) : isSwapping ? (
-            <>
-              <ArrowsClockwise size={20} className="animate-spin mr-2" />
-              Swapping...
-            </>
-          ) : (
-            <>
-              <Lightning size={20} weight="fill" className="mr-2" />
-              Swap
-            </>
-          )}
-        </Button>
+        {!showLiveWarning && (
+          <Button
+            onClick={handleSwap}
+            disabled={isSwapping || (!connected && !walletAvailable) || (connected && (!quote || !inputAmount))}
+            className={cn(
+              'w-full h-14 text-lg font-black uppercase tracking-wider',
+              isLive 
+                ? 'bg-gradient-to-r from-destructive via-red-600 to-destructive hover:from-destructive/90 hover:via-red-600/90 hover:to-destructive/90 border-2 border-destructive/50 shadow-[0_0_30px_rgba(239,68,68,0.3)] hover:shadow-[0_0_40px_rgba(239,68,68,0.5)]'
+                : 'bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 border-2 border-primary/50 shadow-[0_0_30px_rgba(0,212,255,0.3)] hover:shadow-[0_0_40px_rgba(0,212,255,0.5)]',
+              'transition-all'
+            )}
+          >
+            {!connected ? (
+              <>
+                <Wallet size={20} className="mr-2" />
+                Connect Wallet
+              </>
+            ) : isSwapping ? (
+              <>
+                <ArrowsClockwise size={20} className="animate-spin mr-2" />
+                {isLive ? 'Executing...' : 'Simulating...'}
+              </>
+            ) : isLive ? (
+              <>
+                <Fire size={20} weight="fill" className="mr-2" />
+                Swap (LIVE)
+              </>
+            ) : (
+              <>
+                <TestTube size={20} weight="fill" className="mr-2" />
+                Swap (Paper)
+              </>
+            )}
+          </Button>
+        )}
+
+        {/* Paper Mode Notice */}
+        {!isLive && connected && (
+          <div className="flex items-center gap-2 p-2 bg-primary/10 border border-primary/30 rounded text-xs text-primary">
+            <ShieldCheck size={14} />
+            <span>Paper mode — no real money at risk. Go to Settings to enable live trading.</span>
+          </div>
+        )}
 
         {/* Powered By */}
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
