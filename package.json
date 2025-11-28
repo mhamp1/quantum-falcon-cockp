@@ -6,6 +6,7 @@
     "description": "The #1 AI Crypto Trading Cockpit on Solana",
     "author": "mhamp1",
     "license": "PROPRIETARY",
+    "main": "electron/main.js",
     "scripts": {
         "dev": "vite",
         "kill": "fuser -k 5000/tcp",
@@ -18,7 +19,12 @@
         "preview": "vite preview",
         "audit": "npm audit --audit-level=moderate",
         "analyze": "npx vite-bundle-visualizer",
-        "release": "npm version patch && git push --follow-tags"
+        "release": "npm version patch && git push --follow-tags",
+        "electron:dev": "npm run build && electron .",
+        "electron:build": "npm run build && electron-builder",
+        "electron:build:mac": "npm run build && electron-builder --mac",
+        "electron:build:win": "npm run build && electron-builder --win",
+        "electron:build:linux": "npm run build && electron-builder --linux"
     },
     "dependencies": {
         "@github/spark": "^0.39.0",
@@ -109,6 +115,8 @@
         "zod": "^3.25.76"
     },
     "devDependencies": {
+        "electron": "^33.2.0",
+        "electron-builder": "^25.1.8",
         "@eslint/js": "^9.21.0",
         "@tailwindcss/postcss": "^4.1.8",
         "@tauri-apps/cli": "^2.9.4",
