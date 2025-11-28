@@ -104,6 +104,9 @@ export default function SocialCommunity() {
   
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<CheckoutItem | null>(null)
+  
+  // State for controlling community tabs (for external navigation)
+  const [communityActiveTab, setCommunityActiveTab] = useState('strategies')
 
   const rawUserTier = auth?.license?.tier || 'free'
   const userTier = rawUserTier.charAt(0).toUpperCase() + rawUserTier.slice(1).toLowerCase()
@@ -125,6 +128,16 @@ export default function SocialCommunity() {
   useEffect(() => {
     loadFeaturedStrategies()
     loadStrategies()
+  }, [])
+
+  // Event listener for external navigation to NFT tab
+  useEffect(() => {
+    const handleOpenNFTTab = () => {
+      setCommunityActiveTab('nft')
+    }
+    
+    window.addEventListener('open-community-nft-tab', handleOpenNFTTab)
+    return () => window.removeEventListener('open-community-nft-tab', handleOpenNFTTab)
   }, [])
 
   useEffect(() => {
@@ -684,7 +697,7 @@ export default function SocialCommunity() {
           />
         </div>
 
-        <Tabs defaultValue="strategies" className="space-y-6">
+        <Tabs value={communityActiveTab} onValueChange={setCommunityActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6 bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
             <TabsTrigger 
               value="strategies" 

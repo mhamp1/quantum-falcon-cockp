@@ -25,6 +25,7 @@ import { useDailyChallenges } from '@/lib/dailyChallenges'
 import { setChallengeUpdater } from '@/lib/bot/AutonomousTradingLoop'
 import ChallengeLeaderboard from '@/components/shared/ChallengeLeaderboard'
 import DailyChallengesPanel from '@/components/shared/DailyChallengesPanel'
+import { getLearningSystem } from '@/lib/ai/learning/AdaptiveLearningSystem'
 
 export default function QuestBoard() {
   // Use persistent auth for accurate tier detection
@@ -47,33 +48,109 @@ export default function QuestBoard() {
     }
   }, [updateFromTrade])
 
-  // Real-time user stats - integrate with actual bot data
+  // Real-time user stats - from learning system and trade stats
   const [userStats, setUserStats] = useState({
-    totalTrades: 45,
-    totalProfit: 2340.50,
-    winRate: 68.5,
-    streakDays: 3,
-    level: 12,
-    xp: 2340,
-    xpToNextLevel: 3000
+    totalTrades: 0,
+    totalProfit: 0,
+    winRate: 0,
+    streakDays: 0,
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 100
   })
+
+  // Load real stats from learning system
+  useEffect(() => {
+    const loadRealStats = () => {
+      const learningSystem = getLearningSystem()
+      const metrics = learningSystem.getMetrics()
+      
+      // Get trade stats from localStorage
+      const tradeStatsRaw = localStorage.getItem('trade-stats')
+      const tradeStats = tradeStatsRaw ? JSON.parse(tradeStatsRaw) : {}
+      
+      // Get XP profile
+      const xpProfileRaw = localStorage.getItem('user-xp-profile')
+      const xpProfile = xpProfileRaw ? JSON.parse(xpProfileRaw) : { level: 1, xp: 0, xpToNextLevel: 100 }
+      
+      setUserStats({
+        totalTrades: metrics?.totalTrades || tradeStats.totalTrades || 0,
+        totalProfit: metrics?.totalProfit || tradeStats.totalProfit || 0,
+        winRate: metrics?.winRate || tradeStats.winRate || 0,
+        streakDays: tradeStats.streakDays || 0,
+        level: xpProfile.level || 1,
+        xp: xpProfile.xp || 0,
+        xpToNextLevel: xpProfile.xpToNextLevel || 100
+      })
+    }
+
+    loadRealStats()
+    
+    // Update every 10 seconds
+    const interval = setInterval(loadRealStats, 10000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Get user tier from persistent auth - capitalize first letter for display
   const rawTier = auth?.license?.tier || 'free'
   const userTier = rawTier.charAt(0).toUpperCase() + rawTier.slice(1)
 
-  // Simulate live bot activity updates
+  // Connect to real bot telemetry for live activity updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      const activities = [
-        { id: `activity-${Date.now()}`, message: 'Bot executed trade: +$12.50 profit', timestamp: Date.now() },
-        { id: `activity-${Date.now()}-2`, message: 'Strategy "Liquidity Hunter" active', timestamp: Date.now() },
-        { id: `activity-${Date.now()}-3`, message: 'Market scan complete: 3 opportunities found', timestamp: Date.now() },
-      ]
-      const randomActivity = activities[Math.floor(Math.random() * activities.length)]
-      setLiveActivity(prev => [randomActivity, ...prev.slice(0, 4)])
-    }, 8000)
+    const loadRealActivity = () => {
+      // Get real telemetry from autonomous trading loop
+      const telemetryRaw = localStorage.getItem('autonomous-telemetry')
+      const telemetry = telemetryRaw ? JSON.parse(telemetryRaw) : null
+      
+      // Get real trade history
+      const tradeHistoryRaw = localStorage.getItem('trade-history')
+      const tradeHistory = tradeHistoryRaw ? JSON.parse(tradeHistoryRaw) : []
+      
+      const newActivities: Array<{ id: string; message: string; timestamp: number }> = []
+      
+      // Add real telemetry status if available
+      if (telemetry?.lastTxId) {
+        newActivities.push({
+          id: `tx-${telemetry.lastTxId}`,
+          message: `Trade executed: TX ${telemetry.lastTxId.slice(0, 8)}...`,
+          timestamp: Date.now()
+        })
+      }
+      
+      if (telemetry?.totalTrades > 0) {
+        newActivities.push({
+          id: `trades-${Date.now()}`,
+          message: `Bot completed ${telemetry.totalTrades} trades this session`,
+          timestamp: Date.now()
+        })
+      }
+      
+      // Add recent trade from history
+      if (tradeHistory.length > 0) {
+        const lastTrade = tradeHistory[0]
+        if (lastTrade.profit !== undefined) {
+          const profitStr = lastTrade.profit >= 0 ? `+$${lastTrade.profit.toFixed(2)}` : `-$${Math.abs(lastTrade.profit).toFixed(2)}`
+          newActivities.push({
+            id: `trade-${lastTrade.id || Date.now()}`,
+            message: `Last trade: ${lastTrade.type?.toUpperCase() || 'TRADE'} ${profitStr}`,
+            timestamp: lastTrade.timestamp || Date.now()
+          })
+        }
+      }
+      
+      // Only update if we have real activities
+      if (newActivities.length > 0) {
+        setLiveActivity(prev => {
+          // Dedupe by id
+          const existing = new Set(prev.map(a => a.id))
+          const unique = newActivities.filter(a => !existing.has(a.id))
+          return [...unique, ...prev].slice(0, 5)
+        })
+      }
+    }
 
+    loadRealActivity()
+    const interval = setInterval(loadRealActivity, 10000)
     return () => clearInterval(interval)
   }, [])
 

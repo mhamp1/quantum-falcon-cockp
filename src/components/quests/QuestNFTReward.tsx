@@ -241,27 +241,27 @@ export default function QuestNFTReward({
 
         <div className="relative z-10 space-y-4">
           {/* NFT Header - Fixed layout to prevent icon overlap */}
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-3 pr-16">
             {/* Icon container - fixed size, no overlap */}
             <div 
-              className={cn("flex-shrink-0 w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br", rarity.color)}
+              className={cn("flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br", rarity.color)}
               style={{ boxShadow: `0 0 20px ${rarity.glow.replace('shadow-', '').replace('/50', '')}60` }}
             >
-              <RarityIcon size={28} weight="fill" className="text-black" />
+              <RarityIcon size={24} weight="fill" className="text-black" />
             </div>
             {/* Text container - properly isolated from icon */}
-            <div className="flex-1 min-w-0 pt-1">
-              <h4 className="text-base font-black uppercase tracking-wider leading-tight mb-1">
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <h4 className="text-sm font-black uppercase tracking-wider leading-tight mb-1 truncate">
                 {nft.name}
               </h4>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground truncate">
                 Edition #{nft.maxSupply ? `Limited to ${nft.maxSupply}` : 'Unlimited'}
               </p>
             </div>
           </div>
 
           {/* Description - Clear spacing from header */}
-          <p className="text-sm text-muted-foreground leading-relaxed pl-0">
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
             {nft.description}
           </p>
 
