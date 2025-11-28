@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // SWAP PANEL — Real Trading Interface
 // Jupiter-powered swaps with risk management & trading mode
-// November 28, 2025 — Production Ready
+// November 28, 2025 — Production Ready — FULLY WIRED
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect, useCallback } from 'react'
@@ -28,6 +28,19 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useQuantumWallet } from '@/providers/WalletProvider'
 import { useTradingMode } from './GoLiveConfirmation'
+import { positionMonitor } from '@/lib/trading/PositionMonitor'
+import { awardXPAuto } from '@/lib/xpAutoAward'
+import { useKVSafe } from '@/hooks/useKVFallback'
+
+// ═══════════════════════════════════════════════════════════════
+// TRADE STATS TRACKING — For Quest Progress
+// ═══════════════════════════════════════════════════════════════
+interface TradeStats {
+  totalTrades: number
+  totalProfit: number
+  winRate: number
+  totalVolume: number
+}
 
 // ═══════════════════════════════════════════════════════════════
 // TOKEN LIST
@@ -73,6 +86,14 @@ export default function SwapPanel() {
   // Trading mode
   const { isLive } = useTradingMode()
 
+  // Trade stats for quest tracking
+  const [tradeStats, setTradeStats] = useKVSafe<TradeStats>('qf-trade-stats', {
+    totalTrades: 0,
+    totalProfit: 0,
+    winRate: 0,
+    totalVolume: 0
+  })
+
   // State
   const [inputToken, setInputToken] = useState(TOKEN_LIST[0])
   const [outputToken, setOutputToken] = useState(TOKEN_LIST[1])
@@ -84,6 +105,76 @@ export default function SwapPanel() {
   const [slippage, setSlippage] = useState(100) // 1%
   const [showSettings, setShowSettings] = useState(false)
   const [showLiveWarning, setShowLiveWarning] = useState(false)
+
+  // ═══════════════════════════════════════════════════════════════
+  // WIRING: Track trade and award XP
+  // ═══════════════════════════════════════════════════════════════
+  const recordTrade = useCallback((
+    inputAmt: number, 
+    outputAmt: number, 
+    inputSymbol: string, 
+    outputSymbol: string,
+    isLiveTrade: boolean,
+    txSignature?: string
+  ) => {
+    // Update trade stats
+    setTradeStats(prev => {
+      if (!prev) return { totalTrades: 1, totalProfit: 0, winRate: 0, totalVolume: inputAmt }
+      return {
+        ...prev,
+        totalTrades: prev.totalTrades + 1,
+        totalVolume: prev.totalVolume + inputAmt
+      }
+    })
+
+    // Award XP for trading
+    const xpAmount = isLiveTrade ? 50 : 10 // More XP for live trades
+    awardXPAuto('trade', xpAmount, `${inputSymbol} → ${outputSymbol}`)
+
+    // Dispatch trade event for quest tracking
+    window.dispatchEvent(new CustomEvent('tradeCompleted', { 
+      detail: { 
+        inputAmount: inputAmt,
+        outputAmount: outputAmt,
+        inputToken: inputSymbol,
+        outputToken: outputSymbol,
+        isLive: isLiveTrade,
+        signature: txSignature,
+        timestamp: Date.now()
+      } 
+    }))
+  }, [setTradeStats])
+
+  // ═══════════════════════════════════════════════════════════════
+  // WIRING: Add position to monitor after BUY
+  // ═══════════════════════════════════════════════════════════════
+  const addToPositionMonitor = useCallback((
+    outputMint: string,
+    outputSymbol: string,
+    inputAmt: number,
+    outputAmt: number
+  ) => {
+    // Calculate entry price
+    const entryPrice = inputAmt / outputAmt
+    
+    // Add position to monitor with automatic stop-loss and take-profit
+    positionMonitor.addPosition({
+      token: outputMint,
+      symbol: outputSymbol,
+      entryPrice,
+      amount: outputAmt,
+      stopLossPrice: entryPrice * 0.95, // 5% stop loss
+      takeProfitPrice: entryPrice * 1.15, // 15% take profit
+      trailingStopPercent: 3, // 3% trailing stop
+      openedAt: Date.now(),
+      strategy: 'manual-swap',
+    })
+
+    toast.info('📊 Position Added to Monitor', {
+      description: `${outputSymbol}: SL at -5%, TP at +15%`,
+      duration: 4000
+    })
+  }, [])
 
   // Get quote from Jupiter
   const fetchQuote = useCallback(async () => {
@@ -158,6 +249,11 @@ export default function SwapPanel() {
       // Simulate execution delay
       await new Promise(resolve => setTimeout(resolve, 1500))
       
+      // WIRING: Record trade for stats and XP (paper mode)
+      const inputAmt = parseFloat(inputAmount)
+      const outputAmt = parseFloat(outputAmount)
+      recordTrade(inputAmt, outputAmt, inputToken.symbol, outputToken.symbol, false)
+      
       toast.success('📝 Paper Trade Executed!', {
         description: `Simulated: ${inputAmount} ${inputToken.symbol} → ${outputAmount} ${outputToken.symbol}`,
         className: 'border-primary/50',
@@ -218,6 +314,16 @@ export default function SwapPanel() {
         duration: 10000,
         className: 'border-green-500/50',
       })
+
+      // WIRING: Record trade for stats and XP (live mode - higher XP!)
+      const inputAmt = parseFloat(inputAmount)
+      const outputAmt = parseFloat(outputAmount)
+      recordTrade(inputAmt, outputAmt, inputToken.symbol, outputToken.symbol, true, signature)
+
+      // WIRING: Add to position monitor if this is a BUY (not selling to USDC)
+      if (outputToken.symbol !== 'USDC' && outputToken.mint !== TOKENS.USDC) {
+        addToPositionMonitor(outputToken.mint, outputToken.symbol, inputAmt, outputAmt)
+      }
 
       // Clear form
       setInputAmount('')

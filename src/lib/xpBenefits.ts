@@ -267,18 +267,49 @@ export const XP_LEVEL_REWARDS: XPLevelReward[] = [
   },
 ]
 
-export const XP_ACTIONS = {
+export const XP_ACTIONS: Record<string, { xp: number; description: string }> = {
+  // Core trading actions
   trade_execution: { xp: 10, description: 'Execute a trade' },
+  trade: { xp: 50, description: 'Complete a trade' },
   profitable_trade: { xp: 50, description: 'Close a profitable trade' },
   big_win: { xp: 200, description: 'Close a trade with $100+ profit' },
+  
+  // Swap panel trades
+  'swap-trade': { xp: 50, description: 'Execute a swap' },
+  'paper-trade': { xp: 10, description: 'Paper trade executed' },
+  
+  // Strategy trades
+  'strategy-trade': { xp: 75, description: 'Strategy trade executed' },
+  
+  // DCA and snipe trades
+  'dca-trade': { xp: 100, description: 'DCA order executed' },
+  'snipe-trade': { xp: 150, description: 'Token snipe executed' },
+  
+  // Autonomous trading
+  'autonomous-trade': { xp: 100, description: 'Autonomous trade executed' },
+  
+  // Streaks and login
   daily_login: { xp: 5, description: 'Daily login bonus' },
   streak_7: { xp: 500, description: '7-day trading streak' },
   streak_30: { xp: 2000, description: '30-day trading streak' },
+  
+  // Social and sharing
   strategy_share: { xp: 30, description: 'Share a strategy' },
+  
+  // Quests and achievements
   quest_complete: { xp: 100, description: 'Complete a quest' },
   achievement_unlock: { xp: 25, description: 'Unlock an achievement' },
+  
+  // NFT minting
+  'nft-mint': { xp: 200, description: 'Mint an NFT' },
+  
+  // Referrals
   referral: { xp: 100, description: 'Successful referral' },
+  
+  // Tutorial
   tutorial_complete: { xp: 100, description: 'Complete tutorial' },
+  
+  // Profit milestones
   first_profit: { xp: 150, description: 'First profitable trade' },
   milestone_1k: { xp: 500, description: 'Reach $1,000 profit' },
   milestone_10k: { xp: 2000, description: 'Reach $10,000 profit' },

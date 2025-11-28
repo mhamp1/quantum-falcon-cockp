@@ -1,0 +1,52 @@
+{
+  "name": "quantum-falcon-backend",
+  "version": "2025.1.0",
+  "description": "Quantum Falcon Trading Bot Backend — 24/7 Autonomous Trading Server",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "lint": "eslint src/**/*.ts",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "worker:position": "tsx src/workers/PositionMonitorWorker.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "@solana/web3.js": "^1.87.6",
+    "bs58": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.2",
+    "rate-limit-redis": "^4.2.0",
+    "stripe": "^14.8.0",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.10.4",
+    "@types/uuid": "^9.0.7",
+    "prisma": "^5.7.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "mhamp1 <creator@quantumfalcon.io>",
+  "license": "PROPRIETARY"
+}
+

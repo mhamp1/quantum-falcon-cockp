@@ -6,6 +6,7 @@
 
 import { Connection, PublicKey, VersionedTransaction, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { JupiterSwapEngine, TOKENS, SwapResult } from './JupiterSwapEngine'
+import { positionMonitor } from './PositionMonitor'
 import { toast } from 'sonner'
 
 // ═══════════════════════════════════════════════════════════════
@@ -336,6 +337,38 @@ export class TradeExecutionEngine {
         this.stats.totalVolume += inputAmount
         this.stats.lastTradeAt = Date.now()
         this.stats.winRate = (this.stats.successfulTrades / this.stats.totalTrades) * 100
+
+        // ═══════════════════════════════════════════════════════════════
+        // AUTO-ADD TO POSITION MONITOR FOR STOP-LOSS/TAKE-PROFIT
+        // ═══════════════════════════════════════════════════════════════
+        if (side === 'buy' && result.outputAmount && result.outputAmount > 0) {
+          const tokenPrice = await this.jupiter.getTokenPrice(outputToken)
+          if (tokenPrice && tokenPrice > 0) {
+            // Calculate stop loss (5% below entry) and take profit (15% above entry)
+            const stopLossPrice = tokenPrice * 0.95
+            const takeProfitPrice = tokenPrice * 1.15
+            
+            positionMonitor.addPosition({
+              token: outputToken,
+              symbol: outputToken.slice(0, 6).toUpperCase(),
+              entryPrice: tokenPrice,
+              amount: result.outputAmount / 1e9, // Convert from base units
+              stopLossPrice,
+              takeProfitPrice,
+              trailingStopPercent: 3, // 3% trailing stop
+              openedAt: Date.now(),
+              strategy: 'autonomous',
+              side: 'long',
+            })
+            
+            console.log('[TradeEngine] Position added to monitor:', {
+              token: outputToken.slice(0, 8) + '...',
+              entry: tokenPrice,
+              stopLoss: stopLossPrice,
+              takeProfit: takeProfitPrice,
+            })
+          }
+        }
 
         toast.success('Trade Executed', {
           description: `${side.toUpperCase()} completed — View on Solscan`,

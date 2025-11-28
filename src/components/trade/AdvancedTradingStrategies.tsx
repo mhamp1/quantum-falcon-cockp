@@ -34,6 +34,9 @@ import { cn } from '@/lib/utils'
 import { getTradeEngine, TOKENS } from '@/lib/trading/TradeExecutionEngine'
 import { connection } from '@/lib/solana/connection'
 import { useQuantumWallet } from '@/providers/WalletProvider'
+import { positionMonitor } from '@/lib/trading/PositionMonitor'
+import { awardXPAuto } from '@/lib/xpAutoAward'
+import { useTradingMode } from '@/components/trading/GoLiveConfirmation'
 
 // Master keys for God Mode
 const MASTER_KEYS = ['QF-GODMODE-MHAMP1-2025', 'GODMODE-MASTER-2025']
@@ -136,14 +139,32 @@ const createExecutionContext = (
     if (isLiveMode && signTransaction) {
       // REAL TRADE EXECUTION
       try {
+        const tokenMint = asset === 'SOL' ? TOKENS.SOL : asset === 'BTC' ? TOKENS.USDC : TOKENS.USDC
         const result = await tradeEngine.buyToken(
-          asset === 'SOL' ? TOKENS.SOL : asset === 'BTC' ? TOKENS.USDC : TOKENS.USDC,
+          tokenMint,
           amount / prices[asset.toLowerCase() as keyof typeof prices] || amount
         )
         
         if (result.status === 'completed') {
+          // WIRING: Award XP for live strategy trade
+          awardXPAuto('strategy-trade', 75, `Strategy BUY ${asset}`)
+          
+          // WIRING: Add to position monitor
+          const entryPrice = prices[asset.toLowerCase() as keyof typeof prices] || 100
+          positionMonitor.addPosition({
+            token: tokenMint,
+            symbol: asset,
+            entryPrice,
+            amount: amount / entryPrice,
+            stopLossPrice: entryPrice * 0.95,
+            takeProfitPrice: entryPrice * 1.15,
+            trailingStopPercent: 3,
+            openedAt: Date.now(),
+            strategy: 'automated-strategy',
+          })
+          
           toast.success(`📈 LIVE BUY Executed: ${asset}`, {
-            description: `TX: ${result.signature?.slice(0, 8)}...`,
+            description: `TX: ${result.signature?.slice(0, 8)}... | Position monitored`,
             action: {
               label: 'View',
               onClick: () => window.open(`https://solscan.io/tx/${result.signature}`, '_blank'),
@@ -156,7 +177,8 @@ const createExecutionContext = (
         toast.error('Trade execution failed', { description: error.message })
       }
     } else {
-      // PAPER TRADING
+      // PAPER TRADING - still award some XP
+      awardXPAuto('paper-trade', 10, `[PAPER] Strategy BUY ${asset}`)
       toast.success(`📈 [PAPER] BUY Signal: ${amount.toFixed(2)} ${asset}`, {
         description: `Simulated at $${prices[asset.toLowerCase() as keyof typeof prices]?.toFixed(2) || 'N/A'}`,
       })
@@ -174,6 +196,9 @@ const createExecutionContext = (
         )
         
         if (result.status === 'completed') {
+          // WIRING: Award XP for live strategy trade
+          awardXPAuto('strategy-trade', 75, `Strategy SELL ${asset}`)
+          
           toast.success(`📉 LIVE SELL Executed: ${asset}`, {
             description: `TX: ${result.signature?.slice(0, 8)}...`,
             action: {
@@ -188,7 +213,8 @@ const createExecutionContext = (
         toast.error('Trade execution failed', { description: error.message })
       }
     } else {
-      // PAPER TRADING
+      // PAPER TRADING - still award some XP
+      awardXPAuto('paper-trade', 10, `[PAPER] Strategy SELL ${asset}`)
       toast.success(`📉 [PAPER] SELL Signal: ${amount.toFixed(2)} ${asset}`, {
         description: `Simulated at $${prices[asset.toLowerCase() as keyof typeof prices]?.toFixed(2) || 'N/A'}`,
       })
@@ -429,8 +455,8 @@ export default function AdvancedTradingStrategies() {
   // Wallet context for real trade execution
   const { connected, signTransaction, publicKey, solBalance } = useQuantumWallet()
   
-  // Trading mode (paper vs live)
-  const [isLiveMode] = useKV<boolean>('trading-mode', false)
+  // Trading mode (paper vs live) - use centralized hook
+  const { isLive: isLiveMode } = useTradingMode()
 
   const [activeStrategies, setActiveStrategies] = useKV<ActiveStrategy[]>('active-strategies-v3', [])
   const [strategyParams, setStrategyParams] = useKV<Record<string, Record<string, any>>>('strategy-params-v3', {})

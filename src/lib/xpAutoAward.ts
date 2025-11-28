@@ -117,19 +117,30 @@ export function useAutoXPAward() {
 /**
  * Award XP from anywhere (non-hook version)
  * Automatically integrates with trade execution, challenges, etc.
+ * Can be called with either a predefined action OR a custom xp amount
  */
-export function awardXPAuto(action: keyof typeof XP_ACTIONS, metadata?: Record<string, any>) {
-  if (globalAwardXP) {
-    globalAwardXP(action, metadata)
+export function awardXPAuto(
+  action: string, 
+  customXPOrMeta?: number | Record<string, any>,
+  description?: string
+) {
+  // Determine if customXPOrMeta is a custom XP amount or metadata
+  const isCustomXP = typeof customXPOrMeta === 'number'
+  const xpToAward = isCustomXP ? customXPOrMeta : (XP_ACTIONS[action]?.xp || 0)
+  const actionDescription = description || (isCustomXP ? action : XP_ACTIONS[action]?.description) || action
+
+  if (xpToAward === 0) return
+
+  if (globalAwardXP && !isCustomXP) {
+    globalAwardXP(action as keyof typeof XP_ACTIONS, isCustomXP ? undefined : customXPOrMeta as Record<string, any>)
     return
   }
 
-  // Fallback: Direct KV update if hook not initialized
+  // Fallback: Direct KV update if hook not initialized or using custom XP
   try {
     const stored = localStorage.getItem('user-xp-profile')
     const current: UserXPProfile = stored ? JSON.parse(stored) : DEFAULT_PROFILE
-    const xpAmount = XP_ACTIONS[action]?.xp || 0
-    if (xpAmount === 0) return
+    const xpAmount = xpToAward
 
     const newTotalXP = current.totalXp + xpAmount
     let newLevel = current.level
@@ -167,6 +178,12 @@ export function awardXPAuto(action: keyof typeof XP_ACTIONS, metadata?: Record<s
     }
 
     localStorage.setItem('user-xp-profile', JSON.stringify(updated))
+    
+    // Show XP toast for custom awards
+    toast.success(`+${xpAmount} XP`, {
+      description: actionDescription,
+      duration: 2000
+    })
   } catch (e) {
     // Silent fail
   }

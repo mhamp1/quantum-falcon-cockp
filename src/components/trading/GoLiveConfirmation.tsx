@@ -26,6 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from 'sonner'
 import { useKVSafe } from '@/hooks/useKVFallback'
 import { useQuantumWallet } from '@/providers/WalletProvider'
+import { executionBridge } from '@/lib/trading/AutonomousExecutionBridge'
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -414,6 +415,10 @@ export function useTradingMode() {
       confirmedAt: Date.now(),
       riskAcknowledged: true,
     })
+    
+    // Enable live mode on autonomous execution bridge
+    executionBridge.setLiveMode(true)
+    console.log('[useTradingMode] 🔴 LIVE MODE ENABLED - Autonomous trading armed')
   }
 
   const disableLiveTrading = () => {
@@ -422,6 +427,10 @@ export function useTradingMode() {
       confirmedAt: 0,
       riskAcknowledged: false,
     })
+    
+    // Disable live mode on autonomous execution bridge
+    executionBridge.setLiveMode(false)
+    console.log('[useTradingMode] 📝 Paper Mode - Autonomous trading disarmed')
     
     toast.success('Paper Mode Enabled', {
       description: 'You are now trading in simulation mode.',

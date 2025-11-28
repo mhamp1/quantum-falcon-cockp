@@ -240,16 +240,18 @@ export default function QuestNFTReward({
         )}
 
         <div className="relative z-10 space-y-4">
-          {/* NFT Header */}
-          <div className="flex items-center gap-4">
+          {/* NFT Header - Fixed layout to prevent icon overlap */}
+          <div className="flex items-start gap-4">
+            {/* Icon container - fixed size, no overlap */}
             <div 
-              className={cn("p-4 rounded-2xl bg-gradient-to-br", rarity.color)}
+              className={cn("flex-shrink-0 w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br", rarity.color)}
               style={{ boxShadow: `0 0 20px ${rarity.glow.replace('shadow-', '').replace('/50', '')}60` }}
             >
-              <RarityIcon size={32} weight="fill" className="text-black" />
+              <RarityIcon size={28} weight="fill" className="text-black" />
             </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-lg font-black uppercase tracking-wider truncate">
+            {/* Text container - properly isolated from icon */}
+            <div className="flex-1 min-w-0 pt-1">
+              <h4 className="text-base font-black uppercase tracking-wider leading-tight mb-1">
                 {nft.name}
               </h4>
               <p className="text-xs text-muted-foreground">
@@ -258,8 +260,8 @@ export default function QuestNFTReward({
             </div>
           </div>
 
-          {/* Description */}
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          {/* Description - Clear spacing from header */}
+          <p className="text-sm text-muted-foreground leading-relaxed pl-0">
             {nft.description}
           </p>
 

@@ -1,11 +1,12 @@
 // ═══════════════════════════════════════════════════════════════
 // QUANTUM FALCON WALLET PROVIDER
 // Robust Solana wallet integration with React 19 compatibility
-// November 27, 2025 — Production Ready
+// November 28, 2025 — Production Ready
 // ═══════════════════════════════════════════════════════════════
 
 import React, { FC, ReactNode, useMemo, useCallback, createContext, useContext, useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import { executionBridge } from '@/lib/trading/AutonomousExecutionBridge'
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES (exported for use throughout app)
@@ -124,6 +125,12 @@ export function WalletProvider({ children }: WalletProviderProps) {
             publicKey: pubkey,
             shortAddress: `${pubkey.slice(0, 4)}...${pubkey.slice(-4)}`,
           }))
+          
+          // Wire to autonomous execution bridge on auto-connect
+          executionBridge.setWallet(pubkey, async (tx) => {
+            const signed = await wallet.signTransaction(tx)
+            return signed
+          })
         }
       } else {
         setState(prev => ({ 
@@ -179,6 +186,12 @@ export function WalletProvider({ children }: WalletProviderProps) {
         description: `Connected to ${pubkey.slice(0, 8)}...`,
       })
 
+      // Wire to autonomous execution bridge
+      executionBridge.setWallet(pubkey, async (tx) => {
+        const signed = await wallet.signTransaction(tx)
+        return signed
+      })
+
       // Fetch balances
       await fetchBalances(pubkey)
     } catch (error: any) {
@@ -221,6 +234,9 @@ export function WalletProvider({ children }: WalletProviderProps) {
       solBalance: 0,
       tokenBalances: [],
     }))
+
+    // Clear execution bridge
+    executionBridge.setWallet(null, null)
 
     toast.success('Wallet Disconnected')
   }, [])
@@ -309,6 +325,9 @@ export function WalletProvider({ children }: WalletProviderProps) {
           solBalance: 0,
           tokenBalances: [],
         }))
+        
+        // Clear execution bridge
+        executionBridge.setWallet(null, null)
       }
 
       const handleAccountChange = (publicKey: any) => {
@@ -319,6 +338,13 @@ export function WalletProvider({ children }: WalletProviderProps) {
             publicKey: pubkey,
             shortAddress: `${pubkey.slice(0, 4)}...${pubkey.slice(-4)}`,
           }))
+          
+          // Update execution bridge with new account
+          executionBridge.setWallet(pubkey, async (tx) => {
+            const signed = await phantom.signTransaction(tx)
+            return signed
+          })
+          
           fetchBalances(pubkey)
         } else {
           handleDisconnect()

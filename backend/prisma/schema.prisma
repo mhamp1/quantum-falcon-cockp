@@ -1,0 +1,252 @@
+// ═══════════════════════════════════════════════════════════════
+// PRISMA SCHEMA — Quantum Falcon Database
+// November 28, 2025 — Production Ready
+// ═══════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// USER MODEL
+// ═══════════════════════════════════════════════════════════════
+
+model User {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  username             String?   @unique
+  passwordHash         String?
+  
+  // Subscription
+  tier                 String    @default("free")
+  stripeCustomerId     String?   @unique
+  subscriptionStatus   String?   @default("none")
+  lastPaymentAt        DateTime?
+  
+  // Trading
+  tradingPaused        Boolean   @default(false)
+  tradingPausedReason  String?
+  tradingPausedAt      DateTime?
+  
+  // Admin
+  role                 String?   @default("user")
+  
+  // Timestamps
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  lastLoginAt          DateTime?
+  
+  // Relations
+  trades               Trade[]
+  positions            Position[]
+  licenses             License[]
+  payments             Payment[]
+  notifications        Notification[]
+  learningData         LearningData[]
+  apiKeys              ApiKey[]
+  
+  @@index([email])
+  @@index([stripeCustomerId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TRADE MODEL
+// ═══════════════════════════════════════════════════════════════
+
+model Trade {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Trade details
+  side          String    // 'buy' | 'sell'
+  inputToken    String
+  outputToken   String
+  inputAmount   Float
+  outputAmount  Float?
+  price         Float?
+  priceImpact   Float?
+  slippage      Float?
+  
+  // Strategy info
+  strategy      String?
+  agentId       String?
+  confidence    Float?
+  
+  // Result
+  signature     String?
+  status        String    @default("pending") // 'pending' | 'completed' | 'failed'
+  error         String?
+  pnl           Float?
+  
+  // Timestamps
+  executedAt    DateTime  @default(now())
+  confirmedAt   DateTime?
+  
+  @@index([userId, executedAt])
+  @@index([status])
+  @@index([signature])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// POSITION MODEL
+// ═══════════════════════════════════════════════════════════════
+
+model Position {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Position details
+  token               String
+  symbol              String
+  amount              Float
+  entryPrice          Float
+  currentPrice        Float?
+  side                String    @default("long")
+  
+  // Stop loss / Take profit
+  stopLossPrice       Float
+  takeProfitPrice     Float
+  trailingStopPercent Float?
+  highestPrice        Float
+  
+  // Strategy
+  strategy            String?
+  
+  // Status
+  status              String    @default("open") // 'open' | 'closing' | 'closed' | 'emergency_stopped'
+  exitPrice           Float?
+  exitReason          String?   // 'stop_loss' | 'take_profit' | 'trailing_stop' | 'manual'
+  pnl                 Float?
+  
+  // Timestamps
+  openedAt            DateTime  @default(now())
+  closedAt            DateTime?
+  updatedAt           DateTime  @updatedAt
+  
+  @@index([userId, status])
+  @@index([status])
+  @@index([token])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LICENSE MODEL
+// ═══════════════════════════════════════════════════════════════
+
+model License {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  key           String    @unique
+  tier          String
+  status        String    @default("active") // 'active' | 'suspended' | 'revoked' | 'expired'
+  
+  activatedAt   DateTime  @default(now())
+  expiresAt     DateTime?
+  renewedAt     DateTime?
+  
+  // Device binding
+  deviceId      String?
+  maxDevices    Int       @default(3)
+  
+  @@index([key])
+  @@index([userId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAYMENT MODEL
+// ═══════════════════════════════════════════════════════════════
+
+model Payment {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  stripePaymentId String?   @unique
+  amount          Float
+  currency        String    @default("usd")
+  status          String    @default("pending") // 'pending' | 'completed' | 'failed' | 'refunded'
+  
+  tier            String?
+  type            String    @default("one_time") // 'subscription' | 'one_time' | 'nft' | 'royalty'
+  
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+  
+  @@index([userId])
+  @@index([stripePaymentId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NOTIFICATION MODEL
+// ═══════════════════════════════════════════════════════════════
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        String    // 'trade' | 'position' | 'payment' | 'system' | 'alert'
+  title       String
+  body        String
+  data        Json?
+  
+  read        Boolean   @default(false)
+  readAt      DateTime?
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([userId, read])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LEARNING DATA MODEL
+// ═══════════════════════════════════════════════════════════════
+
+model LearningData {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        String    // 'outcome' | 'metric' | 'config' | 'feedback'
+  data        Json
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([userId, type])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API KEY MODEL
+// ═══════════════════════════════════════════════════════════════
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  key         String    @unique
+  name        String
+  active      Boolean   @default(true)
+  
+  // Permissions
+  permissions String[]  @default(["read"])
+  
+  // Usage tracking
+  lastUsedAt  DateTime?
+  usageCount  Int       @default(0)
+  
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+  
+  @@index([key])
+  @@index([userId])
+}
+

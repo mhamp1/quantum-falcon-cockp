@@ -68,6 +68,7 @@ import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { initSentry, setSentryUser } from '@/lib/monitoring/sentry';
 import { initializeTheme } from '@/hooks/useTheme';
+import { positionMonitor } from '@/lib/trading/PositionMonitor';
 
 // Robust lazy loading with retry logic
 import { createRobustLazy } from '@/lib/lazyLoad'
@@ -294,6 +295,17 @@ export default function App() {
     SecurityManager.initialize();
     initSentry();
     console.info('🔒 [App] Security systems online');
+  }, []);
+
+  // Initialize Position Monitor for automatic stop-loss/take-profit
+  useEffect(() => {
+    positionMonitor.start();
+    console.info('📊 [App] Position Monitor started');
+    
+    return () => {
+      positionMonitor.stop();
+      console.info('📊 [App] Position Monitor stopped');
+    };
   }, []);
 
   // Set Sentry user context when authenticated
