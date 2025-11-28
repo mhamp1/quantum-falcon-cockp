@@ -2,15 +2,19 @@
 // November 24, 2025 — Quantum Falcon Cockpit
 // Only visible when master key is used
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Bug, Wrench, Pulse, Warning, CheckCircle,
-  XCircle, Clock, Database, Network, Cpu, 
-  HardDrive, FileX, ArrowClockwise,
+  Wrench, Pulse, Warning, CheckCircle,
+  XCircle, Clock, Network,
+  ArrowClockwise,
   Terminal, ChartLine, Shield, EyeSlash as Eye,
-  CloudArrowUp, Lightning, Gauge, Brain
+  CloudArrowUp, Lightning, Gauge, Brain, Receipt, Crown
 } from '@phosphor-icons/react'
+
+// Lazy load heavy components
+const InvoiceSection = lazy(() => import('./InvoiceSection'))
+const RPCMonitoringDashboard = lazy(() => import('./RPCMonitoringDashboard'))
 import { getDeploymentMonitor, type DeploymentHealth, type DeploymentInfo } from '@/lib/monitoring/DeploymentMonitor'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -494,8 +498,13 @@ export default function MasterAdminPanel() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-6 w-full bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
+        <TabsList className="grid grid-cols-8 w-full bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
           <TabsTrigger value="overview" className="uppercase tracking-[0.12em] font-bold text-xs">Overview</TabsTrigger>
+          <TabsTrigger value="invoices" className="uppercase tracking-[0.12em] font-bold text-xs flex items-center gap-1">
+            <Receipt size={12} />
+            Invoices
+          </TabsTrigger>
+          <TabsTrigger value="rpc" className="uppercase tracking-[0.12em] font-bold text-xs">RPC</TabsTrigger>
           <TabsTrigger value="deploy" className="uppercase tracking-[0.12em] font-bold text-xs">Deploy</TabsTrigger>
           <TabsTrigger value="errors" className="uppercase tracking-[0.12em] font-bold text-xs">Errors</TabsTrigger>
           <TabsTrigger value="metrics" className="uppercase tracking-[0.12em] font-bold text-xs">Metrics</TabsTrigger>
@@ -572,6 +581,30 @@ export default function MasterAdminPanel() {
               </div>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Invoices & Taxes Tab — CREATOR ONLY */}
+        <TabsContent value="invoices" className="space-y-6">
+          <Suspense fallback={
+            <div className="cyber-card p-8 text-center">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="mt-4 text-muted-foreground">Loading Invoice System...</p>
+            </div>
+          }>
+            <InvoiceSection />
+          </Suspense>
+        </TabsContent>
+
+        {/* RPC Monitoring Tab */}
+        <TabsContent value="rpc" className="space-y-6">
+          <Suspense fallback={
+            <div className="cyber-card p-8 text-center">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="mt-4 text-muted-foreground">Loading RPC Monitor...</p>
+            </div>
+          }>
+            <RPCMonitoringDashboard />
+          </Suspense>
         </TabsContent>
 
         {/* Deploy Monitor Tab */}
