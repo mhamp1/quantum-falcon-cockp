@@ -39,6 +39,9 @@ export interface WalletContextType {
   connect: () => Promise<void>
   disconnect: () => Promise<void>
   refreshBalances: () => Promise<void>
+  signTransaction: ((transaction: any) => Promise<any>) | null
+  signAllTransactions: ((transactions: any[]) => Promise<any[]>) | null
+  signMessage: ((message: Uint8Array) => Promise<Uint8Array>) | null
   
   // Wallet adapter available
   walletAvailable: boolean
@@ -58,6 +61,9 @@ const defaultContext: WalletContextType = {
   connect: async () => { toast.error('Wallet not available') },
   disconnect: async () => {},
   refreshBalances: async () => {},
+  signTransaction: null,
+  signAllTransactions: null,
+  signMessage: null,
   walletAvailable: false,
   walletError: null,
 }
@@ -331,12 +337,78 @@ export function WalletProvider({ children }: WalletProviderProps) {
     }
   }, [fetchBalances])
 
+  // Sign transaction helper
+  const signTransaction = useCallback(async (transaction: any): Promise<any> => {
+    const phantom = (window as any).phantom?.solana
+    const solflare = (window as any).solflare
+    const backpack = (window as any).backpack
+    
+    const wallet = phantom || solflare || backpack
+    
+    if (!wallet || !state.connected) {
+      throw new Error('Wallet not connected')
+    }
+
+    try {
+      const signed = await wallet.signTransaction(transaction)
+      return signed
+    } catch (error: any) {
+      console.error('[Wallet] Sign transaction failed:', error)
+      throw error
+    }
+  }, [state.connected])
+
+  // Sign all transactions helper
+  const signAllTransactions = useCallback(async (transactions: any[]): Promise<any[]> => {
+    const phantom = (window as any).phantom?.solana
+    const solflare = (window as any).solflare
+    const backpack = (window as any).backpack
+    
+    const wallet = phantom || solflare || backpack
+    
+    if (!wallet || !state.connected) {
+      throw new Error('Wallet not connected')
+    }
+
+    try {
+      const signed = await wallet.signAllTransactions(transactions)
+      return signed
+    } catch (error: any) {
+      console.error('[Wallet] Sign all transactions failed:', error)
+      throw error
+    }
+  }, [state.connected])
+
+  // Sign message helper
+  const signMessage = useCallback(async (message: Uint8Array): Promise<Uint8Array> => {
+    const phantom = (window as any).phantom?.solana
+    const solflare = (window as any).solflare
+    const backpack = (window as any).backpack
+    
+    const wallet = phantom || solflare || backpack
+    
+    if (!wallet || !state.connected) {
+      throw new Error('Wallet not connected')
+    }
+
+    try {
+      const { signature } = await wallet.signMessage(message, 'utf8')
+      return signature
+    } catch (error: any) {
+      console.error('[Wallet] Sign message failed:', error)
+      throw error
+    }
+  }, [state.connected])
+
   // Context value
   const contextValue: WalletContextType = {
     ...state,
     connect,
     disconnect,
     refreshBalances,
+    signTransaction: state.connected ? signTransaction : null,
+    signAllTransactions: state.connected ? signAllTransactions : null,
+    signMessage: state.connected ? signMessage : null,
   }
 
   return (

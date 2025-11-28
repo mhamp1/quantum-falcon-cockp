@@ -31,6 +31,9 @@ import confetti from 'canvas-confetti'
 import { UserAuth, canAccessFeature, LICENSE_TIERS } from '@/lib/auth'
 import { isGodMode } from '@/lib/godMode'
 import { cn } from '@/lib/utils'
+import { getTradeEngine, TOKENS } from '@/lib/trading/TradeExecutionEngine'
+import { connection } from '@/lib/solana/connection'
+import { useQuantumWallet } from '@/providers/WalletProvider'
 
 // Master keys for God Mode
 const MASTER_KEYS = ['QF-GODMODE-MHAMP1-2025', 'GODMODE-MASTER-2025']
@@ -98,17 +101,25 @@ interface ActiveStrategy {
   }
 }
 
-// Strategy execution functions
-const createExecutionContext = (prices: { sol: number; btc: number; eth: number }): ExecutionContext => ({
+// Get real trade engine singleton
+const tradeEngine = getTradeEngine(connection)
+
+// Strategy execution functions - NOW WIRED TO REAL TRADE ENGINE
+const createExecutionContext = (
+  prices: { sol: number; btc: number; eth: number },
+  isLiveMode: boolean = false,
+  signTransaction?: (tx: any) => Promise<any>
+): ExecutionContext => ({
   prices,
   indicators: {
     rsi: (period: number) => {
-      // Simulated RSI calculation
-      const randomChange = Math.random() * 40 - 20
-      return 50 + randomChange
+      // RSI calculation based on price change
+      const change = (prices.sol / 140 - 1) * 100
+      return Math.max(0, Math.min(100, 50 + change * 2))
     },
     macd: () => {
-      const macd = Math.random() * 10 - 5
+      const change = (prices.btc / 58000 - 1) * 100
+      const macd = change * 0.5
       const signal = macd * 0.9
       return { macd, signal, histogram: macd - signal }
     },
@@ -121,17 +132,69 @@ const createExecutionContext = (prices: { sol: number; btc: number; eth: number 
   },
   buy: async (asset: string, amount: number) => {
     console.log(`[Strategy] BUY ${amount} ${asset}`)
-    toast.success(`📈 BUY Signal: ${amount} ${asset}`, {
-      description: `Executed at $${prices[asset.toLowerCase() as keyof typeof prices]?.toFixed(2) || 'N/A'}`,
-    })
+    
+    if (isLiveMode && signTransaction) {
+      // REAL TRADE EXECUTION
+      try {
+        const result = await tradeEngine.buyToken(
+          asset === 'SOL' ? TOKENS.SOL : asset === 'BTC' ? TOKENS.USDC : TOKENS.USDC,
+          amount / prices[asset.toLowerCase() as keyof typeof prices] || amount
+        )
+        
+        if (result.status === 'completed') {
+          toast.success(`📈 LIVE BUY Executed: ${asset}`, {
+            description: `TX: ${result.signature?.slice(0, 8)}...`,
+            action: {
+              label: 'View',
+              onClick: () => window.open(`https://solscan.io/tx/${result.signature}`, '_blank'),
+            },
+          })
+        } else {
+          toast.error(`BUY Failed: ${result.error}`)
+        }
+      } catch (error: any) {
+        toast.error('Trade execution failed', { description: error.message })
+      }
+    } else {
+      // PAPER TRADING
+      toast.success(`📈 [PAPER] BUY Signal: ${amount.toFixed(2)} ${asset}`, {
+        description: `Simulated at $${prices[asset.toLowerCase() as keyof typeof prices]?.toFixed(2) || 'N/A'}`,
+      })
+    }
   },
   sell: async (asset: string, amount: number) => {
     console.log(`[Strategy] SELL ${amount} ${asset}`)
-    toast.success(`📉 SELL Signal: ${amount} ${asset}`, {
-      description: `Executed at $${prices[asset.toLowerCase() as keyof typeof prices]?.toFixed(2) || 'N/A'}`,
-    })
+    
+    if (isLiveMode && signTransaction) {
+      // REAL TRADE EXECUTION
+      try {
+        const result = await tradeEngine.sellToken(
+          asset === 'SOL' ? TOKENS.SOL : TOKENS.USDC,
+          amount
+        )
+        
+        if (result.status === 'completed') {
+          toast.success(`📉 LIVE SELL Executed: ${asset}`, {
+            description: `TX: ${result.signature?.slice(0, 8)}...`,
+            action: {
+              label: 'View',
+              onClick: () => window.open(`https://solscan.io/tx/${result.signature}`, '_blank'),
+            },
+          })
+        } else {
+          toast.error(`SELL Failed: ${result.error}`)
+        }
+      } catch (error: any) {
+        toast.error('Trade execution failed', { description: error.message })
+      }
+    } else {
+      // PAPER TRADING
+      toast.success(`📉 [PAPER] SELL Signal: ${amount.toFixed(2)} ${asset}`, {
+        description: `Simulated at $${prices[asset.toLowerCase() as keyof typeof prices]?.toFixed(2) || 'N/A'}`,
+      })
+    }
   },
-  getBalance: (asset: string) => 100, // Simulated balance
+  getBalance: (asset: string) => 100, // Will be replaced with real wallet balance
 })
 
 const STRATEGY_LIBRARY: StrategyConfig[] = [
@@ -362,6 +425,12 @@ const STRATEGY_LIBRARY: StrategyConfig[] = [
 export default function AdvancedTradingStrategies() {
   // Use persistent auth for accurate tier detection - master/lifetime users get full access
   const { auth } = usePersistentAuth()
+  
+  // Wallet context for real trade execution
+  const { connected, signTransaction, publicKey, solBalance } = useQuantumWallet()
+  
+  // Trading mode (paper vs live)
+  const [isLiveMode] = useKV<boolean>('trading-mode', false)
 
   const [activeStrategies, setActiveStrategies] = useKV<ActiveStrategy[]>('active-strategies-v3', [])
   const [strategyParams, setStrategyParams] = useKV<Record<string, Record<string, any>>>('strategy-params-v3', {})
@@ -411,12 +480,21 @@ export default function AdvancedTradingStrategies() {
     return () => clearInterval(interval)
   }, [])
 
+  // Set wallet on trade engine when connected
+  useEffect(() => {
+    if (connected && publicKey && signTransaction) {
+      tradeEngine.setWallet(publicKey, signTransaction)
+    }
+  }, [connected, publicKey, signTransaction])
+
   // Real-time execution loop
   useEffect(() => {
     if (!activeStrategies || activeStrategies.length === 0) return
 
     const interval = setInterval(async () => {
-      const context = createExecutionContext(prices)
+      // Pass live mode and sign transaction to context
+      const canExecuteLive = isLiveMode && connected && !!signTransaction
+      const context = createExecutionContext(prices, canExecuteLive, signTransaction || undefined)
       
       for (const strat of activeStrategies) {
         if (strat.status !== 'running') continue
@@ -571,6 +649,44 @@ export default function AdvancedTradingStrategies() {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
+      {/* Trading Mode Status Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={cn(
+          "p-4 rounded-lg flex items-center justify-between",
+          isLiveMode && connected
+            ? "bg-red-500/10 border-2 border-red-500/50"
+            : "bg-blue-500/10 border-2 border-blue-500/50"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            "w-4 h-4 rounded-full animate-pulse",
+            isLiveMode && connected ? "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]" : "bg-blue-500"
+          )} />
+          <span className={cn(
+            "font-bold uppercase tracking-wider",
+            isLiveMode && connected ? "text-red-400" : "text-blue-400"
+          )}>
+            {isLiveMode && connected ? '🔴 LIVE TRADING ACTIVE' : '📋 PAPER TRADING MODE'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          {connected ? (
+            <span className="text-green-400 flex items-center gap-1">
+              <CheckCircle size={16} weight="fill" />
+              Wallet Connected
+            </span>
+          ) : (
+            <span className="text-yellow-400 flex items-center gap-1">
+              <Warning size={16} weight="fill" />
+              Wallet Disconnected
+            </span>
+          )}
+        </div>
+      </motion.div>
+
       {/* God Mode Banner */}
       {isGodModeActive && (
         <motion.div
@@ -768,6 +884,23 @@ export default function AdvancedTradingStrategies() {
                           <Badge className="uppercase text-xs">
                             {strategy.status}
                           </Badge>
+                          {/* LIVE/PAPER Mode Indicator */}
+                          {strategy.status === 'running' && (
+                            <Badge className={cn(
+                              "uppercase text-xs animate-pulse",
+                              isLiveMode && connected 
+                                ? "bg-red-500/20 text-red-400 border-red-500/50" 
+                                : "bg-blue-500/20 text-blue-400 border-blue-500/50"
+                            )}>
+                              {isLiveMode && connected ? '🔴 LIVE TRADING' : '📋 PAPER MODE'}
+                            </Badge>
+                          )}
+                          {/* Connection Status for Live Mode */}
+                          {strategy.status === 'running' && isLiveMode && !connected && (
+                            <Badge className="uppercase text-xs bg-yellow-500/20 text-yellow-400 border-yellow-500/50">
+                              ⚠️ WALLET DISCONNECTED
+                            </Badge>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

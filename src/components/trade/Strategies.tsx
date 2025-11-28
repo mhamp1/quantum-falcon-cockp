@@ -6,7 +6,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   ChartLine, Lightning, Target, ArrowsIn, ArrowsOut, Cpu, 
   Globe, CoinVertical, Flask, TrendUp, TrendDown, Crown,
-  Warning, CheckCircle, Fire, Star, Info
+  Warning, CheckCircle, Fire, Star, Info, Play, Pause
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -129,13 +129,28 @@ const StrategyCard = ({
       <Progress value={performance} className="w-full h-2" />
     </div>
     
+    {/* PROMINENT ACTIVATE/DEACTIVATE BUTTON */}
     <Button 
       onClick={isActive ? onDeactivate : onActivate} 
-      className="w-full" 
-      variant={isActive ? 'destructive' : 'default'}
+      className={cn(
+        "w-full h-12 text-lg font-black uppercase tracking-wider transition-all",
+        isActive 
+          ? 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)]' 
+          : 'bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-600 hover:to-green-600 text-black shadow-[0_0_20px_rgba(34,211,238,0.4)]'
+      )}
       size="lg"
     >
-      {isActive ? 'Deactivate' : 'Activate'}
+      {isActive ? (
+        <>
+          <Pause size={20} weight="fill" className="mr-2" />
+          DEACTIVATE
+        </>
+      ) : (
+        <>
+          <Play size={20} weight="fill" className="mr-2" />
+          ACTIVATE STRATEGY
+        </>
+      )}
     </Button>
   </motion.div>
 );
@@ -213,6 +228,9 @@ export default function Strategies() {
     }
   }, [error]);
 
+  // Track shown tax toasts to prevent spam
+  const [shownTaxToasts] = useKVSafe<string[]>('tax-toasts-shown-strategies', []);
+  
   const logActivity = useCallback((action: string, strategy: string, profit?: number, holdingDays?: number) => {
     const newLog: LogEntry[] = [...activityLog, { 
       timestamp: new Date().toISOString(), 
@@ -225,11 +243,18 @@ export default function Strategies() {
     
     if (profit && profit > 0 && holdingDays) {
       addProfitableTrade(profit, holdingDays, strategy);
-      toast.success('Tax reserve updated', {
-        description: `$${profit.toFixed(2)} added to tax reserve`,
-      });
+      
+      // Only show tax toast once per strategy per day (prevents spam)
+      const toastKey = `tax-${strategy}-${new Date().toDateString()}`;
+      if (!shownTaxToasts.includes(toastKey)) {
+        toast.success('Tax reserve updated', {
+          id: toastKey, // Unique ID prevents duplicate toasts
+          description: `$${profit.toFixed(2)} added to tax reserve`,
+          duration: 5000,
+        });
+      }
     }
-  }, [activityLog, setActivityLog, addProfitableTrade]);
+  }, [activityLog, setActivityLog, addProfitableTrade, shownTaxToasts]);
 
   // Run active strategies
   useEffect(() => {

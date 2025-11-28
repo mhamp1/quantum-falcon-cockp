@@ -1,75 +1,53 @@
 // Market Feed WebSocket Hook — Real-time Solana DEX Data
-// November 21, 2025 — Quantum Falcon Cockpit
-// ALL DATA MUST BE LIVE — NO MOCK DATA IN PRODUCTION
-// Fallback to REST API polling if WebSocket URL not configured
+// November 28, 2025 — Quantum Falcon Cockpit
+// ALL DATA MUST BE LIVE — NO MOCK DATA
+// Uses REST API polling as primary data source with WebSocket upgrade when available
 
 import { useState, useEffect, useRef } from 'react'
 import type { MarketSnapshot, MarketFeedMessage } from '@/lib/market/solanaFeed'
-import { createMockMarketSnapshot } from '@/lib/market/solanaFeed'
+import { createEmptyMarketSnapshot } from '@/lib/market/solanaFeed'
 import { fetchLiveMarketData } from '@/lib/market/liveMarketData'
 import { toast } from 'sonner'
 
 interface UseMarketFeedOptions {
   url?: string
-  useMockData?: boolean
-  mockUpdateInterval?: number
+  pollingInterval?: number
 }
 
 /**
  * Hook for subscribing to live market feed via WebSocket
- * Falls back to mock data in development
+ * Falls back to REST API polling when WebSocket not available
+ * NO MOCK DATA — Only real market data
  */
 export function useMarketFeed(options: UseMarketFeedOptions = {}) {
   const {
     url = import.meta.env.VITE_MARKET_FEED_URL || '',
-    // Production: NEVER use mock data unless explicitly requested in development
-    useMockData = options.useMockData ?? false,
-    mockUpdateInterval = 5000,
+    pollingInterval = 10000, // 10 second polling default
   } = options
 
   const [snapshot, setSnapshot] = useState<MarketSnapshot | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => {
-    // Production: Only use mock data if explicitly enabled
-    if (useMockData) {
-      console.warn('⚠️ Market Feed: Using mock data (production should use live WebSocket)')
-      setIsConnected(false) // Mark as not connected when using mock data
-      
-      // Initial mock data
-      setSnapshot(createMockMarketSnapshot())
-      
-      // Update mock data periodically with random variations
-      const interval = setInterval(() => {
-        const mock = createMockMarketSnapshot()
-        
-        // Add some random variation
-        mock.orderbook.mid *= 0.98 + Math.random() * 0.04
-        mock.orderbook.change1hPct = -10 + Math.random() * 30
-        mock.sentiment.score = 0.3 + Math.random() * 0.6
-        mock.onchain.volumeChange1h = -20 + Math.random() * 100
-        
-        setSnapshot(mock)
-      }, mockUpdateInterval)
-      
-      return () => clearInterval(interval)
-    }
+    // Set initial empty state while loading
+    setSnapshot(createEmptyMarketSnapshot())
     
-    // Fallback to REST API polling if WebSocket URL not configured
+    // If WebSocket URL not configured, use REST API polling
     if (!url) {
-      console.info('📊 Market Feed: WebSocket URL not configured, using REST API polling fallback')
-      setIsConnected(false) // Not connected via WebSocket, but using REST API
-      setError(null) // No error - we have a fallback
+      console.info('📊 Market Feed: Using REST API polling (no WebSocket URL configured)')
+      setIsConnected(false)
+      setError(null)
       
       // Poll REST API for live market data
       const pollMarketData = async () => {
         try {
           const liveData = await fetchLiveMarketData()
           
-          // Convert LiveMarketData to MarketSnapshot format (matching solanaFeed.ts structure)
+          // Convert LiveMarketData to MarketSnapshot format
           const midPrice = liveData.btcPrice
           const spreadBps = 10 // 0.1% spread approximation
           const bestBid = midPrice * (1 - spreadBps / 10000)
@@ -96,39 +74,41 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
               volumeChange1h: liveData.volumeChange14d,
             },
             mev: {
-              riskScore: Math.max(0, Math.min(1, (liveData.avgFundingRate + 0.5) / 1)), // Normalize to 0-1
+              riskScore: Math.max(0, Math.min(1, (liveData.avgFundingRate + 0.5) / 1)),
             },
             volume: {
-              spikeMultiple: Math.max(1, liveData.volumeChange14d / 50), // Approximation
+              spikeMultiple: Math.max(1, liveData.volumeChange14d / 50),
             },
             portfolio: {
-              drawdown: Math.max(0, -change1hPct / 10), // Approximation
+              drawdown: Math.max(0, -change1hPct / 10),
             },
             dexEdge: {
-              arbEdgeBps: spreadBps / 2, // Half the spread as arb edge
+              arbEdgeBps: spreadBps / 2,
               spreadsBps: spreadBps,
             },
             now: new Date(),
           }
           
           setSnapshot(snapshot)
-          setError(null) // Clear any previous errors
+          setError(null)
+          setIsLoading(false)
         } catch (err) {
           console.error('❌ Market Feed: Failed to fetch live market data', err)
           setError('Failed to fetch market data')
+          setIsLoading(false)
         }
       }
       
       // Initial fetch
       pollMarketData()
       
-      // Poll every 10 seconds (REST API fallback)
-      const pollInterval = setInterval(pollMarketData, 10000)
+      // Poll at configured interval
+      const pollInterval = setInterval(pollMarketData, pollingInterval)
       
       return () => clearInterval(pollInterval)
     }
 
-    // Real WebSocket connection
+    // Real WebSocket connection when URL is configured
     let reconnectAttempts = 0
     const maxReconnectAttempts = 5
     const reconnectDelay = 3000
@@ -140,9 +120,10 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
         wsRef.current = ws
 
         ws.onopen = () => {
-          console.info('✅ Market Feed: Connected')
+          console.info('✅ Market Feed: WebSocket Connected')
           setIsConnected(true)
           setError(null)
+          setIsLoading(false)
           reconnectAttempts = 0
         }
 
@@ -150,7 +131,6 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
           try {
             const message: MarketFeedMessage = JSON.parse(event.data)
             
-            // Inject current timestamp
             const snapshotWithTime: MarketSnapshot = {
               ...message,
               now: new Date(),
@@ -189,6 +169,7 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
       } catch (err) {
         console.error('❌ Market Feed: Failed to create WebSocket', err)
         setError('Failed to create WebSocket connection')
+        setIsLoading(false)
       }
     }
 
@@ -205,11 +186,12 @@ export function useMarketFeed(options: UseMarketFeedOptions = {}) {
         wsRef.current = null
       }
     }
-  }, [url, useMockData, mockUpdateInterval])
+  }, [url, pollingInterval])
 
   return {
     snapshot,
     isConnected,
     error,
+    isLoading,
   }
 }

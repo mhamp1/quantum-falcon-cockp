@@ -1,5 +1,6 @@
-// Solana Market Feed Types — WebSocket Data Structures
-// November 21, 2025 — Quantum Falcon Cockpit
+// Solana Market Feed Types — WebSocket Data Structures (REAL DATA ONLY)
+// November 28, 2025 — Quantum Falcon Cockpit
+// ALL MOCK DATA REMOVED — Types only for real WebSocket integration
 
 /**
  * Orderbook snapshot from WebSocket
@@ -107,48 +108,52 @@ export interface MarketFeedMessage {
 }
 
 /**
- * Create mock market snapshot for testing
+ * Create empty market snapshot for loading states
+ * Returns zeroed values instead of random mock data
  */
-export function createMockMarketSnapshot(): MarketSnapshot {
+export function createEmptyMarketSnapshot(): MarketSnapshot {
   return {
     orderbook: {
-      bestBid: 123.45,
-      bestAsk: 123.46,
-      mid: 123.455,
-      spreadBps: 8.2,
-      volatility1h: 5.1,
-      change1hPct: 12.3,
-      drop5mPct: 0.5,
+      bestBid: 0,
+      bestAsk: 0,
+      mid: 0,
+      spreadBps: 0,
+      volatility1h: 0,
+      change1hPct: 0,
+      drop5mPct: 0,
     },
-    whales: [
-      { type: 'buy', amount: 15000 },
-      { type: 'buy', amount: 12000 },
-      { type: 'sell', amount: 8000 },
-    ],
-    mempoolPools: [
-      { address: 'POOL_PUBKEY_1', liqUsd: 80000 },
-      { address: 'POOL_PUBKEY_2', liqUsd: 25000 },
-    ],
+    whales: [],
+    mempoolPools: [],
     sentiment: {
-      score: 0.78,
+      score: 0.5, // Neutral
     },
     onchain: {
-      holderGrowth24h: 32.4,
-      volumeChange1h: 65.2,
+      holderGrowth24h: 0,
+      volumeChange1h: 0,
     },
     mev: {
-      riskScore: 0.41,
+      riskScore: 0,
     },
     volume: {
-      spikeMultiple: 3.5,
+      spikeMultiple: 1,
     },
     portfolio: {
-      drawdown: 4.2,
+      drawdown: 0,
     },
     dexEdge: {
-      arbEdgeBps: 18,
-      spreadsBps: 14,
+      arbEdgeBps: 0,
+      spreadsBps: 0,
     },
+    now: new Date(),
+  }
+}
+
+/**
+ * Parse WebSocket message to MarketSnapshot
+ */
+export function parseMarketFeedMessage(message: MarketFeedMessage): MarketSnapshot {
+  return {
+    ...message,
     now: new Date(),
   }
 }
