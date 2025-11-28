@@ -1,14 +1,18 @@
-// ENHANCED: Bot Logic Stream — professional terminal with moving grid lines and clean visuals
+// GOD-TIER Logic Stream — Cyberpunk Terminal with Real-Time Bot Brain Activity
+// November 28, 2025 — Quantum Falcon Cockpit v2025.1.0
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { useState, useEffect, useRef } from 'react'
-import { Terminal, Brain, ChartLine, Lightning, CheckCircle, Warning, Info, ArrowsClockwise, MagnifyingGlass, Pause, Play, Download, Funnel } from '@phosphor-icons/react'
+import { Terminal, Brain, ChartLine, Lightning, CheckCircle, Warning, Info, ArrowsClockwise, MagnifyingGlass, Pause, Play, Download, Funnel, Crown, Cpu, Shield, Pulse } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
+import { isGodMode } from '@/lib/godMode'
 
 interface LogEntry {
   id: string
@@ -21,12 +25,16 @@ interface LogEntry {
 }
 
 export function LogicStream() {
+  const { auth } = usePersistentAuth()
+  const isGodModeActive = isGodMode(auth)
+  
   const [logs, setLogs] = useKV<LogEntry[]>('bot-logs', [])
   const [autoScroll, setAutoScroll] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
   const [queuedLogs, setQueuedLogs] = useState<LogEntry[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [systemStatus, setSystemStatus] = useState({ cpu: 0, memory: 0, latency: 0 })
   const [filters, setFilters] = useState({
     trade: true,
     analysis: true,
@@ -38,6 +46,18 @@ export function LogicStream() {
     error: true
   })
   const scrollRef = useRef<HTMLDivElement>(null)
+  
+  // Simulated system metrics
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSystemStatus({
+        cpu: Math.round(30 + Math.sin(Date.now() / 5000) * 20 + Math.random() * 10),
+        memory: Math.round(45 + Math.cos(Date.now() / 8000) * 15 + Math.random() * 5),
+        latency: Math.round(12 + Math.sin(Date.now() / 3000) * 8 + Math.random() * 3)
+      })
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const generateLog = () => {
@@ -230,6 +250,17 @@ export function LogicStream() {
         transition={{ duration: 1, delay: 0.9 }}
       />
       
+      {/* God Mode Crown */}
+      {isGodModeActive && (
+        <motion.div
+          className="absolute -top-6 -right-6 z-50 opacity-20"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+        >
+          <Crown size={80} weight="fill" className="text-yellow-400" />
+        </motion.div>
+      )}
+
       <div className="flex items-center justify-between mb-3 relative z-10">
         <div className="flex items-center gap-2">
           <div className="p-2 jagged-corner-small bg-cyan-500/20 border border-cyan-500/50">
@@ -240,7 +271,7 @@ export function LogicStream() {
               Bot Logic Stream
             </h3>
             <p className="text-[9px] text-muted-foreground uppercase tracking-wider">
-              Real-time decision log
+              Real-time decision log {isGodModeActive && '• GOD MODE'}
             </p>
           </div>
         </div>
@@ -418,6 +449,63 @@ export function LogicStream() {
             </AnimatePresence>
           )}
         </div>
+        
+        {/* Live Indicator & System Metrics */}
+        <div className="mt-4 pt-4 border-t border-cyan-500/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <motion.div
+                  className="w-2 h-2 bg-green-400 rounded-full"
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <motion.div
+                  className="w-2 h-2 bg-green-400 rounded-full"
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                />
+                <motion.div
+                  className="w-2 h-2 bg-green-400 rounded-full"
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                />
+              </div>
+              <span className="text-xs text-cyan-400 uppercase tracking-wider font-bold">
+                SYSTEM ONLINE — PROCESSING
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Cpu size={12} />
+                <span className="font-mono">{systemStatus.cpu}%</span>
+              </div>
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Pulse size={12} />
+                <span className="font-mono">{systemStatus.memory}%</span>
+              </div>
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Lightning size={12} />
+                <span className="font-mono">{systemStatus.latency}ms</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* God Mode Banner */}
+        {isGodModeActive && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 text-center"
+          >
+            <Badge className="px-6 py-2 bg-gradient-to-r from-yellow-400 to-amber-600 text-black font-black uppercase tracking-wider">
+              <Crown size={14} weight="fill" className="mr-2" />
+              GOD MODE — FULL BOT BRAIN VISIBILITY
+            </Badge>
+          </motion.div>
+        )}
       </ScrollArea>
     </motion.div>
   )

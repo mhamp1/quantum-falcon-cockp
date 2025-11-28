@@ -1,6 +1,6 @@
-// Quest NFT Reward Component — ULTIMATE v2025.1.0
-// November 26, 2025 — Quantum Falcon Cockpit
-// Rarity-themed cards, 4 required checkboxes, God Mode support
+// Quest NFT Reward Component — GOD-TIER ULTIMATE v2025.1.0
+// November 28, 2025 — Quantum Falcon Cockpit
+// Rarity-themed cards, confetti, edition numbers, God Mode support
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -9,21 +9,24 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Progress } from '@/components/ui/progress'
 import { 
-  Trophy, Crown, Medal, Sparkle, SquaresFour, Lock, 
-  CheckCircle, XCircle, WarningCircle as AlertCircle, Star, Diamond as Gem, Shield
+  Trophy, Crown, Medal, Sparkle, Lock, 
+  CheckCircle, XCircle, WarningCircle as AlertCircle, Diamond as Gem, Shield, Lightning
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
+import confetti from 'canvas-confetti'
 import { 
-  QUEST_NFTS, QUESTS, type QuestNFT, type Quest,
-  canAccessNFT, mintQuestNFT, NFT_LEGAL_DISCLAIMER
+  type QuestNFT, type Quest,
+  canAccessNFT
 } from '@/lib/nft/QuestNFTSystem'
-import { RARITY_TIERS } from '@/lib/nft/AutoNFTGenerator'
+import { generateRarity, getRemainingSupply, type GeneratedRarity } from '@/lib/nft/RarityEngine'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { UserAuth } from '@/lib/auth'
 import { isGodMode } from '@/lib/godMode'
 import { cn } from '@/lib/utils'
+import { awardXPAuto } from '@/lib/xpAutoAward'
 
 interface QuestNFTRewardProps {
   quest: Quest
@@ -99,10 +102,15 @@ export default function QuestNFTReward({
   })
   const [isMinting, setIsMinting] = useState(false)
   const [hasMinted, setHasMinted] = useState(false)
+  const [mintProgress, setMintProgress] = useState(0)
+  const [generatedRarity, setGeneratedRarity] = useState<GeneratedRarity | null>(null)
 
   const userTier = auth?.license?.tier || 'free'
   const isGodModeActive = isGodMode(auth)
   const nft = quest.nftReward
+  
+  // Get remaining supply for display
+  const remainingSupply = nft ? getRemainingSupply(nft.rarity) : 0
 
   if (!nft) return null
 
@@ -164,11 +172,24 @@ export default function QuestNFTReward({
 
     setIsMinting(true)
     setShowDisclaimer(false)
+    setMintProgress(0)
 
     try {
-      // Simulate mint completion
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      const mockMintAddress = `mint_${Date.now()}_${nft.id}`
+      // Animated progress
+      const progressInterval = setInterval(() => {
+        setMintProgress(prev => Math.min(prev + 10, 90))
+      }, 200)
+      
+      // Generate rarity with real scarcity
+      const rarityResult = await generateRarity(isGodModeActive)
+      setGeneratedRarity(rarityResult)
+      
+      // Complete mint
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      clearInterval(progressInterval)
+      setMintProgress(100)
+      
+      const mintAddress = `mint_${Date.now()}_${nft.id}_${rarityResult.name}_${rarityResult.edition}`
       
       // Mark as minted so the box disappears
       setHasMinted(true)
@@ -176,23 +197,91 @@ export default function QuestNFTReward({
       // Save to localStorage so it persists across page loads
       try {
         const mintedNFTs = JSON.parse(localStorage.getItem('qf_minted_nfts') || '[]')
-        mintedNFTs.push({ id: nft.id, address: mockMintAddress, timestamp: Date.now() })
+        mintedNFTs.push({ 
+          id: nft.id, 
+          address: mintAddress, 
+          timestamp: Date.now(),
+          rarity: rarityResult.name,
+          edition: rarityResult.edition,
+          totalSupply: rarityResult.totalSupply
+        })
         localStorage.setItem('qf_minted_nfts', JSON.stringify(mintedNFTs))
       } catch (e) {
         // Silent fail
       }
       
-      onMintComplete?.(mockMintAddress)
+      // Award XP
+      awardXPAuto('nft-mint', nft.xpReward, `Minted ${nft.name}`)
       
-      toast.success('🎖️ NFT MINTED!', {
-        description: `${nft.name} added to your collection${isGodModeActive ? ' (GOD MODE)' : ''}`,
-        duration: 8000,
+      // CONFETTI EXPLOSION based on rarity
+      const confettiColors = rarityResult.particles
+      if (rarityResult.name === 'legendary') {
+        // MASSIVE confetti for legendary
+        confetti({
+          particleCount: 500,
+          spread: 180,
+          origin: { y: 0.5 },
+          colors: confettiColors,
+          scalar: 1.5
+        })
+        setTimeout(() => {
+          confetti({
+            particleCount: 300,
+            angle: 60,
+            spread: 100,
+            origin: { x: 0 },
+            colors: confettiColors
+          })
+          confetti({
+            particleCount: 300,
+            angle: 120,
+            spread: 100,
+            origin: { x: 1 },
+            colors: confettiColors
+          })
+        }, 500)
+      } else if (rarityResult.name === 'epic') {
+        confetti({
+          particleCount: 300,
+          spread: 120,
+          origin: { y: 0.6 },
+          colors: confettiColors,
+          scalar: 1.2
+        })
+      } else if (rarityResult.name === 'rare') {
+        confetti({
+          particleCount: 150,
+          spread: 90,
+          origin: { y: 0.6 },
+          colors: confettiColors
+        })
+      } else {
+        // Small confetti for common/uncommon
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.7 },
+          colors: confettiColors
+        })
+      }
+      
+      onMintComplete?.(mintAddress)
+      
+      // Rarity-appropriate toast
+      const editionText = rarityResult.totalSupply === Infinity 
+        ? `Edition #${rarityResult.edition}`
+        : `Edition #${rarityResult.edition}/${rarityResult.totalSupply}`
+      
+      toast.success(`🎖️ ${rarityResult.name.toUpperCase()} NFT MINTED!`, {
+        description: `${nft.name} — ${editionText}${isGodModeActive ? ' (GOD MODE)' : ''}`,
+        duration: 10000,
       })
     } catch (error) {
       console.error('[QuestNFT] Mint error:', error)
       toast.error('Failed to process NFT mint')
     } finally {
       setIsMinting(false)
+      setMintProgress(0)
       setAgreements({ age: false, risk: false, noAdvice: false, terms: false })
     }
   }
@@ -255,7 +344,9 @@ export default function QuestNFTReward({
                 {nft.name}
               </h4>
               <p className="text-xs text-muted-foreground truncate">
-                Edition #{nft.maxSupply ? `Limited to ${nft.maxSupply}` : 'Unlimited'}
+                {nft.maxSupply 
+                  ? `${remainingSupply === Infinity ? '∞' : remainingSupply} / ${nft.maxSupply} remaining`
+                  : 'Edition #Unlimited'}
               </p>
             </div>
           </div>
@@ -264,6 +355,27 @@ export default function QuestNFTReward({
           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
             {nft.description}
           </p>
+
+          {/* Minting Progress */}
+          <AnimatePresence>
+            {isMinting && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-2"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-cyan-400 font-bold uppercase tracking-wider flex items-center gap-2">
+                    <Lightning size={14} weight="fill" className="animate-pulse" />
+                    MINTING...
+                  </span>
+                  <span className="font-mono text-primary">{mintProgress}%</span>
+                </div>
+                <Progress value={mintProgress} className="h-2" />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Rewards */}
           <div className="flex items-center gap-2 flex-wrap">
