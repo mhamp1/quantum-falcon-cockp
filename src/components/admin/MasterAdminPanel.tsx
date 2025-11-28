@@ -15,6 +15,7 @@ import {
 // Lazy load heavy components
 const InvoiceSection = lazy(() => import('./InvoiceSection'))
 const RPCMonitoringDashboard = lazy(() => import('./RPCMonitoringDashboard'))
+const WalletSetupGuide = lazy(() => import('./WalletSetupGuide'))
 import { getDeploymentMonitor, type DeploymentHealth, type DeploymentInfo } from '@/lib/monitoring/DeploymentMonitor'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -498,11 +499,15 @@ export default function MasterAdminPanel() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-8 w-full bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
+        <TabsList className="grid grid-cols-9 w-full bg-card/50 backdrop-blur-sm border-2 border-primary/30 p-1 gap-1">
           <TabsTrigger value="overview" className="uppercase tracking-[0.12em] font-bold text-xs">Overview</TabsTrigger>
           <TabsTrigger value="invoices" className="uppercase tracking-[0.12em] font-bold text-xs flex items-center gap-1">
             <Receipt size={12} />
             Invoices
+          </TabsTrigger>
+          <TabsTrigger value="setup" className="uppercase tracking-[0.12em] font-bold text-xs flex items-center gap-1">
+            <Gauge size={12} />
+            Setup
           </TabsTrigger>
           <TabsTrigger value="rpc" className="uppercase tracking-[0.12em] font-bold text-xs">RPC</TabsTrigger>
           <TabsTrigger value="deploy" className="uppercase tracking-[0.12em] font-bold text-xs">Deploy</TabsTrigger>
@@ -592,6 +597,18 @@ export default function MasterAdminPanel() {
             </div>
           }>
             <InvoiceSection />
+          </Suspense>
+        </TabsContent>
+
+        {/* Wallet Setup Guide Tab */}
+        <TabsContent value="setup" className="space-y-6">
+          <Suspense fallback={
+            <div className="cyber-card p-8 text-center">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="mt-4 text-muted-foreground">Loading Setup Guide...</p>
+            </div>
+          }>
+            <WalletSetupGuide />
           </Suspense>
         </TabsContent>
 

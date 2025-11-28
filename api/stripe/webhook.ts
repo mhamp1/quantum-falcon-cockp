@@ -173,18 +173,29 @@ async function processEvent(event: Stripe.Event): Promise<Record<string, unknown
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   console.log('[Webhook] Processing checkout.session.completed:', session.id)
+  console.log('[Webhook] Session mode:', session.mode) // 'subscription' or 'payment'
 
   // Extract data from session
   const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id
+  const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id
   const userId = session.client_reference_id || session.metadata?.userId || customerId || 'unknown'
   const email = session.customer_email || session.customer_details?.email || 'unknown@email.com'
   const userName = session.customer_details?.name || 'User'
+  
+  // Determine if subscription or one-time payment
+  const isSubscription = session.mode === 'subscription'
+  const paymentType = isSubscription ? 'subscription' : 'one-time'
   
   // Get tier from metadata or price
   let tier = session.metadata?.tier || 'starter'
   if (!tier && session.line_items?.data?.[0]?.price?.id) {
     const priceId = session.line_items.data[0].price.id
     tier = PRICE_TO_TIER[priceId] || 'starter'
+  }
+  
+  // Lifetime purchases are always one-time
+  if (tier === 'lifetime') {
+    console.log('[Webhook] Lifetime purchase detected — never expires')
   }
 
   // Calculate amount
@@ -301,31 +312,51 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
   const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id
   const email = invoice.customer_email || 'unknown@email.com'
+  const userId = invoice.metadata?.userId || customerId || 'unknown'
+  const attemptCount = invoice.attempt_count || 1
+  const nextAttempt = invoice.next_payment_attempt 
+    ? new Date(invoice.next_payment_attempt * 1000).toISOString()
+    : null
 
   // Log failed payment
   await logInvoice({
     id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     date: Date.now(),
-    userId: customerId || 'unknown',
+    userId,
     userEmail: email,
     userName: 'User',
     type: 'subscription',
-    description: 'Payment Failed - Action Required',
+    description: `Payment Failed (Attempt ${attemptCount}) - Action Required`,
     amount: (invoice.amount_due || 0) / 100,
     taxCollected: 0,
     status: 'failed',
     stripeId: invoice.id,
+    metadata: { attemptCount, nextAttempt },
   })
 
-  // Send payment failed email
-  await sendPaymentFailedEmail({ email })
+  // SUSPEND LICENSE after first failed payment
+  // User gets grace period but features are limited
+  await suspendLicense({
+    customerId: customerId || '',
+    userId,
+    reason: `Payment failed (attempt ${attemptCount})`,
+  })
 
-  console.log(`[Webhook] ✗ Payment failed for ${email}`)
+  // Send payment failed email with retry link
+  await sendPaymentFailedEmail({ 
+    email,
+    attemptCount,
+    nextAttempt,
+  })
+
+  console.log(`[Webhook] ✗ Payment failed for ${email} (attempt ${attemptCount})`)
 
   return {
     handled: true,
     action: 'payment_failed',
     email,
+    attemptCount,
+    nextAttempt,
   }
 }
 
@@ -358,19 +389,52 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
   console.log('[Webhook] Processing customer.subscription.deleted:', subscription.id)
 
   const customerId = typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id
+  const userId = subscription.metadata?.userId || customerId || 'unknown'
+  const canceledAt = subscription.canceled_at 
+    ? new Date(subscription.canceled_at * 1000).toISOString()
+    : new Date().toISOString()
   const effectiveAt = new Date(subscription.current_period_end * 1000).toISOString()
+  
+  // Check if immediate cancellation or end-of-period
+  const isImmediate = subscription.cancel_at_period_end === false
 
-  await downgradeUser({
-    customerId: customerId || '',
-    effectiveAt,
+  if (isImmediate) {
+    // REVOKE LICENSE immediately
+    await revokeLicense({
+      customerId: customerId || '',
+      userId,
+    })
+    console.log(`[Webhook] ✗ Subscription cancelled IMMEDIATELY for ${userId}`)
+  } else {
+    // Schedule downgrade at end of billing period
+    await downgradeUser({
+      customerId: customerId || '',
+      effectiveAt,
+    })
+    console.log(`[Webhook] ✓ Subscription cancelled, downgrade scheduled: ${effectiveAt}`)
+  }
+
+  // Log cancellation for analytics
+  await logInvoice({
+    id: `inv_cancel_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    date: Date.now(),
+    userId,
+    userEmail: 'subscription@cancelled.com',
+    userName: 'Cancelled User',
+    type: 'subscription',
+    description: `Subscription Cancelled ${isImmediate ? '(Immediate)' : '(End of Period)'}`,
+    amount: 0,
+    taxCollected: 0,
+    status: 'refunded',
+    stripeId: subscription.id,
+    metadata: { canceledAt, effectiveAt, isImmediate },
   })
-
-  console.log(`[Webhook] ✓ Subscription cancelled, downgrade scheduled: ${effectiveAt}`)
 
   return {
     handled: true,
-    action: 'subscription_cancelled',
+    action: isImmediate ? 'subscription_revoked' : 'subscription_cancelled',
     effectiveAt,
+    isImmediate,
   }
 }
 
@@ -448,6 +512,50 @@ async function downgradeUser(data: {
   console.log('[License] Scheduling downgrade:', data)
   
   // In production: Schedule tier change in database
+  // await db.licenses.update({
+  //   where: { customerId: data.customerId },
+  //   data: { scheduledDowngrade: data.effectiveAt, newTier: 'free' }
+  // })
+}
+
+async function suspendLicense(data: {
+  customerId: string
+  userId: string
+  reason: string
+}): Promise<void> {
+  console.log('[License] ⚠️ SUSPENDING:', data)
+  
+  // In production: Suspend access but keep data
+  // await db.licenses.update({
+  //   where: { customerId: data.customerId },
+  //   data: { 
+  //     status: 'suspended',
+  //     suspendedAt: new Date().toISOString(),
+  //     suspendReason: data.reason
+  //   }
+  // })
+  
+  // User can still log in but features are locked
+  // Send email notification about payment issue
+}
+
+async function revokeLicense(data: {
+  customerId: string
+  userId: string
+}): Promise<void> {
+  console.log('[License] ✗ REVOKING:', data)
+  
+  // In production: Revoke access completely
+  // await db.licenses.update({
+  //   where: { customerId: data.customerId },
+  //   data: { 
+  //     status: 'revoked',
+  //     tier: 'free',
+  //     revokedAt: new Date().toISOString()
+  //   }
+  // })
+  
+  // User downgraded to free tier immediately
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -468,6 +576,7 @@ interface InvoiceData {
   state?: string
   status: 'paid' | 'pending' | 'refunded' | 'failed'
   stripeId: string
+  metadata?: Record<string, unknown>
 }
 
 async function logInvoice(data: InvoiceData): Promise<InvoiceData> {
@@ -508,10 +617,27 @@ async function sendWelcomeEmail(data: {
   // })
 }
 
-async function sendPaymentFailedEmail(data: { email: string }): Promise<void> {
-  console.log('[Email] Sending payment failed email:', data.email)
+async function sendPaymentFailedEmail(data: { 
+  email: string
+  attemptCount?: number
+  nextAttempt?: string | null
+}): Promise<void> {
+  console.log('[Email] Sending payment failed email:', {
+    email: data.email,
+    attemptCount: data.attemptCount,
+    nextAttempt: data.nextAttempt,
+  })
   
-  // In production: Send payment retry email
+  // In production: Send payment retry email with:
+  // - Link to update payment method
+  // - Next retry date
+  // - Warning about access suspension
+  // await resend.emails.send({
+  //   from: 'Quantum Falcon <billing@quantumfalcon.io>',
+  //   to: data.email,
+  //   subject: '⚠️ Payment Failed - Action Required',
+  //   html: getPaymentFailedEmailTemplate(data)
+  // })
 }
 
 // ═══════════════════════════════════════════════════════════════
