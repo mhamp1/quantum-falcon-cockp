@@ -16,7 +16,7 @@ import {
 } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
-import confetti from 'canvas-confetti'
+import { nftMintConfetti } from '@/lib/effects/confettiLimiter'
 import { 
   type QuestNFT, type Quest,
   canAccessNFT
@@ -213,57 +213,8 @@ export default function QuestNFTReward({
       // Award XP
       awardXPAuto('nft-mint', nft.xpReward, `Minted ${nft.name}`)
       
-      // CONFETTI EXPLOSION based on rarity
-      const confettiColors = rarityResult.particles
-      if (rarityResult.name === 'legendary') {
-        // MASSIVE confetti for legendary
-        confetti({
-          particleCount: 500,
-          spread: 180,
-          origin: { y: 0.5 },
-          colors: confettiColors,
-          scalar: 1.5
-        })
-        setTimeout(() => {
-          confetti({
-            particleCount: 300,
-            angle: 60,
-            spread: 100,
-            origin: { x: 0 },
-            colors: confettiColors
-          })
-          confetti({
-            particleCount: 300,
-            angle: 120,
-            spread: 100,
-            origin: { x: 1 },
-            colors: confettiColors
-          })
-        }, 500)
-      } else if (rarityResult.name === 'epic') {
-        confetti({
-          particleCount: 300,
-          spread: 120,
-          origin: { y: 0.6 },
-          colors: confettiColors,
-          scalar: 1.2
-        })
-      } else if (rarityResult.name === 'rare') {
-        confetti({
-          particleCount: 150,
-          spread: 90,
-          origin: { y: 0.6 },
-          colors: confettiColors
-        })
-      } else {
-        // Small confetti for common/uncommon
-        confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.7 },
-          colors: confettiColors
-        })
-      }
+      // Smart confetti based on rarity (rate-limited for smooth UX)
+      nftMintConfetti(rarityResult.name)
       
       onMintComplete?.(mintAddress)
       

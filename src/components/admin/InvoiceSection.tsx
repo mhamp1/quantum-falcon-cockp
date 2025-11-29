@@ -1,32 +1,16 @@
 // ═══════════════════════════════════════════════════════════════
-// INVOICE SECTION — GOD MODE ONLY
-// Track every transaction, calculate taxes, export for accountant
-// November 27, 2025 — CREATOR EYES ONLY
+// INVOICE SECTION — FINANCE COMMAND CENTER — GOD-TIER v2025.1.0
+// Real-time revenue tracking, tax calculation, forecasting
+// November 29, 2025 — CREATOR EYES ONLY — OPERATIONAL
 // ═══════════════════════════════════════════════════════════════
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import {
-  Receipt,
-  Crown,
-  MagnifyingGlass,
-  Export,
-  CheckCircle,
-  ArrowsClockwise,
-  CurrencyDollar,
-  ChartLineUp,
-  Calendar,
-  Funnel,
-  CaretDown,
-  CaretUp,
-  Download,
-  Warning,
-  ShieldCheck,
-  X,
-  Clock,
-  Tag,
-  User,
-  Envelope
+  Receipt, Crown, MagnifyingGlass, CheckCircle, ArrowsClockwise,
+  CurrencyDollar, ChartLineUp, Calendar, CaretDown, CaretUp,
+  Download, Warning, ShieldCheck, X, Clock, Tag, TrendingUp,
+  Users, Brain, ArrowUp, ArrowDown, Percent, Building
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,6 +22,11 @@ import { cn } from '@/lib/utils'
 import { usePersistentAuth } from '@/lib/auth/usePersistentAuth'
 import { isGodMode } from '@/lib/godMode'
 import { toast } from 'sonner'
+import { useKVSafe } from '@/hooks/useKVFallback'
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Area, AreaChart, ReferenceLine
+} from 'recharts'
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -57,6 +46,8 @@ export interface Invoice {
   state?: string
   status: 'paid' | 'pending' | 'refunded' | 'failed'
   stripeId?: string
+  paymentMethod?: string
+  last4?: string
   metadata?: Record<string, unknown>
 }
 
@@ -65,6 +56,10 @@ interface TaxBreakdown {
   totalTaxCollected: number
   netIncome: number
   estimatedTaxOwed: number
+  mrr: number
+  ltv: number
+  churnRate: number
+  arpu: number
   byState: Record<string, { revenue: number; tax: number }>
   byMonth: Record<string, { revenue: number; tax: number; count: number }>
   byType: Record<string, { revenue: number; count: number }>
@@ -84,59 +79,7 @@ const FEDERAL_TAX_BRACKETS = [
   { min: 609350, max: Infinity, rate: 0.37 },
 ]
 
-const SELF_EMPLOYMENT_TAX_RATE = 0.153 // 15.3% SE tax
-
-// ═══════════════════════════════════════════════════════════════
-// MOCK DATA (Replace with real Stripe webhook data)
-// ═══════════════════════════════════════════════════════════════
-
-const generateMockInvoices = (): Invoice[] => {
-  const types: Invoice['type'][] = ['subscription', 'nft', 'royalty', 'one-time']
-  const tiers = ['starter', 'trader', 'pro', 'elite', 'lifetime']
-  const states = ['CA', 'TX', 'NY', 'FL', 'WA', 'NV', null]
-  const statuses: Invoice['status'][] = ['paid', 'paid', 'paid', 'pending', 'refunded']
-  
-  const invoices: Invoice[] = []
-  const now = Date.now()
-  
-  for (let i = 0; i < 50; i++) {
-    const type = types[Math.floor(Math.random() * types.length)]
-    const amount = type === 'subscription' 
-      ? [29, 79, 149, 299, 2999][Math.floor(Math.random() * 5)]
-      : type === 'nft' 
-        ? Math.floor(Math.random() * 500) + 50
-        : type === 'royalty'
-          ? Math.floor(Math.random() * 50) + 5
-          : Math.floor(Math.random() * 200) + 20
-    
-    const state = states[Math.floor(Math.random() * states.length)]
-    const taxRate = state ? 0.0725 : 0 // Average state sales tax
-    
-    invoices.push({
-      id: `inv_${Date.now()}_${i}`,
-      date: now - Math.floor(Math.random() * 90 * 24 * 60 * 60 * 1000), // Last 90 days
-      userId: `user_${Math.random().toString(36).slice(2, 10)}`,
-      userEmail: `user${i}@example.com`,
-      userName: `User ${i}`,
-      type,
-      tier: type === 'subscription' ? tiers[Math.floor(Math.random() * tiers.length)] : undefined,
-      description: type === 'subscription' 
-        ? `${tiers[Math.floor(Math.random() * tiers.length)].toUpperCase()} Subscription`
-        : type === 'nft'
-          ? 'Quantum Falcon NFT Mint'
-          : type === 'royalty'
-            ? 'Strategy Share Royalty'
-            : 'One-time Purchase',
-      amount,
-      taxCollected: Math.round(amount * taxRate * 100) / 100,
-      state: state || undefined,
-      status: statuses[Math.floor(Math.random() * statuses.length)],
-      stripeId: `pi_${Math.random().toString(36).slice(2, 18)}`,
-    })
-  }
-  
-  return invoices.sort((a, b) => b.date - a.date)
-}
+const SELF_EMPLOYMENT_TAX_RATE = 0.153
 
 // ═══════════════════════════════════════════════════════════════
 // COMPONENT
@@ -146,54 +89,56 @@ export default function InvoiceSection() {
   const { auth } = usePersistentAuth()
   const isMaster = isGodMode(auth)
 
-  // State
-  const [invoices, setInvoices] = useState<Invoice[]>([])
+  // Use KV storage for persistent invoices
+  const [invoices, setInvoices] = useKVSafe<Invoice[]>('qf-invoices-v4', [])
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [sortField, setSortField] = useState<'date' | 'amount'>('date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
+  const [activeUsers, setActiveUsers] = useState(0)
 
-  // Load invoices
+  // Listen for real-time Stripe webhook events
   useEffect(() => {
-    const loadInvoices = async () => {
-      setIsLoading(true)
-      try {
-        // In production, fetch from your API/database
-        // const response = await fetch('/api/invoices')
-        // const data = await response.json()
-        
-        // For now, use mock data
-        const stored = localStorage.getItem('qf-invoices')
-        if (stored) {
-          setInvoices(JSON.parse(stored))
-        } else {
-          const mockData = generateMockInvoices()
-          setInvoices(mockData)
-          localStorage.setItem('qf-invoices', JSON.stringify(mockData))
-        }
-      } catch (error) {
-        console.error('[Invoices] Load failed:', error)
-      } finally {
-        setIsLoading(false)
-      }
+    const handleStripeInvoice = (e: CustomEvent<Invoice>) => {
+      const newInvoice = e.detail
+      setInvoices(prev => {
+        const exists = prev?.some(inv => inv.stripeId === newInvoice.stripeId)
+        if (exists) return prev
+        const updated = [newInvoice, ...(prev || [])]
+        return updated
+      })
+      toast.success('💰 New Payment Received!', {
+        description: `+$${newInvoice.amount.toFixed(2)} from ${newInvoice.userEmail}`,
+      })
     }
 
-    if (isMaster) {
-      loadInvoices()
+    window.addEventListener('stripe-invoice' as any, handleStripeInvoice)
+    return () => window.removeEventListener('stripe-invoice' as any, handleStripeInvoice)
+  }, [setInvoices])
+
+  // Load active user count from localStorage
+  useEffect(() => {
+    try {
+      const users = localStorage.getItem('qf-registered-users')
+      if (users) {
+        const parsed = JSON.parse(users)
+        setActiveUsers(Array.isArray(parsed) ? parsed.length : 0)
+      }
+    } catch {
+      setActiveUsers(0)
     }
-  }, [isMaster])
+  }, [])
 
   // Filter and sort invoices
   const filteredInvoices = useMemo(() => {
-    let result = [...invoices]
+    let result = [...(invoices || [])]
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
-      result = result.filter(inv => 
+      result = result.filter(inv =>
         inv.userEmail.toLowerCase().includes(query) ||
         inv.userName.toLowerCase().includes(query) ||
         inv.description.toLowerCase().includes(query) ||
@@ -201,17 +146,14 @@ export default function InvoiceSection() {
       )
     }
 
-    // Type filter
     if (filterType !== 'all') {
       result = result.filter(inv => inv.type === filterType)
     }
 
-    // Status filter
     if (filterStatus !== 'all') {
       result = result.filter(inv => inv.status === filterStatus)
     }
 
-    // Month filter
     if (selectedMonth !== 'all') {
       const [year, month] = selectedMonth.split('-').map(Number)
       result = result.filter(inv => {
@@ -220,7 +162,6 @@ export default function InvoiceSection() {
       })
     }
 
-    // Sort
     result.sort((a, b) => {
       const aVal = sortField === 'date' ? a.date : a.amount
       const bVal = sortField === 'date' ? b.date : b.amount
@@ -230,15 +171,16 @@ export default function InvoiceSection() {
     return result
   }, [invoices, searchQuery, filterType, filterStatus, selectedMonth, sortField, sortDir])
 
-  // Calculate tax breakdown
+  // Calculate comprehensive tax breakdown with business metrics
   const taxBreakdown = useMemo((): TaxBreakdown => {
-    const paidInvoices = invoices.filter(inv => inv.status === 'paid')
-    
+    const invs = invoices || []
+    const paidInvoices = invs.filter(inv => inv.status === 'paid')
+
     const totalRevenue = paidInvoices.reduce((sum, inv) => sum + inv.amount, 0)
     const totalTaxCollected = paidInvoices.reduce((sum, inv) => sum + inv.taxCollected, 0)
-    const netIncome = totalRevenue // Before expenses
-    
-    // Calculate federal tax
+    const netIncome = totalRevenue
+
+    // Federal tax calculation
     let federalTax = 0
     let remainingIncome = netIncome
     for (const bracket of FEDERAL_TAX_BRACKETS) {
@@ -247,12 +189,27 @@ export default function InvoiceSection() {
       federalTax += taxableInBracket * bracket.rate
       remainingIncome -= taxableInBracket
     }
-    
-    // Self-employment tax
+
     const seTax = netIncome * SELF_EMPLOYMENT_TAX_RATE
-    
     const estimatedTaxOwed = federalTax + seTax
-    
+
+    // MRR (Monthly Recurring Revenue)
+    const subscriptionRevenue = paidInvoices
+      .filter(inv => inv.type === 'subscription')
+      .reduce((sum, inv) => sum + inv.amount, 0)
+    const mrr = subscriptionRevenue / Math.max(1, new Set(paidInvoices.map(i => new Date(i.date).toISOString().slice(0, 7))).size)
+
+    // LTV (Lifetime Value) - avg revenue per user
+    const uniqueUsers = new Set(paidInvoices.map(i => i.userId)).size
+    const ltv = uniqueUsers > 0 ? totalRevenue / uniqueUsers : 0
+
+    // ARPU (Average Revenue Per User)
+    const arpu = uniqueUsers > 0 ? totalRevenue / uniqueUsers : 0
+
+    // Churn rate (simplified - based on refunds)
+    const refundedCount = invs.filter(inv => inv.status === 'refunded').length
+    const churnRate = invs.length > 0 ? (refundedCount / invs.length) * 100 : 0
+
     // By state
     const byState: Record<string, { revenue: number; tax: number }> = {}
     paidInvoices.forEach(inv => {
@@ -261,7 +218,7 @@ export default function InvoiceSection() {
       byState[state].revenue += inv.amount
       byState[state].tax += inv.taxCollected
     })
-    
+
     // By month
     const byMonth: Record<string, { revenue: number; tax: number; count: number }> = {}
     paidInvoices.forEach(inv => {
@@ -272,7 +229,7 @@ export default function InvoiceSection() {
       byMonth[key].tax += inv.taxCollected
       byMonth[key].count++
     })
-    
+
     // By type
     const byType: Record<string, { revenue: number; count: number }> = {}
     paidInvoices.forEach(inv => {
@@ -280,14 +237,52 @@ export default function InvoiceSection() {
       byType[inv.type].revenue += inv.amount
       byType[inv.type].count++
     })
-    
-    return { totalRevenue, totalTaxCollected, netIncome, estimatedTaxOwed, byState, byMonth, byType }
+
+    return { totalRevenue, totalTaxCollected, netIncome, estimatedTaxOwed, mrr, ltv, churnRate, arpu, byState, byMonth, byType }
   }, [invoices])
+
+  // Revenue forecasting
+  const forecast = useMemo(() => {
+    const byMonth = taxBreakdown.byMonth
+    const months = Object.keys(byMonth).sort()
+    const data = months.map(m => ({ month: m, revenue: byMonth[m].revenue }))
+
+    if (data.length < 2) {
+      return { historical: data, forecast: [], growthRate: '0' }
+    }
+
+    // Linear regression for forecast
+    const n = data.length
+    const xSum = data.reduce((sum, _, i) => sum + i, 0)
+    const ySum = data.reduce((sum, d) => sum + d.revenue, 0)
+    const xySum = data.reduce((sum, d, i) => sum + i * d.revenue, 0)
+    const x2Sum = data.reduce((sum, _, i) => sum + i * i, 0)
+
+    const slope = n > 1 ? (n * xySum - xSum * ySum) / (n * x2Sum - xSum * xSum) : 0
+    const intercept = (ySum - slope * xSum) / n
+
+    // Next 6 months forecast
+    const forecastData = []
+    for (let i = 0; i < 6; i++) {
+      const futureMonth = n + i
+      const predicted = intercept + slope * futureMonth
+      const date = new Date()
+      date.setMonth(date.getMonth() + i + 1)
+      forecastData.push({
+        month: date.toISOString().slice(0, 7),
+        revenue: Math.max(0, predicted),
+        type: 'forecast'
+      })
+    }
+
+    const growthRate = slope > 0 && ySum > 0 ? ((slope / (ySum / n)) * 100).toFixed(1) : '0'
+    return { historical: data, forecast: forecastData, growthRate }
+  }, [taxBreakdown.byMonth])
 
   // Get available months
   const availableMonths = useMemo(() => {
     const months = new Set<string>()
-    invoices.forEach(inv => {
+    ;(invoices || []).forEach(inv => {
       const d = new Date(inv.date)
       months.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
     })
@@ -296,22 +291,25 @@ export default function InvoiceSection() {
 
   // Export to CSV
   const exportToCSV = useCallback(() => {
-    const headers = ['Date', 'ID', 'User', 'Email', 'Type', 'Description', 'Amount', 'Tax', 'State', 'Status', 'Stripe ID']
+    const headers = ['Date', 'ID', 'User', 'Email', 'Type', 'Tier', 'Description', 'Amount', 'Tax', 'State', 'Status', 'Stripe ID', 'Payment Method', 'Last4']
     const rows = filteredInvoices.map(inv => [
       new Date(inv.date).toISOString(),
       inv.id,
       inv.userName,
       inv.userEmail,
       inv.type,
+      inv.tier || '',
       inv.description,
       inv.amount.toFixed(2),
       inv.taxCollected.toFixed(2),
       inv.state || '',
       inv.status,
       inv.stripeId || '',
+      inv.paymentMethod || '',
+      inv.last4 || '',
     ])
-    
-    const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
+
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -319,141 +317,200 @@ export default function InvoiceSection() {
     a.download = `quantum-falcon-invoices-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     URL.revokeObjectURL(url)
-    
+
     toast.success('Invoices Exported', { description: `${filteredInvoices.length} invoices exported to CSV` })
   }, [filteredInvoices])
 
   // Mark as paid
   const markAsPaid = useCallback((invoiceId: string) => {
     setInvoices(prev => {
-      const updated = prev.map(inv => 
+      if (!prev) return prev
+      return prev.map(inv =>
         inv.id === invoiceId ? { ...inv, status: 'paid' as const } : inv
       )
-      localStorage.setItem('qf-invoices', JSON.stringify(updated))
-      return updated
     })
     toast.success('Invoice marked as paid')
-  }, [])
+  }, [setInvoices])
 
   // Process refund
   const processRefund = useCallback((invoiceId: string) => {
-    if (!confirm('Are you sure you want to process a refund? This will mark the invoice as refunded.')) return
-    
+    if (!confirm('Process refund? This will mark the invoice as refunded.')) return
+
     setInvoices(prev => {
-      const updated = prev.map(inv => 
+      if (!prev) return prev
+      return prev.map(inv =>
         inv.id === invoiceId ? { ...inv, status: 'refunded' as const } : inv
       )
-      localStorage.setItem('qf-invoices', JSON.stringify(updated))
-      return updated
     })
     toast.success('Refund processed')
-  }, [])
+  }, [setInvoices])
 
-  // Access denied for non-master users
+  // Toggle sort
+  const toggleSort = (field: 'date' | 'amount') => {
+    if (sortField === field) {
+      setSortDir(d => d === 'desc' ? 'asc' : 'desc')
+    } else {
+      setSortField(field)
+      setSortDir('desc')
+    }
+  }
+
+  // Access denied
   if (!isMaster) {
     return (
-      <div className="cyber-card p-8 text-center">
-        <ShieldCheck size={64} className="mx-auto text-destructive mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
-        <p className="text-muted-foreground">
-          This section is only available to the creator.
-        </p>
+      <div className="cyber-card p-12 text-center">
+        <ShieldCheck size={80} className="mx-auto text-destructive mb-6" />
+        <h2 className="text-4xl font-black uppercase text-destructive">CREATOR ACCESS ONLY</h2>
+        <p className="text-muted-foreground mt-4">This section requires master key access.</p>
       </div>
     )
   }
 
-  // Tax season readiness
-  const trackedPercent = invoices.length > 0 
-    ? (invoices.filter(i => i.status !== 'pending').length / invoices.length) * 100 
+  const trackedPercent = (invoices?.length || 0) > 0
+    ? ((invoices || []).filter(i => i.status !== 'pending').length / (invoices?.length || 1)) * 100
     : 0
 
   return (
     <div className="space-y-6">
-      {/* Header with Rainbow Border */}
-      <div className="relative p-1 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 via-cyan-500 to-pink-500 animate-gradient-x">
-        <div className="cyber-card p-6 rounded-lg">
+      {/* God Mode Header */}
+      <motion.div
+        className="relative p-1 rounded-2xl overflow-hidden"
+        style={{ background: 'linear-gradient(90deg, #FFD700, #FF1493, #00FFFF, #FFD700)' }}
+        animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+        transition={{ duration: 8, repeat: Infinity }}
+      >
+        <div className="cyber-card p-8 rounded-xl bg-black/95">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Crown size={32} weight="fill" className="text-amber-400" />
+            <div className="flex items-center gap-4">
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>
+                <Crown size={48} weight="fill" className="text-amber-400" />
+              </motion.div>
               <div>
-                <h2 className="text-2xl font-black uppercase tracking-wider">
-                  Invoices & Taxes
+                <h2 className="text-4xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-pink-500">
+                  FINANCE COMMAND CENTER
                 </h2>
-                <p className="text-xs text-muted-foreground">
-                  Creator eyes only — Track every dollar
-                </p>
+                <p className="text-cyan-300 mt-1">Every dollar tracked • Taxes calculated • IRS ready</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
               {trackedPercent >= 90 && (
-                <Badge className="bg-green-500 text-black px-3 py-1">
-                  <CheckCircle size={14} className="mr-1" />
+                <Badge className="bg-green-500 text-black px-4 py-2 text-lg animate-pulse">
+                  <CheckCircle size={20} className="mr-2" />
                   TAX SEASON READY
                 </Badge>
               )}
-              <Button onClick={exportToCSV} variant="outline" size="sm">
-                <Download size={16} className="mr-2" />
-                Export CSV
+              <Button onClick={exportToCSV} className="bg-cyan-600 hover:bg-cyan-500">
+                <Download size={20} className="mr-2" />
+                Export All
               </Button>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Revenue Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="cyber-card p-4 border-2 border-green-500/50">
-          <div className="flex items-center gap-2 mb-2">
-            <CurrencyDollar size={20} className="text-green-400" />
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Total Revenue
-            </span>
+      {/* Key Metrics Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="cyber-card p-6 border-2 border-green-500/50">
+          <div className="flex items-center gap-2 mb-3">
+            <CurrencyDollar size={24} className="text-green-400" />
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Total Revenue</span>
           </div>
-          <p className="text-3xl font-black text-green-400">
-            ${taxBreakdown.totalRevenue.toLocaleString()}
-          </p>
+          <p className="text-4xl font-black text-green-400">${taxBreakdown.totalRevenue.toLocaleString()}</p>
         </div>
 
-        <div className="cyber-card p-4 border-2 border-cyan-500/50">
-          <div className="flex items-center gap-2 mb-2">
-            <Receipt size={20} className="text-cyan-400" />
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Tax Collected
-            </span>
+        <div className="cyber-card p-6 border-2 border-cyan-500/50">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp size={24} className="text-cyan-400" />
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">MRR</span>
           </div>
-          <p className="text-3xl font-black text-cyan-400">
-            ${taxBreakdown.totalTaxCollected.toLocaleString()}
-          </p>
+          <p className="text-4xl font-black text-cyan-400">${taxBreakdown.mrr.toFixed(0)}</p>
         </div>
 
-        <div className="cyber-card p-4 border-2 border-purple-500/50">
-          <div className="flex items-center gap-2 mb-2">
-            <ChartLineUp size={20} className="text-purple-400" />
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Net Income
-            </span>
+        <div className="cyber-card p-6 border-2 border-purple-500/50">
+          <div className="flex items-center gap-2 mb-3">
+            <Users size={24} className="text-purple-400" />
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Churn Rate</span>
           </div>
-          <p className="text-3xl font-black text-purple-400">
-            ${taxBreakdown.netIncome.toLocaleString()}
-          </p>
+          <p className="text-4xl font-black text-purple-400">{taxBreakdown.churnRate.toFixed(1)}%</p>
         </div>
 
-        <div className="cyber-card p-4 border-2 border-amber-500/50">
-          <div className="flex items-center gap-2 mb-2">
-            <Warning size={20} className="text-amber-400" />
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Est. Tax Owed
-            </span>
+        <div className="cyber-card p-6 border-2 border-yellow-500/50">
+          <div className="flex items-center gap-2 mb-3">
+            <Brain size={24} className="text-yellow-400" />
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">LTV</span>
           </div>
-          <p className="text-3xl font-black text-amber-400">
-            ${Math.round(taxBreakdown.estimatedTaxOwed).toLocaleString()}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Federal + SE Tax ({((taxBreakdown.estimatedTaxOwed / taxBreakdown.netIncome) * 100 || 0).toFixed(1)}%)
-          </p>
+          <p className="text-4xl font-black text-yellow-400">${taxBreakdown.ltv.toFixed(0)}</p>
+        </div>
+
+        <div className="cyber-card p-6 border-2 border-red-500/50">
+          <div className="flex items-center gap-2 mb-3">
+            <Warning size={24} className="text-red-400" />
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Est. Tax Owed</span>
+          </div>
+          <p className="text-4xl font-black text-red-400">${Math.round(taxBreakdown.estimatedTaxOwed).toLocaleString()}</p>
         </div>
       </div>
+
+      {/* Revenue Forecast Chart */}
+      {forecast.historical.length > 0 && (
+        <div className="cyber-card p-6 border-2 border-purple-500/50">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-black uppercase text-purple-400">REVENUE FORECAST 2025-2026</h3>
+            <Badge className="text-lg px-4 py-2 bg-gradient-to-r from-green-500 to-cyan-500 text-black">
+              +{forecast.growthRate}% MoM Growth
+            </Badge>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={[...forecast.historical, ...forecast.forecast]}>
+                <defs>
+                  <linearGradient id="historicalFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00FFFF" stopOpacity={0.6} />
+                    <stop offset="95%" stopColor="#00FFFF" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="forecastFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#DC1FFF" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#DC1FFF" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.3} />
+                <XAxis
+                  dataKey="month"
+                  stroke="#00FFFF"
+                  tick={{ fill: '#00FFFF', fontSize: 12 }}
+                  tickFormatter={(value) => new Date(value + '-01').toLocaleDateString('en-US', { month: 'short' })}
+                />
+                <YAxis
+                  stroke="#DC1FFF"
+                  tick={{ fill: '#DC1FFF', fontSize: 12 }}
+                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                />
+                <Tooltip
+                  contentStyle={{ background: 'rgba(0,0,0,0.9)', border: '2px solid #00FFFF', borderRadius: 8 }}
+                  labelStyle={{ color: '#00FFFF' }}
+                  formatter={(value: number) => [`$${value.toFixed(0)}`, 'Revenue']}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#00FFFF"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#historicalFill)"
+                  dot={{ fill: '#00FFFF', r: 4 }}
+                />
+                <ReferenceLine
+                  x={new Date().toISOString().slice(0, 7)}
+                  stroke="#FFD700"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Revenue by Type */}
       <div className="cyber-card p-6">
@@ -463,31 +520,10 @@ export default function InvoiceSection() {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Object.entries(taxBreakdown.byType).map(([type, data]) => (
-            <div key={type} className="p-3 bg-muted/20 border border-muted rounded-lg">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                {type}
-              </p>
-              <p className="text-xl font-bold">${data.revenue.toLocaleString()}</p>
+            <div key={type} className="p-4 bg-muted/20 border border-muted rounded-xl">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{type}</p>
+              <p className="text-2xl font-bold text-primary">${data.revenue.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground">{data.count} transactions</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Monthly Breakdown */}
-      <div className="cyber-card p-6">
-        <h3 className="font-bold mb-4 flex items-center gap-2">
-          <Calendar size={18} className="text-primary" />
-          Monthly Breakdown
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-          {Object.entries(taxBreakdown.byMonth).slice(0, 6).map(([month, data]) => (
-            <div key={month} className="p-3 bg-muted/20 border border-muted rounded-lg">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                {new Date(month + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-              </p>
-              <p className="text-lg font-bold text-primary">${data.revenue.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">{data.count} sales</p>
             </div>
           ))}
         </div>
@@ -496,7 +532,6 @@ export default function InvoiceSection() {
       {/* Filters */}
       <div className="cyber-card p-4">
         <div className="flex flex-wrap items-center gap-4">
-          {/* Search */}
           <div className="flex-1 min-w-[200px]">
             <div className="relative">
               <MagnifyingGlass size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -509,7 +544,6 @@ export default function InvoiceSection() {
             </div>
           </div>
 
-          {/* Type Filter */}
           <Select value={filterType} onValueChange={setFilterType}>
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Type" />
@@ -523,7 +557,6 @@ export default function InvoiceSection() {
             </SelectContent>
           </Select>
 
-          {/* Status Filter */}
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Status" />
@@ -536,7 +569,6 @@ export default function InvoiceSection() {
             </SelectContent>
           </Select>
 
-          {/* Month Filter */}
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Month" />
@@ -551,18 +583,10 @@ export default function InvoiceSection() {
             </SelectContent>
           </Select>
 
-          {/* Sort */}
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              if (sortField === 'date') {
-                setSortDir(d => d === 'desc' ? 'asc' : 'desc')
-              } else {
-                setSortField('date')
-                setSortDir('desc')
-              }
-            }}
+            onClick={() => toggleSort('date')}
             className={sortField === 'date' ? 'border-primary' : ''}
           >
             Date {sortField === 'date' && (sortDir === 'desc' ? <CaretDown size={14} className="ml-1" /> : <CaretUp size={14} className="ml-1" />)}
@@ -571,14 +595,7 @@ export default function InvoiceSection() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              if (sortField === 'amount') {
-                setSortDir(d => d === 'desc' ? 'asc' : 'desc')
-              } else {
-                setSortField('amount')
-                setSortDir('desc')
-              }
-            }}
+            onClick={() => toggleSort('amount')}
             className={sortField === 'amount' ? 'border-primary' : ''}
           >
             Amount {sortField === 'amount' && (sortDir === 'desc' ? <CaretDown size={14} className="ml-1" /> : <CaretUp size={14} className="ml-1" />)}
@@ -587,12 +604,10 @@ export default function InvoiceSection() {
       </div>
 
       {/* Invoice Table */}
-      <div className="cyber-card p-4">
+      <div className="cyber-card p-4 border-2 border-cyan-500/30">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold">
-            {filteredInvoices.length} Invoices
-          </h3>
-          <Badge variant="outline">
+          <h3 className="text-xl font-bold text-cyan-400">{filteredInvoices.length} Invoices</h3>
+          <Badge variant="outline" className="text-lg">
             Total: ${filteredInvoices.reduce((sum, inv) => sum + (inv.status === 'paid' ? inv.amount : 0), 0).toLocaleString()}
           </Badge>
         </div>
@@ -604,18 +619,30 @@ export default function InvoiceSection() {
               <p className="text-muted-foreground mt-2">Loading invoices...</p>
             </div>
           ) : filteredInvoices.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No invoices found
+            <div className="text-center py-12 text-muted-foreground">
+              <Receipt size={64} className="mx-auto mb-4 opacity-50" />
+              <p className="text-xl">No invoices yet</p>
+              <p className="text-sm mt-2">Invoices will appear here when payments are received via Stripe</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-card border-b border-muted">
                 <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-                  <th className="pb-3 pr-4">Date</th>
+                  <th className="pb-3 pr-4 cursor-pointer hover:text-cyan-400" onClick={() => toggleSort('date')}>
+                    <div className="flex items-center gap-1">
+                      Date
+                      {sortField === 'date' && (sortDir === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                    </div>
+                  </th>
                   <th className="pb-3 pr-4">User</th>
                   <th className="pb-3 pr-4">Type</th>
                   <th className="pb-3 pr-4">Description</th>
-                  <th className="pb-3 pr-4 text-right">Amount</th>
+                  <th className="pb-3 pr-4 text-right cursor-pointer hover:text-cyan-400" onClick={() => toggleSort('amount')}>
+                    <div className="flex items-center justify-end gap-1">
+                      Amount
+                      {sortField === 'amount' && (sortDir === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                    </div>
+                  </th>
                   <th className="pb-3 pr-4 text-right">Tax</th>
                   <th className="pb-3 pr-4">Status</th>
                   <th className="pb-3">Actions</th>
@@ -649,7 +676,7 @@ export default function InvoiceSection() {
                     <td className="py-3 pr-4">
                       <p className="truncate max-w-[150px]">{invoice.description}</p>
                     </td>
-                    <td className="py-3 pr-4 text-right font-mono font-bold">
+                    <td className="py-3 pr-4 text-right font-mono font-bold text-green-400">
                       ${invoice.amount.toFixed(2)}
                     </td>
                     <td className="py-3 pr-4 text-right font-mono text-muted-foreground">
@@ -661,6 +688,7 @@ export default function InvoiceSection() {
                         invoice.status === 'paid' && 'bg-green-500/20 text-green-400 border-green-500/50',
                         invoice.status === 'pending' && 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50',
                         invoice.status === 'refunded' && 'bg-red-500/20 text-red-400 border-red-500/50',
+                        invoice.status === 'failed' && 'bg-red-500/20 text-red-400 border-red-500/50',
                       )}>
                         {invoice.status}
                       </Badge>
@@ -672,7 +700,7 @@ export default function InvoiceSection() {
                             size="sm"
                             variant="ghost"
                             onClick={() => markAsPaid(invoice.id)}
-                            className="h-7 px-2 text-xs"
+                            className="h-7 px-2 text-xs text-green-400 hover:text-green-300"
                           >
                             <CheckCircle size={14} className="mr-1" />
                             Paid
@@ -710,10 +738,21 @@ export default function InvoiceSection() {
         </div>
         <Progress value={trackedPercent} className="h-3" />
         <p className="text-xs text-muted-foreground mt-2">
-          {invoices.filter(i => i.status === 'pending').length} pending invoices need attention
+          {(invoices || []).filter(i => i.status === 'pending').length} pending invoices need attention
         </p>
       </div>
+
+      {/* God Mode Footer */}
+      <motion.div
+        className="text-center py-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Badge className="text-2xl px-12 py-6 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black font-black">
+          GOD MODE — EVERY DOLLAR TRACKED • TAXES CALCULATED • YOU ARE THE FALCON
+        </Badge>
+      </motion.div>
     </div>
   )
 }
-

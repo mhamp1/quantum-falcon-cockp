@@ -5,7 +5,7 @@
 import { useKVSafe } from '@/hooks/useKVFallback'
 import { XP_ACTIONS, XP_LEVEL_REWARDS, getBenefitsForLevel, getNextLevelReward } from './xpBenefits'
 import { toast } from 'sonner'
-import confetti from 'canvas-confetti'
+import { levelUpConfetti } from '@/lib/effects/confettiLimiter'
 
 interface UserXPProfile {
   level: number
@@ -76,11 +76,7 @@ export function useAutoXPAward() {
           })
 
           if (levelReward.celebration.confetti) {
-            confetti({
-              particleCount: 50,
-              spread: 90,
-              origin: { y: 0.6 }
-            })
+            levelUpConfetti(newLevel)
           }
         }
       }
