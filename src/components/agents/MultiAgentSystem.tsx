@@ -36,9 +36,9 @@ import { DEFAULT_AUTONOMY_TELEMETRY } from '@/lib/bot/AutonomousTradingLoop';
 
 // Returns empty array - real outcomes come from learning system
 // This placeholder ensures UI doesn't break before real data loads
-const generateMockOutcomes = (_count: number, _successProbability: number) => {
-  // Return empty array - real data populated by learning system
-  return [] as Array<{ date: string; pnl: number; confidence: number }>;
+const getInitialOutcomes = (): Array<{ date: string; pnl: number; confidence: number }> => {
+  // Return empty array - real data populated by AdaptiveLearningSystem
+  return [];
 };
 
 interface Agent {
@@ -191,7 +191,7 @@ export default function MultiAgentSystem() {
       requiredTier: 'pro',
       specialties: ['Strategy Selection', 'Parameter Tuning', 'Risk Management'],
       metrics: { cpu: 52, memory: 41, latency: 18 },
-      recentOutcomes: generateMockOutcomes(30, 0.80),
+      recentOutcomes: getInitialOutcomes(),
       synergy: { 'market-analyst': 95, 'rl-optimizer': 92 }
     },
     {
@@ -211,7 +211,7 @@ export default function MultiAgentSystem() {
       requiredTier: 'elite',
       specialties: ['Learning Optimization', 'Reward Maximization', 'Adaptive Control'],
       metrics: { cpu: 38, memory: 28, latency: 8 },
-      recentOutcomes: generateMockOutcomes(40, 0.90),
+      recentOutcomes: getInitialOutcomes(),
       synergy: { 'market-analyst': 88, 'strategy-engine': 92 }
     },
     {
@@ -231,7 +231,7 @@ export default function MultiAgentSystem() {
       requiredTier: 'pro',
       specialties: ['Social Listening', 'News Analysis', 'FOMO Detection'],
       metrics: { cpu: 28, memory: 19, latency: 25 },
-      recentOutcomes: generateMockOutcomes(15, 0.75),
+      recentOutcomes: getInitialOutcomes(),
       synergy: { 'market-analyst': 85, 'strategy-engine': 78 }
     },
     {
@@ -251,7 +251,7 @@ export default function MultiAgentSystem() {
       requiredTier: 'elite',
       specialties: ['On-Chain Analysis', 'Whale Detection', 'Flow Tracking'],
       metrics: { cpu: 61, memory: 48, latency: 15 },
-      recentOutcomes: generateMockOutcomes(25, 0.82),
+      recentOutcomes: getInitialOutcomes(),
       synergy: { 'market-analyst': 90, 'rl-optimizer': 85 }
     }
   ]);
@@ -963,5 +963,5 @@ export default function MultiAgentSystem() {
   );
 }
 
-// REMOVED: generateMockOutcomes - All agent outcomes now fetched from real API
-// See: src/lib/api/agentDataApi.ts for real data fetching
+// Agent outcomes are fetched from AdaptiveLearningSystem in real-time
+// See: src/lib/ai/learning/AdaptiveLearningSystem.ts

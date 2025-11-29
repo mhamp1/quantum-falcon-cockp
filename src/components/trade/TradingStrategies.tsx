@@ -64,7 +64,8 @@ interface TradingStrategiesProps {
 }
 
 // WebSocket URL - can be configured via props or environment variable
-const DEFAULT_WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
+// In production, only connect if explicitly configured
+const DEFAULT_WS_URL = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? '' : 'ws://localhost:3001')
 
 function TradingStrategiesContent({ wsUrl = DEFAULT_WS_URL }: TradingStrategiesProps) {
   const dispatch = useDispatch()

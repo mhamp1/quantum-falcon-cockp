@@ -5,11 +5,10 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { motion } from 'framer-motion'
 import {
   Receipt, Crown, MagnifyingGlass, CheckCircle, ArrowsClockwise,
   CurrencyDollar, ChartLineUp, Calendar, CaretDown, CaretUp,
-  Download, Warning, ShieldCheck, X, Clock, Tag, TrendingUp,
+  Download, Warning, ShieldCheck, X, Clock, Tag, TrendUp as TrendingUp,
   Users, Brain, ArrowUp, ArrowDown, Percent, Building
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
@@ -372,42 +371,33 @@ export default function InvoiceSection() {
 
   return (
     <div className="space-y-6">
-      {/* God Mode Header */}
-      <motion.div
-        className="relative p-1 rounded-2xl overflow-hidden"
-        style={{ background: 'linear-gradient(90deg, #FFD700, #FF1493, #00FFFF, #FFD700)' }}
-        animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-        transition={{ duration: 8, repeat: Infinity }}
-      >
-        <div className="cyber-card p-8 rounded-xl bg-black/95">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>
-                <Crown size={48} weight="fill" className="text-amber-400" />
-              </motion.div>
-              <div>
-                <h2 className="text-4xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-pink-500">
-                  FINANCE COMMAND CENTER
-                </h2>
-                <p className="text-cyan-300 mt-1">Every dollar tracked • Taxes calculated • IRS ready</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {trackedPercent >= 90 && (
-                <Badge className="bg-green-500 text-black px-4 py-2 text-lg animate-pulse">
-                  <CheckCircle size={20} className="mr-2" />
-                  TAX SEASON READY
-                </Badge>
-              )}
-              <Button onClick={exportToCSV} className="bg-cyan-600 hover:bg-cyan-500">
-                <Download size={20} className="mr-2" />
-                Export All
-              </Button>
+      {/* God Mode Header — Solid Cyberpunk */}
+      <div className="cyber-card p-8 rounded-xl border-2 border-cyan-500/50 bg-black/95">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Crown size={48} weight="fill" className="text-amber-400" />
+            <div>
+              <h2 className="text-4xl font-black uppercase tracking-wider text-cyan-400">
+                FINANCE COMMAND CENTER
+              </h2>
+              <p className="text-muted-foreground mt-1">Every dollar tracked • Taxes calculated • IRS ready</p>
             </div>
           </div>
+
+          <div className="flex items-center gap-3">
+            {trackedPercent >= 90 && (
+              <Badge className="bg-green-500 text-black px-4 py-2 text-lg">
+                <CheckCircle size={20} className="mr-2" />
+                TAX SEASON READY
+              </Badge>
+            )}
+            <Button onClick={exportToCSV} className="bg-cyan-600 hover:bg-cyan-500">
+              <Download size={20} className="mr-2" />
+              Export All
+            </Button>
+          </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -650,12 +640,7 @@ export default function InvoiceSection() {
               </thead>
               <tbody className="divide-y divide-muted/50">
                 {filteredInvoices.map((invoice) => (
-                  <motion.tr
-                    key={invoice.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="hover:bg-muted/20"
-                  >
+                  <tr key={invoice.id} className="hover:bg-muted/20 transition-colors">
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
                         <Clock size={14} className="text-muted-foreground" />
@@ -719,7 +704,7 @@ export default function InvoiceSection() {
                         )}
                       </div>
                     </td>
-                  </motion.tr>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -743,16 +728,11 @@ export default function InvoiceSection() {
       </div>
 
       {/* God Mode Footer */}
-      <motion.div
-        className="text-center py-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <Badge className="text-2xl px-12 py-6 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-black font-black">
-          GOD MODE — EVERY DOLLAR TRACKED • TAXES CALCULATED • YOU ARE THE FALCON
+      <div className="text-center py-8">
+        <Badge className="text-2xl px-12 py-6 bg-cyan-500/20 text-cyan-400 border-2 border-cyan-500/50 font-black">
+          CREATOR MODE — EVERY DOLLAR TRACKED • TAXES CALCULATED
         </Badge>
-      </motion.div>
+      </div>
     </div>
   )
 }

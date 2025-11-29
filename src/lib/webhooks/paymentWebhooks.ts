@@ -7,6 +7,7 @@
 
 import { paymentProcessor } from '@/lib/payment/paymentProcessor'
 import { toast } from 'sonner'
+import { logger } from '@/lib/productionLogger'
 
 export interface WebhookEvent {
   type: string
@@ -56,7 +57,7 @@ export interface PaddleTransactionCompletedEvent {
  */
 export async function handleStripeWebhook(event: any): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('[Webhook] Processing Stripe event:', event.type)
+    logger.log('[Webhook] Processing Stripe event:', event.type)
 
     switch (event.type) {
       case 'checkout.session.completed':
@@ -69,11 +70,11 @@ export async function handleStripeWebhook(event: any): Promise<{ success: boolea
         return await handleStripeSubscriptionDeleted(event.data.object)
 
       default:
-        console.log('[Webhook] Unhandled Stripe event type:', event.type)
+        logger.log('[Webhook] Unhandled Stripe event type:', event.type)
         return { success: true }
     }
   } catch (error) {
-    console.error('[Webhook] Stripe webhook error:', error)
+    logger.error('[Webhook] Stripe webhook error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -89,11 +90,11 @@ async function handleStripeCheckoutCompleted(session: StripeCheckoutCompletedEve
     const { customer_email, metadata, amount_total, payment_intent } = session
 
     if (!metadata?.userId || !metadata?.tier) {
-      console.error('[Webhook] Missing required metadata in checkout session')
+      logger.error('[Webhook] Missing required metadata in checkout session')
       return { success: false, error: 'Missing metadata' }
     }
 
-    console.log('[Webhook] Checkout completed for user:', metadata.userId)
+    logger.log('[Webhook] Checkout completed for user:', metadata.userId)
 
     // Trigger license generation
     const result = await paymentProcessor.handlePaymentCompletion({
@@ -106,14 +107,14 @@ async function handleStripeCheckoutCompleted(session: StripeCheckoutCompletedEve
     })
 
     if (result.success) {
-      console.log('[Webhook] License generated and stored')
+      logger.log('[Webhook] License generated and stored')
       return { success: true }
     } else {
-      console.error('[Webhook] License generation failed:', result.error)
+      logger.error('[Webhook] License generation failed:', result.error)
       return { success: false, error: result.error }
     }
   } catch (error) {
-    console.error('[Webhook] Error handling checkout completion:', error)
+    logger.error('[Webhook] Error handling checkout completion:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -126,7 +127,7 @@ async function handleStripeCheckoutCompleted(session: StripeCheckoutCompletedEve
  */
 async function handleStripeInvoicePaymentSucceeded(invoice: any): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('[Webhook] Invoice payment succeeded:', invoice.id)
+    logger.log('[Webhook] Invoice payment succeeded:', invoice.id)
 
     // For subscription renewals, generate a new license
     if (invoice.subscription && invoice.metadata?.userId) {
@@ -144,7 +145,7 @@ async function handleStripeInvoicePaymentSucceeded(invoice: any): Promise<{ succ
 
     return { success: true }
   } catch (error) {
-    console.error('[Webhook] Error handling invoice payment:', error)
+    logger.error('[Webhook] Error handling invoice payment:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -157,14 +158,14 @@ async function handleStripeInvoicePaymentSucceeded(invoice: any): Promise<{ succ
  */
 async function handleStripeSubscriptionDeleted(subscription: any): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('[Webhook] Subscription deleted:', subscription.id)
+    logger.log('[Webhook] Subscription deleted:', subscription.id)
     
     // Optionally revoke the license or downgrade user
     // This would require additional implementation
     
     return { success: true }
   } catch (error) {
-    console.error('[Webhook] Error handling subscription deletion:', error)
+    logger.error('[Webhook] Error handling subscription deletion:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -177,7 +178,7 @@ async function handleStripeSubscriptionDeleted(subscription: any): Promise<{ suc
  */
 export async function handlePaddleWebhook(event: any): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('[Webhook] Processing Paddle event:', event.event_type)
+    logger.log('[Webhook] Processing Paddle event:', event.event_type)
 
     switch (event.event_type) {
       case 'transaction.completed':
@@ -190,11 +191,11 @@ export async function handlePaddleWebhook(event: any): Promise<{ success: boolea
         return await handlePaddleSubscriptionCanceled(event)
 
       default:
-        console.log('[Webhook] Unhandled Paddle event type:', event.event_type)
+        logger.log('[Webhook] Unhandled Paddle event type:', event.event_type)
         return { success: true }
     }
   } catch (error) {
-    console.error('[Webhook] Paddle webhook error:', error)
+    logger.error('[Webhook] Paddle webhook error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -214,11 +215,11 @@ async function handlePaddleTransactionCompleted(event: PaddleTransactionComplete
     const tier = customData.tier || 'pro'
 
     if (!userId) {
-      console.error('[Webhook] Missing userId in Paddle transaction')
+      logger.error('[Webhook] Missing userId in Paddle transaction')
       return { success: false, error: 'Missing userId' }
     }
 
-    console.log('[Webhook] Paddle transaction completed for user:', userId)
+    logger.log('[Webhook] Paddle transaction completed for user:', userId)
 
     // Calculate amount
     const amount = data.items.reduce((sum, item) => {
@@ -236,14 +237,14 @@ async function handlePaddleTransactionCompleted(event: PaddleTransactionComplete
     })
 
     if (result.success) {
-      console.log('[Webhook] License generated for Paddle transaction')
+      logger.log('[Webhook] License generated for Paddle transaction')
       return { success: true }
     } else {
-      console.error('[Webhook] License generation failed:', result.error)
+      logger.error('[Webhook] License generation failed:', result.error)
       return { success: false, error: result.error }
     }
   } catch (error) {
-    console.error('[Webhook] Error handling Paddle transaction:', error)
+    logger.error('[Webhook] Error handling Paddle transaction:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -256,10 +257,10 @@ async function handlePaddleTransactionCompleted(event: PaddleTransactionComplete
  */
 async function handlePaddleSubscriptionActivated(event: any): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('[Webhook] Paddle subscription activated:', event.data.id)
+    logger.log('[Webhook] Paddle subscription activated:', event.data.id)
     return { success: true }
   } catch (error) {
-    console.error('[Webhook] Error handling Paddle subscription activation:', error)
+    logger.error('[Webhook] Error handling Paddle subscription activation:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -272,10 +273,10 @@ async function handlePaddleSubscriptionActivated(event: any): Promise<{ success:
  */
 async function handlePaddleSubscriptionCanceled(event: any): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('[Webhook] Paddle subscription canceled:', event.data.id)
+    logger.log('[Webhook] Paddle subscription canceled:', event.data.id)
     return { success: true }
   } catch (error) {
-    console.error('[Webhook] Error handling Paddle subscription cancellation:', error)
+    logger.error('[Webhook] Error handling Paddle subscription cancellation:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -294,7 +295,7 @@ export function handlePaymentSuccessRedirect(): void {
   const tier = params.get('tier')
 
   if (success === 'true' && tier) {
-    console.log('[Webhook] Payment success redirect detected')
+    logger.log('[Webhook] Payment success redirect detected')
     
     toast.success('Payment Successful!', {
       description: `Your ${tier.toUpperCase()} subscription is now active. Your license has been generated automatically.`,
@@ -310,7 +311,7 @@ export function handlePaymentSuccessRedirect(): void {
 
   const canceled = params.get('canceled')
   if (canceled === 'true') {
-    console.log('[Webhook] Payment canceled by user')
+    logger.log('[Webhook] Payment canceled by user')
     
     toast.error('Payment Canceled', {
       description: 'Your payment was canceled. No charges were made.',

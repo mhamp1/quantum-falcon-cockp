@@ -1,3 +1,5 @@
+import { logger } from '@/lib/productionLogger'
+
 export const LEGAL_DOCUMENT_VERSIONS = {
   RISK_DISCLOSURE: '2025-11-18',
   TERMS_OF_SERVICE: '2025-11-18',
@@ -17,11 +19,11 @@ export function shouldShowRiskBanner(): boolean {
   const hasAccepted = localStorage.getItem(storageKey) === 'true'
   
   if (!hasAccepted) {
-    console.log('[Legal Version] Risk disclosure NOT accepted for version:', LEGAL_DOCUMENT_VERSIONS.RISK_DISCLOSURE)
+    logger.log('[Legal Version] Risk disclosure NOT accepted for version:', LEGAL_DOCUMENT_VERSIONS.RISK_DISCLOSURE)
     return true
   }
   
-  console.log('[Legal Version] Risk disclosure already accepted for version:', LEGAL_DOCUMENT_VERSIONS.RISK_DISCLOSURE)
+  logger.log('[Legal Version] Risk disclosure already accepted for version:', LEGAL_DOCUMENT_VERSIONS.RISK_DISCLOSURE)
   return false
 }
 
@@ -32,7 +34,7 @@ export function clearOldVersions(): void {
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)
     if (key && key.startsWith(prefix) && key !== `${prefix}${currentVersion}`) {
-      console.log('[Legal Version] Clearing old version:', key)
+      logger.log('[Legal Version] Clearing old version:', key)
       localStorage.removeItem(key)
     }
   }
@@ -61,20 +63,20 @@ export function needsReacceptance(lastAcceptedVersion: string, documentType: 'ri
   const currentVersion = getDocumentUpdateDate(documentType)
   
   if (!lastAcceptedVersion) {
-    console.log(`[Legal Version] No previous acceptance found for ${documentType.toUpperCase()}`)
+    logger.log(`[Legal Version] No previous acceptance found for ${documentType.toUpperCase()}`)
     return true
   }
   
   const isOutdated = lastAcceptedVersion !== currentVersion
   
   if (isOutdated) {
-    console.log(`[Legal Version] ${documentType.toUpperCase()} document updated!`)
-    console.log(`[Legal Version] User accepted: ${lastAcceptedVersion}, Current: ${currentVersion}`)
-    console.log('[Legal Version] User must re-accept the updated document')
+    logger.log(`[Legal Version] ${documentType.toUpperCase()} document updated!`)
+    logger.log(`[Legal Version] User accepted: ${lastAcceptedVersion}, Current: ${currentVersion}`)
+    logger.log('[Legal Version] User must re-accept the updated document')
     
     const storageKey = `${documentType}_accepted_${lastAcceptedVersion}`
     if (localStorage.getItem(storageKey)) {
-      console.log(`[Legal Version] Clearing outdated localStorage key: ${storageKey}`)
+      logger.log(`[Legal Version] Clearing outdated localStorage key: ${storageKey}`)
       localStorage.removeItem(storageKey)
     }
   }
@@ -96,17 +98,17 @@ export function checkVersionExpiration(): { expired: boolean; documentType: stri
     if (!key) continue
     
     if (key.startsWith('risk_accepted_') && key !== riskStorageKey) {
-      console.log('[Legal Version] Found expired risk acceptance:', key)
+      logger.log('[Legal Version] Found expired risk acceptance:', key)
       return { expired: true, documentType: 'risk' }
     }
     
     if (key.startsWith('terms_accepted_') && key !== termsStorageKey) {
-      console.log('[Legal Version] Found expired terms acceptance:', key)
+      logger.log('[Legal Version] Found expired terms acceptance:', key)
       return { expired: true, documentType: 'terms' }
     }
     
     if (key.startsWith('privacy_accepted_') && key !== privacyStorageKey) {
-      console.log('[Legal Version] Found expired privacy acceptance:', key)
+      logger.log('[Legal Version] Found expired privacy acceptance:', key)
       return { expired: true, documentType: 'privacy' }
     }
   }

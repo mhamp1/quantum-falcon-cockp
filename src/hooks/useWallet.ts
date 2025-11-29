@@ -1,16 +1,12 @@
-// TEMPORARY FIX: Wallet Hook Stub
-// Reason: React 19 + Solana wallet-adapter conflict causing white page
-// This stub prevents import errors while Solana integration is disabled
-//
-// TODO: Re-enable once Solana wallet-adapter supports React 19
-// November 24, 2025 — Quantum Falcon Cockpit
+// WALLET HOOK — Provides wallet utilities
+// The main wallet functionality is in src/providers/WalletProvider.tsx (useQuantumWallet)
+// This hook provides additional utilities and a fallback for components that don't need full wallet integration
+// November 24, 2025 — Quantum Falcon Cockpit v2025.1.0
 
 import { useCallback } from 'react'
 
-// Centralized warning message for Solana wallet temporary disablement
-const WALLET_DISABLED_MESSAGE = 
-  'Wallet functionality temporarily disabled due to React 19 compatibility issue. ' +
-  'This is a temporary fix. See TODO comments in src/providers/WalletProvider.tsx for re-enabling Solana integration.'
+// For full wallet functionality, use useQuantumWallet from @/providers/WalletProvider
+// This hook provides utilities only
 
 /**
  * STUB Wallet Hook - Returns safe default values
@@ -35,17 +31,17 @@ export function useWallet() {
   }, [])
 
   /**
-   * Connect wallet stub - does nothing for now
+   * Connect wallet - use useQuantumWallet().connect() for full functionality
    */
   const connectWallet = useCallback(async () => {
-    console.warn(WALLET_DISABLED_MESSAGE)
+    // For full wallet functionality, use useQuantumWallet from @/providers/WalletProvider
   }, [])
 
   /**
-   * Disconnect wallet stub - does nothing for now
+   * Disconnect wallet - use useQuantumWallet().disconnect() for full functionality
    */
   const disconnectWallet = useCallback(async () => {
-    console.warn(WALLET_DISABLED_MESSAGE)
+    // For full wallet functionality, use useQuantumWallet from @/providers/WalletProvider
   }, [])
 
   return {

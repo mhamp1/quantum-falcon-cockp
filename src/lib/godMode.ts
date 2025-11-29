@@ -274,7 +274,6 @@ export function getGodModeStatus(auth: UserAuth | null): {
         'Master Admin Panel',
         'NFT Minting (still scarce)',
         'Zero Upgrade Prompts',
-        'Rainbow Border',
         'Creator Privileges'
       ]
     }

@@ -4,7 +4,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { ChartLine, TrendUp, Brain, Gauge, Sparkle, Crown, Zap, Activity } from '@phosphor-icons/react'
+import { ChartLine, TrendUp, Brain, Gauge, Sparkle, Crown, Zap, Pulse as Activity } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { useKVSafe as useKV } from '@/hooks/useKVFallback'
 import { isGodMode } from '@/lib/godMode'

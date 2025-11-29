@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Brain, TrendingUp, Zap, Target, Gauge, Activity } from '@phosphor-icons/react'
+import { Brain, TrendUp, Zap, Target, Gauge, Pulse } from '@phosphor-icons/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -62,7 +62,7 @@ export default function AIOptimizationPanel() {
             <div className="flex items-center justify-between">
               <span className="text-purple-300 text-sm uppercase">Training Progress</span>
               <Badge className="bg-green-500/20 text-green-400 border-green-500/50 animate-pulse">
-                <Activity size={16} className="mr-2" />
+                <Pulse size={16} className="mr-2" />
                 ACTIVE
               </Badge>
             </div>
@@ -83,7 +83,7 @@ export default function AIOptimizationPanel() {
             </p>
           </div>
           <div className="text-center p-4 bg-black/40 rounded-lg border border-green-500/30">
-            <TrendingUp size={32} className="mx-auto mb-2 text-green-400" />
+            <TrendUp size={32} className="mx-auto mb-2 text-green-400" />
             <p className="text-gray-400 text-xs uppercase">Expected ROI</p>
             <p className="text-3xl font-black text-green-400">
               +{metrics.expectedROI.toFixed(1)}%

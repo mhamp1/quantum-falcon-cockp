@@ -4,11 +4,11 @@
 // November 28, 2025 — Quantum Falcon Cockpit
 // ═══════════════════════════════════════════════════════════════
 
-import { Connection } from '@solana/web3.js'
 import { JupiterSwapEngine, TOKENS } from './JupiterSwapEngine'
 import { executionBridge, TradeResult } from './AutonomousExecutionBridge'
 import { connection } from '@/lib/solana/connection'
 import { toast } from 'sonner'
+import { logger } from '@/lib/productionLogger'
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -97,7 +97,7 @@ class PositionMonitor {
     this.config = { ...DEFAULT_CONFIG, ...config }
     this.jupiter = new JupiterSwapEngine(connection)
     this.loadPositions()
-    console.log('[PositionMonitor] Initialized with config:', this.config)
+    logger.log('[PositionMonitor] Initialized with config:', this.config)
   }
 
   // ─── POSITION MANAGEMENT ───
@@ -108,7 +108,7 @@ class PositionMonitor {
   addPosition(position: Omit<MonitoredPosition, 'id' | 'highestPrice' | 'status'>): string {
     // Check max positions
     if (this.positions.size >= this.config.maxPositions) {
-      console.warn('[PositionMonitor] Max positions reached, cannot add more')
+      logger.warn('[PositionMonitor] Max positions reached, cannot add more')
       toast.warning('Maximum Positions Reached', {
         description: `You can only have ${this.config.maxPositions} open positions`,
       })
@@ -127,7 +127,7 @@ class PositionMonitor {
     this.positions.set(id, monitored)
     this.savePositions()
     
-    console.log(`[PositionMonitor] Position added: ${id}`, {
+    logger.log(`[PositionMonitor] Position added: ${id}`, {
       token: position.token.slice(0, 8) + '...',
       entry: position.entryPrice,
       stopLoss: position.stopLossPrice,
@@ -149,7 +149,7 @@ class PositionMonitor {
     const removed = this.positions.delete(positionId)
     if (removed) {
       this.savePositions()
-      console.log(`[PositionMonitor] Position removed: ${positionId}`)
+      logger.log(`[PositionMonitor] Position removed: ${positionId}`)
     }
     return removed
   }
@@ -166,7 +166,7 @@ class PositionMonitor {
     this.savePositions()
     this.onPositionUpdated?.(position)
     
-    console.log(`[PositionMonitor] Stop loss updated for ${positionId}: $${newStopLoss}`)
+    logger.log(`[PositionMonitor] Stop loss updated for ${positionId}: $${newStopLoss}`)
     return true
   }
 
@@ -182,7 +182,7 @@ class PositionMonitor {
     this.savePositions()
     this.onPositionUpdated?.(position)
     
-    console.log(`[PositionMonitor] Take profit updated for ${positionId}: $${newTakeProfit}`)
+    logger.log(`[PositionMonitor] Take profit updated for ${positionId}: $${newTakeProfit}`)
     return true
   }
 
@@ -198,7 +198,7 @@ class PositionMonitor {
     this.savePositions()
     this.onPositionUpdated?.(position)
     
-    console.log(`[PositionMonitor] Trailing stop updated for ${positionId}: ${trailingPercent}%`)
+    logger.log(`[PositionMonitor] Trailing stop updated for ${positionId}: ${trailingPercent}%`)
     return true
   }
 
@@ -209,12 +209,12 @@ class PositionMonitor {
    */
   start(): void {
     if (this.isRunning) {
-      console.log('[PositionMonitor] Already running')
+      logger.log('[PositionMonitor] Already running')
       return
     }
 
     this.isRunning = true
-    console.log('[PositionMonitor] 🟢 Started monitoring...')
+    logger.log('[PositionMonitor] 🟢 Started monitoring...')
 
     // Initial check
     this.checkAllPositions()
@@ -234,7 +234,7 @@ class PositionMonitor {
       this.intervalId = null
     }
     this.isRunning = false
-    console.log('[PositionMonitor] 🔴 Stopped')
+    logger.log('[PositionMonitor] 🔴 Stopped')
   }
 
   /**
@@ -269,7 +269,7 @@ class PositionMonitor {
         const currentPrice = prices[position.token]
         
         if (!currentPrice || currentPrice <= 0) {
-          console.warn(`[PositionMonitor] No price for ${position.symbol}`)
+          logger.warn(`[PositionMonitor] No price for ${position.symbol}`)
           continue
         }
 
@@ -288,7 +288,7 @@ class PositionMonitor {
 
         // Check stop loss (for long positions, price below stop)
         if (position.side === 'long' && currentPrice <= effectiveStopLoss) {
-          console.log(`[PositionMonitor] 🛑 STOP LOSS triggered for ${position.symbol} @ $${currentPrice.toFixed(4)}`)
+          logger.log(`[PositionMonitor] 🛑 STOP LOSS triggered for ${position.symbol} @ $${currentPrice.toFixed(4)}`)
           await this.closePosition(
             position,
             currentPrice,
@@ -299,7 +299,7 @@ class PositionMonitor {
 
         // Check take profit
         if (position.side === 'long' && currentPrice >= position.takeProfitPrice) {
-          console.log(`[PositionMonitor] 🎯 TAKE PROFIT triggered for ${position.symbol} @ $${currentPrice.toFixed(4)}`)
+          logger.log(`[PositionMonitor] 🎯 TAKE PROFIT triggered for ${position.symbol} @ $${currentPrice.toFixed(4)}`)
           await this.closePosition(position, currentPrice, 'take_profit')
           continue
         }
@@ -325,7 +325,7 @@ class PositionMonitor {
       this.savePositions()
       
     } catch (error: any) {
-      console.error('[PositionMonitor] Check failed:', error)
+      logger.error('[PositionMonitor] Check failed:', error)
       this.onError?.(error.message, 'all')
     }
   }
@@ -410,7 +410,7 @@ class PositionMonitor {
       }
 
     } catch (error: any) {
-      console.error(`[PositionMonitor] Failed to close position ${position.id}:`, error)
+      logger.error(`[PositionMonitor] Failed to close position ${position.id}:`, error)
       result.error = error.message
       this.onError?.(error.message, position.id)
     }
@@ -559,7 +559,7 @@ class PositionMonitor {
       }
       localStorage.setItem('qf-monitored-positions', JSON.stringify(state))
     } catch (e) {
-      console.warn('[PositionMonitor] Failed to save state:', e)
+      logger.warn('[PositionMonitor] Failed to save state:', e)
     }
   }
 
@@ -573,10 +573,10 @@ class PositionMonitor {
         this.totalRealizedPnL = state.totalRealizedPnL || 0
         this.config = { ...DEFAULT_CONFIG, ...state.config }
         
-        console.log(`[PositionMonitor] Loaded ${this.positions.size} positions from storage`)
+        logger.log(`[PositionMonitor] Loaded ${this.positions.size} positions from storage`)
       }
     } catch (e) {
-      console.warn('[PositionMonitor] Failed to load state:', e)
+      logger.warn('[PositionMonitor] Failed to load state:', e)
     }
   }
 
@@ -586,7 +586,7 @@ class PositionMonitor {
   clearAllPositions(): void {
     this.positions.clear()
     this.savePositions()
-    console.log('[PositionMonitor] All positions cleared')
+    logger.log('[PositionMonitor] All positions cleared')
   }
 }
 

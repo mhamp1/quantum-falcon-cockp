@@ -195,7 +195,9 @@ export default function LiveArenaPage() {
   // Handle creating a battle
   const handleCreateBattle = async (mode: 'duel' | 'tournament', stake: number) => {
     try {
-      const result = await createBattle(mode, stake, 'default-strategy') // TODO: Get actual strategy
+      // Get selected strategy from user preferences or use default
+      const savedStrategy = localStorage.getItem('qf-battle-strategy') || 'momentum-scalper'
+      const result = await createBattle(mode, stake, savedStrategy)
       if (result.success && result.battleId) {
         toast.success(`⚔️ ${mode.charAt(0).toUpperCase() + mode.slice(1)} created! Waiting for opponent...`)
         setShowCreateBattle(false)

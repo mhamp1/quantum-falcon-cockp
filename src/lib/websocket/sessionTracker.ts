@@ -32,7 +32,9 @@ class SessionTracker {
   }
 
   private initializeSocket() {
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
+    // In production, only connect if WS URL is configured
+    const wsUrl = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? '' : 'ws://localhost:3001')
+    if (!wsUrl) return // Skip WebSocket in production without config
     
     this.socket = io(wsUrl, {
       transports: ['websocket', 'polling'],

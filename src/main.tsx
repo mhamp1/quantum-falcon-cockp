@@ -12,6 +12,18 @@ import './main.css';
 import './styles/theme.css';
 import './index.css';
 
+// ═══════════════════════════════════════════════════════════════
+// PRODUCTION CONSOLE SILENCER
+// In production, suppress all console output for clean UX
+// ═══════════════════════════════════════════════════════════════
+if (import.meta.env.PROD) {
+  const noop = () => {};
+  console.log = noop;
+  console.debug = noop;
+  console.info = noop;
+  // Keep warn and error for critical issues only
+}
+
 // Validate environment variables at startup
 initializeEnvValidation();
 

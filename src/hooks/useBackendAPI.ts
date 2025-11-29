@@ -83,7 +83,10 @@ interface ExecuteTradeResult {
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
+// In production, only use backend if explicitly configured
+// Never fallback to localhost in production
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001')
+const BACKEND_AVAILABLE = !!BACKEND_URL
 
 // ═══════════════════════════════════════════════════════════════
 // API CLIENT HOOK

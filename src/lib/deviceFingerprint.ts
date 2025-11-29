@@ -204,7 +204,7 @@ export async function generateDeviceFingerprint(): Promise<DeviceFingerprint> {
  */
 export async function validateLicenseWithFingerprint(
   licenseKey: string,
-  apiUrl: string = 'http://localhost:8000'
+  apiUrl: string = import.meta.env.VITE_LICENSE_API_URL || ''
 ): Promise<any> {
   const deviceFingerprint = await generateDeviceFingerprint();
   
@@ -228,7 +228,7 @@ export async function validateLicenseWithFingerprint(
  */
 export async function bindDeviceToLicense(
   licenseKey: string,
-  apiUrl: string = 'http://localhost:8000'
+  apiUrl: string = import.meta.env.VITE_LICENSE_API_URL || ''
 ): Promise<any> {
   const deviceFingerprint = await generateDeviceFingerprint();
   

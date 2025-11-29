@@ -5,8 +5,9 @@ import { logger } from '../logger'
 import { toast } from 'sonner'
 import { ROYALTY_WALLET, ROYALTY_BASIS_POINTS } from './QuantumFalconNFTEngine'
 
-// mhamp1 wallet address (replace with actual Solana address)
-const MHAMP1_WALLET = import.meta.env.VITE_MHAMP1_WALLET || 'mhamp1' // TODO: Replace with actual Solana address
+// mhamp1 creator wallet address - receives 7.77% royalty on all secondary sales
+// Set VITE_MHAMP1_WALLET in .env for your own wallet
+const MHAMP1_WALLET = import.meta.env.VITE_MHAMP1_WALLET || import.meta.env.VITE_ROYALTY_WALLET || ROYALTY_WALLET
 
 /**
  * Mint NFT using Metaplex Core + Umi

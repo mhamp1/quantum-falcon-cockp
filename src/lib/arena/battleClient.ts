@@ -25,7 +25,12 @@ class BattleWebSocket {
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        const wsUrl = `${import.meta.env.VITE_BATTLE_WS_URL || 'ws://localhost:3001'}/battle/${this.battleId}`
+        const baseUrl = import.meta.env.VITE_BATTLE_WS_URL || (import.meta.env.PROD ? '' : 'ws://localhost:3001')
+        if (!baseUrl) {
+          reject(new Error('Battle server not configured'))
+          return
+        }
+        const wsUrl = `${baseUrl}/battle/${this.battleId}`
         this.ws = new WebSocket(wsUrl)
 
         this.ws.onopen = () => {

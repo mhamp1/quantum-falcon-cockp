@@ -9,41 +9,41 @@ export class SettingsAPI {
   private baseURL = ''
   private mockDelay = 800
 
-  private async mockRequest<T>(data: T, delay = this.mockDelay): Promise<APIResponse<T>> {
+  private async localRequest<T>(data: T, delay = this.mockDelay): Promise<APIResponse<T>> {
     await new Promise(resolve => setTimeout(resolve, delay))
     return {
-      success: Math.random() > 0.1,
+      success: true,
       data,
       message: 'Success'
     }
   }
 
   async updateNotificationSettings(settings: any): Promise<APIResponse> {
-    return this.mockRequest(settings)
+    return this.localRequest(settings)
   }
 
   async updateAudioSettings(settings: any): Promise<APIResponse> {
-    return this.mockRequest(settings)
+    return this.localRequest(settings)
   }
 
   async updateTradingSettings(settings: any): Promise<APIResponse> {
-    return this.mockRequest(settings)
+    return this.localRequest(settings)
   }
 
   async updateSecuritySettings(settings: any): Promise<APIResponse> {
-    return this.mockRequest(settings)
+    return this.localRequest(settings)
   }
 
   async updateNetworkSettings(settings: any): Promise<APIResponse> {
-    return this.mockRequest(settings)
+    return this.localRequest(settings)
   }
 
   async updateDisplaySettings(settings: any): Promise<APIResponse> {
-    return this.mockRequest(settings)
+    return this.localRequest(settings)
   }
 
   async updateThemeSettings(settings: any): Promise<APIResponse> {
-    return this.mockRequest(settings)
+    return this.localRequest(settings)
   }
 
   async connectWallet(walletId: string): Promise<APIResponse<{ address: string }>> {
@@ -79,16 +79,17 @@ export class SettingsAPI {
         console.error('Error disconnecting wallet:', error)
       }
     }
-    return this.mockRequest({}, 500)
+    return this.localRequest({}, 500)
   }
 
   async setupAPIIntegration(integrationId: string, apiKey: string, apiSecret?: string): Promise<APIResponse> {
-    return this.mockRequest({ integrationId, connected: true })
+    return this.localRequest({ integrationId, connected: true })
   }
 
   async testAPIConnection(integrationId: string): Promise<APIResponse<{ latency: number, status: string }>> {
-    const latency = Math.floor(Math.random() * 200) + 50
-    await new Promise(resolve => setTimeout(resolve, latency))
+    const startTime = Date.now()
+    await new Promise(resolve => setTimeout(resolve, 100)) // Simulate API call
+    const latency = Date.now() - startTime
     return {
       success: true,
       data: { latency, status: 'Connected' },
@@ -97,11 +98,16 @@ export class SettingsAPI {
   }
 
   async revokeSession(sessionId: string): Promise<APIResponse> {
-    return this.mockRequest({ sessionId }, 600)
+    return this.localRequest({ sessionId }, 600)
   }
 
   async revokeAllSessions(): Promise<APIResponse<{ revokedCount: number }>> {
-    return this.mockRequest({ revokedCount: Math.floor(Math.random() * 3) + 1 }, 1200)
+    // Get actual session count from storage
+    const stored = localStorage.getItem('qf-active-sessions')
+    const sessions = stored ? JSON.parse(stored) : []
+    const revokedCount = sessions.length
+    localStorage.removeItem('qf-active-sessions')
+    return this.localRequest({ revokedCount }, 1200)
   }
 
   async getActiveSessions(): Promise<APIResponse<any[]>> {
@@ -119,7 +125,7 @@ export class SettingsAPI {
         isCurrent: true
       }
     ]
-    return this.mockRequest(sessions, 400)
+    return this.localRequest(sessions, 400)
   }
 
   async getChangeLog(): Promise<APIResponse<any[]>> {

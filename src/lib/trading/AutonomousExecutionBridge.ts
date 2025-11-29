@@ -5,11 +5,12 @@
 // November 28, 2025 — Quantum Falcon Cockpit
 // ═══════════════════════════════════════════════════════════════
 
-import { Connection, PublicKey, VersionedTransaction, LAMPORTS_PER_SOL } from '@solana/web3.js'
-import { getTradeEngine, TradeOrder } from './TradeExecutionEngine'
+import { PublicKey, VersionedTransaction, LAMPORTS_PER_SOL } from '@solana/web3.js'
+import { getTradeEngine } from './TradeExecutionEngine'
 import { TOKENS } from './JupiterSwapEngine'
 import { connection } from '@/lib/solana/connection'
 import { toast } from 'sonner'
+import { logger } from '@/lib/productionLogger'
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -74,7 +75,7 @@ class AutonomousExecutionBridge {
   private _onError?: (error: string) => void
 
   private constructor() {
-    console.log('[AutonomousExecutionBridge] Initialized')
+    logger.log('[AutonomousExecutionBridge] Initialized')
     this.loadState()
   }
 
@@ -105,11 +106,11 @@ class AutonomousExecutionBridge {
     const engine = getTradeEngine(connection)
     if (publicKey && signTransaction) {
       engine.setWallet(new PublicKey(publicKey), signTransaction)
-      console.log('[AutonomousExecutionBridge] Wallet connected:', publicKey.slice(0, 8) + '...')
+      logger.log('[AutonomousExecutionBridge] Wallet connected:', publicKey.slice(0, 8) + '...')
     } else {
       engine.setWallet(null, null)
       if (wasConnected) {
-        console.log('[AutonomousExecutionBridge] Wallet disconnected')
+        logger.log('[AutonomousExecutionBridge] Wallet disconnected')
         // Auto-disable live mode when wallet disconnects
         if (this._isLiveMode) {
           this.setLiveMode(false)
@@ -141,12 +142,12 @@ class AutonomousExecutionBridge {
     this._isLiveMode = isLive
     
     if (isLive && !wasLive) {
-      console.log('[AutonomousExecutionBridge] 🔴 LIVE MODE ENABLED')
+      logger.log('[AutonomousExecutionBridge] 🔴 LIVE MODE ENABLED')
       this._isPaused = false
       this._pauseReason = ''
       this._consecutiveFailures = 0
     } else if (!isLive && wasLive) {
-      console.log('[AutonomousExecutionBridge] 📝 Switched to Paper Mode')
+      logger.log('[AutonomousExecutionBridge] 📝 Switched to Paper Mode')
     }
 
     this.saveState()
@@ -250,7 +251,7 @@ class AutonomousExecutionBridge {
       }
     }
 
-    console.log(`[AutonomousExecutionBridge] Executing ${side} trade:`, {
+    logger.log(`[AutonomousExecutionBridge] Executing ${side} trade:`, {
       inputToken: inputToken.slice(0, 8) + '...',
       outputToken: outputToken.slice(0, 8) + '...',
       amount,
@@ -317,7 +318,7 @@ class AutonomousExecutionBridge {
         return result
       }
     } catch (error: any) {
-      console.error('[AutonomousExecutionBridge] Trade error:', error)
+      logger.error('[AutonomousExecutionBridge] Trade error:', error)
       
       this._consecutiveFailures++
       
@@ -378,7 +379,7 @@ class AutonomousExecutionBridge {
   pause(reason: string = 'Manual pause'): void {
     this._isPaused = true
     this._pauseReason = reason
-    console.log('[AutonomousExecutionBridge] PAUSED:', reason)
+    logger.log('[AutonomousExecutionBridge] PAUSED:', reason)
     
     toast.warning('Autonomous Trading Paused', { description: reason })
     
@@ -394,7 +395,7 @@ class AutonomousExecutionBridge {
     this._pauseReason = ''
     this._consecutiveFailures = 0
     
-    console.log('[AutonomousExecutionBridge] RESUMED')
+    logger.log('[AutonomousExecutionBridge] RESUMED')
     toast.success('Autonomous Trading Resumed')
     
     this.saveState()
@@ -413,7 +414,7 @@ class AutonomousExecutionBridge {
     const engine = getTradeEngine(connection)
     engine.emergencyStop()
     
-    console.error('[AutonomousExecutionBridge] 🚨 EMERGENCY STOP')
+    logger.error('[AutonomousExecutionBridge] 🚨 EMERGENCY STOP')
     
     toast.error('🚨 EMERGENCY STOP', {
       description: 'All autonomous trading halted immediately',
@@ -569,7 +570,7 @@ class AutonomousExecutionBridge {
       }
       localStorage.setItem('qf-autonomous-bridge-state', JSON.stringify(state))
     } catch (e) {
-      console.warn('[AutonomousExecutionBridge] Failed to save state:', e)
+      logger.warn('[AutonomousExecutionBridge] Failed to save state:', e)
     }
   }
 
@@ -592,7 +593,7 @@ class AutonomousExecutionBridge {
         this._maxConsecutiveFailures = state.maxConsecutiveFailures || 5
       }
     } catch (e) {
-      console.warn('[AutonomousExecutionBridge] Failed to load state:', e)
+      logger.warn('[AutonomousExecutionBridge] Failed to load state:', e)
     }
   }
 }

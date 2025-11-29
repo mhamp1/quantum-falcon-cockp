@@ -124,12 +124,6 @@ const EnhancedAnalyticsV2: React.FC = () => {
     }
   };
 
-  // REMOVED: generateMockTrades - All trades now fetched from real API
-  const _generateMockTrades_DEPRECATED = (filter: string) => {
-    // This function is deprecated - use fetchTrades() instead
-    return []
-  };
-
   const calculateMetrics = (trades: any[]): Metrics => {
     if (!trades.length) return {
       totalPnl: 0, winRate: 0, totalTrades: 0, sharpe: 0,
