@@ -14,6 +14,8 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  # Note: Admin permissions are required to enable Pages automatically
+  # If Pages is not enabled, enable it manually in Settings → Pages
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -41,10 +43,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
+      # Configure Pages (only needed if Pages is already enabled)
+      # To enable Pages: Go to Settings → Pages → Source: "GitHub Actions"
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
+        continue-on-error: true
+        if: github.event_name != 'pull_request'
 
       - name: Install dependencies
         run: npm ci
