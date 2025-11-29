@@ -9,9 +9,15 @@
         // Single Page App redirect for GitHub Pages
         // This script redirects 404s to index.html while preserving the path
         // The path is stored in sessionStorage and restored by the main app
-        const segmentCount = 1; // Number of path segments to keep (1 for /repo-name/)
+        
+        // Number of path segments to keep in the base URL:
+        // - 0 for root domain (e.g., example.com/)
+        // - 1 for subdirectory (e.g., example.github.io/repo-name/)
+        const REPO_PATH_SEGMENT_COUNT = 1;
+        
         const location = window.location;
-        const pathSegmentsToKeep = location.pathname.split('/').slice(0, 1 + segmentCount).join('/');
+        // Keep the root segment (empty string before first /) plus repo path segments
+        const pathSegmentsToKeep = location.pathname.split('/').slice(0, 1 + REPO_PATH_SEGMENT_COUNT).join('/');
         const restOfPath = location.pathname.slice(pathSegmentsToKeep.length);
         
         // Store the original path for the SPA router to pick up

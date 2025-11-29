@@ -52,7 +52,7 @@ jobs:
         env:
           # GitHub Pages base path (repo name)
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
-          # Solana Configuration
+          # Solana Configuration (VITE_SOLANA_RPC_URL is an alias for VITE_HELIUS_RPC_URL for backwards compatibility)
           VITE_HELIUS_RPC_URL: ${{ secrets.VITE_HELIUS_RPC_URL }}
           VITE_SOLANA_RPC_URL: ${{ secrets.VITE_HELIUS_RPC_URL }}
           VITE_SOLANA_NETWORK: ${{ vars.VITE_SOLANA_NETWORK || 'mainnet-beta' }}
