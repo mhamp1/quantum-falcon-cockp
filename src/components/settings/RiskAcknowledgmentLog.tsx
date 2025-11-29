@@ -88,7 +88,7 @@ export default function RiskAcknowledgmentLog() {
               </Button>
             )}
           </div>
-          {process.env.NODE_ENV === 'development' && (
+          {import.meta.env.DEV && (
             <Button
               onClick={handleResetForTesting}
               variant="ghost"

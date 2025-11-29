@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Activity,
+  Pulse as Activity,
   Lightning,
   Clock,
   CheckCircle,
