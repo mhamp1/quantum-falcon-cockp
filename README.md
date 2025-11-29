@@ -132,6 +132,7 @@ Built with **React 19**, **TypeScript**, **Vite**, and modern web technologies f
 - [Features](#-features)
 - [Prerequisites](#-prerequisites)
 - [Setup Instructions](#-setup-instructions)
+- [Deploy to GitHub Pages](#6-deploy-to-github-pages)
 - [Mobile Applications](#-mobile-applications)
 - [Firebase Push Notifications](#-firebase-push-notifications)
 - [Offline-First with LocalStorage](#-offline-first-with-localstorage)
@@ -261,6 +262,46 @@ npm run build
 ```
 
 The optimized build will be in the `dist/` directory.
+
+### 6. Deploy to GitHub Pages
+
+Quantum Falcon supports automatic deployment to GitHub Pages. 
+
+#### Automatic Deployment
+
+Push to the `main` branch triggers automatic deployment via GitHub Actions:
+
+1. **Enable GitHub Pages** in your repository settings:
+   - Go to Settings → Pages
+   - Source: GitHub Actions
+
+2. **Set Environment Variables** in GitHub Settings → Secrets and variables → Actions:
+
+   **Secrets** (sensitive values):
+   | Name | Description |
+   |------|-------------|
+   | `VITE_HELIUS_RPC_URL` | Helius RPC endpoint (e.g., `https://mainnet.helius-rpc.com/?api-key=YOUR_KEY`) |
+   | `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (e.g., `pk_live_...`) |
+   | `VITE_SENTRY_DSN` | (Optional) Sentry DSN for error tracking |
+
+   **Variables** (non-sensitive values):
+   | Name | Description |
+   |------|-------------|
+   | `VITE_MHAMP1_WALLET` | Your Solana wallet address for royalties |
+   | `VITE_SOLANA_NETWORK` | Network to use: `mainnet-beta`, `devnet`, or `testnet` |
+
+3. **Push to main** - Deployment runs automatically!
+
+#### Manual Build for GitHub Pages
+
+```bash
+# Build with GitHub Pages base path
+VITE_BASE_PATH=/quantum-falcon-cockp/ npm run build
+```
+
+#### Environment Variables Reference
+
+See `.env.example` for a complete list of configurable environment variables.
 
 ---
 

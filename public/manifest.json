@@ -2,31 +2,31 @@
   "name": "Quantum Falcon Cockpit",
   "short_name": "QF Cockpit",
   "description": "The #1 AI Crypto Trading Cockpit on Solana — 15 Elite Agents",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#00FFFF",
   "orientation": "any",
-  "scope": "/",
+  "scope": "./",
   "lang": "en",
   "dir": "ltr",
   "id": "quantum-falcon-cockpit",
   "categories": ["finance", "productivity", "utilities", "business"],
   "icons": [
     {
-      "src": "/falcon-head-official.png",
+      "src": "./falcon-head-official.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/falcon-head-official.png",
+      "src": "./falcon-head-official.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/falcon-head-official.png",
+      "src": "./falcon-head-official.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
@@ -38,22 +38,22 @@
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "Open trading dashboard",
-      "url": "/",
-      "icons": [{ "src": "/falcon-head-official.png", "sizes": "192x192" }]
+      "url": "./",
+      "icons": [{ "src": "./falcon-head-official.png", "sizes": "192x192" }]
     },
     {
       "name": "Trading Hub",
       "short_name": "Trading",
       "description": "Execute trades with AI agents",
-      "url": "/?tab=trading",
-      "icons": [{ "src": "/falcon-head-official.png", "sizes": "192x192" }]
+      "url": "./?tab=trading",
+      "icons": [{ "src": "./falcon-head-official.png", "sizes": "192x192" }]
     },
     {
       "name": "Analytics",
       "short_name": "Analytics",
       "description": "View trading performance",
-      "url": "/?tab=analytics",
-      "icons": [{ "src": "/falcon-head-official.png", "sizes": "192x192" }]
+      "url": "./?tab=analytics",
+      "icons": [{ "src": "./falcon-head-official.png", "sizes": "192x192" }]
     }
   ],
   "related_applications": [],
