@@ -15,6 +15,25 @@ import './index.css';
 // Validate environment variables at startup
 initializeEnvValidation();
 
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((registration) => {
+        console.log('[PWA] Service Worker registered:', registration.scope);
+        
+        // Check for updates periodically
+        setInterval(() => {
+          registration.update();
+        }, 60 * 60 * 1000); // Every hour
+      })
+      .catch((error) => {
+        console.warn('[PWA] Service Worker registration failed:', error);
+      });
+  });
+}
+
 // Initialize Web Vitals monitoring in production
 if (typeof window !== 'undefined') {
   import('./lib/monitoring/webVitals').then(({ initWebVitals }) => {
