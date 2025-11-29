@@ -19,7 +19,8 @@ import {
   Eye,
   Crosshair,
   Database,
-  Network
+  Network,
+  Atom
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,6 +34,10 @@ import { toast } from 'sonner';
 import { AGGRESSION_BLUEPRINTS, DEFAULT_AGGRESSION_BLUEPRINT, type AggressionBlueprint } from '@/lib/agents/aggressionProfiles';
 import type { AutonomyTelemetry } from '@/lib/bot/AutonomousTradingLoop';
 import { DEFAULT_AUTONOMY_TELEMETRY } from '@/lib/bot/AutonomousTradingLoop';
+import { ELITE_AGENTS, type EliteAgentInstance } from '@/lib/ai/agents';
+import { qAgent } from '@/lib/rl/qLearningAgent';
+import { getRLPrediction, extractMarketFeatures, loadRLAgent, type RLPrediction } from '@/lib/rl/rlAgent';
+import { useMarketFeed } from '@/hooks/useMarketFeed';
 
 // Returns empty array - real outcomes come from learning system
 // This placeholder ensures UI doesn't break before real data loads
@@ -105,10 +110,74 @@ const pipelineSteps = [
 
 import type { UserAuth } from '@/lib/auth'
 
+// Convert EliteAgentInstance to Agent format (outside component to avoid dependency issues)
+function convertEliteAgentToAgent(eliteAgent: EliteAgentInstance, index: number): Agent {
+  const agentId = eliteAgent.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const storedStateKey = `agent-${agentId}-state`;
+  const storedState = localStorage.getItem(storedStateKey);
+  const parsedState = storedState ? JSON.parse(storedState) : null;
+  
+  // Generate specialties based on agent description and personality
+  const specialties: string[] = [];
+  if (eliteAgent.description.toLowerCase().includes('whale')) specialties.push('Whale Tracking');
+  if (eliteAgent.description.toLowerCase().includes('liquidity') || eliteAgent.description.toLowerCase().includes('pool')) specialties.push('Pool Sniping');
+  if (eliteAgent.description.toLowerCase().includes('sentiment') || eliteAgent.description.toLowerCase().includes('social')) specialties.push('Sentiment Analysis');
+  if (eliteAgent.description.toLowerCase().includes('on-chain') || eliteAgent.description.toLowerCase().includes('onchain')) specialties.push('On-Chain Analytics');
+  if (eliteAgent.description.toLowerCase().includes('technical') || eliteAgent.description.toLowerCase().includes('fractal')) specialties.push('Technical Analysis');
+  if (eliteAgent.description.toLowerCase().includes('arbitrage') || eliteAgent.description.toLowerCase().includes('arb')) specialties.push('Arbitrage');
+  if (eliteAgent.description.toLowerCase().includes('risk') || eliteAgent.description.toLowerCase().includes('guardian')) specialties.push('Risk Management');
+  if (eliteAgent.description.toLowerCase().includes('momentum')) specialties.push('Momentum Trading');
+  if (eliteAgent.description.toLowerCase().includes('dca')) specialties.push('Dollar Cost Averaging');
+  if (eliteAgent.description.toLowerCase().includes('grid')) specialties.push('Grid Trading');
+  if (eliteAgent.description.toLowerCase().includes('mean reversion')) specialties.push('Mean Reversion');
+  if (eliteAgent.description.toLowerCase().includes('flash crash')) specialties.push('Dip Buying');
+  if (eliteAgent.description.toLowerCase().includes('volume')) specialties.push('Volume Analysis');
+  if (eliteAgent.description.toLowerCase().includes('time')) specialties.push('Time Patterns');
+  if (eliteAgent.description.toLowerCase().includes('ensemble')) specialties.push('Meta-Agent');
+  if (specialties.length === 0) specialties.push(eliteAgent.personality.charAt(0).toUpperCase() + eliteAgent.personality.slice(1) + ' Strategy');
+  
+  // Default values with some randomization based on index for variety
+  const baseLevel = 8 + (index % 10);
+  const baseXp = baseLevel * 400 + (index * 50);
+  const baseMaxXp = baseLevel * 500;
+  const baseConfidence = 70 + (index % 25);
+  const baseActions = 100 + (index * 20);
+  const baseProfit = 500 + (index * 150);
+  
+  return {
+    id: agentId,
+    name: eliteAgent.name,
+    description: eliteAgent.description,
+    icon: eliteAgent.icon as React.ComponentType<{ size?: number; weight?: string; className?: string }>,
+    level: parsedState?.level ?? baseLevel,
+    xp: parsedState?.xp ?? baseXp,
+    maxXp: parsedState?.maxXp ?? baseMaxXp,
+    confidence: parsedState?.confidence ?? baseConfidence,
+    avgConfidence: parsedState?.avgConfidence ?? Math.max(65, baseConfidence - 5),
+    actions: parsedState?.actions ?? baseActions,
+    profit: parsedState?.profit ?? baseProfit,
+    performance: parsedState?.performance ?? Math.min(99, 75 + (index % 20)),
+    status: parsedState?.status ?? (index < 3 ? 'active' : 'paused'), // First 3 agents active by default
+    requiredTier: eliteAgent.tier,
+    specialties: parsedState?.specialties ?? specialties,
+    metrics: parsedState?.metrics ?? { 
+      cpu: 30 + (index % 40), 
+      memory: 20 + (index % 30), 
+      latency: 10 + (index % 15) 
+    },
+    recentOutcomes: parsedState?.recentOutcomes ?? getInitialOutcomes(),
+    synergy: parsedState?.synergy ?? {}
+  };
+}
+
+function initializeAgents(): Agent[] {
+  return ELITE_AGENTS.map((eliteAgent, index) => convertEliteAgentToAgent(eliteAgent, index));
+}
+
 export default function MultiAgentSystem() {
   // Use persistent auth for accurate tier detection - master/lifetime users get full access
   const { auth } = usePersistentAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useKV<string>('multi-agent-active-tab', 'overview');
   const [aggressionProfile, setAggressionProfileKV] = useKV<AggressionBlueprint>(
     'autonomous-aggression-profile',
     DEFAULT_AGGRESSION_BLUEPRINT
@@ -153,108 +222,255 @@ export default function MultiAgentSystem() {
     profit: 2835,
   });
 
-  const [agents, setAgents] = useState<Agent[]>([
-    {
-      id: 'market-analyst',
-      name: 'Market Analyst',
-      description: 'Continuously scans the Solana ecosystem for trading opportunities and market trends',
-      icon: ChartLine,
-      level: 12,
-      xp: 3420,
-      maxXp: 5000,
-      confidence: 92,
-      avgConfidence: 87,
-      actions: 241,
-      profit: 1234.55,
-      performance: 94.2,
-      status: 'active',
-      requiredTier: 'free',
-      specialties: ['Trend Detection', 'Volume Analysis', 'Sentiment Scanning'],
-      metrics: { cpu: 45, memory: 32, latency: 12 },
-      recentOutcomes: [], // Will be populated from real API once account is active
-      synergy: { 'strategy-engine': 95, 'rl-optimizer': 88 }
-    },
-    {
-      id: 'strategy-engine',
-      name: 'Strategy Engine',
-      description: 'Executes DCA schedules and sniping strategies based on market signals',
-      icon: Robot,
-      level: 15,
-      xp: 4120,
-      maxXp: 6000,
-      confidence: 88,
-      avgConfidence: 85,
-      actions: 312,
-      profit: 2847.32,
-      performance: 91.8,
-      status: 'active',
-      requiredTier: 'pro',
-      specialties: ['Strategy Selection', 'Parameter Tuning', 'Risk Management'],
-      metrics: { cpu: 52, memory: 41, latency: 18 },
-      recentOutcomes: getInitialOutcomes(),
-      synergy: { 'market-analyst': 95, 'rl-optimizer': 92 }
-    },
-    {
-      id: 'rl-optimizer',
-      name: 'RL Optimizer',
-      description: 'Reinforcement learning model that adapts strategies based on outcomes',
-      icon: Brain,
-      level: 18,
-      xp: 7840,
-      maxXp: 10000,
-      confidence: 95,
-      avgConfidence: 91,
-      actions: 428,
-      profit: 4521.87,
-      performance: 96.5,
-      status: 'active',
-      requiredTier: 'elite',
-      specialties: ['Learning Optimization', 'Reward Maximization', 'Adaptive Control'],
-      metrics: { cpu: 38, memory: 28, latency: 8 },
-      recentOutcomes: getInitialOutcomes(),
-      synergy: { 'market-analyst': 88, 'strategy-engine': 92 }
-    },
-    {
-      id: 'sentiment-scanner',
-      name: 'Sentiment Scanner',
-      description: 'Monitors social media and news for market sentiment signals',
-      icon: Eye,
-      level: 8,
-      xp: 2100,
-      maxXp: 4000,
-      confidence: 78,
-      avgConfidence: 74,
-      actions: 156,
-      profit: 687.23,
-      performance: 82.4,
-      status: 'paused',
-      requiredTier: 'pro',
-      specialties: ['Social Listening', 'News Analysis', 'FOMO Detection'],
-      metrics: { cpu: 28, memory: 19, latency: 25 },
-      recentOutcomes: getInitialOutcomes(),
-      synergy: { 'market-analyst': 85, 'strategy-engine': 78 }
-    },
-    {
-      id: 'whale-tracker',
-      name: 'Whale Tracker',
-      description: 'Tracks large wallet movements and institutional trading patterns',
-      icon: Database,
-      level: 10,
-      xp: 3200,
-      maxXp: 5000,
-      confidence: 84,
-      avgConfidence: 80,
-      actions: 198,
-      profit: 1523.44,
-      performance: 88.7,
-      status: 'paused',
-      requiredTier: 'elite',
-      specialties: ['On-Chain Analysis', 'Whale Detection', 'Flow Tracking'],
-      metrics: { cpu: 61, memory: 48, latency: 15 },
-      recentOutcomes: getInitialOutcomes(),
-      synergy: { 'market-analyst': 90, 'rl-optimizer': 85 }
+  // Market feed for RL and Q-Learning agents
+  const market = useMarketFeed();
+  const { auth: persistentAuth } = usePersistentAuth();
+  const isGod = persistentAuth?.license?.tier === 'lifetime' || persistentAuth?.license?.tier === 'god';
+
+  // RL Agent and Q-Learning Agent state
+  const [rlPrediction, setRLPrediction] = useState<RLPrediction | null>(null);
+  const [rlLoading, setRLLoading] = useState(false);
+  const [qLearningStats, setQLearningStats] = useState({
+    totalTrades: 0,
+    winRate: 0,
+    totalProfit: 0,
+    qTableSize: 0,
+    learningProgress: 0
+  });
+
+  // Update RL Agent predictions
+  useEffect(() => {
+    if (!market.snapshot) return;
+
+    const updateRL = async () => {
+      setRLLoading(true);
+      try {
+        await loadRLAgent();
+        const features = extractMarketFeatures(market.snapshot);
+        const prediction = await getRLPrediction(features, isGod);
+        setRLPrediction(prediction);
+      } catch (error) {
+        console.warn('[MultiAgentSystem] RL prediction failed:', error);
+      } finally {
+        setRLLoading(false);
+      }
+    };
+
+    updateRL();
+    const interval = setInterval(updateRL, 30000); // Update every 30s
+    return () => clearInterval(interval);
+  }, [market.snapshot, isGod]);
+
+  // Update Q-Learning stats
+  useEffect(() => {
+    const updateQ = () => {
+      const tradeHistory = JSON.parse(localStorage.getItem('trade-history') || '[]');
+      const stats = qAgent.getStats(tradeHistory);
+      setQLearningStats(stats);
+    };
+
+    updateQ();
+    const interval = setInterval(updateQ, 5000); // Update every 5s
+    return () => clearInterval(interval);
+  }, []);
+
+  const [agents, setAgents] = useState<Agent[]>(() => {
+    const storedAgents = localStorage.getItem('multi-agent-system-agents');
+    let baseAgents: Agent[] = [];
+    
+    if (storedAgents) {
+      try {
+        const parsed = JSON.parse(storedAgents);
+        // Merge with elite agents to ensure all agents are present
+        const eliteAgentsMap = new Map(initializeAgents().map(a => [a.id, a]));
+        const merged = parsed.map((stored: Agent) => {
+          const elite = eliteAgentsMap.get(stored.id);
+          if (elite) {
+            return { ...elite, ...stored }; // Keep stored state, merge with elite defaults
+          }
+          return stored;
+        });
+        // Add any new elite agents not in storage
+        eliteAgentsMap.forEach((elite, id) => {
+          if (!merged.find((a: Agent) => a.id === id)) {
+            merged.push(elite);
+          }
+        });
+        baseAgents = merged;
+      } catch {
+        baseAgents = initializeAgents();
+      }
+    } else {
+      baseAgents = initializeAgents();
     }
-  ]);
+    
+    // Add placeholder special agents (will be updated by useEffect with real data)
+    const hasRL = baseAgents.some(a => a.id === 'rl-agent');
+    const hasQ = baseAgents.some(a => a.id === 'q-learning-agent');
+    
+    if (!hasRL) {
+      baseAgents.push({
+        id: 'rl-agent',
+        name: 'RL Agent (PPO)',
+        description: 'Reinforcement Learning agent using PPO to predict 1h/4h/24h price movements',
+        icon: Brain,
+        level: 20,
+        xp: 12000,
+        maxXp: 15000,
+        confidence: 85,
+        avgConfidence: 80,
+        actions: 450,
+        profit: 0,
+        performance: 90,
+        status: 'active',
+        requiredTier: 'elite',
+        specialties: ['PPO Training', 'Price Prediction', 'Confidence Scoring'],
+        metrics: { cpu: 45, memory: 38, latency: 12 },
+        recentOutcomes: [],
+        synergy: {}
+      });
+    }
+    
+    if (!hasQ) {
+      baseAgents.push({
+        id: 'q-learning-agent',
+        name: 'Q-Learning Agent',
+        description: 'Learns from every trade to build optimal Q-table',
+        icon: Atom,
+        level: 18,
+        xp: 15000,
+        maxXp: 20000,
+        confidence: 75,
+        avgConfidence: 70,
+        actions: 0,
+        profit: 0,
+        performance: 80,
+        status: 'active',
+        requiredTier: 'elite',
+        specialties: ['Q-Table Learning', 'Trade Analysis', 'Adaptive Strategy'],
+        metrics: { cpu: 35, memory: 42, latency: 15 },
+        recentOutcomes: [],
+        synergy: {}
+      });
+    }
+    
+    return baseAgents;
+  });
+
+  // Create special RL Agent and Q-Learning Agent entries
+  const createRLAgent = useCallback((): Agent => {
+    const storedState = localStorage.getItem('agent-rl-agent-state');
+    const parsedState = storedState ? JSON.parse(storedState) : null;
+    
+    const confidence = rlPrediction ? Math.round(rlPrediction.confidence * 100) : 85;
+    const expectedReturn = rlPrediction?.expectedReturn || 0;
+    const profit = parsedState?.profit ?? (qLearningStats.totalProfit * 0.4); // RL gets 40% of Q-learning profit
+    
+    return {
+      id: 'rl-agent',
+      name: 'RL Agent (PPO)',
+      description: 'Reinforcement Learning agent using PPO to predict 1h/4h/24h price movements with confidence scoring',
+      icon: Brain,
+      level: parsedState?.level ?? 20,
+      xp: parsedState?.xp ?? 12000,
+      maxXp: parsedState?.maxXp ?? 15000,
+      confidence: parsedState?.confidence ?? confidence,
+      avgConfidence: parsedState?.avgConfidence ?? Math.max(75, confidence - 5),
+      actions: parsedState?.actions ?? (rlPrediction ? qLearningStats.totalTrades : 450),
+      profit: parsedState?.profit ?? profit,
+      performance: parsedState?.performance ?? Math.min(99, 90 + (confidence / 10)),
+      status: parsedState?.status ?? 'active',
+      requiredTier: 'elite',
+      specialties: ['PPO Training', 'Price Prediction', 'Confidence Scoring', 'Multi-Timeframe Analysis'],
+      metrics: {
+        cpu: parsedState?.metrics?.cpu ?? 45,
+        memory: parsedState?.metrics?.memory ?? 38,
+        latency: parsedState?.metrics?.latency ?? (rlLoading ? 25 : 12)
+      },
+      recentOutcomes: parsedState?.recentOutcomes ?? getInitialOutcomes(),
+      synergy: parsedState?.synergy ?? { 'q-learning-agent': 95 }
+    };
+  }, [rlPrediction, rlLoading, qLearningStats]);
+
+  const createQLearningAgent = useCallback((): Agent => {
+    const storedState = localStorage.getItem('agent-q-learning-agent-state');
+    const parsedState = storedState ? JSON.parse(storedState) : null;
+    
+    const confidence = Math.min(99, 70 + (qLearningStats.learningProgress / 2));
+    
+    return {
+      id: 'q-learning-agent',
+      name: 'Q-Learning Agent',
+      description: 'Learns from every trade to build optimal Q-table. Gets smarter with each transaction.',
+      icon: Atom,
+      level: parsedState?.level ?? 18,
+      xp: parsedState?.xp ?? 15000 + (qLearningStats.totalTrades * 10),
+      maxXp: parsedState?.maxXp ?? 20000,
+      confidence: parsedState?.confidence ?? confidence,
+      avgConfidence: parsedState?.avgConfidence ?? Math.max(70, confidence - 5),
+      actions: parsedState?.actions ?? qLearningStats.totalTrades,
+      profit: parsedState?.profit ?? qLearningStats.totalProfit,
+      performance: parsedState?.performance ?? Math.min(99, 75 + Math.floor(qLearningStats.winRate / 2)),
+      status: parsedState?.status ?? 'active',
+      requiredTier: 'elite',
+      specialties: ['Q-Table Learning', 'Trade Analysis', 'Adaptive Strategy', 'Epsilon-Greedy Exploration'],
+      metrics: {
+        cpu: parsedState?.metrics?.cpu ?? 35,
+        memory: parsedState?.metrics?.memory ?? 42,
+        latency: parsedState?.metrics?.latency ?? 15
+      },
+      recentOutcomes: parsedState?.recentOutcomes ?? getInitialOutcomes(),
+      synergy: parsedState?.synergy ?? { 'rl-agent': 95 }
+    };
+  }, [qLearningStats]);
+
+  // Merge special agents with elite agents - update them with real-time data
+  useEffect(() => {
+    setAgents(prev => {
+      const rlAgentId = 'rl-agent';
+      const qAgentId = 'q-learning-agent';
+      
+      // Update existing special agents or add them if missing
+      const hasRL = prev.some(a => a.id === rlAgentId);
+      const hasQ = prev.some(a => a.id === qAgentId);
+      
+      if (!hasRL || !hasQ) {
+        // Need to add special agents
+        const eliteAgentIds = ELITE_AGENTS.map(a => a.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''));
+        const filtered = prev.filter(a => a.id !== rlAgentId && a.id !== qAgentId);
+        
+        const rlAgent = createRLAgent();
+        const qAgent = createQLearningAgent();
+        
+        // Find position to insert (after elite agents)
+        const eliteEndIndex = filtered.findIndex(a => !eliteAgentIds.includes(a.id));
+        const insertIndex = eliteEndIndex === -1 ? filtered.length : eliteEndIndex;
+        
+        filtered.splice(insertIndex, 0, rlAgent, qAgent);
+        return filtered;
+      }
+      
+      // Update existing special agents with fresh data
+      return prev.map(agent => {
+        if (agent.id === rlAgentId) {
+          const updated = createRLAgent();
+          // Preserve status, level, xp from stored state
+          return { ...updated, status: agent.status, level: agent.level, xp: agent.xp };
+        }
+        if (agent.id === qAgentId) {
+          const updated = createQLearningAgent();
+          // Preserve status, level, xp from stored state
+          return { ...updated, status: agent.status, level: agent.level, xp: agent.xp };
+        }
+        return agent;
+      });
+    });
+  }, [rlPrediction, qLearningStats, rlLoading, createRLAgent, createQLearningAgent]);
+
+  // Persist agents state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('multi-agent-system-agents', JSON.stringify(agents));
+  }, [agents]);
   const applyAggressionProfile = useCallback(
     (profile: AggressionBlueprint, options?: { silent?: boolean; skipPersistence?: boolean }) => {
       setAgents(prev =>

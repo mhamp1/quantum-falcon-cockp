@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Quantum Falcon",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "version": "2025.1.0",
+  "identifier": "com.quantumfalcon.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -13,10 +13,15 @@
     "windows": [
       {
         "title": "Quantum Falcon v2025.1.0",
-        "width": 800,
-        "height": 600,
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 768,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "center": true,
+        "decorations": true,
+        "transparent": false
       }
     ],
     "security": {
@@ -32,6 +37,12 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": [],
+    "externalBin": [],
+    "copyright": "© 2025 Quantum Falcon. All rights reserved.",
+    "category": "Finance",
+    "shortDescription": "The #1 AI Crypto Trading Cockpit on Solana",
+    "longDescription": "Quantum Falcon is the ultimate AI-powered crypto trading platform. Execute trades, manage portfolios, and leverage advanced AI agents to maximize your profits on Solana."
   }
 }
