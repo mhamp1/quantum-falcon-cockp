@@ -452,52 +452,89 @@ export default function InvoiceSection() {
             </Badge>
           </div>
           <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={[...forecast.historical, ...forecast.forecast]}>
-                <defs>
-                  <linearGradient id="historicalFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00FFFF" stopOpacity={0.6} />
-                    <stop offset="95%" stopColor="#00FFFF" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="forecastFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#DC1FFF" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#DC1FFF" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.3} />
-                <XAxis
-                  dataKey="month"
-                  stroke="#00FFFF"
-                  tick={{ fill: '#00FFFF', fontSize: 12 }}
-                  tickFormatter={(value) => new Date(value + '-01').toLocaleDateString('en-US', { month: 'short' })}
-                />
-                <YAxis
-                  stroke="#DC1FFF"
-                  tick={{ fill: '#DC1FFF', fontSize: 12 }}
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                />
-                <Tooltip
-                  contentStyle={{ background: 'rgba(0,0,0,0.9)', border: '2px solid #00FFFF', borderRadius: 8 }}
-                  labelStyle={{ color: '#00FFFF' }}
-                  formatter={(value: number) => [`$${value.toFixed(0)}`, 'Revenue']}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#00FFFF"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#historicalFill)"
-                  dot={{ fill: '#00FFFF', r: 4 }}
-                />
-                <ReferenceLine
-                  x={new Date().toISOString().slice(0, 7)}
-                  stroke="#FFD700"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {(() => {
+              try {
+                const chartData = [...forecast.historical, ...forecast.forecast].filter(d => d && d.revenue !== undefined)
+                if (!chartData.length) return null
+                
+                return (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData}>
+                      <defs>
+                        <linearGradient id="historicalFill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#00FFFF" stopOpacity={0.6} />
+                          <stop offset="95%" stopColor="#00FFFF" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="forecastFill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#DC1FFF" stopOpacity={0.4} />
+                          <stop offset="95%" stopColor="#DC1FFF" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.3} />
+                      <XAxis
+                        dataKey="month"
+                        stroke="#00FFFF"
+                        tick={{ fill: '#00FFFF', fontSize: 12 }}
+                        tickFormatter={(value) => {
+                          try {
+                            return new Date(value + '-01').toLocaleDateString('en-US', { month: 'short' })
+                          } catch {
+                            return String(value).slice(5, 7) || ''
+                          }
+                        }}
+                      />
+                      <YAxis
+                        stroke="#DC1FFF"
+                        tick={{ fill: '#DC1FFF', fontSize: 12 }}
+                        tickFormatter={(value) => {
+                          if (typeof value !== 'number' || isNaN(value)) return '$0'
+                          return `$${(value / 1000).toFixed(0)}k`
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{ background: 'rgba(0,0,0,0.9)', border: '2px solid #00FFFF', borderRadius: 8 }}
+                        labelStyle={{ color: '#00FFFF' }}
+                        formatter={(value: number) => {
+                          if (typeof value !== 'number' || isNaN(value)) return ['$0', 'Revenue']
+                          return [`$${value.toFixed(0)}`, 'Revenue']
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#00FFFF"
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill="url(#historicalFill)"
+                        dot={{ fill: '#00FFFF', r: 4 }}
+                      />
+                      {(() => {
+                        try {
+                          const currentMonth = new Date().toISOString().slice(0, 7)
+                          return (
+                            <ReferenceLine
+                              x={currentMonth}
+                              stroke="#FFD700"
+                              strokeWidth={2}
+                              strokeDasharray="5 5"
+                            />
+                          )
+                        } catch {
+                          return null
+                        }
+                      })()}
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )
+              } catch (error) {
+                console.warn('[InvoiceSection] Chart render error:', error)
+                return (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <p>Chart unavailable</p>
+                  </div>
+                )
+              }
+            })()}
           </div>
         </div>
       )}

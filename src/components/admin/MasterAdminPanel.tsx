@@ -17,6 +17,7 @@ const InvoiceSection = lazy(() => import('./InvoiceSection'))
 const RPCMonitoringDashboard = lazy(() => import('./RPCMonitoringDashboard'))
 const WalletSetupGuide = lazy(() => import('./WalletSetupGuide'))
 import { getDeploymentMonitor, type DeploymentHealth, type DeploymentInfo } from '@/lib/monitoring/DeploymentMonitor'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -590,14 +591,32 @@ export default function MasterAdminPanel() {
 
         {/* Invoices & Taxes Tab — CREATOR ONLY */}
         <TabsContent value="invoices" className="space-y-6">
-          <Suspense fallback={
-            <div className="cyber-card p-8 text-center">
-              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="mt-4 text-muted-foreground">Loading Invoice System...</p>
-            </div>
-          }>
-            <InvoiceSection />
-          </Suspense>
+          <ErrorBoundary
+            FallbackComponent={({ error, resetErrorBoundary }) => (
+              <div className="cyber-card p-8 border-destructive/50">
+                <div className="flex items-center gap-3 text-destructive mb-4">
+                  <Warning size={24} weight="fill" />
+                  <span className="text-lg font-bold uppercase">Invoice System Error</span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {error?.message || 'An error occurred loading the invoice system.'}
+                </p>
+                <Button onClick={resetErrorBoundary} className="bg-primary hover:bg-primary/80">
+                  <ArrowClockwise size={16} className="mr-2" />
+                  Retry
+                </Button>
+              </div>
+            )}
+          >
+            <Suspense fallback={
+              <div className="cyber-card p-8 text-center">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="mt-4 text-muted-foreground">Loading Invoice System...</p>
+              </div>
+            }>
+              <InvoiceSection />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
 
         {/* Wallet Setup Guide Tab */}
