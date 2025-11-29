@@ -23,8 +23,15 @@ const EXCLUDED_SOLANA_PACKAGES = [
   '@solana/web3.js'
 ]
 
+// GitHub Pages base path - set via VITE_BASE_PATH env var or defaults to '/'
+// For GitHub Pages, set VITE_BASE_PATH to '/quantum-falcon-cockp/' (repo name)
+const basePath = process.env.VITE_BASE_PATH || '/'
+
 // https://vite.dev/config/
 export default defineConfig({
+  // Base public path for GitHub Pages deployment
+  // Set VITE_BASE_PATH=/quantum-falcon-cockp/ for GitHub Pages
+  base: basePath,
   plugins: [
     react({
       fastRefresh: true,

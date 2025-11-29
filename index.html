@@ -21,13 +21,13 @@
     <meta name="description" content="AI-powered crypto trading cockpit with 15 elite agents. Trade smarter with quantum intelligence." />
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="./manifest.json" />
     
     <!-- Favicons -->
-    <link rel="icon" type="image/png" href="/falcon-head-official.png" />
-    <link rel="apple-touch-icon" href="/falcon-head-official.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/falcon-head-official.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="/falcon-head-official.png" />
+    <link rel="icon" type="image/png" href="./falcon-head-official.png" />
+    <link rel="apple-touch-icon" href="./falcon-head-official.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="./falcon-head-official.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="./falcon-head-official.png" />
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,7 +36,7 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
     
     <!-- Styles -->
-    <link href="/src/main.css" rel="stylesheet" />
+    <link href="./src/main.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -54,7 +54,7 @@
             <div style="text-align: center;">
                 <!-- Falcon Head Logo -->
                 <img 
-                    src="/falcon-head-official.png" 
+                    src="./falcon-head-official.png" 
                     alt="Quantum Falcon" 
                     style="width: 80px; height: 80px; margin-bottom: 20px; animation: pulse 2s ease-in-out infinite;"
                     onerror="this.style.display='none'"
@@ -82,16 +82,27 @@
     
     <!-- Service Worker Registration -->
     <script>
+        // GitHub Pages SPA redirect handler
+        // Restores the original path from 404.html redirect
+        (function() {
+            var redirect = sessionStorage.getItem('spa-redirect-path');
+            if (redirect) {
+                sessionStorage.removeItem('spa-redirect-path');
+                // Use replaceState to restore the original URL without reloading
+                window.history.replaceState(null, null, redirect);
+            }
+        })();
+        
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(reg => console.log('[SW] Registered:', reg.scope))
                     .catch(err => console.log('[SW] Registration failed:', err));
             });
         }
     </script>
     
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="./src/main.tsx"></script>
 </body>
 
 </html>
