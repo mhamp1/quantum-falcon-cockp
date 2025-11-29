@@ -7,6 +7,7 @@
 import { Connection, PublicKey, VersionedTransaction, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { JupiterSwapEngine, TOKENS, SwapResult } from './JupiterSwapEngine'
 import { positionMonitor } from './PositionMonitor'
+import { qAgent } from '@/lib/rl/qLearningAgent'
 import { toast } from 'sonner'
 
 // ═══════════════════════════════════════════════════════════════
@@ -368,6 +369,58 @@ export class TradeExecutionEngine {
               takeProfit: takeProfitPrice,
             })
           }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // Q-LEARNING AGENT UPDATE — LEARN FROM TRADE OUTCOMES
+        // ═══════════════════════════════════════════════════════════════
+        try {
+          const tokenPrice = await this.jupiter.getTokenPrice(side === 'buy' ? outputToken : inputToken)
+          const solPrice = await this.jupiter.getTokenPrice(TOKENS.SOL)
+          
+          if (tokenPrice && solPrice) {
+            // Extract market state for Q-learning
+            const priceChange = side === 'buy' ? 0.1 : -0.1 // Approximate trend
+            const volumeSpike = this.stats.totalVolume > 1000000 // High volume
+            const rsi = 50 // Default - would need actual RSI calculation
+            
+            const currentState = {
+              priceTrend: priceChange,
+              volumeSpike,
+              rsi
+            }
+            
+            // Calculate reward based on trade success
+            // Positive reward for successful trades, negative for failed
+            const reward = result.success ? 10 : -5
+            
+            // Get next state (market after trade)
+            const nextState = {
+              priceTrend: priceChange * 0.9, // Slight decay
+              volumeSpike: volumeSpike,
+              rsi: rsi
+            }
+            
+            // Update Q-agent
+            const action: 'BUY' | 'SELL' | 'HOLD' = side === 'buy' ? 'BUY' : 'SELL'
+            qAgent.update(currentState, action, reward, nextState)
+            
+            // Record trade in history for stats
+            const tradeHistory = JSON.parse(localStorage.getItem('trade-history') || '[]')
+            const pnl = result.success ? (result.outputAmount ? 1 : 0) : -1 // Simplified PnL
+            tradeHistory.push({
+              id: orderId,
+              timestamp: Date.now(),
+              side,
+              pnl,
+              amount: inputAmount
+            })
+            // Keep only last 1000 trades
+            localStorage.setItem('trade-history', JSON.stringify(tradeHistory.slice(-1000)))
+          }
+        } catch (error) {
+          // Silent fail - Q-learning is non-critical
+          console.warn('[TradeEngine] Q-agent update failed:', error)
         }
 
         toast.success('Trade Executed', {

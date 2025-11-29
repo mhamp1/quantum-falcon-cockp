@@ -46,6 +46,7 @@ import LivePriceTicker from '@/components/shared/LivePriceTicker'
 import { QuickStatsCard } from './QuickStatsCard'
 import { QuickActionButton } from './QuickActionButton'
 import { AIAdvisor } from './AIAdvisor'
+import QLearningPanel from '@/components/rl/QLearningPanel'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 type InsightMetric = {
@@ -432,31 +433,46 @@ export default function EnhancedDashboard() {
 
         <TaxDashboardCard />
 
-        <SectionCard title="AI Advisor" icon={<Brain size={20} weight="duotone" />}>
-          <Suspense fallback={<StatSkeleton />}>
-            <ErrorBoundary
-              FallbackComponent={({ error, resetErrorBoundary }) => (
-                <div className="cyber-card p-6 angled-corner-tl border-destructive/50">
-                  <div className="flex items-center gap-3 text-destructive mb-2">
-                    <Brain size={24} weight="fill" />
-                    <span className="text-sm font-bold uppercase">Neural Forecast Offline</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    The AI advisor encountered an error. Click retry to reconnect.
-                  </p>
-                  <button
-                    onClick={resetErrorBoundary}
-                    className="px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 rounded text-xs font-bold uppercase tracking-wider transition-colors"
-                  >
-                    Retry Neural Link
-                  </button>
+        {/* AI Advisor — Ultimate God-Tier Real-Time Advisor */}
+        <Suspense fallback={<StatSkeleton />}>
+          <ErrorBoundary
+            FallbackComponent={({ error, resetErrorBoundary }) => (
+              <div className="cyber-card p-6 angled-corner-tl border-destructive/50">
+                <div className="flex items-center gap-3 text-destructive mb-2">
+                  <Brain size={24} weight="fill" />
+                  <span className="text-sm font-bold uppercase">Neural Forecast Offline</span>
                 </div>
-              )}
-            >
-              <AIAdvisor />
-            </ErrorBoundary>
-          </Suspense>
-        </SectionCard>
+                <p className="text-xs text-muted-foreground mb-3">
+                  The AI advisor encountered an error. Click retry to reconnect.
+                </p>
+                <button
+                  onClick={resetErrorBoundary}
+                  className="px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 rounded text-xs font-bold uppercase tracking-wider transition-colors"
+                >
+                  Retry Neural Link
+                </button>
+              </div>
+            )}
+          >
+            <AIAdvisor />
+          </ErrorBoundary>
+        </Suspense>
+
+        {/* Q-Learning Panel — Live Learning Agent */}
+        <Suspense fallback={<StatSkeleton />}>
+          <ErrorBoundary
+            FallbackComponent={({ error, resetErrorBoundary }) => (
+              <div className="cyber-card p-6 border-destructive/50">
+                <p className="text-xs text-destructive">Q-Learning Panel Error</p>
+                <button onClick={resetErrorBoundary} className="mt-2 px-3 py-1 text-xs bg-primary/20 hover:bg-primary/30 rounded">
+                  Retry
+                </button>
+              </div>
+            )}
+          >
+            <QLearningPanel />
+          </ErrorBoundary>
+        </Suspense>
 
         <motion.div
           className="grid gap-4 lg:grid-cols-2"
